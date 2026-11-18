@@ -21,6 +21,8 @@ export function PendingActivationsTable({
 }) {
   const [rows, setRows] = useState<PendingActivation[]>([]), [error, setError] = useState(''), [loading, setLoading] = useState(true);
   const mounted = useRef(true), generation = useRef(0), [refreshVersion, setRefreshVersion] = useState(0);
+  const onCountChangeRef = useRef(onCountChange);
+  onCountChangeRef.current = onCountChange;
   const action = useReviewedMutation(`pending-activations:${actorId}`);
   useEffect(() => { mounted.current = true; return () => { mounted.current = false; generation.current++; }; }, []);
   const refresh = useCallback(async () => {
@@ -30,18 +32,18 @@ export function PendingActivationsTable({
       if (!Array.isArray(result.invitations)) throw new Error('Could not load invitations. Please refresh.');
       if (mounted.current && request === generation.current) {
         setRows(result.invitations);
-        onCountChange?.(result.invitations.length);
+        onCountChangeRef.current?.(result.invitations.length);
         setRefreshVersion(n => n + 1);
       }
     } catch (reason) {
       if (mounted.current && request === generation.current) {
         setRows([]);
-        onCountChange?.(0);
+        onCountChangeRef.current?.(0);
         setError(readableUiError(reason, 'Could not load pending invitations.', 'read'));
       }
     }
     finally { if (mounted.current && request === generation.current) setLoading(false); }
-  }, [onCountChange]);
+  }, []);
   useEffect(() => { void refresh(); }, [refresh, revision]);
   const manage = async (row: PendingActivation, operation: 'resend' | 'revoke' | 'approve') => {
     const label = operation === 'resend' ? 'Resend email' : operation === 'revoke' ? 'Revoke invitation' : 'Approve account';

@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { act, cleanup, fireEvent, render, renderHook, screen } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, renderHook, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Organization, UserProfile } from '../../src/app/types';
 import type { Project } from '../../src/app/features/projects/services/types';
@@ -36,9 +36,12 @@ describe('project portfolio and route restoration',()=>{
     fireEvent.click(screen.getByRole('button',{name:'Clear filters'}));fireEvent.change(screen.getByLabelText('Status'),{target:{value:'archived'}});expect(order()).toEqual(['Archive']);
     expect(screen.queryByRole('button',{name:'Create project'})).toBeNull();
   });
-  it('offers creation in a truly empty authorized portfolio',()=>{
+  it('offers creation in a truly empty authorized portfolio',async()=>{
     const create=vi.fn();render(<ProjectIndex projects={[]} tasks={[]} organizations={[]} profiles={[]} onOpen={vi.fn()} onOpenProposal={vi.fn()} onCreate={create}/>);
-    expect(screen.getByText('No projects yet')).toBeTruthy();fireEvent.click(screen.getByRole('button',{name:'Create project'}));expect(create).toHaveBeenCalledOnce();
+    expect(screen.getByText('No projects yet')).toBeTruthy();
+    fireEvent.keyDown(screen.getByRole('button',{name:'Create project',exact:true}),{key:'Enter'});
+    fireEvent.click(screen.getByRole('menuitem',{name:'Create project',exact:true}));
+    await waitFor(()=>expect(create).toHaveBeenCalledWith('manual'));
   });
   it('restores index, exact project and unavailable contexts without selecting a first project',()=>{
     const onIndex=vi.fn(),onOpen=vi.fn(),onUnavailable=vi.fn();

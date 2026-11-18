@@ -102,6 +102,7 @@ export function CreateUserModal({
   const resolvedRole = resolveRoleSelection(form.role, roleCatalog);
   const leadershipConflict = getLeadershipSlotConflict({
     role: resolvedRole.role,
+    customRoleLabel: resolvedRole.customRoleKey ? resolvedRole.label : undefined,
     orgId: form.orgId,
     organizations,
     profiles,
@@ -220,13 +221,12 @@ export function CreateUserModal({
     if (mode === 'ledipo_create' && form.fullName.trim() && form.fullName.trim().length < 2) errs.fullName = 'Enter the full name.';
     if (!roleOptions.some(({ value }) => value === form.role))
       errs.role = "You cannot assign this role.";
-    if (leadershipConflict) errs.role = leadershipConflict;
     if (mode === 'ledipo_create') {
       const skillIssue = accountSkillsError(skills);
       if (skillIssue) { errs.skills = skillIssue; setActiveTab('skills'); }
     }
     setErrors(errs);
-    return Object.keys(errs).length === 0;
+    return !leadershipConflict && Object.keys(errs).length === 0;
   };
 
   const handleSubmit = async () => {

@@ -1,3 +1,5 @@
+import type { UserProfile } from "../../../types";
+import { isAdminRole } from "../../../shared/roles";
 import type { Milestone, Project } from "../services/types";
 import type { Subtask } from "../../subtasks";
 import { isOverdue, type Task } from "../../tasks";
@@ -152,4 +154,47 @@ export function hasAssignedSubtaskWork(
         sub.assignedTo === actorId ||
         Boolean(sub.assignedToIds?.includes(actorId))),
   );
+}
+
+/**
+ * Collects unique participant user IDs for the project header stack,
+ * including the project owner/lead, active non-admin members of the project's
+ * owning office, explicit project/office members, and task assignees.
+ */
+export function collectProjectParticipantIds({
+  project,
+  profiles,
+  projectMemberIds = [],
+  officeMemberIds = [],
+  tasks = [],
+}: {
+  project: Pick<Project, "ownerId" | "projectLeadId" | "orgId">;
+  profiles: ReadonlyArray<Pick<UserProfile, "id" | "org_id" | "is_active" | "role">>;
+  projectMemberIds?: ReadonlyArray<string>;
+  officeMemberIds?: ReadonlyArray<string>;
+  tasks?: ReadonlyArray<Pick<Task, "assigneeId" | "teamMemberIds">>;
+}): string[] {
+  const leadOfficeMemberIds = project.orgId
+    ? profiles
+        .filter(
+          (profile) =>
+            profile.is_active !== false &&
+            !isAdminRole(profile.role) &&
+            profile.org_id === project.orgId,
+        )
+        .map((profile) => profile.id)
+    : [];
+
+  return [
+    ...new Set(
+      [
+        project.ownerId || "",
+        project.projectLeadId || "",
+        ...leadOfficeMemberIds,
+        ...projectMemberIds,
+        ...officeMemberIds,
+        ...tasks.flatMap((task) => [task.assigneeId || "", ...(task.teamMemberIds || [])]),
+      ].filter(Boolean),
+    ),
+  ];
 }

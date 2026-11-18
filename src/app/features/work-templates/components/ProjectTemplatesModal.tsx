@@ -1,24 +1,20 @@
 import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
-import { ClipboardList, Layers, X } from "lucide-react";
-import { useState } from "react";
+import { Layers, X } from "lucide-react";
 import { FeatureDialog } from "../../../components/ui/FeatureDialog";
 import type { Employee } from "../../members";
 import type { Task } from "../../tasks";
 import type { ProjectTaskTemplate } from "../projectTaskTemplates";
 import { ProjectTaskTemplateLibrary } from "./ProjectTaskTemplateLibrary";
-import { SubtaskTemplateLibrary } from "./SubtaskTemplateLibrary";
 import "./workTemplates.css";
-
-type TemplateTab = "project" | "subtasks";
 
 export function ProjectTemplatesModal({
   open,
   onClose,
-  orgId,
-  currentUserId,
+  orgId: _orgId,
+  currentUserId: _currentUserId,
   canManageDepartment,
-  leadingTasks,
-  employees,
+  leadingTasks: _leadingTasks,
+  employees: _employees,
   onTemplatesChanged,
 }: {
   open: boolean;
@@ -30,7 +26,6 @@ export function ProjectTemplatesModal({
   employees: Employee[];
   onTemplatesChanged?: (saved?: ProjectTaskTemplate) => void;
 }) {
-  const [tab, setTab] = useState<TemplateTab>(canManageDepartment ? "project" : "subtasks");
   if (!open) return null;
 
   return (
@@ -38,7 +33,7 @@ export function ProjectTemplatesModal({
       open={open}
       onClose={onClose}
       title="Reusable work library"
-      description="Standardize project starter templates and Team Leader checklists."
+      description="Standardize project starter templates."
       contentClassName="!h-[88vh] !max-w-6xl max-sm:!h-[100dvh]"
       showCloseButton={false}
     >
@@ -48,7 +43,7 @@ export function ProjectTemplatesModal({
             <div className="eflow-tpl-eyebrow">Projects · Templates</div>
             <h2 className="eflow-tpl-modal-title">Reusable work library</h2>
             <p className="eflow-tpl-modal-subtitle">
-              Standardize project starter templates and repeatable Team Leader checklists.
+              Standardize project starter templates.
             </p>
           </div>
           <WorkspaceTooltip content="Close templates library"><button
@@ -67,40 +62,20 @@ export function ProjectTemplatesModal({
               <button
                 type="button"
                 role="tab"
-                aria-selected={tab === "project"}
-                data-active={tab === "project"}
-                onClick={() => setTab("project")}
+                aria-selected={true}
+                data-active={true}
                 className="eflow-tpl-tab"
               >
                 <Layers size={14} />
                 Project Starter Templates
               </button>
             )}
-            <button
-              type="button"
-              role="tab"
-              aria-selected={tab === "subtasks"}
-              data-active={tab === "subtasks"}
-              onClick={() => setTab("subtasks")}
-              className="eflow-tpl-tab"
-            >
-              <ClipboardList size={14} />
-              Subtask Templates
-            </button>
           </div>
         </div>
 
         <div className="eflow-tpl-modal-body">
-          {tab === "project" && canManageDepartment ? (
+          {canManageDepartment && (
             <ProjectTaskTemplateLibrary onTemplatesChanged={onTemplatesChanged} />
-          ) : (
-            <SubtaskTemplateLibrary
-              orgId={orgId}
-              currentUserId={currentUserId}
-              canManageDepartment={canManageDepartment}
-              leadingTasks={leadingTasks}
-              employees={employees}
-            />
           )}
         </div>
       </div>

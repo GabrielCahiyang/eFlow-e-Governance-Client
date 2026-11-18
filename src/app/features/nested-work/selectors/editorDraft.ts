@@ -5,6 +5,7 @@ import {compatibilityWorkWorkerIds} from './people';
 import {subtaskDateIssue,subtaskDateLimits} from './subtaskDates';
 import {getPhilippineCalendarDate,scheduledDateError} from '../../../shared/calendarDates';
 import {readNodeDetailEditState} from './detailEditing';
+import {canEditSubtaskPrerequisites,subtaskPrerequisiteError} from './prerequisites';
 
 export function workEditorDateError(data:WorkTreeSnapshot,baseline:WorkEditorBaseline,fields:WorkEditorFields):string {
  if(!['create','edit'].includes(baseline.command))return '';
@@ -31,10 +32,11 @@ export function captureWorkEditorBaseline(data:WorkTreeSnapshot,edit:WorkEdit,ac
   command:edit.command,nodeId:node?.id||edit.itemId||null,createdId,fields:{title:node?.title||'',...(data.root.scheduleBounds?{start:node?node.start_date||'':defaultStart}:{}),due:node?node.due_date||'':defaultDue||'',
   priority:node?.priority,lead:edit.root?data.root.lead||'':node?.lead_id||'',people:edit.root?[...new Set([data.root.lead,...data.root.people].filter((id):id is string=>!!id))]:[...(node?.assigned_to_ids||[])],
    parent:node?.parent_subtask_id||edit.parent||'',standalone:node?.is_standalone||false,note:'',progress:node?.percent_complete||0,
+   ...(edit.command==='edit'&&Array.isArray(node?.dependency_ids)?{dependencies:[...node.dependency_ids]}:{}),
    order:data.nodes.filter(item=>item.parent_subtask_id===(edit.parent||null)).sort((a,b)=>a.sibling_order-b.sibling_order||a.id.localeCompare(b.id)).map(item=>item.id)}};
 }
 const applicableFields:Record<WorkEdit['command'],readonly (keyof WorkEditorFields)[]>={
- create:['title','start','due','standalone','parent','lead','people'],edit:['title','priority','start','due','standalone','note'],move:['parent'],order:['order'],
+ create:['title','start','due','standalone','parent','lead','people','dependencies'],edit:['title','priority','start','due','standalone','note','dependencies'],move:['parent'],order:['order'],
  delete:[],progress:['progress','note'],submit:['note'],review:['progress','note'],staff:['lead','people'],contributors:['people'],root_lead:['lead','people'],
 };
 export function workEditorDirty(baseline:WorkEditorBaseline,fields:WorkEditorFields):boolean {
@@ -42,16 +44,20 @@ export function workEditorDirty(baseline:WorkEditorBaseline,fields:WorkEditorFie
   // Membership is a set; sibling ordering is deliberately positional.
   if(key==='people')return JSON.stringify([...new Set(fields.people)].sort())!==JSON.stringify([...new Set(baseline.fields.people)].sort());
   if(key==='order')return JSON.stringify(fields.order)!==JSON.stringify(baseline.fields.order);
+  if(key==='dependencies')return dependenciesChanged(baseline,fields);
   if(key==='progress'&&baseline.command==='review')return (fields.progress===100)!==(baseline.fields.progress===100);
   return fields[key]!==baseline.fields[key];
  });
+}
+function dependenciesChanged(baseline:WorkEditorBaseline,fields:WorkEditorFields){
+ return JSON.stringify(fields.dependencies&&[...fields.dependencies].sort())!==JSON.stringify(baseline.fields.dependencies&&[...baseline.fields.dependencies].sort());
 }
 export function workEditorPayload(baseline:WorkEditorBaseline,fields:WorkEditorFields):Record<string,unknown> {
  const schedule=fields.start?{start:fields.start}:{};
  const id=baseline.nodeId,people=compatibilityWorkWorkerIds(fields.lead||null,fields.people);
  switch(baseline.command){
   case 'create':return {id:baseline.createdId,title:fields.title,parent:fields.parent||null,lead:fields.lead||null,people,...schedule,due:fields.due||null,standalone:fields.standalone};
-  case 'edit':return {id,title:fields.title,...schedule,due:fields.due||null,standalone:fields.standalone,note:fields.note,...(fields.priority&&fields.priority!==baseline.fields.priority?{priority:fields.priority}:{})};
+  case 'edit':return {id,title:fields.title,...schedule,due:fields.due||null,standalone:fields.standalone,note:fields.note,...(fields.priority&&fields.priority!==baseline.fields.priority?{priority:fields.priority}:{}),...(fields.dependencies&&dependenciesChanged(baseline,fields)?{dependency_ids:[...fields.dependencies].sort()}:{})};
   case 'move':return {id,parent:fields.parent||null};
   case 'order':return {parent:fields.parent||null,order:[...fields.order]};
   case 'progress':return {id,progress:fields.progress,note:fields.note};
@@ -87,6 +93,12 @@ export function selectStartedEditPolicy(data:WorkTreeSnapshot,nodeId:string|null
 }
 /** Field permissions supplement the current edit capability; neither grants the other. */
 export function workEditorDefinitionError(data:WorkTreeSnapshot,baseline:WorkEditorBaseline,fields:WorkEditorFields):string {
+ if(fields.dependencies&&dependenciesChanged(baseline,fields)){
+  const node=data.nodes.find(item=>item.id===baseline.nodeId);
+  if(data.root.kind!=='office'||data.supportsSubtaskDependencies!==true||baseline.command==='edit'&&!canEditSubtaskPrerequisites(data,node))return 'Current access does not allow changing prerequisites.';
+  const issue=subtaskPrerequisiteError(data,fields.parent,baseline.nodeId||baseline.createdId,fields.dependencies,baseline.fields.dependencies);
+  if(issue)return issue;
+ }
  if(data.root.kind!=='office'||baseline.command!=='edit')return '';
  const policy=selectStartedEditPolicy(data,baseline.nodeId);
  if(!policy)return 'Editing permissions could not be verified. Refresh this work.';

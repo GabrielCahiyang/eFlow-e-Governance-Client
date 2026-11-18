@@ -22,8 +22,8 @@ function OwnerCell({ task, people, profiles, disabled, write }: { task: Task; pe
   </div>{dialog}</>;
 }
 
-export function ProjectTaskCell({ column, task, tasks, profiles, people, orgs, editable, busy, readOnly=false, controller, canSetOffice, hasStaffedSubitems, save, write, canUpdateWork, canSubmitWork, statuses = [], onOpenWork }: {
-  column: ProjectColumn; task: Task; tasks: Task[]; profiles: UserProfile[]; people: UserProfile[]; orgs: Organization[]; editable: boolean; busy: boolean; readOnly?:boolean; controller?:WorkTreeController; canUpdateWork?:boolean;canSubmitWork?:boolean;statuses?:Task['status'][];onOpenWork?:(section?:import('../../task-inspector').TaskInspectorOrigin['section'])=>void; canSetOffice: boolean; hasStaffedSubitems: boolean; save: (patch: WorkspaceTaskPatch) => Promise<void>; write: (operation: () => Promise<void>) => Promise<void>;
+export function ProjectTaskCell({ column, task, tasks, profiles, people, orgs, editable, busy, readOnly=false, controller, canSetOffice, hasStaffedSubitems, save, write, canUpdateWork, canSubmitWork, statuses = [], onOpenWork, projectStartDate, projectTargetDate }: {
+  column: ProjectColumn; task: Task; tasks: Task[]; profiles: UserProfile[]; people: UserProfile[]; orgs: Organization[]; editable: boolean; busy: boolean; readOnly?:boolean; controller?:WorkTreeController; canSetOffice?:boolean;canSubmitWork?:boolean;statuses?:Task['status'][];onOpenWork?:(section?:import('../../task-inspector').TaskInspectorOrigin['section'])=>void; canUpdateWork?:boolean; hasStaffedSubitems: boolean; save: (patch: WorkspaceTaskPatch) => Promise<void>; write: (operation: () => Promise<void>) => Promise<void>; projectStartDate?: string; projectTargetDate?: string;
 }) {
   const disabled = !editable || busy;
   const blocked=!!controller?.data?.root.blocker;
@@ -34,7 +34,7 @@ export function ProjectTaskCell({ column, task, tasks, profiles, people, orgs, e
     ? <WorkStatusControl status={task.status} customStatusId={task.customStatusId} stuck={blocked} disabled={busy} onStart={statuses.includes('in_progress')||task.status==='in_progress'?()=>onOpenWork('work'):undefined} onBlocker={task.status==='in_progress'?()=>onOpenWork('report-blocker'):undefined} onSubmit={canSubmitWork&&task.status==='in_progress'?()=>onOpenWork('submit-work'):undefined}/>
     : <span className={`work-status-trigger work-status-trigger--${blocked?'stuck':task.status}`} style={status.color ? {boxShadow:`inset 3px 0 ${status.color}`} : undefined}>{status.label}</span>;
   if (column === 'priority') return <PriorityCell value={task.priority} title={task.title} disabled={disabled} onSave={priority => save({ priority })}/>;
-  if (column === 'timeline') return <TimelineCell task={task} disabled={disabled} save={save}/>;
+  if (column === 'timeline') return <TimelineCell task={task} disabled={disabled} projectStartDate={projectStartDate} projectTargetDate={projectTargetDate} save={save}/>;
   if (column === 'effort') return <NumberCell label={'Estimated hours for ' + task.title} value={task.estimatedHours || 0} disabled={disabled} field="estimated_hours" save={save}/>;
   if (column === 'dependencies') return <DependencyCell task={task} tasks={tasks} disabled={disabled} save={save}/>;
   if (column === 'budget') return <ProjectTaskBudgetCell task={task} readOnly={readOnly||busy||!editable}/>;

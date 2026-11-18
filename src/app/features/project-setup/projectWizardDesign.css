@@ -86,7 +86,7 @@
 .dark .pf-wizard-opening-preview{border-color:#294d40;background:linear-gradient(145deg,#203e32,#18382e)}
 .dark .pf-preview-heading h3{color:#d2eadf}
 .dark .pf-preview-label,.dark .pf-wizard-content .pf-preview-caption{color:#a2c7b6}
-.pf-wizard-modal .pf-wizard-steps{grid-template-columns:repeat(7,minmax(0,1fr))}
+.pf-wizard-modal .pf-wizard-steps{grid-template-columns:repeat(6,minmax(0,1fr))}
 .pf-wizard-content .po-setup-people{width:min(100%,52rem);margin-inline:auto}
 .pf-wizard-content .po-setup-people>h2{margin-bottom:16px}
 .pf-wizard-content .po-setup-people .po-member-editor footer{position:static;justify-content:flex-end}

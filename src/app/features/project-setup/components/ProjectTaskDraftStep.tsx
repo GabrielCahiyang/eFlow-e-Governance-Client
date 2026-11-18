@@ -1,7 +1,7 @@
 import { readableUiError } from '../../../shared/userFacingError';
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '@vibe/core';
-import { BookmarkPlus, ClipboardList, Sparkles, X } from 'lucide-react';
+import { BookmarkPlus, ClipboardList, X } from 'lucide-react';
 import { WorkspaceTooltip } from '../../../components/ui/workspace/WorkspaceTooltip';
 import { ProjectImportSaveError, saveReviewedProject } from '../../project-import';
 import {
@@ -11,21 +11,15 @@ import {
   type ProjectTaskTemplate,
 } from '../../work-templates';
 import { useNavigationBlocker } from '../../../shared/navigationGuard';
-import { generateProjectTaskGroups, projectSetupTaskPayload } from '../services/projectTaskDraft';
+import { projectSetupTaskPayload } from '../services/projectTaskDraft';
 import { FlowError } from './FlowError';
 
 export function ProjectTaskDraftStep({ projectId, project, templates, templateError, initialTemplate, onTemplateSaved, onSaved, onBusyChange, formId, onSaveStateChange }: {
   projectId: string;
   project: {
     title: string;
-    description: string;
-    scope: string;
     start?: string;
     end?: string;
-    noFunding?: boolean;
-    totalBudget?: number;
-    unallocatedBudget?: number;
-    budgetSources?: string[];
   };
   templates: ProjectTaskTemplate[];
   templateError: string;
@@ -38,9 +32,8 @@ export function ProjectTaskDraftStep({ projectId, project, templates, templateEr
 }) {
   const [groups, setGroups] = useState<ProjectTaskGroup[]>(initialTemplate?.groups ?? []);
   const [omitted, setOmitted] = useState<Set<string>>(new Set());
-  const [source, setSource] = useState<'template' | 'ai'>('template');
   const [template, setTemplate] = useState(initialTemplate?.id ?? '');
-  const [busy, setBusy] = useState<'generating' | 'saving' | 'saving-template'>();
+  const [busy, setBusy] = useState<'saving' | 'saving-template'>();
   const [error, setError] = useState('');
   const [retry, setRetry] = useState(false);
   const [saveTemplateOpen, setSaveTemplateOpen] = useState(false);
@@ -122,13 +115,6 @@ export function ProjectTaskDraftStep({ projectId, project, templates, templateEr
     });
   }
 
-  function applyDraft(draft: ProjectTaskGroup[], nextSource: typeof source) {
-    setGroups(draft);
-    setSource(nextSource);
-    setOmitted(new Set());
-    setError('');
-  }
-
   const selected = groups.map((group, g) => ({
     ...group,
     tasks: group.tasks.flatMap((task, t) => omitted.has(`${g}/${t}`) ? [] : [{
@@ -155,7 +141,7 @@ export function ProjectTaskDraftStep({ projectId, project, templates, templateEr
   const save = () => void run('saving', async () => {
     request.current ??= {
       id: crypto.randomUUID(),
-      payload: projectSetupTaskPayload(selected, source, { startDate: project.start, targetDate: project.end }),
+      payload: projectSetupTaskPayload(selected, 'template', { startDate: project.start, targetDate: project.end }),
     };
     try {
       const result = await saveReviewedProject('save_project_setup_tasks', projectId, request.current.id, request.current.payload);
@@ -181,14 +167,16 @@ export function ProjectTaskDraftStep({ projectId, project, templates, templateEr
   });
 
   return <form id={formId} className="pf-task-draft" aria-label="Draft tasks" onSubmit={event => {event.preventDefault();if(!busy&&!pending.current){if(taskCount)save();else onSaved();}}}>
-    <div><h2>Draft tasks</h2><p>Use a shared template or generate a draft from your project details. Choose the tasks and subtasks you want to add.</p></div>
+    <div><h2>Draft tasks</h2><p>Use a shared template and choose which tasks and subtasks to add.</p></div>
     <div className="pf-task-draft-options">
       <label><span><ClipboardList size={16}/> Use a template</span>
         <select value={template} disabled={!templates.length || !!busy || retry} onChange={event => {
           try {
             const value = event.target.value;
             const chosen = templates.find(item => item.id === value);
-            applyDraft(chosen ? parseProjectTaskGroups(chosen.groups) : [], 'template');
+            setGroups(chosen ? parseProjectTaskGroups(chosen.groups) : []);
+            setOmitted(new Set());
+            setError('');
             setTemplate(value);
           } catch (reason) { setError((reason as Error).message); }
         }}>
@@ -196,10 +184,6 @@ export function ProjectTaskDraftStep({ projectId, project, templates, templateEr
           {templates.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}
         </select>
       </label>
-      <button type="button" disabled={!!busy || retry} onClick={() => void run('generating', async () => {
-        applyDraft(await generateProjectTaskGroups(project), 'ai');
-        setTemplate('');
-      })}><Sparkles size={16}/> {busy === 'generating' ? 'Generating…' : 'Generate with AI'}</button>
     </div>
     {templateError && <p role="status">{templateError}</p>}
     <FlowError error={error}/>

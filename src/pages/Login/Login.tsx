@@ -5,9 +5,9 @@ import {
   Button,
   Checkbox,
   Link,
-  IconButton,
 } from "@vibe/core";
-import { Show, Hide, Info, Alert } from "@vibe/icons";
+import { Info, Alert } from "@vibe/icons";
+import { Eye, EyeOff } from "lucide-react";
 import {
   motion,
   AnimatePresence,
@@ -20,7 +20,7 @@ import { LivingBoard } from "./components/LivingBoard";
 import { UsageScenariosModal } from "./UsageScenariosModal";
 import { EFlowMark } from "./components/EFlowMark";
 import type { QuickLoginAccount } from "../../app/shared/quickLoginAccounts";
-import { isAdminLoginPath, WorkflowPreview } from "../../app/features/authentication";
+import { isAdminLoginPath } from "../../app/features/authentication";
 
 import {
   formContainerVariants,
@@ -197,14 +197,14 @@ export function Login() {
                       }
                     />
                     <div className={styles.passwordRevealBtn}>
-                      <IconButton
-                        icon={showPassword ? Hide : Show}
-                        kind="tertiary"
-                        size="small"
+                      <button
+                        type="button"
                         aria-label={showPassword ? "Hide password" : "Show password"}
                         aria-pressed={showPassword}
                         onClick={() => setShowPassword((prev) => !prev)}
-                      />
+                      >
+                        {showPassword ? <EyeOff size={18} aria-hidden="true" /> : <Eye size={18} aria-hidden="true" />}
+                      </button>
                     </div>
                   </div>
                 </motion.div>
@@ -288,6 +288,7 @@ export function Login() {
                   Usage scenarios
                 </Button>
               </motion.div>
+
             </form>
           </motion.div>
         </section>
@@ -326,7 +327,6 @@ export function Login() {
             <div className={styles.kanbanWrapper}>
               <LivingBoard />
             </div>
-            <WorkflowPreview />
           </motion.div>
         </section>
 
@@ -337,6 +337,7 @@ export function Login() {
           onSelectAccount={handleSelectScenario}
           portal={isAdminPortal ? "admin" : "client"}
         />
+
       </main>
     </MotionConfig>
   );

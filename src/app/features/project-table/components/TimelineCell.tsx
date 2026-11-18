@@ -10,16 +10,22 @@ import type { WorkspaceTaskPatch } from '../types';
 import { timelineDraft, timelinePatch, timelineError, todayDate } from '../planningDraft';
 import { usePlanningEditor } from '../hooks/usePlanningEditor';
 
-export function TimelineCell({ task, disabled, save }: { task: Task; disabled: boolean; save: (patch: WorkspaceTaskPatch) => Promise<void> }) {
+export function TimelineCell({ task, disabled, projectStartDate, projectTargetDate, save }: { task: Task; disabled: boolean; projectStartDate?: string; projectTargetDate?: string; save: (patch: WorkspaceTaskPatch) => Promise<void> }) {
   const trigger = useRef<HTMLButtonElement>(null);
   const focusAfterSave = useRef(false);
   const editor = usePlanningEditor(() => timelineDraft(task), 'Task timeline: ' + task.title, { closeOnSuccess: true });
   const [editState,setEditState]=useState<TaskDetailEditState|null>(null),[policyError,setPolicyError]=useState(''),[policyLoading,setPolicyLoading]=useState(false),[changeReason,setChangeReason]=useState('');
   useEffect(()=>{if(!editor.open)return;let active=true;setEditState(null);setPolicyError('');setChangeReason('');setPolicyLoading(true);void fetchTaskDetailEditState(task.id).then(value=>{if(active)setEditState(value);}).catch(reason=>{if(active)setPolicyError(readableUiError(reason, "Task editing access could not be verified.", 'write'));}).finally(()=>{if(active)setPolicyLoading(false);});return()=>{active=false;};},[editor.open,task.id]);
   const policyReady=!policyLoading&&!policyError&&!!editState,canPlan=policyReady&&!!editState?.details&&!!editState.planning,canChangeDue=policyReady&&!!editState?.details&&!!editState.due;
-  const minimumStart=todayDate();
+  const projectStart = projectStartDate?.slice(0, 10) || '';
+  const projectEnd = projectTargetDate?.slice(0, 10) || '';
+  const projectBounds = { start: projectStart, end: projectEnd };
+  const today = todayDate();
+  const minimumStart = projectStart && projectStart > today ? projectStart : today;
+  const maxStart = editor.draft.end && (!projectEnd || editor.draft.end < projectEnd) ? editor.draft.end : projectEnd || undefined;
+  const minEnd = editor.draft.start > minimumStart ? editor.draft.start : minimumStart;
   const due = task.deadline || task.dueDate || '', date = timelineDraft(task).end;
-  const validation = editor.dirty ? timelineError(task, editor.draft) : undefined;
+  const validation = editor.dirty ? timelineError(task, editor.draft, undefined, projectBounds) : undefined;
   const text = date ? new Date(date + 'T12:00:00').toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }) : due || 'Set dates';
   const startText=task.startDate ? new Date(task.startDate.slice(0,10)+'T12:00:00').toLocaleDateString('en-US',{month:'2-digit',day:'2-digit',year:'numeric'}) : '';
   return <Popover open={editor.open} onOpenChange={editor.onOpenChange}>
@@ -35,14 +41,14 @@ export function TimelineCell({ task, disabled, save }: { task: Task; disabled: b
         if(validation)throw new Error(validation);
         const changedDue=draft.end!==(task.deadline||task.dueDate||'');
         if(editState?.started){if(draft.start!==(task.startDate||''))throw new Error('Start dates and planning definitions are locked after work starts.');if(changedDue&&!canChangeDue)throw new Error('Only the supervising Lead or authorized Office Head can reschedule this task.');if(changedDue&&(!changeReason.trim()||changeReason.trim().length>1000))throw new Error('Enter a due-date change reason (1–1,000 characters).');if(changedDue)await save({deadline:draft.end,change_reason:changeReason.trim()});}
-        else await save(timelinePatch(task,draft));
+        else await save(timelinePatch(task,draft,undefined,projectBounds));
         focusAfterSave.current = true;
       }, 'Dates saved.'); }}>
         <strong>Task timeline</strong><p>Updating task dates automatically updates the project timeline.</p>
         {policyLoading&&<p role="status">Checking current task editing access…</p>}{policyError&&<p role="alert">{policyError} Editing is unavailable until access can be verified.</p>}{editState?.started&&<p role="status">Work has started. Planned start and structure are locked. Due-date changes require supervising authority and a reason.</p>}
         {editor.notice && <p role="status">{editor.notice}</p>}
-        <FormField label="Start date"><TextInput type="date" min={minimumStart} max={editor.draft.end||undefined} value={editor.draft.start} disabled={disabled || editor.pending || !canPlan} onChange={event => editor.setDraft({ ...editor.draft, start: event.target.value })}/></FormField>
-        <FormField label="Due date" error={validation || (editor.error ? editor.error + ' Retry with Save dates.' : undefined)}><TextInput type="date" min={editor.draft.start > minimumStart ? editor.draft.start : minimumStart} value={editor.draft.end} disabled={disabled || editor.pending || !canChangeDue} onChange={event => editor.setDraft({ ...editor.draft, end: event.target.value })}/></FormField>
+        <FormField label="Start date"><TextInput type="date" min={minimumStart} max={maxStart} value={editor.draft.start} disabled={disabled || editor.pending || !canPlan} onChange={event => editor.setDraft({ ...editor.draft, start: event.target.value })}/></FormField>
+        <FormField label="Due date" error={validation || (editor.error ? editor.error + ' Retry with Save dates.' : undefined)}><TextInput type="date" min={minEnd} max={projectEnd || undefined} value={editor.draft.end} disabled={disabled || editor.pending || !canChangeDue} onChange={event => editor.setDraft({ ...editor.draft, end: event.target.value })}/></FormField>
         {editState?.started&&canChangeDue&&<FormField label="Reason for due-date change"><TextInput value={changeReason} maxLength={1000} disabled={disabled||editor.pending} onChange={event=>setChangeReason(event.target.value)}/></FormField>}
         <Button type="submit" pending={editor.pending} disabled={disabled || !policyReady || !editor.dirty || !!validation}>Save dates</Button>
       </form>

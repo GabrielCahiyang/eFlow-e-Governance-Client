@@ -4,6 +4,16 @@ import {existsSync,readFileSync,readdirSync} from 'node:fs';
 import {join} from 'node:path';
 test.use({timezoneId:'Asia/Manila'});
 
+test('Office overview omits Office insights and the Analytics destination opens',async({page})=>{
+  test.setTimeout(90_000);
+  const records=await projectWorkspaceFixture(page,'head',false,{landingOnly:true});
+  await page.goto(`/overview?workspace=${records.org}`);
+  await expect(page.getByRole('heading',{name:'Office overview',exact:true})).toBeVisible();
+  await expect(page.getByRole('button',{name:'Office insights',exact:true})).toHaveCount(0);
+  await page.getByRole('navigation',{name:'Workspace destinations'}).getByRole('button',{name:'Analytics',exact:true}).click();
+  await expect(page.getByRole('heading',{name:'Project & Employee Analytics',exact:true})).toBeVisible();
+});
+
 test('a Head replaces the previous Admin route with a useful office dashboard',async({page},info)=>{
   test.setTimeout(120_000);
   await page.clock.setSystemTime(new Date('2026-10-17T04:00:00Z'));

@@ -1,13 +1,47 @@
+import { useState } from "react";
 import { EmptyState } from '../../../../components/ui/EmptyState';
 import { AlertTriangle, CheckCircle2, Clock3, Gauge, ShieldAlert, TimerReset } from "lucide-react";
 import type { TeamHealthSummary, TeamMemberMetrics } from "../../types";
 import { TEAM_WORKLOAD_ELEVATED_THRESHOLD, TEAM_WORKLOAD_HIGH_THRESHOLD } from "../../constants";
+import { analyzeWorkloadConcentration } from "../../selectors/healthSelectors";
 
-export function TeamHealthOverview({ health, members,atRiskCount }: { health: TeamHealthSummary; members: TeamMemberMetrics[];atRiskCount?:number }) {
-  const overloaded = members.filter((member) => member.workloadSignal >= TEAM_WORKLOAD_HIGH_THRESHOLD);
+const TONE_BADGE_STYLES = {
+  red: "border-[var(--eflow-negative-text)]/25 bg-[var(--eflow-negative-bg)] text-[var(--eflow-negative-text)]",
+  amber: "border-[var(--eflow-warning-text)]/25 bg-[var(--eflow-warning-bg)] text-[var(--eflow-warning-text)]",
+  green: "border-[var(--eflow-positive-text)]/25 bg-[var(--eflow-positive-bg)] text-[var(--eflow-positive-text)]",
+  neutral: "border-[var(--eflow-border)] bg-[var(--eflow-subtle)] text-[var(--eflow-text-muted)]",
+} as const;
+
+const TONE_BANNER_STYLES = {
+  red: "border-[var(--eflow-negative-text)]/20 bg-[var(--eflow-negative-bg)] text-[var(--eflow-negative-text)]",
+  amber: "border-[var(--eflow-warning-text)]/20 bg-[var(--eflow-warning-bg)] text-[var(--eflow-warning-text)]",
+  green: "border-[var(--eflow-positive-text)]/20 bg-[var(--eflow-positive-bg)] text-[var(--eflow-positive-text)]",
+  neutral: "border-[var(--eflow-border)] bg-[var(--eflow-subtle)] text-[var(--eflow-text-muted)]",
+} as const;
+
+function formatMemberLoadMeta(member: TeamMemberMetrics): string {
+  const items = member.activeTasks + member.activeSubtasks;
+  if (items === 0 && member.workloadSignal === 0) return "No active work";
+  const parts: string[] = [];
+  if (member.activeTasks > 0) parts.push(`${member.activeTasks} ${member.activeTasks === 1 ? "task" : "tasks"}`);
+  if (member.activeSubtasks > 0) parts.push(`${member.activeSubtasks} ${member.activeSubtasks === 1 ? "subtask" : "subtasks"}`);
+  if (member.workload?.level === "unknown") {
+    parts.push("Est. needed");
+  } else if (member.workload && member.workload.remainingHours > 0) {
+    const hours = Math.round(member.workload.remainingHours * 10) / 10;
+    parts.push(`${hours}h`);
+  }
+  return parts.join(" · ") || `${member.workloadSignal} signal`;
+}
+
+export function TeamHealthOverview({ health, members, atRiskCount }: { health: TeamHealthSummary; members: TeamMemberMetrics[]; atRiskCount?: number }) {
+  const [showAllMembers, setShowAllMembers] = useState(false);
+  const concentration = analyzeWorkloadConcentration(members);
+  const visibleMembers = showAllMembers ? members : members.slice(0, 5);
   const activeWork = health.activeTasks + health.activeSubtasks;
   const riskWork = atRiskCount ?? health.overdue + health.blocked + health.stalled;
   const riskRate = activeWork ? Math.min(100, Math.round((riskWork / activeWork) * 100)) : 0;
+  const StatusIcon = concentration.tone === "green" ? CheckCircle2 : concentration.tone === "neutral" ? Gauge : AlertTriangle;
 
   return (
     <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
@@ -35,13 +69,61 @@ export function TeamHealthOverview({ health, members,atRiskCount }: { health: Te
       </section>
 
       <section className="rounded-xl border border-[var(--eflow-border)] bg-[var(--eflow-surface)] p-5">
-        <h2 className="text-[14px] font-semibold text-[var(--eflow-text)]">Workload concentration</h2>
-        <p className="mt-0.5 text-[12px] text-[var(--eflow-text-muted)]">Relative delivery load across team members.</p>
+        <div className="flex flex-wrap items-start justify-between gap-2">
+          <div>
+            <h2 className="text-[14px] font-semibold text-[var(--eflow-text)]">Workload concentration</h2>
+            <p className="mt-0.5 text-[12px] text-[var(--eflow-text-muted)]">Relative delivery load across team members.</p>
+          </div>
+          {members.length > 0 && (
+            <span className={`rounded-[6px] border px-2 py-0.5 text-[12px] font-medium ${TONE_BADGE_STYLES[concentration.tone]}`}>
+              {concentration.badge}
+            </span>
+          )}
+        </div>
         <div className="mt-4 space-y-3">
-          {members.slice(0, 5).map((member) => <div key={member.employeeId}><div className="flex items-center justify-between gap-2"><span className="truncate text-[12px] font-medium text-[var(--eflow-text)]">{member.employeeName}</span><span className={member.workloadSignal >= TEAM_WORKLOAD_HIGH_THRESHOLD ? "text-[12px] font-semibold text-[var(--eflow-negative-text)]" : member.workloadSignal >= TEAM_WORKLOAD_ELEVATED_THRESHOLD ? "text-[12px] font-semibold text-[var(--eflow-warning-text)]" : "text-[12px] font-semibold text-[var(--eflow-positive-text)]"}>{member.workloadSignal}</span></div><div className="mt-1.5 h-1.5 overflow-hidden rounded-[3px] bg-[var(--eflow-secondary)]"><div className={`h-full rounded-[3px] ${member.workloadSignal >= TEAM_WORKLOAD_HIGH_THRESHOLD ? "bg-[var(--eflow-danger)]" : member.workloadSignal >= TEAM_WORKLOAD_ELEVATED_THRESHOLD ? "bg-[var(--eflow-chart-4)]" : "bg-[var(--eflow-primary)]"}`} style={{ width: `${member.workloadSignal}%` }} /></div></div>)}
+          {visibleMembers.map((member) => {
+            const signalClass = member.workloadSignal >= TEAM_WORKLOAD_HIGH_THRESHOLD
+              ? "text-[var(--eflow-negative-text)]"
+              : member.workloadSignal >= TEAM_WORKLOAD_ELEVATED_THRESHOLD
+                ? "text-[var(--eflow-warning-text)]"
+                : "text-[var(--eflow-positive-text)]";
+            const barClass = member.workloadSignal >= TEAM_WORKLOAD_HIGH_THRESHOLD
+              ? "bg-[var(--eflow-danger)]"
+              : member.workloadSignal >= TEAM_WORKLOAD_ELEVATED_THRESHOLD
+                ? "bg-[var(--eflow-chart-4)]"
+                : "bg-[var(--eflow-primary)]";
+            return (
+              <div key={member.employeeId}>
+                <div className="flex items-center justify-between gap-2">
+                  <span className="truncate text-[12px] font-medium text-[var(--eflow-text)]">{member.employeeName}</span>
+                  <div className="flex shrink-0 items-center gap-2">
+                    <span className="text-[11px] text-[var(--eflow-text-muted)]">{formatMemberLoadMeta(member)}</span>
+                    <span className={`eflow-tabular text-[12px] font-semibold ${signalClass}`}>{member.workloadSignal}</span>
+                  </div>
+                </div>
+                <div className="mt-1.5 h-1.5 overflow-hidden rounded-[3px] bg-[var(--eflow-secondary)]">
+                  <div className={`h-full rounded-[3px] ${barClass}`} style={{ width: `${member.workloadSignal}%` }} />
+                </div>
+              </div>
+            );
+          })}
           {members.length === 0 && <EmptyState illustration="people" size="compact" title="No team members available."/>}
         </div>
-        {overloaded.length > 0 ? <div className="mt-4 rounded-lg border border-[var(--eflow-negative-text)]/20 bg-[var(--eflow-negative-bg)] px-3 py-2 text-[12px] leading-5 text-[var(--eflow-negative-text)]">{overloaded.length} {overloaded.length === 1 ? "person has" : "people have"} a high workload signal. Review assignments before adding new work.</div> : <div className="mt-4 flex items-center gap-1.5 rounded-lg border border-[var(--eflow-positive-text)]/20 bg-[var(--eflow-positive-bg)] px-3 py-2 text-[12px] text-[var(--eflow-positive-text)]"><CheckCircle2 size={13} /> Workload is balanced across the team.</div>}
+        {members.length > 5 && (
+          <button
+            type="button"
+            onClick={() => setShowAllMembers((prev) => !prev)}
+            className="mt-3 text-[12px] font-medium text-[var(--eflow-primary)] hover:underline"
+          >
+            {showAllMembers ? "Show top 5" : `Show all ${members.length} members`}
+          </button>
+        )}
+        {members.length > 0 && (
+          <div className={`mt-4 flex items-start gap-2 rounded-lg border px-3 py-2 text-[12px] leading-5 ${TONE_BANNER_STYLES[concentration.tone]}`}>
+            <StatusIcon size={14} className="mt-0.5 shrink-0" />
+            <span>{concentration.message}</span>
+          </div>
+        )}
       </section>
     </div>
   );

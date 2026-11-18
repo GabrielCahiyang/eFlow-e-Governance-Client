@@ -165,15 +165,6 @@ export function SkillTagMaintenance({ embedded = false }: { embedded?: boolean }
                   />
                 </label>
               </div>
-              <label className="status-maintenance-retire">
-                <input
-                  type="checkbox"
-                  checked={draft.retired}
-                  disabled={busy}
-                  onChange={(event) => setDraft({ ...draft, retired: event.target.checked })}
-                />
-                <span>Hide from new invitations (keeps existing user profiles intact)</span>
-              </label>
               {error && <FeedbackState tone="error" title="Check skill details">{error}</FeedbackState>}
               <div className="status-maintenance-actions">
                 <Button type="button" variant="outline" disabled={busy} onClick={() => setDraft(null)}>

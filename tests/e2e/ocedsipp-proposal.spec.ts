@@ -17,7 +17,8 @@ for (const uncertain of [false, true])
     const originalTasks=structuredClone(r.tasks);
     let targetProject=r.project;
     if(!uncertain){
-      await page.getByRole('button',{name:'+ New',exact:true}).click();
+      await page.getByRole('button',{name:'← All projects',exact:true}).click();
+      await page.getByRole('button',{name:'Create project',exact:true}).click();
       await page.getByRole('menuitem',{name:'Create project',exact:true}).click();
       const create=page.getByRole('dialog',{name:'Let’s start working together',exact:true});
       await create.getByLabel('Project name').fill('PDF project acceptance');
@@ -205,7 +206,8 @@ for (const uncertain of [false, true])
     await page.screenshot({
       path: info.outputPath("pdf-in-main-table-desktop.png"),
     });
-    await page.getByRole("button", { name: "+ New", exact: true }).click();
+    await page.getByRole("button", { name: "← All projects", exact: true }).click();
+    await page.getByRole("button", { name: "Create project", exact: true }).click();
     await expect(
       page.getByRole("menuitem", { name: "Import proposal", exact: true }),
     ).toHaveCount(0);

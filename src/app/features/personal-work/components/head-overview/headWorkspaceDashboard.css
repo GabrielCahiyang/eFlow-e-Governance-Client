@@ -57,7 +57,6 @@
 .head-home__panel-skeleton { padding:0 22px 18px; } .head-home__panel-skeleton>div { display:flex; flex-direction:column; gap:10px; padding:20px 0; border-top:1px solid var(--layout-border-color,#e6e9ef); }
 .head-home__notice { display:flex; gap:12px; padding:16px 20px; background:var(--warning-color-selected,#fff7e5); border-radius:8px; margin-bottom:20px; color:var(--primary-text-color,#323338); font-size:13px; }
 .head-home__notice svg { flex-shrink:0; } .head-home__notice p { line-height:1.6; margin:5px 0; }
-.head-home__more { max-width:1360px; margin:0 auto; padding:0 4px 20px; }
 @media(max-width:1180px) { .head-home__columns { grid-template-columns:minmax(0,1fr); } .head-home__metric { padding:16px; } .head-home__eyebrow span { display:block; margin-top:5px; } .head-home__eyebrow span::before { content:none; } }
 @media(max-width:640px) {
  .head-home { padding-top:0; } .head-home__header { align-items:flex-start; flex-direction:column; gap:16px; margin-bottom:20px; } .head-home h1 { font-size:25px; } .head-home__intro { font-size:13px; }

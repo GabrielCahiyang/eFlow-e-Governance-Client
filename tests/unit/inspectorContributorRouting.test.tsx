@@ -42,3 +42,39 @@ it('retains direct execution for the appointed Task Lead', () => {
     canSubmit canPostProgress busy={false} onStart={vi.fn()} onSubmitted={vi.fn()}/>);
   expect(screen.getByText('Direct work form')).toBeTruthy();
 });
+
+it('explains to contributors that progress cannot be updated before the task lead starts the work', () => {
+  render(<InspectorExecution
+    task={{ ...task, status: 'todo', assigneeName: 'Crisostomo Ibarra' }}
+    subtasks={[]}
+    canStart={false}
+    canResume={false}
+    canSubmit={false}
+    canPostProgress
+    busy={false}
+    onStart={vi.fn()}
+    onSubmitted={vi.fn()}
+  />);
+  expect(screen.getByRole('status').textContent).toContain("Work hasn't started yet");
+  expect(screen.getByRole('status').textContent).toContain('Crisostomo Ibarra');
+  expect(screen.getByRole('status').textContent).toContain("can't update progress");
+  expect(screen.queryByRole('button', { name: 'Start work' })).toBeNull();
+  expect(screen.queryByText('Lead proposals')).toBeNull();
+  expect(screen.queryByText('Direct work form')).toBeNull();
+});
+
+it('explains to contributors when changes are requested and work has not resumed yet', () => {
+  render(<InspectorExecution
+    task={{ ...task, status: 'changes_requested', assigneeName: 'Crisostomo Ibarra' }}
+    subtasks={[]}
+    canStart={false}
+    canResume={false}
+    canSubmit={false}
+    canPostProgress
+    busy={false}
+    onStart={vi.fn()}
+    onSubmitted={vi.fn()}
+  />);
+  expect(screen.getByRole('status').textContent).toContain('Waiting for task lead to resume work');
+  expect(screen.getByRole('status').textContent).toContain("can't update progress until work resumes");
+});

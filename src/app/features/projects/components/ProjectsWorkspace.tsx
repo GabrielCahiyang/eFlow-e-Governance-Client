@@ -378,7 +378,7 @@ export function ProjectsWorkspace({
   return (
     <div className="eflow-ide-workspace">
       <div className="eflow-ide-workspace__content" hidden={!!completionTaskId}>
-      {activeTab.type !== "project" && <ProjectWorkspaceActions onAllProjects={() => { void requestNavigation(openIndex); }} canCreate={access.canCreate} disabledReason={baseAccess.canCreate && !access.canCreate ? workspaceScope && workspaceScope.workspace.office_id !== currentOrgId ? 'Return to your office to create a project.' : 'Only the appointed Office Head can create projects.' : undefined} onCreate={() => setQuickProjectMode('manual')} onCreateWithAi={() => setQuickProjectMode('pdf')}
+      {activeTab.type !== "project" && <ProjectWorkspaceActions onAllProjects={() => { void requestNavigation(openIndex); }} disabledReason={baseAccess.canCreate && !access.canCreate ? workspaceScope && workspaceScope.workspace.office_id !== currentOrgId ? 'Return to your office to create a project.' : 'Only the appointed Office Head can create projects.' : undefined}
         onTemplates={() => setTemplatesOpen(true)}
         onSavedPlans={() => { void requestNavigation(() => openPlanning('drafts')); }}
         departmentFilter={scope.includeAllAccessibleWork ? { value: departmentFilter, options: departmentFilterOptions, onChange: value => { void requestNavigation(() => changeDepartmentFilter(value)); } } : undefined} />}
@@ -487,7 +487,7 @@ export function ProjectsWorkspace({
               <ProjectIndex projects={inScope} tasks={tasks} organizations={orgs} profiles={profiles}
                 onOpen={id => { void requestNavigation(() => openProject(id, 'push')); }}
                 onOpenProposal={id => { void requestNavigation(() => openProposal(id)); }}
-                onCreate={access.canCreate ? () => setQuickProjectMode('manual') : undefined}/>
+                onCreate={access.canCreate ? setQuickProjectMode : undefined}/>
 
             )}
           </div>

@@ -68,6 +68,7 @@ export function EditUserModal({
   const resolvedRole = resolveRoleSelection(form.role, roleCatalog);
   const leadershipConflict = getLeadershipSlotConflict({
     role: resolvedRole.role,
+    customRoleLabel: resolvedRole.customRoleKey ? resolvedRole.label : undefined,
     orgId: form.orgId,
     currentUserId: editUser?.id,
     organizations,

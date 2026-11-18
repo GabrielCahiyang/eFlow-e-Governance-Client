@@ -133,6 +133,6 @@ export function ProjectDefinitionPanel({projectId,profiles,profilesLoading,organ
    {error&&<FlowError error={error}/>}
   </section>}
   <ProjectFundingPanel data={data} reload={flow.reload} allowFundingEntry={planning||!project.funding_not_required} recoveryKey={projectId?`budget:${projectId}`:''}/>
- </>:<><ProjectFundingPanel data={data} reload={flow.reload} allowFundingEntry={false}/>{planning&&!closed&&data.canAllocate&&<div className="pf-actions"><button className="pf-primary" onClick={()=>launch(2)}><Wallet size={16}/>Manage project funding</button></div>}</>)}
+ </>:<><ProjectFundingPanel data={data} reload={flow.reload} allowFundingEntry={false}/>{planning&&!closed&&data.canAllocate&&<div className="pf-actions"><button className="pf-primary" onClick={()=>launch(3)}><Wallet size={16}/>Manage project funding</button></div>}</>)}
  {open&&<ProjectSetupWizard projectId={projectId} creatorId={data.canAuthorize?user?.id:undefined} profiles={profiles} profilesLoading={profilesLoading} organizations={organizations} tasks={tasks} governed={governed} initialStep={initialStep} onClose={()=>{setOpen(false);void flow.reload();}} onFinish={()=>{setOpen(false);void flow.reload();onReady?.();}}/>}</div>;
 }

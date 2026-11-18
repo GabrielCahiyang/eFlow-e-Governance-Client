@@ -18,40 +18,6 @@ import {
 
 const ALL_MANAGED_PERMISSIONS = [...VISIBLE_PAGE_PERMISSION_KEYS, ...ACTION_PERMISSION_KEYS];
 
-const ACCOUNTING_SCOPE_PERMISSIONS = new Set([
-  "navigation.accounting_overview",
-  "navigation.accounting_releases",
-  "navigation.accounting_journal",
-  "navigation.accounting_audit",
-  "accounting.release_cash",
-  "accounting.settle_liquidation",
-  "accounting.post_journal",
-]);
-
-const HEAD_SCOPE_PERMISSIONS = new Set([
-  "navigation.reviews",
-  "navigation.team_supervision",
-  "navigation.team_intelligence",
-  "projects.create",
-  "projects.archive",
-  "projects.delete",
-  "tasks.assign",
-  "tasks.verify",
-]);
-
-export function inferBaseRoleFromPermissions(
-  allowedMap: Record<string, boolean>,
-): BaseCustomRole {
-  const enabled = Object.keys(allowedMap).filter((k) => Boolean(allowedMap[k]));
-  if (enabled.some((k) => ACCOUNTING_SCOPE_PERMISSIONS.has(k))) {
-    return "accounting_staff";
-  }
-  if (enabled.some((k) => HEAD_SCOPE_PERMISSIONS.has(k))) {
-    return "head";
-  }
-  return "member";
-}
-
 export const CUSTOM_ROLES_CHANGED_EVENT = "eflow:custom-roles-changed";
 const RESERVED_ROLE_KEYS = new Set(["admin", "head", "accounting_staff", "member", "super_admin"]);
 
@@ -223,9 +189,7 @@ export async function createCustomRole(input: {
     ? Array.from(input.existingKeys)
     : (await fetchCustomRoles()).map((r) => r.key);
   const key = buildCustomRoleKey(label, currentKeys);
-  const baseRole =
-    input.baseRole ||
-    (input.permissions ? inferBaseRoleFromPermissions(input.permissions) : "member");
+  const baseRole = input.baseRole ?? "member";
   const { data, error } = await supabase
     .from("custom_roles")
     .insert({ key, label, description, base_role: baseRole })
@@ -256,15 +220,12 @@ export async function updateCustomRole(
     throw new Error("Role name must be between 2 and 60 characters.");
   }
   const description = (input.description || "").trim().slice(0, 240);
-  const inferredBase =
-    input.baseRole ||
-    (input.permissions ? inferBaseRoleFromPermissions(input.permissions) : undefined);
   const patch: Record<string, unknown> = {
     label,
     description,
     updated_at: new Date().toISOString(),
   };
-  if (inferredBase) patch.base_role = inferredBase;
+  if (input.baseRole) patch.base_role = input.baseRole;
   const { data, error } = await supabase
     .from("custom_roles")
     .update(patch)

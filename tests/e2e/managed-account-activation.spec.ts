@@ -40,6 +40,8 @@ test('Admin creates a pending invitation, preserves PDS, and manages activation 
   await page.route('**/admin/users/create',async r=>{submissions.push(r.request().postDataJSON());if(submissions.length===1)return r.fulfill({status:503,json:{detail:'Synthetic connection failure'}});pending=[invitation];return r.fulfill({status:201,json:invitation});});
   await page.route('**/admin/users/pending-activation/*/revoke',r=>{revoked++;pending=[];return r.fulfill({json:{...invitation,status:'revoked'}});});
   await page.reload();
+  await expect(page.getByRole('button',{name:'Create LEDIPO User',exact:true})).toBeVisible();
+  await expect(page.getByRole('button',{name:/Invite (External|eFlow) User/})).toHaveCount(0);
   await page.getByRole('button',{name:'Create LEDIPO User',exact:true}).click();const modal=page.getByRole('dialog',{name:'Create LEDIPO User'});
   await expect(modal.getByLabel('Password',{exact:true})).toHaveCount(0);await expect(modal.getByText('Import from CSC Personal Data Sheet')).toBeVisible();await expect(modal.getByRole('textbox',{name:'Office',exact:true})).toHaveValue('LEDIPO');
   await modal.getByRole('textbox',{name:'Full Name',exact:true}).fill('New colleague');await modal.getByRole('textbox',{name:'Email',exact:true}).fill('new@example.test');
@@ -47,5 +49,4 @@ test('Admin creates a pending invitation, preserves PDS, and manages activation 
   await modal.getByRole('button',{name:'Send activation email'}).click();await expect(modal).not.toBeVisible();
   expect(submissions).toHaveLength(2);expect(submissions[0].request_id).toBe(submissions[1].request_id);expect(submissions[0]).not.toHaveProperty('password');expect(submissions[0].org_id).toBe(fixture.org);
   const pendingRegion=page.getByRole('region',{name:'Pending activation'});await expect(pendingRegion.getByText('new@example.test',{exact:true})).toBeVisible();await pendingRegion.getByRole('button',{name:'Revoke',exact:true}).click();const confirm=page.getByRole('alertdialog');await expect(confirm).toBeVisible();expect(revoked).toBe(0);await confirm.getByRole('button',{name:'Revoke invitation',exact:true}).click();await expect(pendingRegion.getByText('No pending activations.')).toBeVisible();expect(revoked).toBe(1);
-  await page.getByRole('button',{name:'Invite eFlow User',exact:true}).click();const officeModal=page.getByRole('dialog',{name:'Invite eFlow User'});await expect(officeModal.getByRole('combobox',{name:'Office',exact:true})).toBeVisible();await expect(officeModal.getByText('Import from CSC Personal Data Sheet')).toHaveCount(0);await page.screenshot({path:info.outputPath('invite-office.png')});
 });

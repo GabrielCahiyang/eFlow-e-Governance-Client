@@ -32,9 +32,17 @@ describe('canonical project lifecycle controls',()=>{
   utilities('active');expect(screen.queryByRole('button',{name:'Setup & activation'})).toBeNull();
  });
  it('keeps creation and portfolio switching without a second sidebar',async()=>{
-  const create=vi.fn(),open=vi.fn();render(<><ProjectWorkspaceActions canCreate onAllProjects={vi.fn()} onCreate={create} onCreateWithAi={vi.fn()} onTemplates={vi.fn()} onSavedPlans={vi.fn()}/><ProjectIndex projects={[project]} tasks={[]} organizations={[]} profiles={[]} onOpen={open} onOpenProposal={vi.fn()}/></>);
-  fireEvent.keyDown(screen.getByRole('button',{name:'+ New'}),{key:'Enter'});
-  fireEvent.click(screen.getByRole('menuitem',{name:'Create project'}));await waitFor(()=>expect(create).toHaveBeenCalledOnce());
+  const create=vi.fn(),open=vi.fn();render(<><ProjectWorkspaceActions onAllProjects={vi.fn()} onTemplates={vi.fn()} onSavedPlans={vi.fn()}/><ProjectIndex projects={[project]} tasks={[]} organizations={[]} profiles={[]} onOpen={open} onOpenProposal={vi.fn()} onCreate={create}/></>);
+  expect(screen.queryByRole('button',{name:'+ New',exact:true})).toBeNull();
+  const trigger=screen.getByRole('button',{name:'Create project',exact:true});
+  fireEvent.keyDown(trigger,{key:'Enter'});
+  expect(screen.getAllByRole('menuitem').map(item=>item.getAttribute('aria-label'))).toEqual(['Create project','Create project with AI']);
+  expect(create).not.toHaveBeenCalled();
+  fireEvent.click(screen.getByRole('menuitem',{name:'Create project',exact:true}));
+  await waitFor(()=>expect(create).toHaveBeenNthCalledWith(1,'manual'));
+  fireEvent.keyDown(trigger,{key:'ArrowDown'});
+  fireEvent.click(screen.getByRole('menuitem',{name:'Create project with AI',exact:true}));
+  await waitFor(()=>expect(create).toHaveBeenNthCalledWith(2,'pdf'));
   fireEvent.click(screen.getByRole('button',{name:project.title,exact:true}));expect(open).toHaveBeenCalledWith(project.id);expect(screen.queryByRole('complementary')).toBeNull();
  });
  it('offers completion and denies archive until completed',async()=>{

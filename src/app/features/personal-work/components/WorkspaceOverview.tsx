@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState } from "react";
+import { useState } from "react";
 import { useAuth } from "../../../contexts/AuthContext";
 import { useWorkspaceScope } from "../../workspaces";
 import { WorkspaceHeader } from "../../../components/ui/workspace";
@@ -10,13 +10,7 @@ import { workspaceSummary } from "../workSelectors";
 import { WorkList, WorkListSkeleton } from "./WorkList";
 import { WorkInspector, useWorkInspector } from "./WorkInspector";
 import {EmployeeAnalyticsWorkspace} from '../../team-management';
-import { HeadDashboardSkeleton } from "../../../components/Head/HeadDashboard";
 import "../personalWork.css";
-const HeadInsights = lazy(() =>
-  import("../../../components/Head/HeadDashboard").then((m) => ({
-    default: m.HeadDashboard,
-  })),
-);
 
 function WorkspaceOverviewDataSkeleton({ focus }: { focus: "today" | "overdue" | "unassigned" | "review" }) {
   const placeholder = "rounded-[6px] bg-muted";
@@ -94,8 +88,7 @@ export function WorkspaceOverview({
   const inspector = useWorkInspector();
   const [focus, setFocus] = useState<
       "today" | "overdue" | "unassigned" | "review"
-    >("overdue"),
-    [insights, setInsights] = useState(false);
+    >("overdue");
   const data = feed.data;
   const summary = data ? workspaceSummary(data) : undefined;
   const partial = !!data?.issues.length;
@@ -112,9 +105,8 @@ export function WorkspaceOverview({
     );
   const filtered = summary?.[focus] || [];
   if (userProfile?.role === 'head' && workspace.kind === 'office' && workspace.office_id === (userProfile.org_id || userProfile.departmentId)) return <>
-    <div hidden={!!inspector.selection}><EmployeeAnalyticsWorkspace home onNavigate={navigate}/>
-    <div className="head-home__more"><button type="button" className="eflow-button" aria-expanded={insights} onClick={()=>void requestNavigation(()=>setInsights(value=>!value))}>Office insights</button>{insights&&<Suspense fallback={<HeadDashboardSkeleton/>}><HeadInsights/></Suspense>}</div>
-    </div><WorkInspector presentation="page" selected={inspector.selection} current={data?.rows||[]} onClose={inspector.close}/>
+    <div hidden={!!inspector.selection}><EmployeeAnalyticsWorkspace home onNavigate={navigate}/></div>
+    <WorkInspector presentation="page" selected={inspector.selection} current={data?.rows||[]} onClose={inspector.close}/>
   </>;
   return (
     <section className="r10-workspace" aria-label="Workspace Overview">
@@ -289,34 +281,6 @@ export function WorkspaceOverview({
           )}
         </>
       )}
-      {userProfile?.role === "head" &&
-        workspace.kind === "office" &&
-        workspace.office_id === userProfile.org_id && (
-          <section className="r10-overview-section">
-            <button
-              type="button"
-              className="r10-action-button"
-              aria-expanded={insights}
-              onClick={() =>
-                void requestNavigation(() => setInsights((v) => !v))
-              }
-            >
-              Office insights
-            </button>
-            {insights && (
-              <Suspense
-                fallback={
-                  <div>
-                    <p role="status" className="sr-only">Loading Office insights…</p>
-                    <HeadDashboardSkeleton />
-                  </div>
-                }
-              >
-                <HeadInsights />
-              </Suspense>
-            )}
-          </section>
-        )}
       <WorkInspector
         selected={inspector.selection}
         current={data?.rows || []}

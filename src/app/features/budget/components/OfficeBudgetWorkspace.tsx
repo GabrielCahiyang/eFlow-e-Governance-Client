@@ -198,7 +198,7 @@ function OfficeBudgetContent({ orgId, fiscalYear, embedded, tab, setTab, setFisc
         ) : (
           <>
             {(tab === 'annual' || tab === 'audit') && <BudgetVersionBanner data={budget} />}
-            {tab === 'office-petty-cash' ? <OfficePettyCash focusRequestId={focusRequestId}/> : !budget.summary && budget.error ? null : !budget.summary && tab !== "annual" ? (
+            {tab === 'office-petty-cash' ? <OfficePettyCash focusRequestId={focusRequestId} allowRequest={false} /> : !budget.summary && budget.error ? null : !budget.summary && tab !== "annual" ? (
               <BudgetEmpty
                 title={`No ${fiscalYear} annual budget yet`}
                 description="The Head must create and lock the annual budget before proposals and task-level cash requests can be funded."

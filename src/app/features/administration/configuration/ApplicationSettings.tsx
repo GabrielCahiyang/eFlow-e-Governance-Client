@@ -1,4 +1,4 @@
-import { Building2, CalendarClock, Info, MailCheck, Megaphone, RotateCcw } from "lucide-react";
+import { Building2, CalendarClock, Info, MailCheck, RotateCcw } from "lucide-react";
 import { useAuth } from "../../../contexts/AuthContext";
 import { Button } from "../../../components/ui/button";
 import { FeedbackState } from "../../../components/ui/FeedbackState";
@@ -252,60 +252,6 @@ function SettingsForm({ canManage, embedded }: { canManage: boolean; embedded: b
               </div>
 
               <div className="eflow-admin-card eflow-admin-settings-form">
-                <div className="eflow-admin-card__title-row">
-                  <span className="eflow-admin-icon-chip" aria-hidden="true">
-                    <Megaphone size={16} />
-                  </span>
-                  <div>
-                    <h2>Maintenance notice banner</h2>
-                    <p className="eflow-admin-copy">
-                      Display a temporary advisory banner at the top of the workspace for all signed-in users.
-                    </p>
-                  </div>
-                </div>
-
-                <label className="!flex-row items-start gap-3 !font-normal cursor-pointer">
-                  <input
-                    type="checkbox"
-                    disabled={locked}
-                    checked={form.maintenance_banner_enabled === "true"}
-                    onChange={(e) =>
-                      setForm({
-                        ...form,
-                        maintenance_banner_enabled: e.target.checked
-                          ? "true"
-                          : "false",
-                      })
-                    }
-                    className="mt-0.5 !h-4 !w-4 shrink-0"
-                  />
-                  <span>
-                    <span className="block text-[13px] font-medium text-[var(--eflow-text)]">
-                      Show system-wide notice banner
-                    </span>
-                    <small>
-                      Updates open sessions automatically when saved.
-                    </small>
-                  </span>
-                </label>
-
-                <label>
-                  Notice Message
-                  <textarea
-                    rows={2}
-                    maxLength={240}
-                    disabled={locked}
-                    placeholder="e.g. Scheduled maintenance tonight from 9:00 PM to 9:30 PM. Please save open work."
-                    value={form.maintenance_banner_message}
-                    onChange={(e) =>
-                      setForm({
-                        ...form,
-                        maintenance_banner_message: e.target.value,
-                      })
-                    }
-                  />
-                </label>
-
                 <div className="eflow-admin-actions pt-1">
                   <Button
                     type="submit"

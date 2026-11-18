@@ -1,7 +1,188 @@
 import type { Task } from "../../tasks";
 import { isActive } from "../../tasks";
-import type { TeamAttentionItem, TeamHealthSummary, TeamWorkflowFacts, WorkflowSubmissionFact } from "../types";
+import { TEAM_WORKLOAD_ELEVATED_THRESHOLD, TEAM_WORKLOAD_HIGH_THRESHOLD } from "../constants";
+import type { TeamAttentionItem, TeamHealthSummary, TeamMemberMetrics, TeamWorkflowFacts, WorkflowSubmissionFact } from "../types";
 import { submissionWorkKey } from "./analyticsHelpers";
+
+export type WorkloadConcentrationStatus =
+  | "empty"
+  | "idle"
+  | "overloaded"
+  | "concentrated"
+  | "unestimated"
+  | "elevated"
+  | "balanced";
+
+export interface WorkloadConcentrationSummary {
+  status: WorkloadConcentrationStatus;
+  tone: "neutral" | "green" | "amber" | "red";
+  badge: string;
+  message: string;
+  loadedCount: number;
+  idleCount: number;
+  overloadedCount: number;
+  elevatedCount: number;
+  unestimatedCount: number;
+  minSignal: number;
+  maxSignal: number;
+  spread: number;
+}
+
+const isMemberIdle = (member: TeamMemberMetrics) =>
+  member.workloadSignal === 0 && member.activeTasks === 0 && member.activeSubtasks === 0;
+
+/** Evaluates how evenly delivery workload is distributed across all team members. */
+export function analyzeWorkloadConcentration(members: TeamMemberMetrics[]): WorkloadConcentrationSummary {
+  if (members.length === 0) {
+    return {
+      status: "empty",
+      tone: "neutral",
+      badge: "No members",
+      message: "No team members available.",
+      loadedCount: 0,
+      idleCount: 0,
+      overloadedCount: 0,
+      elevatedCount: 0,
+      unestimatedCount: 0,
+      minSignal: 0,
+      maxSignal: 0,
+      spread: 0,
+    };
+  }
+
+  const loadedMembers = members.filter((member) => !isMemberIdle(member));
+  const idleMembers = members.filter(isMemberIdle);
+  const overloaded = members.filter((member) => member.workloadSignal >= TEAM_WORKLOAD_HIGH_THRESHOLD);
+  const elevated = members.filter((member) => member.workloadSignal >= TEAM_WORKLOAD_ELEVATED_THRESHOLD);
+  const unestimated = members.filter((member) => member.workload?.level === "unknown");
+  const signals = members.map((member) => member.workloadSignal);
+  const minSignal = Math.min(...signals);
+  const maxSignal = Math.max(...signals);
+  const spread = maxSignal - minSignal;
+
+  const base = {
+    loadedCount: loadedMembers.length,
+    idleCount: idleMembers.length,
+    overloadedCount: overloaded.length,
+    elevatedCount: elevated.length,
+    unestimatedCount: unestimated.length,
+    minSignal,
+    maxSignal,
+    spread,
+  };
+
+  if (loadedMembers.length === 0) {
+    return {
+      ...base,
+      status: "idle",
+      tone: "neutral",
+      badge: "No active load",
+      message: "No active workload is assigned across the team yet.",
+    };
+  }
+
+  if (overloaded.length > 0) {
+    const spareNote = idleMembers.length > 0
+      ? ` while ${idleMembers.length} ${idleMembers.length === 1 ? "member has" : "members have"} no active load`
+      : "";
+    return {
+      ...base,
+      status: "overloaded",
+      tone: "red",
+      badge: `${overloaded.length} overloaded`,
+      message: `${overloaded.length} ${overloaded.length === 1 ? "person has" : "people have"} a high workload signal${spareNote}. Rebalance assignments before adding new work.`,
+    };
+  }
+
+  if (members.length === 1) {
+    if (unestimated.length > 0) {
+      return {
+        ...base,
+        status: "unestimated",
+        tone: "amber",
+        badge: "Needs estimates",
+        message: `Task estimates or deadlines are missing for ${members[0].employeeName} (shown as ${maxSignal}).`,
+      };
+    }
+    if (elevated.length > 0) {
+      return {
+        ...base,
+        status: "elevated",
+        tone: "amber",
+        badge: "Elevated load",
+        message: `${members[0].employeeName} carries an elevated workload (${maxSignal} signal).`,
+      };
+    }
+    return {
+      ...base,
+      status: "balanced",
+      tone: "green",
+      badge: "Manageable",
+      message: `${members[0].employeeName} has a manageable workload (${maxSignal} signal).`,
+    };
+  }
+
+  const estimateNote = unestimated.length > 0
+    ? ` ${unestimated.length} ${unestimated.length === 1 ? "member has" : "members have"} unestimated tasks (shown as 55).`
+    : "";
+
+  // Concentration occurs when load spread is wide, elevated members coexist with idle members, or <= half the team holds all work.
+  const severelyConcentrated =
+    spread >= 30 ||
+    (elevated.length > 0 && idleMembers.length > 0) ||
+    (idleMembers.length > 0 && loadedMembers.length <= Math.floor(members.length / 2));
+
+  if (severelyConcentrated) {
+    const detail = idleMembers.length > 0
+      ? `${idleMembers.length} ${idleMembers.length === 1 ? "member has" : "members have"} no active load.`
+      : "load spread is uneven across the team.";
+    return {
+      ...base,
+      status: "concentrated",
+      tone: "amber",
+      badge: "Concentrated",
+      message: `Workload is concentrated on ${loadedMembers.length} of ${members.length} members (${minSignal}–${maxSignal} signal); ${detail}${estimateNote}`,
+    };
+  }
+
+  if (idleMembers.length > 0) {
+    return {
+      ...base,
+      status: "concentrated",
+      tone: "amber",
+      badge: "Uneven",
+      message: `${loadedMembers.length} of ${members.length} members hold active work (${minSignal}–${maxSignal} signal); ${idleMembers.length} ${idleMembers.length === 1 ? "member has" : "members have"} no active load.${estimateNote}`,
+    };
+  }
+
+  if (unestimated.length > 0) {
+    return {
+      ...base,
+      status: "unestimated",
+      tone: "amber",
+      badge: "Needs estimates",
+      message: `Workload estimates are missing for ${unestimated.length} of ${members.length} members (shown as 55). Add task estimates and deadlines to measure true balance.`,
+    };
+  }
+
+  if (elevated.length > 0) {
+    return {
+      ...base,
+      status: "elevated",
+      tone: "amber",
+      badge: "Elevated load",
+      message: `${elevated.length} of ${members.length} members carry an elevated workload (${minSignal}–${maxSignal} signal). Monitor capacity before adding new work.`,
+    };
+  }
+
+  return {
+    ...base,
+    status: "balanced",
+    tone: "green",
+    badge: "Balanced",
+    message: `Workload is balanced across the team (${minSignal}–${maxSignal} signal).`,
+  };
+}
 
 export function buildTeamHealthSummary(tasks: Task[], facts: TeamWorkflowFacts, attention: TeamAttentionItem[]): TeamHealthSummary {
   const activeTasks = tasks.filter(isActive);

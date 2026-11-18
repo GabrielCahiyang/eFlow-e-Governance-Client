@@ -37,3 +37,15 @@ export function dependencyWouldCycle(tasks: Task[], taskId: string, candidates: 
  const map=new Map(tasks.map(t=>[t.id,t.dependencyIds||[]]));const visited=new Set<string>();const queue=[...candidates];
  while(queue.length){const id=queue.pop()!;if(id===taskId)return true;if(visited.has(id))continue;visited.add(id);queue.push(...(map.get(id)||[]));}return false;
 }
+
+export function projectPrerequisiteChoices(tasks: Task[], projectId: string | undefined, taskId?: string, selected: string[] = []) {
+ return projectId ? tasks.filter(task => task.linkedProjectId === projectId && task.id !== taskId &&
+  ((!task.archivedAt && task.status !== 'cancelled') || selected.includes(task.id))) : [];
+}
+
+export function projectPrerequisiteError(tasks: Task[], projectId: string | undefined, taskId: string, ids: string[], original: string[] = []) {
+ if (ids.length > 100 || new Set(ids).size !== ids.length || ids.includes(taskId)) return 'Choose up to 100 distinct prerequisite tasks other than this task.';
+ const available = new Set(projectPrerequisiteChoices(tasks, projectId, taskId, original).map(task => task.id));
+ if (ids.some(id => !available.has(id))) return 'One prerequisite is no longer available in this project.';
+ return dependencyWouldCycle(tasks, taskId, ids) ? 'Dependencies cannot form a cycle.' : '';
+}

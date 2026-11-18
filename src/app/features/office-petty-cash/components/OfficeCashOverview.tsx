@@ -90,7 +90,7 @@ function OfficeCashSummary({ office }: { office: string }) {
           ))}
         </div>
       )}
-      <OfficePettyCashLauncher />
+      <OfficePettyCashLauncher allowRequest={false} />
     </section>
   );
 }

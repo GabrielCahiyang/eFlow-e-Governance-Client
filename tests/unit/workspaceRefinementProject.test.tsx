@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { act, cleanup, fireEvent, render, renderHook, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { collectProjectParticipantIds } from '../../src/app/features/projects/selectors/projectCommandSelectors';
 import { projectCompletionAvailability } from '../../src/app/features/projects/selectors/projectCompletionAvailability';
 import { useProjectCompletionAvailability } from '../../src/app/features/projects/hooks/useProjectCompletionAvailability';
 import { projectOverviewWork } from '../../src/app/features/projects/selectors/projectOverview';
@@ -114,6 +115,23 @@ describe('R4 retained navigation and identities',()=>{
   await waitFor(()=>expect(screen.getByRole('img',{name:'Person 0'}).querySelector('img')).toBeTruthy());expect(api.avatar).toHaveBeenCalledExactlyOnceWith('private/path.png');
   const avatar=screen.getByRole('img',{name:'Person 0'});expect(avatar.tabIndex).toBe(0);fireEvent.error(avatar.querySelector('img')!);expect(avatar.textContent).toBe('P0');
   const list=screen.getByRole('button',{name:'Show all people'});expect(list.textContent).toContain('+1');fireEvent.click(list);await screen.findByText('Person 4');
+ });
+ it('includes all active non-admin members of the project office in participant IDs',()=>{
+  const profiles=[
+   {id:'cheryl',full_name:'Cheryl Gallo',org_id:'ledipo',is_active:true,role:'head'},
+   {id:'alice',full_name:'Alice Santos',org_id:'ledipo',is_active:true,role:'member'},
+   {id:'bob',full_name:'Bob Reyes',org_id:'ledipo',is_active:true,role:'member'},
+   {id:'inactive',full_name:'Inactive User',org_id:'ledipo',is_active:false,role:'member'},
+   {id:'admin',full_name:'System Admin',org_id:'ledipo',is_active:true,role:'admin'},
+   {id:'other-office',full_name:'Other Office',org_id:'budget',is_active:true,role:'member'},
+   {id:'guest-assignee',full_name:'Guest Assignee',org_id:'budget',is_active:true,role:'member'},
+  ] as UserProfile[];
+  const ids=collectProjectParticipantIds({
+   project:{ownerId:'cheryl',projectLeadId:'cheryl',orgId:'ledipo'},
+   profiles,
+   tasks:[{assigneeId:'guest-assignee',teamMemberIds:['alice']}],
+  });
+  expect(ids).toEqual(['cheryl','alice','bob','guest-assignee']);
  });
 });
 

@@ -52,12 +52,6 @@ test('Project actions open visible menus and dialogs, and the board returns to t
   await page.getByRole('button', { name: 'New task', exact: true }).click();
   await expect(page.getByRole('dialog', { name: 'New task', exact: true })).toBeVisible();
   await page.keyboard.press('Escape');
-  const creation = page.getByRole('button', { name: '+ New', exact: true });
-  await creation.click();
-  await page.getByRole('menuitem', { name: 'Create project', exact: true }).click();
-  await expect(page.getByRole('dialog', { name: 'Let’s start working together', exact: true })).toBeVisible();
-  await page.keyboard.press('Escape');
-  await expect(creation).toBeFocused();
 
   for (const name of ['New task', 'Columns', 'Open task board']) {
     const style = await page.getByRole('button', { name, exact: true }).evaluate(element => {
@@ -68,7 +62,6 @@ test('Project actions open visible menus and dialogs, and the board returns to t
     expect(style.padding).toBeGreaterThanOrEqual(12);
     expect(style.background).not.toBe('rgba(0, 0, 0, 0)');
   }
-  expect((await creation.boundingBox())!.height).toBeGreaterThanOrEqual(40);
   await page.screenshot({ path: info.outputPath('project-controls-desktop.png'), fullPage: true });
 });
 
@@ -82,13 +75,6 @@ test('View picker, board return and first-column task actions remain reachable a
   await expect(page.getByRole('tab', { name: 'Board', exact: true })).toHaveAttribute('aria-selected', 'true');
   await page.getByRole('button', { name: 'Back to main table', exact: true }).click();
   await expect(page.getByRole('region', { name: 'Project main table' })).toBeVisible();
-  const creation = page.getByRole('button', { name: '+ New', exact: true });
-  await expect(creation).toBeVisible();
-  await creation.click();
-  await page.getByRole('menuitem', { name: 'Create project', exact: true }).click();
-  await expect(page.getByRole('dialog', { name: 'Let’s start working together', exact: true })).toBeVisible();
-  await page.keyboard.press('Escape');
-  await expect(creation).toBeFocused();
   const tableScroll = page.locator('.pt-table-scroll').first();
   await expect.poll(() => page.evaluate(() => getComputedStyle(document.body).pointerEvents)).not.toBe('none');
   await tableScroll.evaluate(element => { element.scrollLeft = element.scrollWidth; });
@@ -101,6 +87,36 @@ test('View picker, board return and first-column task actions remain reachable a
   await page.keyboard.press('Escape');
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: info.outputPath('project-controls-mobile.png'), fullPage: true });
+});
+
+test('All projects opens both creation flows from one dropdown', async ({ page }) => {
+  test.setTimeout(90_000);
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  const records = await projectWorkspaceFixture(page, 'head', false, { landingOnly: true });
+  await page.goto(`/projects?page=Projects&workspace=${records.org}`);
+  const creation = page.getByRole('region', { name: 'All projects' }).getByRole('button', { name: 'Create project', exact: true });
+  await expect(creation).toBeVisible();
+  await expect(page.getByRole('button', { name: '+ New', exact: true })).toHaveCount(0);
+  expect((await creation.boundingBox())!.height).toBeGreaterThanOrEqual(40);
+
+  await creation.press('Enter');
+  const menu = page.getByRole('menu', { name: 'Create project', exact: true });
+  await expect(menu.getByRole('menuitem')).toHaveCount(2);
+  await menu.getByRole('menuitem', { name: 'Create project', exact: true }).click();
+  const manual = page.getByRole('dialog', { name: 'Create a project', exact: true });
+  await expect(manual).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(manual).toBeHidden();
+  await expect(creation).toBeFocused();
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await creation.click();
+  await menu.getByRole('menuitem', { name: 'Create project with AI', exact: true }).click();
+  const ai = page.getByRole('dialog', { name: 'Create project with AI', exact: true });
+  await expect(ai).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(ai).toBeHidden();
+  await expect(creation).toBeFocused();
 });
 
 test('Overflow views stay selectable and closable outside the mobile tab scroller', async ({ page }) => {

@@ -191,7 +191,7 @@ export function UserManagement({
                 actorId={userProfile?.id || ""}
                 revision={activationRevision}
                 onCountChange={(count) =>
-                  setAttention((prev) => ({ ...prev, pendingTotal: count }))
+                  setAttention((prev) => (prev.pendingTotal === count ? prev : { ...prev, pendingTotal: count }))
                 }
               />
             ),

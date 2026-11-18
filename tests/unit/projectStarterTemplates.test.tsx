@@ -204,7 +204,7 @@ describe('Project starter templates workflow', () => {
     render(
       <ProjectTaskDraftStep
         projectId="proj-1"
-        project={{ title: 'Health Fair', description: 'Desc', scope: 'Scope' }}
+        project={{ title: 'Health Fair' }}
         templates={[
           {
             id: 'tpl-1',
@@ -240,27 +240,13 @@ describe('Project starter templates workflow', () => {
     });
   });
 
-  it('keeps one Templates button and offers AI creation without standalone PDF import', async () => {
+  it('opens Templates from the project workspace toolbar', () => {
     const onTemplates = vi.fn();
-    const onCreateWithAi = vi.fn();
-    const actions = {
-      onCreate: vi.fn(), onCreateWithAi, onTemplates, onSavedPlans: vi.fn(),
-      onAllProjects: vi.fn(),
-    };
-    const { rerender } = render(<ProjectWorkspaceActions canCreate {...actions} />);
+    render(<ProjectWorkspaceActions onTemplates={onTemplates} onSavedPlans={vi.fn()} onAllProjects={vi.fn()} />);
 
     const templates = screen.getByRole('button', { name: 'Templates' });
     expect(screen.queryByRole('button', { name: 'Import AI PDF' })).not.toBeInTheDocument();
     fireEvent.click(templates);
     expect(onTemplates).toHaveBeenCalledTimes(1);
-    const menu = screen.getByRole('button', { name: '+ New' });
-    fireEvent.keyDown(menu, { key: 'Enter' });
-    expect(screen.queryByRole('menuitem', { name: 'Template library' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('menuitem', { name: 'Import AI PDF' })).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole('menuitem', { name: 'Create project with AI' }));
-    await waitFor(() => expect(onCreateWithAi).toHaveBeenCalledTimes(1));
-
-    rerender(<ProjectWorkspaceActions canCreate={false} {...actions} />);
-    expect(screen.queryByRole('button', { name: '+ New' })).not.toBeInTheDocument();
   });
 });

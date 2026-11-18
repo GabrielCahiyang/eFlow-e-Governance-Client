@@ -1,6 +1,6 @@
 import { readableUiError } from '../../../shared/userFacingError';
 import { useState, type FormEvent } from 'react';
-import { Pencil, Plus } from 'lucide-react';
+import { Pencil } from 'lucide-react';
 import { Button } from '../../../components/ui/button';
 import { FeedbackState } from '../../../components/ui/FeedbackState';
 import { StatusPill, WorkspaceHeader } from '../../../components/ui/workspace';
@@ -50,16 +50,6 @@ export function StatusMaintenance({ embedded = false }: { embedded?: boolean }) 
     }
   }
 
-  const addButton = (
-    <Button
-      type="button"
-      disabled={!catalog.ready || busy}
-      onClick={() => edit({ id: crypto.randomUUID(), label: '', color: null, position: 100, scope: 'both', retired: false })}
-    >
-      <Plus size={15} aria-hidden="true" /> Add custom status
-    </Button>
-  );
-
   function table(items: StatusDefinition[]) {
     return (
       <div className="status-maintenance-table">
@@ -106,7 +96,6 @@ export function StatusMaintenance({ embedded = false }: { embedded?: boolean }) 
         <WorkspaceHeader
           title="Status Maintenance"
           description="Customize the status labels and colors teams see on tasks, subtasks, and projects."
-          actions={addButton}
         />
       ) : (
         <div className="eflow-admin-subsection-header">
@@ -116,7 +105,6 @@ export function StatusMaintenance({ embedded = false }: { embedded?: boolean }) 
               Customize status names and badge colors across tasks, subtasks, and projects. Review and completion workflows stay unchanged.
             </p>
           </div>
-          {addButton}
         </div>
       )}
       {catalog.error && <FeedbackState tone="error" title="Could not load statuses">{catalog.error}</FeedbackState>}
@@ -187,17 +175,6 @@ export function StatusMaintenance({ embedded = false }: { embedded?: boolean }) 
               <p className="eflow-admin-copy">Rename core statuses or customize their colors without changing approval steps.</p>
             </div>
             {table(builtIn)}
-          </section>
-          <section className="eflow-admin-card space-y-4">
-            <div>
-              <h3>Custom progress labels</h3>
-              <p className="eflow-admin-copy">Extra labels teams can choose while work is in progress.</p>
-            </div>
-            {custom.length ? table(custom) : (
-              <div className="rounded-lg border border-dashed border-[var(--eflow-border)] px-4 py-6 text-center text-sm text-[var(--eflow-text-muted)]">
-                No custom statuses added yet. Use Add custom status above to create one.
-              </div>
-            )}
           </section>
         </>
       )}

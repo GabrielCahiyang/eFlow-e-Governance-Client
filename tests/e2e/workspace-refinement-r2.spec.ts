@@ -58,7 +58,7 @@ for (const width of [320, 390, 768, 1024, 1440]) test(`R2 persistent sections an
 });
 
 test('R2 offers manual and AI creation without standalone PDF import',async({page})=>{
- test.setTimeout(90000);await projectWorkspaceFixture(page,'head');await page.getByRole('button',{name:'← All projects',exact:true}).click();await page.getByRole('button',{name:'+ New',exact:true}).click();
+ test.setTimeout(90000);await projectWorkspaceFixture(page,'head');await page.getByRole('button',{name:'← All projects',exact:true}).click();await page.getByRole('button',{name:'Create project',exact:true}).click();
  await expect(page.getByRole('menuitem',{name:'Create project',exact:true})).toBeVisible();
  await expect(page.getByRole('menuitem',{name:'Create project with AI',exact:true})).toBeVisible();
  await expect(page.getByRole('menuitem',{name:'Template library',exact:true})).toHaveCount(0);

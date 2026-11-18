@@ -18,6 +18,8 @@ import {reparentChoices} from '../selectors/tree';
 import type {WorkRequest,WorkTreeSnapshot} from '../types';
 import type {WorkEdit} from '../types/editor';
 import {readNodeDetailEditState} from '../selectors/detailEditing';
+import {canEditSubtaskPrerequisites,subtaskPrerequisiteChoices} from '../selectors/prerequisites';
+import {PrerequisiteField} from '../../../components/ui/workspace/PrerequisiteField';
 export type {WorkEdit} from '../types/editor';
 interface WorkTreeEditorProps {data:WorkTreeSnapshot;edit:WorkEdit;save:(request:WorkRequest)=>Promise<WorkTreeSnapshot>;onDone:()=>void|Promise<void>;onCancel:()=>void;reload?:()=>Promise<void>;readOnly?:boolean;refreshPending?:boolean}
 export function WorkTreeEditor(props:WorkTreeEditorProps){
@@ -41,6 +43,11 @@ function WorkTreeForm({data,edit,save,onDone,onCancel,reload,readOnly=false,refr
  const dueChanged=edit.command==='edit'&&editor.fields.due!==editor.baseline.fields.due;
  const reasonRequired=startedEdit&&dueChanged;
  const createCapability=edit.parent?selectNodeWorkCapability(data,edit.parent,'create_child',context):selectRootWorkCapability(data,'create_child',context);
+ const dependencySupported=data.root.kind==='office'&&data.supportsSubtaskDependencies===true;
+ const dependencyEditable=dependencySupported&&(edit.command==='create'?createCapability.allowed:edit.command==='edit'&&canEditSubtaskPrerequisites(data,node));
+ const dependencyChoices=subtaskPrerequisiteChoices(data,parent,node?.id||editor.baseline.createdId,editor.baseline.fields.dependencies);
+ const dependencyField=dependencySupported&&editor.fields.dependencies!==undefined?<PrerequisiteField label="Prerequisite subtasks" choices={dependencyChoices} selected={editor.fields.dependencies}
+  disabled={locked||!dependencyEditable} onChange={value=>update('dependencies',value)}/>:undefined;
  const destinationRoot=selectRootWorkCapability(data,'create_child',context);
  const destinations=node?reparentChoices(data.nodes.map(item=>({...item,can_manage:selectNodeWorkCapability(data,item.id,'create_child',context).allowed})),node):[];
  const confirmation=useWorkImpactConfirmation(data.root.id);
@@ -65,6 +72,7 @@ function WorkTreeForm({data,edit,save,onDone,onCancel,reload,readOnly=false,refr
   {fieldPolicyRequired&&!detailPolicy&&<p role="status">Editing permissions could not be verified. Refresh this work.</p>}
   {startedEdit&&<p role="note">Work has started. Title and priority corrections remain available to authorized editors. Due-date changes require supervising authority and a reason.</p>}
   {['create','edit'].includes(edit.command)&&<WorkDetailsEditor fields={editor.fields} disabled={locked||detailsUnavailable} update={update} presentation={edit.command==='create'?'dialog':'default'}
+   prerequisiteField={dependencyField} canSelectPrerequisites={dependencyEditable} explicitOnly={dependencySupported&&Array.isArray(editor.baseline.fields.dependencies)}
    showStart={!!data.root.scheduleBounds}
    minDue={data.root.scheduleBounds?dateLimits.earliest||'':calendarMinDate(edit.command==='edit'?editor.baseline.fields.due:'')}
    maxDue={dateLimits.latest}

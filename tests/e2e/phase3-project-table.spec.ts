@@ -109,6 +109,7 @@ test('Head table keeps first-column task actions, task edits and inline subitems
   await page.getByRole('button', { name: 'Column actions for Budget' }).click(); await page.getByRole('menuitem', { name: 'Hide column' }).click(); await expect(page.getByRole('columnheader', { name: 'Budget' })).toHaveCount(0);
   await page.getByRole('button', { name: '← All projects', exact: true }).click();
   await page.getByRole('button', { name: 'Create project', exact: true }).click();
+  await page.getByRole('menuitem', { name: 'Create project', exact: true }).click();
   const createProject = page.getByRole('dialog', { name: 'Create project' });
   await expect(createProject).toBeVisible();
   expect((await createProject.boundingBox())!.width).toBeLessThanOrEqual(800);

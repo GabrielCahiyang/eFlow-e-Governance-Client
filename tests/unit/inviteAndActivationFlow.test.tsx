@@ -53,6 +53,8 @@ vi.mock("../../src/app/features/account-activation/services/activationService", 
 
 import { CreateUserModal } from "../../src/app/features/administration/components/user-management/CreateUserModal";
 import { ActivateAccountPage } from "../../src/app/features/account-activation";
+import { buildRoleCatalog } from "../../src/app/features/permissions";
+import type { Organization } from "../../src/app/types";
 
 beforeEach(() => {
   mocks.stageAccountActivation.mockReset();
@@ -122,6 +124,31 @@ describe("Streamlined Invite eFlow User + ActivateAccountPage full name", () => 
     expect(payload.full_name).toBeUndefined();
     expect(payload.skills).toEqual({});
   });
+
+  it.each(["office_invite", "ledipo_create"] as const)("submits OJT as a Member from %s when LEDIPO already has a Head", async (mode) => {
+    const office: Organization = { id: "org-ledipo", name: "LEDIPO", slug: "ledipo", org_type: "department", is_active: true, head_user_id: "office-head", parent_id: null, path: "ledipo", description: "", created_at: "", updated_at: "" };
+    mocks.listActivationOffices.mockResolvedValue({ offices: [office] });
+    mocks.stageAccountActivation.mockResolvedValue({ invitation_id: "inv-1", email_delivery_status: "sent" });
+    const roleCatalog = buildRoleCatalog([{ key: "ojt", label: "OJT", description: "On the job training", baseRole: "member" }]);
+    render(<CreateUserModal isOpen mode={mode} onClose={vi.fn()} organizations={[office]} profiles={[]} roleCatalog={roleCatalog} />);
+    await waitFor(() => expect(mocks.listActivationOffices).toHaveBeenCalled());
+
+    fireEvent.change(screen.getByPlaceholderText("j.delacruz@eflow.gov.ph"), { target: { value: "ojt@example.test" } });
+    if (mode === "ledipo_create") fireEvent.change(screen.getByPlaceholderText("Juan Dela Cruz"), { target: { value: "OJT Applicant" } });
+    const role = screen.getByRole("combobox", { name: /Role/ });
+    const submit = screen.getByRole("button", { name: "Send activation email" });
+    fireEvent.change(role, { target: { value: "head" } });
+    expect(screen.getByText(/LEDIPO already has/)).toBeTruthy();
+    expect(screen.getByText("Approval after activation")).toBeTruthy();
+    fireEvent.click(submit);
+    expect(mocks.stageAccountActivation).not.toHaveBeenCalled();
+
+    fireEvent.change(role, { target: { value: "ojt" } });
+    expect(screen.queryByText(/LEDIPO already has/)).toBeNull();
+    expect(screen.queryByText("Approval after activation")).toBeNull();
+    fireEvent.click(submit);
+    await waitFor(() => expect(mocks.stageAccountActivation).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ mode, role: "member", custom_role_key: "ojt", org_id: office.id })));
+  }, 20000);
 
   it("collects Full name on ActivateAccountPage and forwards it to activation", async () => {
     window.history.replaceState({}, "", "/activate-account?token=" + "t".repeat(48));

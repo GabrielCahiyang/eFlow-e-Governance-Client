@@ -37,12 +37,15 @@ export {
   TEAM_WORKLOAD_HIGH_THRESHOLD,
 } from "./constants";
 export {
+  analyzeWorkloadConcentration,
   buildSkillCoverage,
   buildTeamAttentionItems,
   buildTeamHealthSummary,
   buildTeamMemberMetrics,
   latestProgressByWorkItem,
   taskParticipantIds,
+  type WorkloadConcentrationStatus,
+  type WorkloadConcentrationSummary,
 } from "./selectors/teamAnalyticsSelectors";
 export type * from "./types";
 export {

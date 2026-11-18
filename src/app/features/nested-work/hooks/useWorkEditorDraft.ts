@@ -9,6 +9,20 @@ import type {WorkCapabilityContext,WorkRequest,WorkTreeSnapshot} from '../types'
 import type {WorkEdit,WorkEditorFields,WorkEditorOutcome,WorkEditorSaveOptions} from '../types/editor';
 import {WorkRequestFailure} from '../types/editor';
 import {useWorkDraftRecovery} from './useWorkDraftRecovery';
+import {canEditSubtaskPrerequisites,subtaskPrerequisiteError} from '../selectors/prerequisites';
+
+async function applyCreatedPrerequisites(receipt:WorkTreeSnapshot,createdId:string,ids:string[],createRevision:number,context:WorkCapabilityContext,save:WorkEditorSaveOptions['save']) {
+ const currentContext={...context,revision:receipt.revision};
+ const node=receipt.nodes.find(item=>item.id===createdId);
+ if(!node||!isCurrentWorkSnapshot(receipt,currentContext)||!canEditSubtaskPrerequisites(receipt,node))throw new Error('Current prerequisite editing access is unavailable.');
+ const baseline=captureWorkEditorBaseline(receipt,{command:'edit',node},context.actorId,createdId);
+ if(!workEditorCapability(receipt,baseline,currentContext).allowed)throw new Error('Current prerequisite editing access is unavailable.');
+ const issue=subtaskPrerequisiteError(receipt,baseline.fields.parent,createdId,ids);
+ if(issue)throw new Error(issue);
+ if(JSON.stringify([...(node.dependency_ids||[])].sort())===JSON.stringify([...ids].sort())&&Array.isArray(node.dependency_ids))return receipt;
+ if(Array.isArray(node.dependency_ids)&&receipt.revision!==createRevision+1)throw new Error('The prerequisite selection changed after creation.');
+ return save(freezeWorkEditorRequest(baseline,{...baseline.fields,dependencies:ids},crypto.randomUUID()));
+}
 
 export function useWorkEditorDraft({data,edit,context,refreshPending,reload,onCancel}:{data:WorkTreeSnapshot;edit:WorkEdit;context:WorkCapabilityContext;refreshPending:boolean;reload?:()=>Promise<void>;onCancel:()=>void}) {
  const [captured]=useState(()=>captureWorkEditorBaseline(data,edit,context.actorId,crypto.randomUUID()));
@@ -60,7 +74,7 @@ export function useWorkEditorDraft({data,edit,context,refreshPending,reload,onCa
  }
  const receiptRequest=uncertain&&!busy&&!saved&&!refreshPending&&scopeMatches&&request.current;
  useEffect(()=>{
-  if(!reload||!receiptRequest||!workEditorReceiptRetryAllowed(data,context))return;
+  if(!reload||!receiptRequest||baseline.command==='create'&&fields.dependencies!==undefined||!workEditorReceiptRetryAllowed(data,context))return;
   let current=true;
   void hasWorkCommandReceipt(context.rootId,receiptRequest).then(found=>{
    if(!found||!current||!active.current||!latest.current.scopeMatches||request.current!==receiptRequest||guard.pendingRef.current)return;
@@ -116,6 +130,18 @@ export function useWorkEditorDraft({data,edit,context,refreshPending,reload,onCa
    recovery.persist({baseline,fields:latest.current.fields,request:request.current});
    receipt=await options.save(request.current);
    if(!active.current||!latest.current.scopeMatches)return;
+   const ids=latest.current.fields.dependencies;
+   if(baseline.command==='create'&&ids!==undefined){
+    try{receipt=await applyCreatedPrerequisites(receipt,baseline.createdId,ids,request.current.revision,latest.current.context,options.save);}
+    catch(reason){
+     if(!active.current||!latest.current.scopeMatches)return;
+     committed.current=true;unresolved.current=false;recovery.clear(baseline);guard.markClean();
+     const failure=workRequestFailure(reason);
+     setOutcome({kind:'committed_refresh_failed',receipt,message:`Subtask created. Open Edit subtask to verify or save its prerequisites. ${failure.kind==='unknown_result'?'':failure.message}`.trim()});
+     void reload?.();return;
+    }
+    if(!active.current||!latest.current.scopeMatches)return;
+   }
    // Commit is recorded before notifying the owner. Callback/refresh failure
    // never becomes a command failure and cannot re-enable mutation submission.
    committed.current=true;unresolved.current=false;recovery.clear(baseline);setOutcome({kind:'committed',receipt});guard.markClean();

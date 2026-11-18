@@ -47,9 +47,9 @@ export function buildShellNavigation({ role, persistedRole = role, can, hasLeadi
     .filter(item=>!(role==='head'&&item.id==='reports'&&(canOpenNavigationSection(role,'team',can,false)||canOpenNavigationSection(role,'intelligence',can,false))))
     .map(item => {
       let pages = getSidebarContent(role, item.id).sections.flatMap(group => group.items.map(page => ({ label: page.label })));
-      if (item.id === 'users') pages = getAuthorizedSupportPages(role, can).filter(page => role === 'admin' || page.section === 'users').map(page => ({ label: page.label }));
+      if (item.id === 'users') pages = getAuthorizedSupportPages(role, can).filter(page => (role === 'admin' || page.section === 'users') && page.label !== 'Backup & Export').map(page => ({ label: page.label }));
       else if (isAdministrativeNavigationSection(item.id)) {
-        const support = getAuthorizedSupportPages(role, can).filter(page => page.section === item.id);
+        const support = getAuthorizedSupportPages(role, can).filter(page => page.section === item.id && page.label !== 'Backup & Export');
         pages = support.length ? support.map(page => ({ label: page.label })) : [{ label: resolveSupportPage(item.id) || item.label }];
       }
       return { ...item, label: item.id === 'dashboard' ? 'Workspace Overview' : item.label, group: getPresentationGroup(role, item.id), pages: pages.length ? pages : [{ label: item.label }], hasAlert: item.id === 'projects' ? alerts.projects : item.id === 'reviews' ? alerts.reviews : false };

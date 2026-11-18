@@ -11,13 +11,26 @@ import { usePlanningEditor } from '../../src/app/features/project-table/hooks/us
 import { CreateWorkDialog } from '../../src/app/features/project-table/components/CreateWorkDialog';
 import { useGroupDeletion } from '../../src/app/features/project-table/hooks/useGroupDeletion';
 import { installNavigationConfirmation, requestNavigation } from '../../src/app/shared/navigationGuard';
-const mocks = vi.hoisted(()=>({task:vi.fn(),group:vi.fn(),remove:vi.fn(),confirm:vi.fn()}));
-vi.mock('../../src/app/features/project-table/services/workspaceService',()=>({createWorkspaceTask:mocks.task,createProjectGroup:mocks.group,deleteProjectGroup:mocks.remove}));
+const mocks = vi.hoisted(()=>({task:vi.fn(),patch:vi.fn(),group:vi.fn(),remove:vi.fn(),confirm:vi.fn()}));
+vi.mock('../../src/app/features/project-table/services/workspaceService',()=>({createWorkspaceTask:mocks.task,patchWorkspaceTask:mocks.patch,createProjectGroup:mocks.group,deleteProjectGroup:mocks.remove}));
+vi.mock('../../src/app/hooks/useFirebaseData',()=>({useTasks:()=>({tasks:[{id:'before',title:'Prerequisite',status:'todo',linkedProjectId:'project'},{id:'other',title:'Other project',status:'todo',linkedProjectId:'elsewhere'}]})}));
 vi.mock('../../src/app/components/ui/useConfirmation',()=>({useConfirmation:()=>({confirm:mocks.confirm,dialog:null})}));
 const task:Task={id:'task',title:'Assessment',orgId:'office',status:'todo',deadline:'2026-10-09T17:45:00+08:00',createdAt:1,updatedAt:1};
 const group={id:'group',projectId:'project',title:'Work',color:'#579bfc',position:1,isDefault:false};
 afterEach(()=>{cleanup();vi.restoreAllMocks();});beforeEach(()=>{vi.clearAllMocks();mocks.task.mockResolvedValue({id:'created'});mocks.group.mockResolvedValue(group);mocks.remove.mockResolvedValue(undefined);mocks.confirm.mockResolvedValue(true);});
 describe('Phase 11 edit and creation contracts',()=>{
+ it('creates a grouped task once and shows a partial result if linking prerequisites fails',async()=>{
+  mocks.patch.mockRejectedValueOnce(new Error('Link rejected'));
+  render(<CreateWorkDialog kind="task" projectId="project" groups={[group]} onClose={vi.fn()}/>);
+  expect(screen.queryByRole('checkbox',{name:/Other project/})).toBeNull();
+  fireEvent.change(screen.getByRole('textbox',{name:'Task name'}),{target:{value:'New dependent task'}});
+  fireEvent.click(screen.getByRole('checkbox',{name:/^Prerequisite/}));
+  fireEvent.click(screen.getByRole('button',{name:'Add task'}));
+  await screen.findByText(/Task created.*Link rejected/);
+  expect(mocks.task).toHaveBeenCalledExactlyOnceWith('project','group','New dependent task');
+  expect(mocks.patch).toHaveBeenCalledExactlyOnceWith('created',{dependency_ids:['before']});
+  expect(screen.queryByRole('button',{name:'Add task'})).toBeNull();
+ },15000);
  it('closes only an opted-in date editor after success and retains denied or pending drafts',async()=>{
   const editor=renderHook(()=>usePlanningEditor(()=>({end:'2026-10-09'}),'Dates',{closeOnSuccess:true}));
   act(()=>editor.result.current.onOpenChange(true));act(()=>editor.result.current.setDraft({end:'2026-10-14'}));

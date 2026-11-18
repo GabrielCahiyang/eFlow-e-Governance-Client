@@ -16,11 +16,11 @@ const statusTone = {
   pending: 'warning', approved: 'positive', released: 'info', receipt_review: 'warning',
   receipt_approved: 'info', settled: 'positive', rejected: 'negative',
 } as const;
-export function OfficePettyCash({focusRequestId}:{focusRequestId?:string}={}){
+export function OfficePettyCash({focusRequestId,allowRequest=true}:{focusRequestId?:string;allowRequest?:boolean}={}){
  const {userProfile}=useAuth();const office=userProfile?.org_id||'';const actor=userProfile?.id||'';
- return <ScopedOfficeCash key={`${office}:${actor}`} office={office} actor={actor} role={userProfile?.role||''} focusRequestId={focusRequestId}/>;
+ return <ScopedOfficeCash key={`${office}:${actor}`} office={office} actor={actor} role={userProfile?.role||''} focusRequestId={focusRequestId} allowRequest={allowRequest}/>;
 }
-function ScopedOfficeCash({office,actor,role,focusRequestId}:{office:string;actor:string;role:string;focusRequestId?:string}){
+function ScopedOfficeCash({office,actor,role,focusRequestId,allowRequest}:{office:string;actor:string;role:string;focusRequestId?:string;allowRequest:boolean}){
  const requestsHeading = useId();
  const [snapshot,setSnapshot]=useState<OfficeCashSnapshot|null>(null),[error,setError]=useState(''),[actionError,setActionError]=useState(''),[busy,setBusy]=useState(false),[edit,setEdit]=useState<{action:PettyAction;request?:OfficeCashRequest}|null>(null);
  const {toast}=useToast();
@@ -53,7 +53,7 @@ function ScopedOfficeCash({office,actor,role,focusRequestId}:{office:string;acto
  const start=(action:PettyAction,request?:OfficeCashRequest)=>{setActionError('');setEdit({action,request});};
  const button=(action:PettyAction,r:OfficeCashRequest)=><button key={action} disabled={!!error||busy||!!pending} onClick={()=>start(action,r)}>{actionLabels[action]}</button>;
  if(!office)return <p className="opc-error">Active office membership is required.</p>;
- return <section className="opc"><header><div><h2><Banknote size={18}/>Office Petty Cash</h2><p>₱30,000 starting fund · ₱5,000 per receipt. Available to your office’s projects and tasks.</p></div><div className="opc-actions"><button className="opc-primary" disabled={!snapshot||!!error||busy||!!pending} onClick={()=>start('request')}><Plus size={16}/>Request petty cash</button>{accountant&&<button disabled={!snapshot||!!error||busy||!!pending||snapshot.replenishable<=0} onClick={()=>start('replenish')}><RefreshCw size={16}/>Replenish fund</button>}</div></header>
+ return <section className="opc"><header><div><h2><Banknote size={18}/>Office Petty Cash</h2><p>₱30,000 starting fund · ₱5,000 per receipt. Available to your office’s projects and tasks.</p></div>{(allowRequest||accountant)&&<div className="opc-actions">{allowRequest&&<button className="opc-primary" disabled={!snapshot||!!error||busy||!!pending} onClick={()=>start('request')}><Plus size={16}/>Request petty cash</button>}{accountant&&<button disabled={!snapshot||!!error||busy||!!pending||snapshot.replenishable<=0} onClick={()=>start('replenish')}><RefreshCw size={16}/>Replenish fund</button>}</div>}</header>
  {error&&<div className="opc-error" role="alert">{error}</div>}
  {!snapshot&&!error&&(
   <div role="status" aria-live="polite" aria-label="Loading office petty cash…">
@@ -118,4 +118,4 @@ function ScopedOfficeCash({office,actor,role,focusRequestId}:{office:string;acto
  {edit&&<OfficeCashDialog key={`${edit.action}:${edit.request?.id||''}`} action={edit.action} request={edit.request} maximum={edit.action==='replenish'?snapshot?.replenishable||0:snapshot?.available||0} busy={busy} pending={pending} error={actionError} onClose={()=>setEdit(null)} onSubmit={submit}/>}
  </section>;
 }
-export function OfficePettyCashLauncher(){const [open,setOpen]=useState(false);return <><button type="button" className="opc-launcher" onClick={()=>setOpen(true)}><Banknote size={16}/>Office petty cash · separate fund</button>{open&&<Modal isOpen title="Office petty cash" width="max-w-6xl" onClose={()=>setOpen(false)}><OfficePettyCash/></Modal>}</>;}
+export function OfficePettyCashLauncher({allowRequest=true}:{allowRequest?:boolean}={}){const [open,setOpen]=useState(false);return <><button type="button" className="opc-launcher" onClick={()=>setOpen(true)}><Banknote size={16}/>Office petty cash · separate fund</button>{open&&<Modal isOpen title="Office petty cash" width="max-w-6xl" onClose={()=>setOpen(false)}><OfficePettyCash allowRequest={allowRequest}/></Modal>}</>;}

@@ -73,6 +73,17 @@ describe("organization leadership uniqueness", () => {
     })).toBeNull();
   });
 
+  it("explains the custom role's account type when the office already has a Head", () => {
+    expect(getLeadershipSlotConflict({
+      role: "head",
+      customRoleLabel: "OJT",
+      orgId: "ledipo",
+      currentUserId: "employee-1",
+      organizations: [organization],
+      profiles,
+    })).toMatch(/OJT uses the Head account type.*Roles & Access/);
+  });
+
   it("allows the current official occupant to keep their position", () => {
     expect(getLeadershipSlotConflict({
       role: "head",

@@ -8,7 +8,6 @@
 }
 .r10-workspace .eflow-workspace-actions button,
 .r10-workspace .r10-action-button,
-.head-home__more .eflow-button,
 .r10-workspace [role="alert"] button {
   display: inline-flex;
   align-items: center;
@@ -27,7 +26,6 @@
 }
 .r10-workspace .eflow-workspace-actions button:hover:not(:disabled),
 .r10-workspace .r10-action-button:hover:not(:disabled),
-.head-home__more .eflow-button:hover:not(:disabled),
 .r10-workspace [role="alert"] button:hover:not(:disabled) {
   background: var(--eflow-subtle);
   border-color: var(--eflow-primary);
@@ -37,9 +35,6 @@
   font-size: var(--eflow-text-sm);
   line-height: 1.5;
   color: var(--eflow-text-secondary);
-}
-.head-home__more {
-  margin-top: 16px;
 }
 .r10-overview-footer {
   margin-top: 16px;

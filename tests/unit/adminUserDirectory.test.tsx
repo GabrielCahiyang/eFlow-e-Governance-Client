@@ -47,6 +47,8 @@ describe("Admin user directory", () => {
   it("shows Admin accounts and gives Admin authority over leadership accounts", async () => {
     render(<UsersTab onOpenAccess={vi.fn()} />);
 
+    expect(screen.getByRole('button', { name: 'Create LEDIPO User' })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: /Invite (External|eFlow) User/ })).toBeNull();
     expect(screen.getByText("Andres Manili")).toBeTruthy();
     const ownRow = screen.getByTestId("row-admin-current");
     fireEvent.keyDown(within(ownRow).getByRole("button", { name: /More actions/ }), { key: "Enter" });

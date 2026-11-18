@@ -16,7 +16,7 @@ import { tasksForProject } from "../../../../services/taskSelectors";
 import { getTaskTeamMemberIds } from "../../../tasks";
 import type { Project } from "../../services/projectService";
 import { useProjectCommandData } from "../../hooks/useProjectCommandData";
-import { hasAssignedSubtaskWork } from "../../selectors/projectCommandSelectors";
+import { collectProjectParticipantIds, hasAssignedSubtaskWork } from "../../selectors/projectCommandSelectors";
 import { ProjectHeader } from "./ProjectHeader";
 import { ProjectParticipants } from "./ProjectParticipants";
 import { ProjectUtilities, type ProjectLifecycleActions } from "./ProjectUtilities";
@@ -167,7 +167,7 @@ export function ProjectCommandWorkspace({
         {setupReady && canManage && !closed && activeTabId !== 'tasks' && <ProjectTaskCreateAction projectId={project.id}/>}
       </div>
       <ProjectHeader project={project} organizations={orgs} profiles={profiles} metrics={data.metrics} editable={canManage || canEditProjectWork && ownOffice?.relationship_type === 'lead'} onTitleChange={title => canManage ? updateProject(project.id, { title }, project.metadataVersion) : renameSelectedProject(project, title)}
-        participants={<ProjectParticipants scope={`${userProfile?.id}:${favoriteContextId}:${project.id}`} profilesLoading={profilesLoading} offices={officeState} profiles={profiles} contributorIds={[project.ownerId || '', ...data.members.map(member => member.userId), ...officeState.members.map(member => member.user_id), ...projectTasks.flatMap(task => [task.assigneeId || '', ...(task.teamMemberIds || [])])]} />}
+        participants={<ProjectParticipants scope={`${userProfile?.id}:${favoriteContextId}:${project.id}`} profilesLoading={profilesLoading} offices={officeState} profiles={profiles} contributorIds={collectProjectParticipantIds({ project, profiles, projectMemberIds: data.members.map(member => member.userId), officeMemberIds: officeState.members.map(member => member.user_id), tasks: projectTasks })} />}
         utilities={<ProjectUtilities setupReady={setupReady} project={project} canManage={canManage} lifecycle={canManage?lifecycleActions:canPlan?{delete:lifecycleActions.delete}:{}} userId={authorizedProjectIds.length ? userProfile?.id || '' : ''} contextId={favoriteContextId} authorizedProjectIds={authorizedProjectIds} view={activeTabId} tasks={projectTasks} subtasks={data.facts.subtasks} onOpenOffices={() => selectTab('members')} onResolveView={selectTab} onOpenSettings={() => selectTab('settings')} />}
         />
       {/* Extensible Workspace Tab Bar (Permanent core views + optional dynamic views) */}

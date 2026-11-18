@@ -11,7 +11,7 @@ test('All projects remains an index; repeat creation guides staffing without rec
   await expect(index).toBeVisible();await expect(index.getByRole('button',{name:'Community outreach',exact:true})).toBeVisible();
   expect(new URL(page.url()).searchParams.has('project')).toBe(false);
   await page.reload();await expect(index).toBeVisible({timeout:20_000});
-  await page.getByRole('button',{name:'+ New',exact:true}).click();
+  await index.getByRole('button',{name:'Create project',exact:true}).click();
   await page.getByRole('menuitem',{name:'Create project',exact:true}).click();
   const dialog=page.getByRole('dialog',{name:'Let’s start working together',exact:true});
   await dialog.getByLabel('Project name').fill('Second project');
@@ -88,6 +88,6 @@ for(const role of ['member','accounting_staff','admin'] as const)test(`${role} k
   if(role==='admin')await expect(page.locator('.eflow-app-shell')).toBeVisible();
   else await expect(page.getByRole('tab',{name:'Board',exact:true})).toHaveAttribute('aria-selected','true',{timeout:20_000});
   await expect(page.getByRole('button',{name:'+ Add people',exact:true})).toHaveCount(0);
-  await expect(page.getByRole('button',{name:'+ New',exact:true})).toHaveCount(0);
+  await expect(page.getByRole('button',{name:'Create project',exact:true})).toHaveCount(0);
   await expect(page.getByRole('button',{name:'+ Task',exact:true})).toHaveCount(0);
 });

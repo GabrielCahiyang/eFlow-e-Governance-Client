@@ -33,7 +33,7 @@ import {
   updateCustomRole,
 } from "../services/permissionService";
 import type { CustomRoleDefinition, RolePermissionRow } from "../types";
-import { CustomRoleModal } from "./CustomRoleModal";
+import { CustomRoleModal, type CustomRoleModalProps } from "./CustomRoleModal";
 
 type PermissionCategoryFilter = "all" | "pages" | "actions";
 
@@ -287,31 +287,21 @@ export function RoleDefaultsTab() {
     setModalMode("edit");
   };
 
-  const handleModalSubmit = async (values: {
-    label: string;
-    description: string;
-    permissions: Record<string, boolean>;
-  }) => {
+  const handleModalSubmit: CustomRoleModalProps["onSubmit"] = async (values) => {
     setModalSaving(true);
     setModalError(null);
     try {
       if (modalMode === "create") {
         const created = await createCustomRole({
-          label: values.label,
-          description: values.description,
+          ...values,
           existingKeys: customRoles.map((r) => r.key),
-          permissions: values.permissions,
         });
         await Promise.all([reloadCatalog(), fetchRolePermissions().then(setRows)]);
         setSelectedRoleKey(created.key);
         setModalMode(null);
         toast(`Created custom role "${created.label}".`, "success");
       } else if (modalMode === "edit" && editingRole) {
-        const updated = await updateCustomRole(editingRole.key, {
-          label: values.label,
-          description: values.description,
-          permissions: values.permissions,
-        });
+        const updated = await updateCustomRole(editingRole.key, values);
         await Promise.all([reloadCatalog(), fetchRolePermissions().then(setRows)]);
         setModalMode(null);
         toast(`Updated custom role "${updated.label}".`, "success");

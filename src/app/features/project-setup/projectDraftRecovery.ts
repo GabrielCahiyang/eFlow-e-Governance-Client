@@ -4,6 +4,7 @@ import type {ProjectFlow} from './types';
 export interface ProjectDraftRecovery {
  values:SetupDraft;
  step:number;
+ datesStep?:true;
  projectId:string;
  base?:ProjectFlow['project'];
  creationAttempt?:{id:string;title:string};
@@ -36,7 +37,7 @@ export function readProjectDraft(key:string):ProjectDraftRecovery|undefined {
 export function storeProjectDraft(key:string,draft?:ProjectDraftRecovery):boolean {
  if(!key)return false;
  try{
-  if(draft)localStorage.setItem(key,JSON.stringify(draft));
+  if(draft)localStorage.setItem(key,JSON.stringify({...draft,datesStep:true}));
   else localStorage.removeItem(key);
   return true;
  }catch{return false;}

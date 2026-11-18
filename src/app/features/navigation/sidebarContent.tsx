@@ -51,7 +51,6 @@ export function getSidebarContent(
             { label: "User Access" },
             { label: "Account Audit" },
             { label: "System Settings" },
-            { label: "Backup & Export" },
           ],
         },
       ],

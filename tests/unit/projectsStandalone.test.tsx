@@ -21,7 +21,7 @@ afterEach(cleanup);
 describe('Projects without a navigation host',()=>{
  it('keeps the common toolbar and index without selecting a first project or rendering another rail',()=>{
   render(<ProjectsWorkspace scope={{includeAllAccessibleWork:false,scopedOrgIds:['office'],enforceOrgScope:true}} eyebrow="Head"/>);
-  expect(screen.getByRole('region',{name:'All projects'})).toBeTruthy();expect(screen.getByRole('button',{name:'+ New'})).toBeTruthy();expect(screen.queryByRole('complementary')).toBeNull();expect(screen.queryByRole('region',{name:'Standalone detail'})).toBeNull();
+  expect(screen.getByRole('region',{name:'All projects'})).toBeTruthy();expect(screen.getByRole('button',{name:'Create project',exact:true}).getAttribute('aria-haspopup')).toBe('menu');expect(screen.queryByRole('button',{name:'+ New'})).toBeNull();expect(screen.queryByRole('complementary')).toBeNull();expect(screen.queryByRole('region',{name:'Standalone detail'})).toBeNull();
   fireEvent.click(screen.getByRole('button',{name:'Standalone project',exact:true}));expect(screen.getByRole('region',{name:'Standalone detail'})).toBeTruthy();fireEvent.click(screen.getByRole('button',{name:'Return to index'}));expect(screen.getByRole('region',{name:'All projects'})).toBeTruthy();
  });
  it('does not grant creation to a Member in standalone mode',()=>{

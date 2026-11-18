@@ -1,7 +1,7 @@
 import {test,expect} from '@playwright/test';
 import {projectWorkspaceFixture} from './fixtures/projectWorkspace';
 
-test('Create project with AI opens the PDF importer inside step 7', async ({page}) => {
+test('Create project with AI saves project dates before opening the PDF importer', async ({page}) => {
  test.setTimeout(90000);
  const records = await projectWorkspaceFixture(page,'head',false,{landingOnly:true});
  const project = {...records.projects[0],id:crypto.randomUUID()};
@@ -35,7 +35,7 @@ test('Create project with AI opens the PDF importer inside step 7', async ({page
   return route.fulfill({json:[]});
  });
  await page.goto(`/projects?page=Projects&workspace=${records.org}`);
- await page.getByRole('button',{name:'+ New',exact:true}).click();
+ await page.getByRole('button',{name:'Create project',exact:true}).click();
  await page.getByRole('menuitem',{name:'Create project with AI',exact:true}).click();
  const wizard = page.getByRole('dialog',{name:'Create project with AI',exact:true});
  const next = wizard.getByRole('button',{name:'Next',exact:true});
@@ -49,13 +49,14 @@ test('Create project with AI opens the PDF importer inside step 7', async ({page
  await next.click();
  await wizard.getByLabel('No funding required for this project').check();
  await next.click();
- await wizard.getByRole('button',{name:'Next: Add people'}).click();
+ await expect(wizard.getByText('2099-01-01 → 2099-06-30')).toBeVisible();
  await wizard.getByRole('button',{name:'Next: Import AI PDF'}).click();
  await expect(wizard.getByRole('heading',{name:'Import AI PDF'})).toBeVisible();
  await expect(wizard.getByLabel('Choose a government proposal PDF')).toBeAttached();
  await expect(wizard.getByRole('heading',{name:'Draft tasks'})).toHaveCount(0);
  await expect(wizard.getByRole('button',{name:'Start import'})).toBeDisabled();
  expect(importTarget).toBe(`eq.${project.id}`);
+ expect(project).toMatchObject({start_date:'2099-01-01',target_date:'2099-06-30'});
  expect(creates).toBe(1);
 });
 test('desktop project setup precedes tasks and derives a funding envelope from two accounts',async({page},info)=>{
@@ -140,7 +141,7 @@ test('Create project saves the team and only selected template work before openi
   if(name==='save_project_definition'){const d=body.p_details;expect(d.lead).toBe(records.id);Object.assign(p,{title:d.title,description:d.description,scope:d.scope,project_lead_id:d.lead,start_date:d.start,target_date:d.end,funding_not_required:d.noFunding,updated_at:new Date().toISOString()});return route.fulfill({json:p});}
   ready=true;records.officeMembers.push({project_office_id:officeId,user_id:records.id});return route.fulfill({json:null});
  });
- await page.goto(`/projects?page=Projects&workspace=${records.org}`);await page.getByRole('button',{name:'Create project',exact:true}).click();const wizard=page.locator('.eflow-responsive-modal').filter({has:page.locator('.pf-wizard-modal')});await expect(wizard).toBeVisible();expect((await wizard.boundingBox())!.width).toBeGreaterThan(1000);
+ await page.goto(`/projects?page=Projects&workspace=${records.org}`);await page.getByRole('button',{name:'Create project',exact:true}).click();await page.getByRole('menuitem',{name:'Create project',exact:true}).click();const wizard=page.locator('.eflow-responsive-modal').filter({has:page.locator('.pf-wizard-modal')});await expect(wizard).toBeVisible();expect((await wizard.boundingBox())!.width).toBeGreaterThan(1000);
  await wizard.getByLabel('Project type (optional)').selectOption('seminar');
  await wizard.getByLabel('Project title *').fill('QA connected creation');await wizard.getByLabel('Description *').fill('Create the project through one guided dialog.');await wizard.getByRole('button',{name:'Next',exact:true}).click();await wizard.getByLabel('Scope of the project *').fill('A non-financial internal planning activity.');await wizard.getByRole('button',{name:'Next',exact:true}).click();await expect(wizard.getByLabel('Project lead *')).toHaveCount(0);await expect(wizard.getByText('The Office Head creating this project is automatically its Project Lead.')).toBeVisible();await wizard.getByLabel('Project start date *').fill('2027-01-01');await wizard.getByLabel('Project target date *').fill('2027-01-31');expect(creates).toBe(0);await page.screenshot({path:info.outputPath('connected-create-lead-dates.png'),fullPage:true});await wizard.getByRole('button',{name:'Next',exact:true}).click();await wizard.getByLabel('No funding required for this project').check();await wizard.getByRole('button',{name:'Next',exact:true}).click();await expect(wizard.getByRole('heading',{name:'Ready to build the work plan?'})).toBeVisible();
  await wizard.getByRole('button',{name:'Next: Add people'}).click();
@@ -171,6 +172,7 @@ test('Create a project dialog places opening preview on the right pane and scrol
  const records=await projectWorkspaceFixture(page,'head',false,{landingOnly:true});
  await page.goto(`/projects?page=Projects&workspace=${records.org}`);
  await page.getByRole('button',{name:'Create project',exact:true}).click();
+ await page.getByRole('menuitem',{name:'Create project',exact:true}).click();
  const wizard=page.locator('.eflow-responsive-modal').filter({has:page.locator('.pf-wizard-modal')});
  await expect(wizard).toBeVisible();
  const details=wizard.locator('.pf-wizard-details');

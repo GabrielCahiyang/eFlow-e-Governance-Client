@@ -52,7 +52,8 @@ import {
   DEFAULT_USER_DIRECTORY_FILTERS,
   filterAndSortUserDirectory,
 } from "../../src/app/features/administration/selectors/userDirectory";
-import type { UserProfile } from "../../src/app/types";
+import type { Organization, UserProfile } from "../../src/app/types";
+import { getLeadershipSlotConflict } from "../../src/app/features/administration/services/leadershipConstraints";
 
 function installSupabaseMocks() {
   mockApi.channel.mockReturnValue({
@@ -355,10 +356,8 @@ describe("dynamic custom roles & redesigned RoleDefaultsTab", () => {
       expect(screen.getByRole("button", { name: "Restore default" })).toBeTruthy();
     });
 
-    // Create a custom role with in-modal permission selection & Edit button support (no template dropdown).
     fireEvent.click(screen.getAllByRole("button", { name: "Create custom role" })[0]);
-    expect(screen.queryByLabelText(/Starting template/i)).toBeNull();
-    expect(screen.queryByLabelText(/Based on access tier/i)).toBeNull();
+    expect((screen.getByLabelText("Account type") as HTMLSelectElement).value).toBe("member");
     fireEvent.change(screen.getByLabelText(/Role name/i), { target: { value: "Budget Reviewer" } });
     const modalVerifyGroup = screen.getByRole("group", { name: "Review and verify submissions" });
     fireEvent.click(modalVerifyGroup.querySelector("button")!);
@@ -367,8 +366,7 @@ describe("dynamic custom roles & redesigned RoleDefaultsTab", () => {
     await waitFor(() => {
       expect(screen.getAllByText("Budget Reviewer").length).toBeGreaterThanOrEqual(1);
     });
-    expect(mockApi.customRoles.some((item) => item.key === "budget_reviewer" && item.base_role === "head")).toBe(true);
-    expect(screen.queryByText(/Based on/i)).toBeNull();
+    expect(mockApi.customRoles.some((item) => item.key === "budget_reviewer" && item.base_role === "member")).toBe(true);
     expect(
       mockApi.rolePermissions.some(
         (row) => row.role === "budget_reviewer" && row.permission === "tasks.verify" && row.allowed,
@@ -386,5 +384,28 @@ describe("dynamic custom roles & redesigned RoleDefaultsTab", () => {
       expect(screen.getAllByText("Senior Budget Reviewer").length).toBeGreaterThanOrEqual(1);
     });
     expect(FALLBACK_DEFAULTS.accounting_staff.length).toBeGreaterThan(0);
+  }, 20000);
+
+  it("repairs an OJT role for assignment and invitation in an office with a Head", async () => {
+    mockApi.customRoles.push({ key: "ojt", label: "OJT", description: "On the job training", base_role: "head" });
+    mockApi.rolePermissions.push({ role: "ojt", permission: "navigation.reviews", allowed: true });
+    const office: Organization = { id: "ledipo", name: "LEDIPO", slug: "ledipo", org_type: "department", is_active: true, head_user_id: "office-head", parent_id: null, path: "ledipo", description: "", created_at: "", updated_at: "" };
+    const leadershipWarning = (role: string) => getLeadershipSlotConflict({ role, orgId: office.id, organizations: [office], profiles: [] });
+
+    render(<RoleDefaultsTab />);
+    fireEvent.click(await screen.findByRole("button", { name: /OJT/ }));
+    fireEvent.click(screen.getByRole("button", { name: "Edit" }));
+    const accountType = screen.getByLabelText("Account type") as HTMLSelectElement;
+    expect(accountType.value).toBe("head");
+    fireEvent.change(accountType, { target: { value: "member" } });
+    fireEvent.click(screen.getByRole("button", { name: "Save changes" }));
+    await waitFor(() => expect(screen.queryByRole("dialog", { name: "Edit custom role" })).toBeNull());
+
+    const catalog = buildRoleCatalog([{ key: "ojt", label: "OJT", description: "On the job training", baseRole: mockApi.customRoles[0].base_role }]);
+    const assignment = resolveRoleSelection("ojt", catalog);
+    expect(assignment).toEqual({ role: "member", customRoleKey: "ojt", label: "OJT" });
+    expect(leadershipWarning(assignment.role)).toBeNull();
+    expect(leadershipWarning(resolveRoleSelection("head", catalog).role)).toContain("already has");
+    expect(mockApi.rolePermissions).toContainEqual(expect.objectContaining({ role: "ojt", permission: "navigation.reviews", allowed: true }));
   }, 20000);
 });

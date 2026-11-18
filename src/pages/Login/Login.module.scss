@@ -106,18 +106,41 @@
 .passwordInputContainer {
   position: relative;
   width: 100%;
+
+  input {
+    padding-right: 48px !important;
+  }
 }
 
 .passwordRevealBtn {
   position: absolute;
-  right: 8px;
-  bottom: 4px;
+  right: 6px;
+  top: 26px;
   display: flex;
   align-items: center;
   justify-content: center;
   width: 44px;
   height: 44px;
   z-index: 3;
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: #475569;
+    cursor: pointer;
+
+    &:hover {
+      color: #0f172a;
+      background: rgba(15, 23, 42, 0.06);
+    }
+  }
 }
 
 .capsLockWarning {

@@ -98,9 +98,9 @@ export function ProjectTaskTemplateLibrary({
 
   async function runRetire(template: ProjectTaskTemplate) {
     const confirmed = await confirmation.confirm({
-      title: 'Retire this template?',
+      title: 'Delete this template?',
       description: `“${template.name}” will be removed from the shared library. Tasks already added to projects stay in those projects.`,
-      actionLabel: 'Retire template',
+      actionLabel: 'Delete template',
     });
     if (!confirmed) return;
     setBusy(true);
@@ -111,7 +111,7 @@ export function ProjectTaskTemplateLibrary({
       setTemplates(rows);
       onTemplatesChanged?.();
     } catch (reason) {
-      setError(readableUiError(reason, "Could not retire this template.", 'write'));
+      setError(readableUiError(reason, "Could not delete this template.", 'write'));
     } finally {
       setBusy(false);
     }
@@ -401,8 +401,8 @@ export function ProjectTaskTemplateLibrary({
                     disabled={busy}
                     onClick={() => void runRetire(template)}
                   >
-                    <FolderPlus size={13} style={{ marginRight: 5 }} />
-                    Retire
+                    <Trash2 size={13} style={{ marginRight: 5 }} />
+                    Delete
                   </Button>
                 </div>
               </article>

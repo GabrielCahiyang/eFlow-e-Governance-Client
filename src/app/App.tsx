@@ -1,7 +1,6 @@
 import {
   AppProviders,
   AuthenticatedApp,
-  QuickLoginListener,
 } from "./features/app-shell";
 import {PublicProjectRecord} from './features/project-publication';
 
@@ -10,7 +9,6 @@ export default function App() {
   if(certificatePath)return <PublicProjectRecord key={certificatePath[1]} certificateId={certificatePath[1]}/>;
   return (
     <AppProviders>
-      <QuickLoginListener />
       <AuthenticatedApp />
     </AppProviders>
   );

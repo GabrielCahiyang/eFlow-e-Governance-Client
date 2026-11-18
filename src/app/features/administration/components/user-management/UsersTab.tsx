@@ -12,7 +12,6 @@ import {
   Plus,
   Trash2,
   UserCheck,
-  UserPlus,
   UsersRound,
   UserX,
 } from "lucide-react";
@@ -92,8 +91,7 @@ export function UsersTab({
   const [lifecycleResult, setLifecycleResult] = useState("");
   const [lifecycleError, setLifecycleError] = useState("");
   const [showCreate, setShowCreate] = useState(false);
-  const [showInvite, setShowInvite] = useState(false);
-  useEffect(() => { setShowCreate(false); setShowInvite(false); }, [userProfile?.id]);
+  useEffect(() => { setShowCreate(false); }, [userProfile?.id]);
   const [editUser, setEditUser] = useState<UserProfile | null>(null);
   const [deleteUser, setDeleteUser] = useState<UserProfile | null>(null);
   const deletePending = useRef(false);
@@ -451,14 +449,6 @@ export function UsersTab({
       <div className="flex flex-wrap items-center justify-end gap-2">
         <Button
           type="button"
-          variant="outline"
-          disabled={!canManageUsers || !isAdminRole(userProfile?.role)}
-          onClick={() => setShowInvite(true)}
-        >
-          <UserPlus size={14} aria-hidden="true" /> Invite External User
-        </Button>
-        <Button
-          type="button"
           onClick={() => setShowCreate(true)}
           disabled={!canManageUsers}
           title={
@@ -553,7 +543,6 @@ export function UsersTab({
         roleCatalog={roleCatalog}
         onCreated={() => onInvitationCreated?.()}
       />
-      <CreateUserModal key={`office-invite:${userProfile?.id}`} mode="office_invite" isOpen={showInvite} onClose={() => setShowInvite(false)} organizations={orgs} profiles={visibleProfiles} roleCatalog={roleCatalog} onCreated={() => onInvitationCreated?.()}/>
       <EditUserModal
         isOpen={Boolean(editUser)}
         onClose={() => setEditUser(null)}

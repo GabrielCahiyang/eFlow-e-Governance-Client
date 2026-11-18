@@ -6,7 +6,7 @@ const mocks=vi.hoisted(()=>({profile:{id:'member',org_id:'office',role:'member'}
 vi.mock('../../src/app/contexts/AuthContext',()=>({useAuth:()=>({userProfile:mocks.profile})}));
 vi.mock('../../src/app/features/office-petty-cash/services/officeCash',()=>({loadOfficeCash:mocks.load,commandOfficeCash:mocks.command,openOfficeReceipt:vi.fn(),uploadOfficeReceipt:vi.fn()}));
 vi.mock('../../src/app/components/ui/Modal',()=>({Modal:({children,footer,title}:any)=><div role="dialog" aria-label={title}>{children}{footer}</div>}));
-import {OfficePettyCash} from '../../src/app/features/office-petty-cash';
+import {OfficePettyCash,OfficePettyCashLauncher} from '../../src/app/features/office-petty-cash';
 beforeEach(()=>{sessionStorage.clear();mocks.profile.role='member';mocks.load.mockResolvedValue({ceiling:30000,receiptLimit:5000,cash:30000,reserved:0,available:30000,outstanding:0,replenishable:0,requests:[],events:[]});mocks.command.mockResolvedValue({});});
 afterEach(()=>{cleanup();vi.clearAllMocks();});
 it.each([['Approve request','approve'],['Reject request','reject']])('confirms %s in a centered dialog before submitting',async(action,command)=>{
@@ -61,4 +61,21 @@ it('recovers an uncertain command after reload with its original key and visible
  fireEvent.click(retry);
  await waitFor(()=>expect(mocks.command).toHaveBeenCalledWith('office',saved));
  await waitFor(()=>expect(sessionStorage.getItem('eflow.office-petty.pending:office:member')).toBeNull());
+});
+it('hides Request petty cash when allowRequest is false while keeping review and replenishment controls',async()=>{
+ mocks.profile.role='accounting_staff';
+ mocks.load.mockResolvedValue({cash:25000,reserved:0,available:25000,outstanding:0,replenishable:5000,requests:[],events:[]});
+ render(<OfficePettyCash allowRequest={false}/>);
+ await waitFor(()=>expect(screen.getByRole('button',{name:/Replenish fund/})).toBeEnabled());
+ expect(screen.queryByRole('button',{name:/Request petty cash/})).toBeNull();
+});
+it('shows Request petty cash inside the task/subtask launcher by default and hides it when allowRequest is false',async()=>{
+ render(<><OfficePettyCashLauncher/></>);
+ fireEvent.click(screen.getByRole('button',{name:/Office petty cash · separate fund/}));
+ await waitFor(()=>expect(screen.getByRole('button',{name:/Request petty cash/})).toBeEnabled());
+ cleanup();
+ render(<OfficePettyCashLauncher allowRequest={false}/>);
+ fireEvent.click(screen.getByRole('button',{name:/Office petty cash · separate fund/}));
+ await screen.findByText('No office petty cash requests yet.');
+ expect(screen.queryByRole('button',{name:/Request petty cash/})).toBeNull();
 });

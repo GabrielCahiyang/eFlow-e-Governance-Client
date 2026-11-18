@@ -7,7 +7,7 @@ import {
   type PermissionKey,
 } from "../constants";
 import { rolePermissionAllowed } from "../selectors";
-import type { CustomRoleDefinition, RolePermissionRow } from "../types";
+import type { BaseCustomRole, CustomRoleDefinition, RolePermissionRow } from "../types";
 
 const ALL_CAPABILITY_KEYS: readonly PermissionKey[] = [
   ...VISIBLE_PAGE_PERMISSION_KEYS,
@@ -39,6 +39,7 @@ export interface CustomRoleModalProps {
   onSubmit: (values: {
     label: string;
     description: string;
+    baseRole: BaseCustomRole;
     permissions: Record<string, boolean>;
   }) => Promise<void> | void;
 }
@@ -131,6 +132,7 @@ export function CustomRoleModal({
 }: CustomRoleModalProps) {
   const [label, setLabel] = useState("");
   const [description, setDescription] = useState("");
+  const [baseRole, setBaseRole] = useState<BaseCustomRole>("member");
   const [permissions, setPermissions] = useState<Record<string, boolean>>({});
   const [validationError, setValidationError] = useState<string | null>(null);
 
@@ -138,6 +140,7 @@ export function CustomRoleModal({
     if (!open) return;
     setLabel(initialRole?.label || "");
     setDescription(initialRole?.description || "");
+    setBaseRole(initialRole?.baseRole ?? "member");
     setPermissions(
       buildInitialPermissionMap(
         mode === "edit" && initialRole ? initialRole.key : null,
@@ -182,6 +185,7 @@ export function CustomRoleModal({
     await onSubmit({
       label: cleanedLabel,
       description: description.trim().slice(0, 240),
+      baseRole,
       permissions,
     });
   };
@@ -261,6 +265,27 @@ export function CustomRoleModal({
                   className="h-9 w-full rounded-lg border border-neutral-200 bg-white px-3 text-[13px] text-neutral-900 placeholder:text-neutral-400 focus:border-[#0d544f] focus:outline-none"
                 />
               </div>
+            </div>
+
+            <div>
+              <label htmlFor="custom-role-base" className="mb-1.5 block text-[12.5px] font-medium text-neutral-800">
+                Account type
+              </label>
+              <select
+                id="custom-role-base"
+                value={baseRole}
+                onChange={(event) => setBaseRole(event.target.value as BaseCustomRole)}
+                disabled={saving}
+                aria-describedby="custom-role-base-description"
+                className="h-9 w-full rounded-lg border border-neutral-200 bg-white px-3 text-[13px] text-neutral-900 sm:w-1/2"
+              >
+                <option value="member">Member</option>
+                <option value="accounting_staff">Accounting Staff</option>
+                <option value="head">Head</option>
+              </select>
+              <p id="custom-role-base-description" className="mt-1.5 text-[12px] text-neutral-500">
+                Used when assigning this role. Choose Head only for the appointed Office Head.
+              </p>
             </div>
 
             <div className="space-y-3 pt-1">

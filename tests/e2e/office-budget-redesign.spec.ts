@@ -111,10 +111,6 @@ test('Head Office Budget renders all ten views and retains its fiscal scope', as
   await expect(page.getByRole('option')).toHaveCount(10);
   await page.getByRole('option', { name: 'Office Petty Cash', exact: true }).click();
   await expect(workspace.getByText('Workshop materials', { exact: true })).toBeVisible();
-  await workspace.getByRole('button', { name: 'Request petty cash', exact: true }).click();
-  const dialog = page.getByRole('dialog', { name: 'Request petty cash', exact: true });
-  await expect(dialog.getByLabel('Purpose', { exact: true })).toBeVisible();
-  await dialog.getByRole('button', { name: 'Cancel', exact: true }).click();
-  await expect(dialog).toHaveCount(0);
+  await expect(workspace.getByRole('button', { name: 'Request petty cash', exact: true })).toHaveCount(0);
   expect(state.writes).toHaveLength(0);
 });

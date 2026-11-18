@@ -1,6 +1,6 @@
 import { PrerequisiteCell } from '../../../components/ui/workspace';
 import type { Task } from '../../tasks';
-import { dependencyWouldCycle } from '../selectors';
+import { projectPrerequisiteChoices, projectPrerequisiteError } from '../selectors';
 import type { WorkspaceTaskPatch } from '../types';
 
 export function DependencyCell({ task, tasks, disabled, save }: {
@@ -14,12 +14,13 @@ export function DependencyCell({ task, tasks, disabled, save }: {
     itemName="task"
     selectedIds={task.dependencyIds || []}
     records={tasks}
-    getChoices={() => tasks.filter(item => item.id !== task.id && !item.archivedAt && item.linkedProjectId === task.linkedProjectId)}
+    getChoices={() => projectPrerequisiteChoices(tasks, task.linkedProjectId, task.id, task.dependencyIds)}
     disabled={disabled}
     completedLabel="Completed and approved"
     description="This task can start only after every selected task is completed and approved. Cycles are blocked."
     onSave={async ids => {
-      if (dependencyWouldCycle(tasks, task.id, ids)) throw new Error('Dependencies cannot form a cycle.');
+      const issue = projectPrerequisiteError(tasks, task.linkedProjectId, task.id, ids, task.dependencyIds);
+      if (issue) throw new Error(issue);
       await save({ dependency_ids: ids });
     }}
   />;

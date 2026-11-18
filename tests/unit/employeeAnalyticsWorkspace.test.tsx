@@ -63,12 +63,6 @@ vi.mock(
   () => ({ TeamMemberWorkPanel: () => <div>Preserved work assignments</div> }),
 );
 vi.mock(
-  "../../src/app/features/team-management/components/supervision/TeamMemberOperationsPanel",
-  () => ({
-    TeamMemberOperationsPanel: () => <div>Preserved safe reassignment</div>,
-  }),
-);
-vi.mock(
   "../../src/app/features/team-management/components/supervision/OfficeIdentityAccessPanel",
   () => ({
     OfficeIdentityAccessPanel: () => <div>Preserved identity controls</div>,
@@ -123,7 +117,9 @@ it("brings employee delivery, assignments and 360 into a dedicated People & skil
   expect(state.options).toMatchObject({ includeCurrentUser: true });
   expect(screen.getByRole("button", { name: "Inspect employee analytics" })).toBeTruthy();
   fireEvent.click(screen.getByRole("button", { name: "People & skills", exact: true }));
-  expect(screen.getByText("Preserved safe reassignment")).toBeTruthy();
+  expect(screen.getByText("Preserved work assignments")).toBeTruthy();
+  expect(screen.queryByText(/Change an assignment/i)).toBeNull();
+  expect(screen.queryByText(/No immediate risk/i)).toBeNull();
   fireEvent.click(
     screen.getByRole("button", { name: "Employee 360", exact: true }),
   );

@@ -1,7 +1,7 @@
 import { readableUiError } from '../../../shared/userFacingError';
 import {useEffect,useId,useRef,useState} from 'react';
 import {Button} from '@vibe/core';
-import {ArrowLeft,ArrowRight,Check,ClipboardList,Layers,Wallet,ShieldCheck,Save,FileUp} from 'lucide-react';
+import {ArrowLeft,ArrowRight,CalendarDays,Check,ClipboardList,Layers,Wallet,ShieldCheck,Save,FileUp} from 'lucide-react';
 import {FeedbackState} from '../../../components/ui/FeedbackState';
 import {Modal} from '../../../components/ui/Modal';
 import {ProjectPdfImportPanel} from '../../project-import';
@@ -10,6 +10,7 @@ import {ProjectOpeningPreview} from './ProjectOpeningPreview';
 import type {Organization,UserProfile} from '../../../types';
 import type {Task} from '../../tasks';
 import {requestNavigation,useNavigationBlocker} from '../../../shared/navigationGuard';
+import {scheduledDateError} from '../../../shared/calendarDates';
 import {useProjectFlow} from '../useProjectFlow';
 import {ProjectFlowError,projectFlowCall,readProjectFlow} from '../services/projectFlow';
 import {readProjectDraft,storeProjectDraft,type ProjectDraftRecovery} from '../projectDraftRecovery';
@@ -22,8 +23,10 @@ import { ProjectTaskDraftStep } from './ProjectTaskDraftStep';
 import { useProjectTaskTemplates } from '../useProjectTaskTemplates';
 import '../projectSetup.css';
 import '../projectWizardDesign.css';
-const steps=[{title:'Details',icon:ClipboardList},{title:'Scope',icon:Layers},{title:'Funding',icon:Wallet},{title:'Review',icon:ShieldCheck},{title:'Draft tasks',icon:ClipboardList}];
-const fundingStep=2,reviewStep=3,tasksStep=4;
+const steps=[{title:'Details',icon:ClipboardList},{title:'Scope',icon:Layers},{title:'Dates',icon:CalendarDays},{title:'Funding',icon:Wallet},{title:'Review',icon:ShieldCheck},{title:'Draft tasks',icon:ClipboardList}];
+const datesStep=2,fundingStep=3,reviewStep=4,tasksStep=5;
+const projectStartError=(start:string,original='')=>scheduledDateError(start,{original,label:'Project start date'});
+const hasValidDates=({start,end}:SetupDraft,originalStart?:string)=>!!start&&!!end&&start<=end&&!projectStartError(start,originalStart);
 const empty:SetupDraft={title:'',description:'',scope:'',lead:'',start:'',end:'',noFunding:false};
 const fields=(p:ProjectFlow['project']):SetupDraft=>({title:p.title,description:p.description,scope:p.scope,lead:p.project_lead_id||'',start:p.start_date||'',end:p.target_date||'',noFunding:p.funding_not_required});
 export function ProjectSetupWizard({projectId,profiles,profilesLoading: _profilesLoading,organizations: _organizations=[],tasks: _tasks=[],governed: _governed=false,officeName: _officeName,creatorId,recoveryKey='',createDraft,onClose,onFinish,initialStep=0,importPdf=false}:{projectId?:string;profiles:UserProfile[];profilesLoading?:boolean;organizations?:Organization[];tasks?:Task[];governed?:boolean;officeName?:string;creatorId?:string;recoveryKey?:string;createDraft?:(title:string,requestId:string)=>Promise<string>;onClose:(id?:string)=>void;onFinish:(id:string)=>void;initialStep?:number;importPdf?:boolean}){
@@ -59,9 +62,12 @@ export function ProjectSetupWizard({projectId,profiles,profilesLoading: _profile
  const finish=(target:string)=>{finished.current=true;if(recoveryKey)storeProjectDraft(recoveryKey);onFinish(target);};
  const close=()=>void requestNavigation(() => readyProjectId ? finish(readyProjectId) : onClose(createdId.current||undefined));
  const update=(key:keyof SetupDraft,value:string|boolean)=>setDraft(current=>({...current,[key]:value}));
+ const originalStart=projectId?base?.start_date??'':'';
  async function persist(){
   let target=createdId.current;
   if(!draft.title.trim())throw new Error('Enter a project title before saving.');
+  const startError=projectStartError(draft.start,originalStart);
+  if(startError)throw new Error(startError);
   if(!target){
    if(!createDraft)throw new Error('Project creation is unavailable.');
    creationAttempt.current??={id:crypto.randomUUID(),title:draft.title.trim()};
@@ -101,6 +107,11 @@ export function ProjectSetupWizard({projectId,profiles,profilesLoading: _profile
  function validate(index:number){
   if(index===0&&(!draft.title.trim()||!draft.description.trim()))throw new Error('Enter the project title and description before continuing.');
   if(index===1&&!draft.scope.trim())throw new Error('Define the project scope before continuing.');
+  if(index===datesStep){
+   const startError=projectStartError(draft.start,originalStart);
+   if(startError)throw new Error(startError);
+   if(!draft.start||!draft.end||draft.end<draft.start)throw new Error('Enter a project start date and a target date on or after it.');
+  }
  }
  const next=()=>{
   if(step<fundingStep){
@@ -109,8 +120,8 @@ export function ProjectSetupWizard({projectId,profiles,profilesLoading: _profile
    return;
   }
   void perform(async()=>{
+  validate(0);validate(1);validate(datesStep);
   if(step===reviewStep){
-   validate(0);validate(1);
    if(fundingDirty||uncertain)throw new Error('Save or remove the funding entries first.');
    if(!draft.noFunding&&!(activeFlow&&activeFlow.total>0))throw new Error('Add project funding or select No funding required.');
    const target=await persist();
@@ -128,7 +139,8 @@ export function ProjectSetupWizard({projectId,profiles,profilesLoading: _profile
  };
  const saveDraft=()=>void perform(async()=>{await persist();window.dispatchEvent(new Event('eflow:project-setup'));window.setTimeout(()=>onClose(createdId.current),0);});
  const loading=!!projectId&&!hydrated.current;
- const canOpenTasks=!!readyProjectId&&!dirty&&!fundingDirty;
+ const datesComplete=hasValidDates(draft,originalStart);
+ const canOpenTasks=!!readyProjectId&&datesComplete&&!dirty&&!fundingDirty;
  const jump=(index:number)=>{
   if(locked||loading||uncertain||(index>reviewStep&&!canOpenTasks)||index===step)return;
   const change=()=>{
@@ -137,9 +149,9 @@ export function ProjectSetupWizard({projectId,profiles,profilesLoading: _profile
   };
   if(step>reviewStep)void requestNavigation(change);else change();
  };
- const complete=[!!draft.title.trim()&&!!draft.description.trim(),!!draft.scope.trim(),(draft.noFunding||!!activeFlow?.total)&&!fundingDirty&&!uncertain,canOpenTasks,false];
- const detailsComplete=complete.slice(0,2).every(Boolean);
- const needsFundingDetails=!recovery&&step===fundingStep&&!draft.noFunding&&detailsComplete&&editable&&(!id||!base||dirty);
+ const complete=[!!draft.title.trim()&&!!draft.description.trim(),!!draft.scope.trim(),datesComplete,(draft.noFunding||!!activeFlow?.total)&&!fundingDirty&&!uncertain,canOpenTasks,false];
+ const detailsComplete=complete.slice(0,fundingStep).every(Boolean);
+ const needsFundingDetails=!recovery&&step===fundingStep&&!draft.noFunding&&!uncertain&&detailsComplete&&editable&&(!id||!base||dirty);
  const prepareFunding=()=>void perform(async()=>{await persist();if(id&&base)void flow.reload();});
  const prepareFundingRef=useRef(prepareFunding);
  prepareFundingRef.current=prepareFunding;
@@ -150,10 +162,13 @@ export function ProjectSetupWizard({projectId,profiles,profilesLoading: _profile
   createdId.current=saved.projectId;creationAttempt.current=saved.creationAttempt;
   setId(saved.projectId);setDraft({...saved.values,...(creatorId?{lead:creatorId}:{})});setBase(saved.base);setProjectType(saved.projectType??'');
   const nextPdfMode=saved.importPdf??importPdf;
-  const restoredReadyId=saved.readyProjectId??saved.peopleProjectId??'';
+  const validDates=hasValidDates(saved.values);
+  const restoredReadyId=validDates?(saved.readyProjectId??saved.peopleProjectId??''):'';
+  const oldStep=saved.datesStep||saved.peopleProjectId!==undefined||saved.step>=tasksStep?saved.step:saved.step+Number(saved.step>=datesStep);
+  const restoredStep=Math.min(oldStep,restoredReadyId?tasksStep:reviewStep);
   setReadyProjectId(restoredReadyId);
   setPdfMode(nextPdfMode);
-  setStep(funding?.request?fundingStep:restoredReadyId?Math.min(saved.step,tasksStep):Math.min(saved.step,reviewStep));
+  setStep(funding?.request?fundingStep:validDates?restoredStep:Math.min(restoredStep,datesStep));
   setRecovery(undefined);
  }
  if(recovery)return <Modal isOpen title="Create project" description="An unfinished project draft is saved on this device." onClose={close} footer={<div className="pf-actions"><button type="button" disabled={!!recovery.creationAttempt} onClick={()=>{storeProjectDraft(recoveryKey);setRecovery(undefined);}}>Start new project</button><button type="button" className="pf-primary" onClick={()=>continueDraft(recovery)}>Continue draft</button></div>}>{null}</Modal>;
@@ -195,14 +210,14 @@ export function ProjectSetupWizard({projectId,profiles,profilesLoading: _profile
     </div> : <ProjectSetupFields step={step} draft={draft} update={update} profiles={profiles} disabled={locked||!editable}/>}
     {step===0&&<ProjectOpeningPreview title={draft.title} selectedTemplate={selectedTemplate}/>}
    </div>}
-   <section hidden={step!==fundingStep} aria-label="Project funding step"><p className="pf-eyebrow">PROJECT FUNDING</p><h2>Set the funding sources</h2><p>Choose the Office Budget source and amount for the current fiscal year. The project total is calculated from those rows.</p><label className="pf-checkbox"><input type="checkbox" checked={draft.noFunding} disabled={!editable||!!activeFlow?.funds.length||locked||fundingDirty||uncertain} onChange={e=>update('noFunding',e.target.checked)}/>No funding required for this project</label>{!draft.noFunding&&!detailsComplete&&<p className="pf-warning">Complete Details and Scope before choosing funding.</p>}
+   <section hidden={step!==fundingStep} aria-label="Project funding step"><p className="pf-eyebrow">PROJECT FUNDING</p><h2>Set the funding sources</h2><p>Choose the Office Budget source and amount for the current fiscal year. The project total is calculated from those rows.</p><label className="pf-checkbox"><input type="checkbox" checked={draft.noFunding} disabled={!editable||!!activeFlow?.funds.length||locked||fundingDirty||uncertain} onChange={e=>update('noFunding',e.target.checked)}/>No funding required for this project</label>{!draft.noFunding&&!detailsComplete&&<p className="pf-warning">Complete Details, Scope and Dates before choosing funding.</p>}
     {!draft.noFunding&&detailsComplete&&busy&&needsFundingDetails&&<p role="status">Saving project details…</p>}
     {!draft.noFunding&&detailsComplete&&!locked&&(needsFundingDetails&&error||flow.error)&&<button type="button" className="pf-funding-retry" onClick={needsFundingDetails?prepareFunding:()=>void perform(flow.reload)}>Retry loading funding sources</button>}
-    {!draft.noFunding&&id&&base&&activeFlow?.project.id===id&&<fieldset disabled={busy||dirty||!detailsComplete} className="min-w-0"><ProjectFundingPanel key={id} wizard recoveryKey={fundingRecoveryKey} data={activeFlow} reload={flow.reload} onBusyChange={setFundingBusy} onDraftChange={setFundingDirty} onUncertainChange={setUncertain}/></fieldset>}</section>
+    {!draft.noFunding&&id&&base&&activeFlow?.project.id===id&&<fieldset disabled={busy||(!uncertain&&(dirty||!detailsComplete))} className="min-w-0"><ProjectFundingPanel key={id} wizard recoveryKey={fundingRecoveryKey} data={activeFlow} reload={flow.reload} onBusyChange={setFundingBusy} onDraftChange={setFundingDirty} onUncertainChange={setUncertain}/></fieldset>}</section>
    {step===reviewStep&&<section className="pf-wizard-review"><p className="pf-eyebrow">REVIEW</p><h2>Ready to build the work plan?</h2><h3>{draft.title}</h3><p>{draft.description}</p><dl><div><dt>Scope</dt><dd>{draft.scope}</dd></div><div><dt>Project lead</dt><dd>{profiles.find(p=>p.id===draft.lead)?.full_name||'Assigned project lead'}</dd></div><div><dt>Timeline</dt><dd>{draft.start&&draft.end?`${draft.start} → ${draft.end}`:'Set automatically from tasks & subtasks'}</dd></div><div><dt>Project budget</dt><dd>{draft.noFunding?'No funding required':`₱${(activeFlow?.total||0).toLocaleString('en-US',{minimumFractionDigits:2})}`}</dd></div></dl>{!draft.noFunding&&<ul className="pf-review-sources">{activeFlow?.funds.map(source=><li key={source.id}><span>FY {source.fiscal_year} · {source.name}</span><strong>₱{source.amount.toLocaleString('en-US',{minimumFractionDigits:2})}</strong></li>)}</ul>}<p>{pdfMode?'Continue to import your proposal PDF with AI.':'Continue to draft tasks. You can assign people directly to tasks in Main table.'}</p></section>}
    {step===activeTasksStep&&readyProjectId&&(pdfMode
     ? <ProjectPdfImportPanel key={readyProjectId} projectId={readyProjectId} projectTitle={draft.title} startDate={draft.start} projectContext={{title:draft.title,description:draft.description,scope:draft.scope}} projectFunding={activeFlow?{fundingNotRequired:activeFlow.project.funding_not_required||draft.noFunding,total:activeFlow.total,unallocated:activeFlow.unallocated,funds:activeFlow.funds}:undefined} embedded onBusyChange={setTaskDraftBusy}/>
-    : <ProjectTaskDraftStep formId={tasksFormId} onSaveStateChange={setTaskAction} key={readyProjectId} projectId={readyProjectId} project={{...draft,noFunding:draft.noFunding||!!activeFlow?.project.funding_not_required,totalBudget:activeFlow?.total||0,unallocatedBudget:activeFlow?.unallocated||0,budgetSources:activeFlow?.funds.map(f=>`${f.name} (FY ${f.fiscal_year}): ₱${f.available.toLocaleString('en-US')}`)||[]}} templates={templateLibrary.templates} templateError={templateLibrary.error} initialTemplate={selectedTemplate} onTemplateSaved={saved=>{void templateLibrary.reload();setProjectType(saved.id);}} onSaved={()=>finish(readyProjectId)} onBusyChange={setTaskDraftBusy}/>)}
+    : <ProjectTaskDraftStep formId={tasksFormId} onSaveStateChange={setTaskAction} key={readyProjectId} projectId={readyProjectId} project={draft} templates={templateLibrary.templates} templateError={templateLibrary.error} initialTemplate={selectedTemplate} onTemplateSaved={saved=>{void templateLibrary.reload();setProjectType(saved.id);}} onSaved={()=>finish(readyProjectId)} onBusyChange={setTaskDraftBusy}/>)}
   </>}</div>
  </Modal>
  {manageTemplatesOpen&&<Modal isOpen title="Project starter templates" description="Create and manage reusable task checklists." width="max-w-5xl" onClose={()=>{setManageTemplatesOpen(false);setTemplateInitialCreate(false);}}>

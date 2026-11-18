@@ -22,6 +22,9 @@ import {ProjectFundingPanel} from '../../src/app/features/project-setup/componen
 import {ProjectTaskDraftStep} from '../../src/app/features/project-setup/components/ProjectTaskDraftStep';
 import {getPhilippineCalendarDate} from '../../src/app/shared/calendarDates';
 const currentYear=Number(getPhilippineCalendarDate().slice(0,4));
+const today=getPhilippineCalendarDate();
+const yesterday=getPhilippineCalendarDate(new Date(Date.now()-86400000));
+const tomorrow=getPhilippineCalendarDate(new Date(Date.now()+86400000));
 const initial=()=>({project:{id:'p',title:'Community support',description:'',scope:'',project_lead_id:null,start_date:null,target_date:null,funding_not_required:false,updated_at:'2026-10-30T00:00:00Z'},ready:false,canAuthorize:true,canAllocate:true,funds:[],sources:[{id:'source',name:'Community services',year:currentYear,available:1000000}],requests:[],fundingRequests:[],taskFunding:[],liquidations:[],total:0,allocated:0,unallocated:0,released:0,spent:0});
 const lead={id:'lead',full_name:'Ari Lead',email:'ari@example.test',role:'member' as const,is_active:true};
 vi.setConfig({testTimeout:15000});
@@ -98,10 +101,10 @@ it('requires a reason in the funding release dialog and retains its request iden
 
 it('lets users skip directly to Review but prevents incomplete setup from finishing',async()=>{
  render(<ProjectSetupWizard recoveryKey="actor-office" createDraft={vi.fn()} profiles={[]} onClose={vi.fn()} onFinish={vi.fn()}/>);
- await screen.findByLabelText('Description *');fireEvent.click(screen.getByRole('button',{name:/04.*Review/}));
+ await screen.findByLabelText('Description *');fireEvent.click(screen.getByRole('button',{name:/05.*Review/}));
  expect(screen.getByText('Ready to build the work plan?')).toBeVisible();
  expect(screen.queryByRole('button',{name:/Add people/i})).toBeNull();
- expect(screen.getByRole('button',{name:/05.*Draft tasks/})).toBeDisabled();
+ expect(screen.getByRole('button',{name:/06.*Draft tasks/})).toBeDisabled();
  fireEvent.click(screen.getByRole('button',{name:'Next: Draft tasks'}));
  await waitFor(()=>expect(screen.getByRole('alert').textContent).toContain('title and description'));
  expect(api.call).not.toHaveBeenCalled();
@@ -109,14 +112,14 @@ it('lets users skip directly to Review but prevents incomplete setup from finish
 });
 
 it('keeps unsaved funding rows while jumping between sections',async()=>{
- api.data.project={...api.data.project,description:'Deliver support',scope:'Workshop materials',project_lead_id:'lead',start_date:'',target_date:''};
- localStorage.setItem('actor-office',JSON.stringify({projectId:'p',step:2,creationPending:false,base:api.data.project,values:{title:api.data.project.title,description:api.data.project.description,scope:api.data.project.scope,lead:'lead',start:'',end:'',noFunding:false}}));
+ api.data.project={...api.data.project,description:'Deliver support',scope:'Workshop materials',project_lead_id:'lead',start_date:today,target_date:tomorrow};
+ localStorage.setItem('actor-office',JSON.stringify({projectId:'p',step:2,creationPending:false,base:api.data.project,values:{title:api.data.project.title,description:api.data.project.description,scope:api.data.project.scope,lead:'lead',start:today,end:tomorrow,noFunding:false}}));
  render(<ProjectSetupWizard recoveryKey="actor-office" createDraft={vi.fn()} profiles={[lead] as any} onClose={vi.fn()} onFinish={vi.fn()}/>);
  fireEvent.click(screen.getByRole('button',{name:'Continue draft'}));
  fireEvent.change(screen.getByLabelText('Office Budget source'),{target:{value:'source'}});fireEvent.change(screen.getByRole('spinbutton'),{target:{value:'1234'}});
- fireEvent.click(screen.getByRole('button',{name:/02.*Scope/}));fireEvent.click(screen.getByRole('button',{name:/03.*Funding/}));
+ fireEvent.click(screen.getByRole('button',{name:/02.*Scope/}));fireEvent.click(screen.getByRole('button',{name:/04.*Funding/}));
  expect(screen.getByRole('spinbutton')).toHaveValue('1,234');expect(screen.getByLabelText('Office Budget source')).toHaveValue('source');
- fireEvent.click(screen.getByRole('button',{name:/04.*Review/}));fireEvent.click(screen.getByRole('button',{name:'Next: Draft tasks'}));
+ fireEvent.click(screen.getByRole('button',{name:/05.*Review/}));fireEvent.click(screen.getByRole('button',{name:'Next: Draft tasks'}));
  await waitFor(()=>expect(screen.getByRole('alert').textContent).toContain('Save or remove the funding entries'));
  expect(api.call).not.toHaveBeenCalled();
 });
@@ -137,21 +140,42 @@ it('prepares Funding automatically and authorizes a valid current-year amount in
   }
  });
  render(<ProjectSetupWizard recoveryKey="actor-office" creatorId="lead" createDraft={createDraft} profiles={[lead] as any} onClose={vi.fn()} onFinish={vi.fn()}/>);
- fireEvent.click(screen.getByRole('button',{name:/03.*Funding/}));
- expect(screen.getByText(/Complete Details and Scope/)).toBeVisible();
+ fireEvent.click(screen.getByRole('button',{name:/04.*Funding/}));
+ expect(screen.getByText(/Complete Details, Scope and Dates/)).toBeVisible();
  expect(createDraft).not.toHaveBeenCalled();
  fireEvent.click(screen.getByRole('button',{name:/01.*Details/}));
  fireEvent.change(screen.getByLabelText('Project title *'),{target:{value:'Community support'}});
  fireEvent.change(screen.getByLabelText('Description *'),{target:{value:'Deliver support'}});
  fireEvent.click(screen.getByRole('button',{name:'Next'}));
  fireEvent.change(screen.getByLabelText('Scope of the project *'),{target:{value:'Training'}});
- expect(screen.queryByRole('button',{name:/Dates/})).toBeNull();
+ fireEvent.click(screen.getByRole('button',{name:'Next'}));
+ expect(screen.getByRole('button',{name:/03.*Dates/})).toHaveAttribute('aria-current','step');
+ fireEvent.click(screen.getByRole('button',{name:'Next'}));
+ expect(screen.getByRole('alert')).toHaveTextContent('Enter a project start date');
+ const start=screen.getByLabelText('Project start date *');
+ const target=screen.getByLabelText('Project target date *');
+ expect(start).toHaveAttribute('min',today);
+ fireEvent.change(start,{target:{value:yesterday}});
+ fireEvent.change(target,{target:{value:tomorrow}});
+ fireEvent.click(screen.getByRole('button',{name:'Next'}));
+ expect(screen.getByRole('alert')).toHaveTextContent(`Project start date cannot be before ${today}`);
+ fireEvent.click(screen.getByRole('button',{name:'Save draft and close'}));
+ expect(await screen.findByRole('alert')).toHaveTextContent(`Project start date cannot be before ${today}`);
+ expect(createDraft).not.toHaveBeenCalled();
+ fireEvent.change(start,{target:{value:today}});
+ fireEvent.change(target,{target:{value:yesterday}});
+ fireEvent.click(screen.getByRole('button',{name:'Next'}));
+ expect(screen.getByRole('alert')).toHaveTextContent('on or after it');
+ expect(createDraft).not.toHaveBeenCalled();
+ fireEvent.change(target,{target:{value:tomorrow}});
  fireEvent.click(screen.getByRole('button',{name:'Next'}));
  const authorize=await screen.findByRole('button',{name:'Authorize project funding'});
  expect(screen.queryByLabelText('Fiscal year')).toBeNull();
  await waitFor(()=>expect(screen.getByLabelText('Office Budget source')).toBeEnabled());
  expect(createDraft).toHaveBeenCalledExactlyOnceWith('Community support',expect.any(String));
- expect(api.call.mock.calls[0][0]).toBe('save_project_definition');
+ expect(api.call).toHaveBeenNthCalledWith(1,'save_project_definition',{
+  p_project:'p',p_details:expect.objectContaining({start:today,end:tomorrow}),
+ });
  expect(screen.queryByRole('button',{name:'Save details and load funding'})).toBeNull();
  expect(screen.queryByRole('option',{name:/Future budget/})).toBeNull();
  fireEvent.change(screen.getByLabelText('Office Budget source'),{target:{value:'source'}});
@@ -166,7 +190,7 @@ it('prepares Funding automatically and authorizes a valid current-year amount in
  expect(api.call).toHaveBeenCalledWith('authorize_project_funding',{
   p_project:'p',p_lines:[{partitionId:'source',amount:1234.56}],p_reason:'Approved programme',p_key:expect.any(String),
  });
- expect(screen.getByRole('button',{name:/03.*Funding/})).toHaveAttribute('aria-current','step');
+ expect(screen.getByRole('button',{name:/04.*Funding/})).toHaveAttribute('aria-current','step');
  expect(screen.getByLabelText('No funding required for this project')).toBeDisabled();
  fireEvent.click(screen.getByRole('button',{name:'Next'}));
  expect(await screen.findByRole('heading',{name:'Ready to build the work plan?'})).toBeVisible();
@@ -175,7 +199,7 @@ it('prepares Funding automatically and authorizes a valid current-year amount in
 it('retries an uncertain automatic Funding preparation with the same draft request',async()=>{
  const createDraft=vi.fn().mockRejectedValueOnce(new Error('Failed to fetch')).mockResolvedValueOnce('p');
  const props={recoveryKey:'actor-office',profiles:[lead] as any,createDraft,onClose:vi.fn(),onFinish:vi.fn()};
- const values={title:'Community support',description:'Objectives',scope:'Training',lead:'lead',start:'',end:'',noFunding:false};
+ const values={title:'Community support',description:'Objectives',scope:'Training',lead:'lead',start:today,end:tomorrow,noFunding:false};
  localStorage.setItem(props.recoveryKey,JSON.stringify({values,step:2,projectId:''}));
  api.call.mockImplementation(async(_operation,{p_details:d})=>Object.assign(api.data.project,{
   description:d.description,scope:d.scope,project_lead_id:d.lead,start_date:d.start,target_date:d.end,
@@ -188,7 +212,7 @@ it('retries an uncertain automatic Funding preparation with the same draft reque
  await waitFor(()=>expect(screen.getByLabelText('Office Budget source')).toBeEnabled());
  expect(createDraft.mock.calls).toHaveLength(2);
  expect(createDraft.mock.calls[0]).toEqual(createDraft.mock.calls[1]);
- expect(screen.getByRole('button',{name:/03.*Funding/})).toHaveAttribute('aria-current','step');
+ expect(screen.getByRole('button',{name:/04.*Funding/})).toHaveAttribute('aria-current','step');
 });
 
 it('recovers an uncertain wizard authorization and verifies its original funding terms',async()=>{
@@ -232,14 +256,14 @@ it('omits Add people from Create project wizard and advances directly from Revie
  const lead={id:'lead',full_name:'Ari Lead',email:'ari@example.test',role:'member',is_active:true};
  const worker={id:'worker',full_name:'Toni Member',email:'toni@example.test',role:'member',is_active:true};
  const props={recoveryKey:'actor-office',profiles:[lead,worker] as any,createDraft:vi.fn(),onClose:vi.fn(),onFinish:vi.fn()};
- const values={title:'Community support',description:'Objectives',scope:'Workshop',lead:'lead',start:'2027-01-01',end:'2027-12-31',noFunding:true};
+ const values={title:'Community support',description:'Objectives',scope:'Workshop',lead:'lead',start:today,end:tomorrow,noFunding:true};
  localStorage.setItem(props.recoveryKey,JSON.stringify({values,step:3,projectId:'p',base:api.data.project}));
  render(<ProjectSetupWizard {...props}/>);
  fireEvent.click(screen.getByRole('button',{name:'Continue draft'}));
  expect(screen.getByText('Ready to build the work plan?')).toBeTruthy();
  expect(screen.queryByText('Choose Office members')).toBeNull();
  expect(screen.queryByRole('button',{name:/Add people/i})).toBeNull();
- expect(screen.getByRole('button',{name:/05.*Draft tasks/})).toBeInTheDocument();
+ expect(screen.getByRole('button',{name:/06.*Draft tasks/})).toBeInTheDocument();
 });
 
 it('freezes an uncertain task allocation and verifies the original request without another deduction',async()=>{
@@ -284,7 +308,7 @@ it('keeps project settings and funding-requirement toggle read-only once the pro
 it('allows removing individual groups, tasks, and subtasks with X buttons and tooltips in Draft tasks',()=>{
  render(<ProjectTaskDraftStep
   projectId="p"
-  project={{title:'Outreach',description:'Community drive',scope:'Two barangays'}}
+  project={{title:'Outreach'}}
   templates={[]}
   templateError=""
   initialTemplate={{
@@ -309,6 +333,8 @@ it('allows removing individual groups, tasks, and subtasks with X buttons and to
   onSaved={vi.fn()}
   onBusyChange={vi.fn()}
  />);
+ expect(screen.queryByRole('button',{name:'Generate with AI',exact:true})).toBeNull();
+ expect(screen.getByRole('combobox',{name:'Use a template'})).toBeVisible();
  fireEvent.click(screen.getByRole('button',{name:'Remove subtask Print flyers'}));
  expect(screen.queryByDisplayValue('Print flyers')).toBeNull();
  expect(screen.getByDisplayValue('Confirm venue')).toBeInTheDocument();
@@ -331,5 +357,8 @@ it('omits Add people in Create project with AI and advances directly from Review
  });
  render(<ProjectSetupWizard importPdf recoveryKey="actor-office" creatorId="lead" createDraft={createDraft} profiles={[lead] as any} onClose={vi.fn()} onFinish={vi.fn()}/>);
  expect(screen.queryByRole('button',{name:/Add people/})).toBeNull();
- expect(screen.getByRole('button',{name:/05.*Import AI PDF/})).toBeInTheDocument();
+ expect(screen.getByRole('button',{name:/06.*Import AI PDF/})).toBeInTheDocument();
+ fireEvent.click(screen.getByRole('button',{name:/03.*Dates/}));
+ expect(screen.getByLabelText('Project start date *')).toBeVisible();
+ expect(screen.getByLabelText('Project target date *')).toBeVisible();
 });

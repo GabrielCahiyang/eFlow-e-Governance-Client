@@ -67,6 +67,44 @@ describe('NW5.5 lightweight forms and authoritative confirmation',()=>{
   await screen.findByText('Enter a subtask title.',{exact:false});
   expect(writes()).toHaveLength(0);
  });
+ it.each([false,true])('creates only once and reports the prerequisite outcome (rejected: %s)',async rejected=>{
+  data.supportsSubtaskDependencies=true;
+  api.rpc.mockImplementation(async(_name,args)=>{
+   if(args.p_command==='create'){
+    const id=args.p_payload.id;
+    data={...data,revision:8,nodes:[...data.nodes,{...data.nodes[0],id,title:args.p_payload.title,due_date:args.p_payload.due,dependency_ids:null,can_edit_dependencies:true,detail_edit:{...data.nodes[0].detail_edit!,node_id:id}}]};
+   }else if(args.p_command==='edit'&&rejected)return {data:null,error:{code:'23514',message:'Prerequisite rejected'}};
+   return {data,error:null};
+  });
+  const {props}=open('create');
+  fireEvent.change(screen.getByLabelText('Subtask title'),{target:{value:'Create with dependencies'}});
+  fireEvent.change(screen.getByLabelText('Work order'),{target:{value:'explicit'}});
+  expect(screen.queryByRole('checkbox',{name:/^Child/})).toBeNull();
+  fireEvent.click(screen.getByRole('checkbox',{name:/^Source/}));
+  save();
+  await waitFor(()=>expect(writes()).toHaveLength(2));
+  expect(writes()[0][1].p_payload).not.toHaveProperty('dependency_ids');
+  expect(writes()[1][1]).toMatchObject({p_revision:8,p_command:'edit',p_payload:{id:writes()[0][1].p_payload.id,dependency_ids:['source']}});
+  if(rejected){
+   await screen.findByText(/Subtask created.*Prerequisite rejected/);
+   expect(screen.queryByRole('button',{name:'Add subtask',exact:true})).toBeNull();
+  }else await waitFor(()=>expect(props.onDone).toHaveBeenCalledOnce());
+ },15000);
+ it('rejects cycles and preserves legacy sequencing until explicitly changed',async()=>{
+  data.supportsSubtaskDependencies=true;
+  Object.assign(data.nodes[0],{dependency_ids:null,can_edit_dependencies:true});
+  Object.assign(data.nodes[2],{dependency_ids:['source']});
+  open('edit');
+  expect((screen.getByLabelText('Work order') as HTMLSelectElement).value).toBe('sequence');
+  fireEvent.change(screen.getByLabelText('Work order'),{target:{value:'explicit'}});
+  const destination=screen.getByRole('checkbox',{name:/^Destination/});
+  fireEvent.click(destination);save();
+  await screen.findByText(/Dependencies cannot form a cycle/);
+  expect(writes()).toHaveLength(0);
+  fireEvent.click(destination);save();
+  await waitFor(()=>expect(writes()).toHaveLength(1));
+  expect(writes()[0][1].p_payload.dependency_ids).toEqual([]);
+ },15000);
  it('checks a server-classified routine date without an extra confirmation',async()=>{
   open('edit');fireEvent.change(screen.getByLabelText('Subtask due date'),{target:{value:'2026-12-02'}});save();await waitFor(()=>expect(writes()).toHaveLength(1));expect(previews()).toHaveLength(1);expect(screen.queryByRole('alertdialog')).toBeNull();expect(writes()[0][0]).toBe('nw_work_command');expect(writes()[0][1].p_impact_fingerprint).toBe('synthetic-checked-impact');
  });

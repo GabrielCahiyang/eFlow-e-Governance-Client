@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Folder, Renew, Report, Settings, UserMultiple } from "@carbon/icons-react";
+import { Folder, Report, Settings, UserMultiple } from "@carbon/icons-react";
 import { normalizeUserRole } from "../../shared/roles";
 import { getCoreRoleNavigation } from "../../components/Layout/coreWorkflowNavigation";
 
@@ -28,7 +28,6 @@ const administrativeDestinations: RoleNavItem[] = [
   { id: "users", icon: <UserMultiple size={16} />, label: "User Management" },
   { id: "audit", icon: <Report size={16} />, label: "Account Audit" },
   { id: "administration", icon: <Settings size={16} />, label: "System Settings" },
-  { id: "migration", icon: <Renew size={16} />, label: "Backup & Export" },
 ];
 
 export function getRoleNavigation(role: string): RoleNavigation {

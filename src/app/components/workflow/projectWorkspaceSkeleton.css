@@ -50,12 +50,6 @@
   padding: 10px clamp(16px, 2vw, 24px);
 }
 
-.eflow-project-index-skeleton__strip-primary {
-  border-radius: 6px;
-  height: 32px;
-  width: 72px;
-}
-
 .eflow-project-index-skeleton__strip-tab {
   border: 1px solid var(--eflow-border, #d7dfdf);
   border-radius: 6px;
@@ -99,8 +93,8 @@
 
 .eflow-project-index-skeleton__cta {
   border-radius: 6px;
-  height: 38px;
-  width: 138px;
+  height: 40px;
+  width: 162px;
 }
 
 .eflow-project-index-skeleton__filters {

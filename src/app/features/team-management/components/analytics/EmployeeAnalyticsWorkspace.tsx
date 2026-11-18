@@ -22,7 +22,6 @@ import { buildSkillCoverage } from "../../selectors/teamAnalyticsSelectors";
 import { PeopleWorkspaceShell } from "../PeopleWorkspaceShell";
 import { TeamMemberBoard } from "../supervision/TeamMemberBoard";
 import { TeamMemberWorkPanel } from "../supervision/TeamMemberWorkPanel";
-import { TeamMemberOperationsPanel } from "../supervision/TeamMemberOperationsPanel";
 import { TeamAttentionQueue } from "../supervision/TeamAttentionQueue";
 import { TeamHealthOverview } from "../intelligence/TeamHealthOverview";
 import { EmployeeIntelligencePanel } from "../intelligence/EmployeeIntelligencePanel";
@@ -230,25 +229,13 @@ function AnalyticsContent({
                   analytics={analytics}
                 />
               ) : (
-                <div className="ea-employee-actions">
-                  <TeamMemberWorkPanel
-                    employee={employee}
-                    metric={metric}
-                    tasks={analytics.tasks}
-                    subtasks={analytics.facts.subtasks}
-                    onOpenTask={setTask}
-                  />
-                  {supervision && (
-                    <TeamMemberOperationsPanel
-                      employee={employee}
-                      employees={analytics.deptEmployees}
-                      metric={metric}
-                      tasks={analytics.tasks}
-                      subtasks={analytics.facts.subtasks}
-                      onOpenTask={setTask}
-                    />
-                  )}
-                </div>
+                <TeamMemberWorkPanel
+                  employee={employee}
+                  metric={metric}
+                  tasks={analytics.tasks}
+                  subtasks={analytics.facts.subtasks}
+                  onOpenTask={setTask}
+                />
               )
             ) : (
               <p className="ea-empty">

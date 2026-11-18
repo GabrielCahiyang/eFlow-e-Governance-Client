@@ -89,7 +89,6 @@ function AllProjectsSkeleton() {
   return (
     <div className="eflow-project-index-skeleton">
       <div className="eflow-project-index-skeleton__strip">
-        <span className="eflow-project-skeleton-shimmer eflow-project-skeleton-shimmer--primary eflow-project-index-skeleton__strip-primary" />
         <span className="eflow-project-skeleton-shimmer eflow-project-index-skeleton__strip-tab" />
         <span className="eflow-project-skeleton-shimmer eflow-project-index-skeleton__strip-tab eflow-project-index-skeleton__strip-tab--wide" />
         <span className="eflow-project-skeleton-shimmer eflow-project-index-skeleton__strip-tab eflow-project-index-skeleton__strip-tab--wide" />
