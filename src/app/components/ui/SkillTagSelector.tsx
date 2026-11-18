@@ -11,6 +11,7 @@ export interface SkillTagSelectorProps {
   description?: string;
   emptyMessage?: string;
   showSearchThreshold?: number;
+  variant?: "default" | "checklist";
 }
 
 export function skillMapToList(skills: Record<string, boolean> | undefined | null): string[] {
@@ -34,6 +35,7 @@ export function SkillTagSelector({
   description = "Select all skills that apply.",
   emptyMessage = "No skill tags are configured yet. Ask Admin to add skill tags.",
   showSearchThreshold = 14,
+  variant = "default",
 }: SkillTagSelectorProps) {
   const [query, setQuery] = useState("");
   const selectedSet = useMemo(() => new Set(selected), [selected]);
@@ -134,6 +136,37 @@ export function SkillTagSelector({
           {filtered.map((tag) => {
             const active = selectedSet.has(tag);
             const retiredLegacy = !availableTags.includes(tag);
+            if (variant === "checklist") {
+              return (
+                <button
+                  key={tag}
+                  type="button"
+                  disabled={disabled}
+                  aria-pressed={active}
+                  onClick={() => toggle(tag)}
+                  className={`inline-flex min-h-[38px] items-center gap-2 rounded-full border px-3.5 py-1.5 text-[13px] font-medium transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 ${
+                    active
+                      ? "border-[#0073ea] bg-[#f4f9ff] text-[#161b35]"
+                      : "border-[#d6deed] bg-[#ffffff] text-[#323a4d] hover:border-[#9eb4d6] hover:bg-[#f8faff]"
+                  }`}
+                >
+                  <span
+                    aria-hidden="true"
+                    className={`inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-[4px] border transition-colors ${
+                      active
+                        ? "border-[#0073ea] bg-[#0073ea] text-white"
+                        : "border-[#c4cddf] bg-white"
+                    }`}
+                  >
+                    {active && <Check size={11} strokeWidth={3} />}
+                  </span>
+                  <span>{tag}</span>
+                  {retiredLegacy && (
+                    <span className="text-[10px] opacity-70">(custom)</span>
+                  )}
+                </button>
+              );
+            }
             return (
               <button
                 key={tag}

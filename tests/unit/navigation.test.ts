@@ -4,6 +4,7 @@ import {
   getRoleNavigationCandidates,
   isRoleNavigationItemVisible,
 } from "../../src/app/features/navigation/roleNavigation";
+import { buildShellNavigation } from "../../src/app/features/navigation/presentationNavigation";
 import { canOpenNavigationSection, getNavigationPermission } from "../../src/app/features/navigation/navigationPermissions";
 
 describe("role navigation compatibility", () => {
@@ -40,7 +41,15 @@ describe("role navigation compatibility", () => {
     expect(canOpenNavigationSection("head", "projects", can)).toBe(true);
     expect(canOpenNavigationSection("head", "reports", can)).toBe(false);
     expect(getNavigationPermission("head", "reports")).toBe("navigation.reports");
-    expect(getNavigationPermission("head", "budget")).toBe("navigation.projects");
+    expect(getNavigationPermission("head", "budget")).toBe("navigation.department_budgets");
+    expect(canOpenNavigationSection("head", "budget", can)).toBe(false);
+    expect(
+      canOpenNavigationSection(
+        "head",
+        "budget",
+        (permission) => permission === "navigation.department_budgets",
+      ),
+    ).toBe(true);
     expect(canOpenNavigationSection("head", "dashboard", can)).toBe(true);
     expect(canOpenNavigationSection("executive", "portfolio", () => false)).toBe(false);
   });
@@ -80,5 +89,31 @@ describe("role navigation compatibility", () => {
     expect(canOpenNavigationSection("member", "personal_work", denied, true)).toBe(true);
     expect(canOpenNavigationSection("member", "reviews", denied, true)).toBe(true);
     expect(canOpenNavigationSection("member", "reviews", denied)).toBe(false);
+  });
+
+  it("enforces Roles & Access page permissions for reviews, office budgets, and data tools", () => {
+    const memberWithReviews = buildShellNavigation({
+      role: "member",
+      can: (permission) => permission === "navigation.reviews",
+      hasLeadingWork: false,
+    });
+    expect(memberWithReviews.some((item) => item.id === "reviews")).toBe(true);
+
+    const headWithoutBudget = buildShellNavigation({
+      role: "head",
+      can: (permission) =>
+        permission === "navigation.projects" &&
+        permission !== "navigation.department_budgets",
+    });
+    expect(headWithoutBudget.some((item) => item.id === "projects")).toBe(true);
+    expect(headWithoutBudget.some((item) => item.id === "budget")).toBe(false);
+
+    const headWithDataTools = buildShellNavigation({
+      role: "head",
+      can: (permission) => permission === "navigation.data_tools",
+    });
+    expect(headWithDataTools.find((item) => item.id === "migration")?.pages).toEqual([
+      { label: "Backup & Export" },
+    ]);
   });
 });

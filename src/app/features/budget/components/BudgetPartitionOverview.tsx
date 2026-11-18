@@ -5,7 +5,7 @@ import { peso } from "./budgetUi";
 import { Button } from '@vibe/core';
 import { Download, Printer } from 'lucide-react';
 import { BudgetTableRegion } from './BudgetTableRegion';
-const headings=['Account','Appropriated','Held','Released','Obligated','% of total','% used','Balance'];
+const headings=['Account','Total budget','On hold','Available','Reserved','% of budget','% reserved','Remaining'];
 const moneyIndices = new Set([1, 2, 3, 4, 7]);
 export function BudgetPartitionOverview({data}:{data:DepartmentBudgetBundle}) {
   if(!data.sectionsAvailable||!data.summary)return null;
@@ -30,7 +30,7 @@ export function BudgetPartitionOverview({data}:{data:DepartmentBudgetBundle}) {
   ));
   return <section className="overflow-hidden rounded-[10px] border border-border bg-card">
     <header className="eflow-budget-section-heading">
-      <div><h2>Budget accounts</h2><p>Appropriation, releases and commitments by account.</p></div>
+      <div><h2>Budget accounts</h2><p>Total budget, held funds, available funds, and reserved work amounts by account.</p></div>
       <div className="flex flex-wrap gap-2">
         <Button kind="secondary" size="small" onClick={()=>downloadBudgetCsv(`budget-utilization-${data.summary!.fiscalYear}.csv`,headings,exportRows)}><Download size={14} /> Export CSV</Button>
         <Button kind="tertiary" size="small" onClick={()=>printBudgetTable(report,headings,exportRows)}><Printer size={14} /> Print / PDF</Button>

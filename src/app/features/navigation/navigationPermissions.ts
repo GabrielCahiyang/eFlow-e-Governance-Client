@@ -3,7 +3,7 @@ import type { PagePermissionKey } from "../permissions";
 const SECTION_PERMISSIONS: Record<string, PagePermissionKey> = {
   personal_work: "navigation.tasks",
   projects: "navigation.projects",
-  budget: "navigation.projects",
+  budget: "navigation.department_budgets",
   tasks: "navigation.tasks",
   subtasks: "navigation.tasks",
   leading: "navigation.tasks",

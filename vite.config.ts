@@ -114,12 +114,40 @@ export default defineConfig(({ mode }) => {
         "/controlpanelEflow": {
           target: "http://127.0.0.1:8322",
           changeOrigin: true,
+          configure: (proxy) => {
+            proxy.on("error", (_err, _req, res) => {
+              if ("writeHead" in res && typeof res.writeHead === "function" && !res.headersSent) {
+                res.writeHead(503, { "Content-Type": "application/json" });
+                res.end(
+                  JSON.stringify({
+                    code: "gateway_offline",
+                    detail:
+                      "Local eFlow gateway (port 8322) is offline. Start both frontend and backend with `npm run dev` (or run `npm run dev:gateway` in another terminal).",
+                  }),
+                );
+              }
+            });
+          },
         },
         // Temporary compatibility route for callers still using /api/*.
         "/api": {
           target: "http://127.0.0.1:8322",
           changeOrigin: true,
           rewrite: (requestPath: string) => `/controlpanelEflow${requestPath}`,
+          configure: (proxy) => {
+            proxy.on("error", (_err, _req, res) => {
+              if ("writeHead" in res && typeof res.writeHead === "function" && !res.headersSent) {
+                res.writeHead(503, { "Content-Type": "application/json" });
+                res.end(
+                  JSON.stringify({
+                    code: "gateway_offline",
+                    detail:
+                      "Local eFlow gateway (port 8322) is offline. Start both frontend and backend with `npm run dev` (or run `npm run dev:gateway` in another terminal).",
+                  }),
+                );
+              }
+            });
+          },
         },
       },
     },

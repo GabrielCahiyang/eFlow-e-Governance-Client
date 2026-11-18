@@ -1,13 +1,13 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { phase2Request } from "../../app/shared/phase2Api";
 import {
   Heading,
   TextField,
   Button,
   Checkbox,
-  Link,
 } from "@vibe/core";
 import { Info, Alert } from "@vibe/icons";
-import { Eye, EyeOff } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, KeyRound, MailCheck } from "lucide-react";
 import {
   motion,
   AnimatePresence,
@@ -20,7 +20,11 @@ import { LivingBoard } from "./components/LivingBoard";
 import { UsageScenariosModal } from "./UsageScenariosModal";
 import { EFlowMark } from "./components/EFlowMark";
 import type { QuickLoginAccount } from "../../app/shared/quickLoginAccounts";
-import { isAdminLoginPath } from "../../app/features/authentication";
+import {
+  isAdminLoginPath,
+  requestPasswordReset,
+  validateRecoveryEmail,
+} from "../../app/features/authentication";
 
 import {
   formContainerVariants,
@@ -32,12 +36,104 @@ import {
 
 import styles from "./Login.module.scss";
 
+const PUBLIC_BRANDING_STORAGE_KEY = "eflow.public_branding.v1";
+const DEFAULT_LOGIN_ORG = "LGU Ormoc City";
+const DEFAULT_LOGIN_SUBTITLE = "Use your official LGU account.";
+
+function readCachedLoginBranding(): { organization_name: string; organization_subtitle: string } {
+  try {
+    if (typeof window !== "undefined" && window.localStorage) {
+      const raw = window.localStorage.getItem(PUBLIC_BRANDING_STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw) as {
+          login_portal_title?: string;
+          login_portal_subtitle?: string;
+          organization_name?: string;
+          organization_subtitle?: string;
+        };
+        return {
+          organization_name:
+            parsed.login_portal_title?.trim() ||
+            parsed.organization_name?.trim() ||
+            DEFAULT_LOGIN_ORG,
+          organization_subtitle:
+            parsed.login_portal_subtitle?.trim() ||
+            parsed.organization_subtitle?.trim() ||
+            DEFAULT_LOGIN_SUBTITLE,
+        };
+      }
+    }
+  } catch {
+    // Ignore storage read errors
+  }
+  return {
+    organization_name: DEFAULT_LOGIN_ORG,
+    organization_subtitle: DEFAULT_LOGIN_SUBTITLE,
+  };
+}
+
 export function Login() {
   const shouldReduceMotion = useReducedMotion();
   const [showPassword, setShowPassword] = useState(false);
   const [isScenariosModalOpen, setScenariosModalOpen] = useState(false);
   const [isMarkHovered, setIsMarkHovered] = useState(false);
+  const [viewMode, setViewMode] = useState<"login" | "forgot">("login");
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [forgotFieldError, setForgotFieldError] = useState<string | undefined>();
+  const [forgotError, setForgotError] = useState<string | null>(null);
+  const [forgotSentTo, setForgotSentTo] = useState<string | null>(null);
+  const [forgotSubmitting, setForgotSubmitting] = useState(false);
+  const [loginBranding, setLoginBranding] = useState(readCachedLoginBranding);
   const isAdminPortal = isAdminLoginPath();
+
+  useEffect(() => {
+    let active = true;
+    const syncBranding = async () => {
+      setLoginBranding(readCachedLoginBranding());
+      try {
+        const data = await phase2Request<{
+          login_portal_title?: string;
+          login_portal_subtitle?: string;
+          organization_name?: string;
+          organization_subtitle?: string;
+        }>("/auth/public-branding", { method: "GET" }, true);
+        if (!data) return;
+        const title =
+          data.login_portal_title?.trim() ||
+          data.organization_name?.trim() ||
+          DEFAULT_LOGIN_ORG;
+        const subtitle =
+          data.login_portal_subtitle?.trim() ||
+          data.organization_subtitle?.trim() ||
+          DEFAULT_LOGIN_SUBTITLE;
+        const next = {
+          organization_name: title,
+          organization_subtitle: subtitle,
+        };
+        if (active) setLoginBranding(next);
+        try {
+          window.localStorage?.setItem(
+            PUBLIC_BRANDING_STORAGE_KEY,
+            JSON.stringify({
+              login_portal_title: title,
+              login_portal_subtitle: subtitle,
+              ...next,
+            }),
+          );
+        } catch {
+          // Ignore storage write errors
+        }
+      } catch {
+        // Offline or test environment without gateway
+      }
+    };
+    void syncBranding();
+    window.addEventListener("eflow-presentation-settings-changed", syncBranding);
+    return () => {
+      active = false;
+      window.removeEventListener("eflow-presentation-settings-changed", syncBranding);
+    };
+  }, []);
 
   const {
     email,
@@ -63,9 +159,53 @@ export function Login() {
     void loginWithCredentials(account.email, account.password);
   };
 
+  const openForgotPassword = () => {
+    setForgotEmail(email.trim());
+    setForgotFieldError(undefined);
+    setForgotError(null);
+    setForgotSentTo(null);
+    setViewMode("forgot");
+  };
+
+  const handleForgotSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (forgotSubmitting) return;
+    const trimmed = forgotEmail.trim();
+    const validationError = validateRecoveryEmail(trimmed);
+    if (validationError) {
+      setForgotFieldError(validationError);
+      return;
+    }
+
+    setForgotFieldError(undefined);
+    setForgotError(null);
+    setForgotSubmitting(true);
+    try {
+      await requestPasswordReset(trimmed);
+      setForgotSentTo(trimmed);
+    } catch (reason) {
+      setForgotSentTo(null);
+      setForgotError(
+        reason instanceof Error && reason.message
+          ? reason.message
+          : "Could not send a password reset email right now. Please try again.",
+      );
+    } finally {
+      setForgotSubmitting(false);
+    }
+  };
+
   // Derive EFlowMark state from login form state
   const markState: "idle" | "submitting" | "success" | "error" =
-    state === "submitting"
+    viewMode === "forgot"
+      ? forgotSubmitting
+        ? "submitting"
+        : forgotSentTo
+        ? "success"
+        : forgotError
+        ? "error"
+        : "idle"
+      : state === "submitting"
       ? "submitting"
       : Boolean(shakeField) || state === "account_locked"
       ? "error"
@@ -97,20 +237,178 @@ export function Login() {
             initial={shouldReduceMotion ? false : "hidden"}
             animate="visible"
           >
-            <div className={styles.mobileBrand} aria-label="eFlow, LGU Ormoc City">
+            <div className={styles.mobileBrand} aria-label={`eFlow, ${loginBranding.organization_name}`}>
               <EFlowMark variant="white" height={36} state={markState} />
-              <span>LGU Ormoc City</span>
+              <span>{loginBranding.organization_name}</span>
             </div>
             {/* Heading & Subhead */}
             <motion.div className={styles.headerGroup} variants={formItemVariants}>
+              {viewMode === "forgot" && (
+                <span className={styles.recoveryBadge}>
+                  <KeyRound size={12} aria-hidden="true" />
+                  Account Recovery
+                </span>
+              )}
               <Heading type="h2" id="login-heading" className={styles.loginHeading}>
-                {isAdminPortal ? "Sign in to eFlow Admin" : "Sign in to eFlow"}
+                {viewMode === "forgot"
+                  ? forgotSentTo
+                    ? "Check your inbox"
+                    : "Reset your password"
+                  : isAdminPortal
+                  ? "Sign in to eFlow Admin"
+                  : "Sign in to eFlow"}
               </Heading>
               <p className={styles.subhead}>
-                {isAdminPortal ? "System administration portal." : "Use your official LGU account."}
+                {viewMode === "forgot"
+                  ? forgotSentTo
+                    ? "Follow the link we sent to set a new password."
+                    : "Enter your eFlow email address and we’ll send you a reset link."
+                  : isAdminPortal
+                  ? "System administration portal."
+                  : loginBranding.organization_subtitle}
               </p>
             </motion.div>
 
+            {viewMode === "forgot" ? (
+              <>
+                {forgotSentTo ? (
+                  <div className={styles.recoverySentActions}>
+                    <div className={styles.recoverySentCard} role="status" aria-live="polite">
+                      <div className={styles.recoverySentHeader}>
+                        <MailCheck size={20} aria-hidden="true" />
+                        <div>
+                          <strong>Reset link sent</strong>
+                          <p>
+                            If an active account exists for <strong>{forgotSentTo}</strong>, a password reset link is on its way.
+                          </p>
+                        </div>
+                      </div>
+                      <ol className={styles.recoverySentSteps}>
+                        <li>Open the email from eFlow (check Spam if needed).</li>
+                        <li>Click <strong>Reset Password</strong> to open the password page.</li>
+                        <li>Create a new 12+ character password and sign back in.</li>
+                      </ol>
+                    </div>
+
+                    {forgotError && (
+                      <div className={`${styles.alertBanner} ${styles.alertError}`} role="alert">
+                        <Alert size={16} />
+                        <span>{forgotError}</span>
+                      </div>
+                    )}
+
+                    <Button
+                      type="button"
+                      size="large"
+                      kind="primary"
+                      className={styles.submitButton}
+                      onClick={() => {
+                        setViewMode("login");
+                        setForgotFieldError(undefined);
+                        setForgotError(null);
+                        setForgotSentTo(null);
+                      }}
+                    >
+                      Back to sign in
+                    </Button>
+
+                    <div className={styles.recoverySecondaryRow}>
+                      <Button
+                        type="button"
+                        kind="tertiary"
+                        size="small"
+                        loading={forgotSubmitting}
+                        disabled={forgotSubmitting}
+                        onClick={() => void handleForgotSubmit({ preventDefault: () => undefined } as React.FormEvent)}
+                      >
+                        Resend reset link
+                      </Button>
+                      <Button
+                        type="button"
+                        kind="tertiary"
+                        size="small"
+                        disabled={forgotSubmitting}
+                        onClick={() => {
+                          setForgotSentTo(null);
+                          setForgotError(null);
+                        }}
+                      >
+                        Use a different email
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div aria-live="polite" aria-atomic="true">
+                      {forgotError && (
+                        <div className={`${styles.alertBanner} ${styles.alertError}`} role="alert">
+                          <Alert size={16} />
+                          <span>{forgotError}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    <form className={styles.loginForm} onSubmit={handleForgotSubmit} noValidate>
+                      <div className={styles.fieldWrapper}>
+                        <TextField
+                          id="forgot-email"
+                          name="email"
+                          title="Email address"
+                          inputAriaLabel="Email address"
+                          type="email"
+                          size="large"
+                          autoComplete="email"
+                          value={forgotEmail}
+                          onChange={(value) => {
+                            setForgotEmail(value);
+                            if (forgotFieldError) setForgotFieldError(undefined);
+                            if (forgotError) setForgotError(null);
+                          }}
+                          disabled={forgotSubmitting}
+                          validation={
+                            forgotFieldError
+                              ? { status: "error", text: forgotFieldError }
+                              : undefined
+                          }
+                        />
+                      </div>
+
+                      <div className={styles.submitAction}>
+                        <Button
+                          id="forgot-submit"
+                          type="submit"
+                          size="large"
+                          kind="primary"
+                          loading={forgotSubmitting}
+                          disabled={forgotSubmitting || !forgotEmail.trim()}
+                          className={styles.submitButton}
+                        >
+                          Send reset link
+                        </Button>
+                      </div>
+
+                      <div className={styles.backToLoginRow}>
+                        <Button
+                          type="button"
+                          kind="tertiary"
+                          size="small"
+                          disabled={forgotSubmitting}
+                          onClick={() => {
+                            setViewMode("login");
+                            setForgotFieldError(undefined);
+                            setForgotError(null);
+                          }}
+                        >
+                          <ArrowLeft size={14} aria-hidden="true" style={{ marginRight: 6 }} />
+                          Back to sign in
+                        </Button>
+                      </div>
+                    </form>
+                  </>
+                )}
+              </>
+            ) : (
+              <>
             {/* Global Alert / Status region */}
             <div aria-live="polite" aria-atomic="true">
               <AnimatePresence mode="wait">
@@ -230,14 +528,13 @@ export function Login() {
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
                 />
-                <Link
-                  text="Forgot password?"
-                  onClick={() =>
-                    alert(
-                      "Please contact your office IT administrator or Admin to reset your password."
-                    )
-                  }
-                />
+                <button
+                  type="button"
+                  className={styles.forgotLinkButton}
+                  onClick={openForgotPassword}
+                >
+                  Forgot password?
+                </button>
               </motion.div>
 
               {/* Primary CTA */}
@@ -290,6 +587,8 @@ export function Login() {
               </motion.div>
 
             </form>
+              </>
+            )}
           </motion.div>
         </section>
 
@@ -319,7 +618,7 @@ export function Login() {
                 isHovered={isMarkHovered}
               />
               <div className={styles.heroBrandDivider} aria-hidden="true" />
-              <span className={styles.heroBrandOrgText}>LGU Ormoc City</span>
+              <span className={styles.heroBrandOrgText}>{loginBranding.organization_name}</span>
             </div>
 
             {/* Bigger Living 3D Kanban Board (strictly static) */}

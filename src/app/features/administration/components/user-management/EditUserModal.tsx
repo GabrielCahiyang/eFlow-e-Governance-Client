@@ -21,6 +21,8 @@ import {
   isManagedLeadershipRole,
 } from "../../services/leadershipConstraints";
 import { updateManagedUserWithLeadership } from "../../services/managedUserLeadershipService";
+import { sendManagedUserPasswordReset } from "../../services/managedUserService";
+import { Mail } from "lucide-react";
 import {
   SkillTagSelector,
   skillListToMap,
@@ -62,10 +64,26 @@ export function EditUserModal({
   const savePending = useRef(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [sendingReset, setSendingReset] = useState(false);
+  const [resetSentNotice, setResetSentNotice] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"basic" | "skills">("basic");
   const [skills, setSkills] = useState<Record<string, boolean>>({});
   const { activeLabels: availableSkillTags, loading: loadingSkillTags } = useSkillTags(isOpen);
-  const resolvedRole = resolveRoleSelection(form.role, roleCatalog);
+  const initialBaseRole = editUser ? normalizeUserRole(editUser.role) : "member";
+  const resolvedRole = (() => {
+    try {
+      return resolveRoleSelection(form.role, roleCatalog);
+    } catch {
+      return {
+        role: initialBaseRole,
+        customRoleKey:
+          editUser?.custom_role_key && form.role === editUser.custom_role_key
+            ? editUser.custom_role_key
+            : null,
+        label: getRoleLabel(initialBaseRole),
+      };
+    }
+  })();
   const leadershipConflict = getLeadershipSlotConflict({
     role: resolvedRole.role,
     customRoleLabel: resolvedRole.customRoleKey ? resolvedRole.label : undefined,
@@ -78,7 +96,7 @@ export function EditUserModal({
     !isAdminRole(userProfile?.role) &&
     isManagedLeadershipRole(editUser?.role || "");
   const initialRoleKey = editUser
-    ? editUser.custom_role_key || normalizeUserRole(editUser.role)
+    ? editUser.custom_role_key || initialBaseRole
     : "member";
   const currentRoleDisplay = editUser
     ? resolveAccountRoleDisplay(editUser.role, editUser.custom_role_key, roleCatalog)
@@ -136,8 +154,42 @@ export function EditUserModal({
       });
       setSkills(editUser.skills || {});
       setActiveTab("basic");
+      setResetSentNotice(null);
+      setSaveError(null);
     }
   }, [editUser]);
+
+  const canSendPasswordReset =
+    Boolean(editUser) &&
+    editUser?.is_active !== false &&
+    (isAdminRole(userProfile?.role) ||
+      (!isAdminRole(editUser?.role) && !isManagedLeadershipRole(editUser?.role || "")));
+
+  const handleSendPasswordReset = async () => {
+    if (!editUser || sendingReset || !canSendPasswordReset) return;
+    if (
+      !(await confirmation.confirm({
+        title: "Send password reset link?",
+        description: `Send a one-time password reset email to ${editUser.full_name} (${editUser.email})? They will choose a new password on the dedicated reset page.`,
+        actionLabel: "Send reset link",
+      }))
+    ) {
+      return;
+    }
+
+    setSendingReset(true);
+    setResetSentNotice(null);
+    try {
+      const result = await sendManagedUserPasswordReset(editUser.id);
+      const msg = `Password reset link sent to ${result.email}.`;
+      setResetSentNotice(msg);
+      toast(msg, "success");
+    } catch (err: any) {
+      toast(err?.message || "Failed to send password reset link", "error");
+    } finally {
+      setSendingReset(false);
+    }
+  };
 
   const handleSave = async () => {
     if (savePending.current) return;
@@ -158,6 +210,7 @@ export function EditUserModal({
     try {
       if (
         (form.role !== initialRoleKey ||
+          resolvedRole.role !== initialBaseRole ||
           form.orgId !== (editUser.org_id || "")) &&
         !(await confirmation.confirm({
           title: "Change account assignment?",
@@ -287,6 +340,30 @@ export function EditUserModal({
                 You can edit this leader’s name and skills. Leadership role,
                 organization, and account status are managed by the Admin.
               </p>
+            ) : null}
+            <div className="rounded-lg border border-border bg-muted/30 p-3 flex flex-wrap items-center justify-between gap-3">
+              <div className="min-w-0">
+                <div className="text-[12px] font-medium text-foreground">
+                  Password recovery
+                </div>
+                <p className="text-[11px] text-muted-foreground">
+                  {editUser.is_active
+                    ? `Send a reset link to ${editUser.email} so they can set a new password.`
+                    : "Activate this account before sending a password reset link."}
+                </p>
+              </div>
+              <ModalButton
+                disabled={saving || sendingReset || !canSendPasswordReset}
+                onClick={() => void handleSendPasswordReset()}
+              >
+                <Mail size={13} aria-hidden="true" />
+                {sendingReset ? "Sending…" : "Send reset link"}
+              </ModalButton>
+            </div>
+            {resetSentNotice ? (
+              <FeedbackState tone="success" title="Reset link sent">
+                {resetSentNotice}
+              </FeedbackState>
             ) : null}
             <div className="text-[11px] font-normal text-muted-foreground">
               Email: {editUser.email} · ID: {editUser.id.slice(0, 12)}...

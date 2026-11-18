@@ -1,17 +1,12 @@
 import {
   useCallback,
   useEffect,
-  useMemo,
   useRef,
   useState,
 } from "react";
-import { signInWithAccountProtection } from '../../../authentication';
+import { signInWithAccountProtection } from "../../../authentication";
 import {
-  Archive,
   CheckCircle2,
-  HardDriveDownload,
-  LoaderCircle,
-  LockKeyhole,
   RefreshCw,
   ServerCog,
   ShieldAlert,
@@ -19,33 +14,42 @@ import {
 } from "lucide-react";
 
 import { useToast } from "../../../../components/ui/Toast";
-import { WorkspaceHeader } from '../../../../components/ui/workspace';
+import {
+  WorkspaceHeader,
+  WorkspaceTabs,
+  type WorkspaceTab,
+} from "../../../../components/ui/workspace";
 import {
   Card,
   WButton,
-  WSelect,
 } from "../../../../components/workflow/primitives";
 import {
   deleteBackup,
   downloadBackup,
   fetchBackupOverview,
+  isBackupGatewayUnavailableError,
   startBackup,
+  type BackupExportFormat,
   type BackupJob,
   type BackupMode,
   type BackupOverview,
+  type BackupScope,
 } from "../../services/backupService";
-import { BackupJobCard } from "./BackupJobCard";
 import { BackupGatewayUnavailable } from "./BackupGatewayUnavailable";
+import { DatabaseDumpPanel } from "./DatabaseDumpPanel";
+import { ImportantDataExplorer } from "./ImportantDataExplorer";
+import { SchemaTablesCatalog } from "./SchemaTablesCatalog";
 import { useAuth } from "../../../../contexts/AuthContext";
-
 import { useExplicitDraft } from "../../../../shared/useExplicitDraft";
-import { requestNavigation } from "../../../../shared/navigationGuard";
 import { useConfirmation } from "../../../../components/ui/useConfirmation";
 import { FeedbackState } from "../../../../components/ui/FeedbackState";
+
 const uncertainStarts = new Map<
   string,
   { ids: string[]; mode: BackupMode; after: number }
 >();
+
+type BackupWorkspaceTab = "backup" | "explorer" | "tables";
 
 function BackupExportWorkspaceSkeleton() {
   return (
@@ -94,7 +98,15 @@ export function BackupExportWorkspace() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string>();
+  const [gatewayUnavailable, setGatewayUnavailable] = useState(false);
+
+  const [activeTab, setActiveTab] = useState<BackupWorkspaceTab>("backup");
   const [mode, setMode] = useState<BackupMode>("operational");
+  const [scope, setScope] = useState<BackupScope>("full");
+  const [exportFormat, setExportFormat] = useState<BackupExportFormat>("archive");
+  const [selectedTables, setSelectedTables] = useState<string[]>([]);
+  const [explorerTable, setExplorerTable] = useState("projects");
+
   const [confirmation, setConfirmation] = useState("");
   const [passphrase, setPassphrase] = useState("");
   const [repeatPassphrase, setRepeatPassphrase] = useState("");
@@ -109,18 +121,21 @@ export function BackupExportWorkspace() {
   const [uncertain, setUncertain] = useState(() =>
     uncertainStarts.has(user?.id || ""),
   );
+
   const resetDraft = () => {
     setConfirmation("");
     setPassphrase("");
     setRepeatPassphrase("");
     setReauthPassword("");
   };
+
   const draft = useExplicitDraft(
     "Backup preparation",
     Boolean(confirmation || passphrase || repeatPassphrase || reauthPassword),
     busy,
     resetDraft,
   );
+
   const load = useCallback(async (quiet = false) => {
     if (quiet) setRefreshing(true);
     else setLoading(true);
@@ -128,12 +143,14 @@ export function BackupExportWorkspace() {
       const result = await fetchBackupOverview();
       setOverview(result);
       setError(undefined);
+      setGatewayUnavailable(false);
     } catch (loadError) {
       setError(
         loadError instanceof Error
           ? loadError.message
           : "Could not load Data Tools.",
       );
+      setGatewayUnavailable(isBackupGatewayUnavailableError(loadError));
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -162,11 +179,13 @@ export function BackupExportWorkspace() {
       !activeJob &&
       !uncertain &&
       !pending.current &&
+      (scope !== "selected" || selectedTables.length > 0) &&
       confirmation.trim().toUpperCase() === expectedConfirmation &&
       reauthPassword.length > 0 &&
       (mode === "operational" ||
         (overview.preflight.encryption_available &&
-          passphrase.length >= 12 && passphrase.length <= 128 &&
+          passphrase.length >= 12 &&
+          passphrase.length <= 128 &&
           passphrase === repeatPassphrase)),
   );
   const recentCompleted =
@@ -177,11 +196,6 @@ export function BackupExportWorkspace() {
       0,
     ) || 0;
 
-  const tablePreview = useMemo(
-    () => overview?.preflight.tables.slice(0, 18) || [],
-    [overview?.preflight.tables],
-  );
-
   const create = async () => {
     if (!canStart || pending.current) return;
     pending.current = true;
@@ -190,10 +204,11 @@ export function BackupExportWorkspace() {
     setOperationError("");
     let submitted = false;
     try {
-      if (!user?.email)
+      if (!user?.email) {
         throw new Error(
           "Your signed-in email could not be verified. Sign in again before exporting.",
         );
+      }
       await signInWithAccountProtection(user.email, reauthPassword);
       submitted = true;
       uncertainStarts.set(user.id, {
@@ -206,6 +221,9 @@ export function BackupExportWorkspace() {
         confirmation,
         includeStorageManifest,
         passphrase: mode === "disaster_recovery" ? passphrase : undefined,
+        scope,
+        exportFormat,
+        tables: scope === "selected" ? selectedTables : undefined,
       });
       uncertainStarts.delete(user.id);
       setUncertain(false);
@@ -227,7 +245,7 @@ export function BackupExportWorkspace() {
     } catch (createError) {
       const rejected =
         createError instanceof Error &&
-        /route is not loaded|not configured|confirmation|passphrase|pg_dump|already running|forbidden|permission|unauthorized/i.test(
+        /route is not loaded|not configured|confirmation|passphrase|pg_dump|already running|forbidden|permission|unauthorized|select at least/i.test(
           createError.message,
         );
       if (submitted && !rejected) setUncertain(true);
@@ -294,8 +312,9 @@ export function BackupExportWorkspace() {
           confirmationText: job.archive_name || job.id,
           actionLabel: "Delete archive",
         }))
-      )
+      ) {
         return;
+      }
       await deleteBackup(job.id);
       setOverview((current) =>
         current
@@ -351,10 +370,11 @@ export function BackupExportWorkspace() {
           `Matching backup job ${matches[0].id} found · ${matches[0].status}. Review its job receipt below before a retry.`,
         );
         setOperationError("");
-      } else
+      } else {
         setOperationError(
           "No unique matching backup job could be confirmed. Keep this preparation and review the gateway job history before another start.",
         );
+      }
     } catch (caught) {
       setOperationError(
         caught instanceof Error
@@ -366,6 +386,18 @@ export function BackupExportWorkspace() {
       setBusy(false);
     }
   };
+
+  const handleStageTableDump = (tables: string[]) => {
+    setSelectedTables(tables);
+    setScope("selected");
+    setActiveTab("backup");
+  };
+
+  const handleBrowseTable = (table: string) => {
+    setExplorerTable(table);
+    setActiveTab("explorer");
+  };
+
   if (loading && !overview) return <BackupExportWorkspaceSkeleton />;
 
   if (error && !overview) {
@@ -375,20 +407,105 @@ export function BackupExportWorkspace() {
           title="Backup"
           description="Create an audited, checksummed export of the live eFlow Supabase schema and operational data."
         />
-        <BackupGatewayUnavailable
-          error={error}
-          refreshing={refreshing}
-          onRetry={() => void load(true)}
-        />
+        {gatewayUnavailable ? (
+          <BackupGatewayUnavailable
+            error={error}
+            refreshing={refreshing}
+            onRetry={() => void load(true)}
+          />
+        ) : (
+          <FeedbackState
+            tone="error"
+            title="Backup access unavailable"
+            onRetry={() => void load(true)}
+            pending={refreshing}
+          >
+            {error}
+          </FeedbackState>
+        )}
       </div>
     );
   }
 
+  const tabs: WorkspaceTab[] = [
+    {
+      id: "backup",
+      label: "DB Dump & Backups",
+      content: (
+        <DatabaseDumpPanel
+          overview={overview}
+          refreshing={refreshing}
+          busy={busy}
+          uncertain={uncertain}
+          activeJob={activeJob}
+          mode={mode}
+          onModeChange={setMode}
+          scope={scope}
+          onScopeChange={setScope}
+          exportFormat={exportFormat}
+          onExportFormatChange={setExportFormat}
+          selectedTables={selectedTables}
+          onSelectedTablesChange={setSelectedTables}
+          confirmation={confirmation}
+          onConfirmationChange={setConfirmation}
+          passphrase={passphrase}
+          onPassphraseChange={setPassphrase}
+          repeatPassphrase={repeatPassphrase}
+          onRepeatPassphraseChange={setRepeatPassphrase}
+          includeStorageManifest={includeStorageManifest}
+          onIncludeStorageManifestChange={setIncludeStorageManifest}
+          reauthPassword={reauthPassword}
+          onReauthPasswordChange={setReauthPassword}
+          expectedConfirmation={expectedConfirmation}
+          canStart={canStart}
+          onStart={() => void create()}
+          onDownload={(job) => void download(job)}
+          onDelete={(job) => void remove(job)}
+          onResetDraft={resetDraft}
+          onOpenTablesCatalog={() => setActiveTab("tables")}
+          onNotify={(message, tone) => toast(message, tone || "success")}
+        />
+      ),
+    },
+    {
+      id: "explorer",
+      label: "Important Data Explorer",
+      content: (
+        <ImportantDataExplorer
+          active={activeTab === "explorer"}
+          availableTables={overview?.preflight.tables || []}
+          safeExcludedTables={overview?.preflight.safe_excluded_data_tables || []}
+          selectedTable={explorerTable}
+          onSelectTable={setExplorerTable}
+          onStageTableDump={handleStageTableDump}
+          onNotify={(message, tone) => toast(message, tone || "success")}
+        />
+      ),
+    },
+    {
+      id: "tables",
+      label: `Database Tables (${overview?.preflight.table_count || 0})`,
+      content: (
+        <SchemaTablesCatalog
+          active={activeTab === "tables"}
+          selectedTables={selectedTables}
+          onSelectedTablesChange={setSelectedTables}
+          onStageDumpWithSelected={() => {
+            setScope("selected");
+            setActiveTab("backup");
+          }}
+          onBrowseTable={handleBrowseTable}
+          onNotify={(message, tone) => toast(message, tone || "success")}
+        />
+      ),
+    },
+  ];
+
   return (
-    <div className="eflow-page-content">
+    <div className="eflow-page-content min-w-0 space-y-4">
       <WorkspaceHeader
         title="Backup"
-        description="Create and download a verified snapshot of organization data without changing live records."
+        description="Create database dumps, inspect key tables, and export records without changing live data."
         actions={
           <WButton
             icon={
@@ -424,17 +541,29 @@ export function BackupExportWorkspace() {
         </div>
       )}
       {error && (
-        <FeedbackState tone="error" title="Backup status issue" onRetry={() => void load(true)}>
+        <FeedbackState
+          tone="error"
+          title="Backup status issue"
+          onRetry={() => void load(true)}
+        >
           {error}
         </FeedbackState>
       )}
 
-      <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[var(--eflow-border)] bg-[var(--eflow-subtle)] px-4 py-3 text-sm">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[var(--eflow-border)] bg-[var(--eflow-subtle)] px-4 py-3 text-sm">
         <div className="flex flex-wrap items-center gap-2.5">
           {overview?.preflight.configured ? (
-            <ShieldCheck size={17} aria-hidden="true" className="text-[var(--eflow-positive-text)]" />
+            <ShieldCheck
+              size={17}
+              aria-hidden="true"
+              className="text-[var(--eflow-positive-text)]"
+            />
           ) : (
-            <ShieldAlert size={17} aria-hidden="true" className="text-[var(--eflow-warning-text)]" />
+            <ShieldAlert
+              size={17}
+              aria-hidden="true"
+              className="text-[var(--eflow-warning-text)]"
+            />
           )}
           <span className="font-medium text-[var(--eflow-text)]">
             {overview?.preflight.configured
@@ -442,18 +571,23 @@ export function BackupExportWorkspace() {
               : "Server setup needed before backups can run"}
           </span>
           <span className="eflow-tabular text-xs text-[var(--eflow-text-muted)]">
-            {overview?.preflight.table_count || 0} tables covered · Archives retained {overview?.preflight.retention_hours || 24}h · {recentCompleted} ready now
+            {overview?.preflight.table_count || 0} tables ·{" "}
+            {overview?.preflight.important_table_count ??
+              overview?.preflight.important_tables?.length ??
+              0}{" "}
+            key tables · Retained {overview?.preflight.retention_hours || 24}h ·{" "}
+            {recentCompleted} ready
           </span>
         </div>
         {exportedRows > 0 && (
           <span className="eflow-tabular text-xs text-[var(--eflow-text-muted)]">
-            {exportedRows.toLocaleString()} rows packaged this session
+            {exportedRows.toLocaleString()} rows exported
           </span>
         )}
       </div>
 
       {!overview?.preflight.configured && (
-        <div className="mb-5 rounded-xl border border-amber-200 bg-amber-50/80 p-4">
+        <div className="rounded-xl border border-amber-200 bg-amber-50/80 p-4">
           <div className="flex items-start gap-3">
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-700">
               <ServerCog size={17} />
@@ -484,218 +618,12 @@ export function BackupExportWorkspace() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 items-start gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-        <div className="space-y-4">
-          <Card
-            title="Create backup"
-            subtitle="Reads and packages data safely without modifying live records."
-          >
-            <div className="space-y-4">
-              <div>
-                <label className="mb-1 block text-xs font-medium text-neutral-600">
-                  Backup type
-                </label>
-                <WSelect
-                  value={mode}
-                  onChange={(value) => {
-                    void requestNavigation(() => {
-                      setMode(value as BackupMode);
-                      resetDraft();
-                    });
-                  }}
-                  options={[
-                    {
-                      value: "operational",
-                      label: "Operational export · standard",
-                    },
-                    {
-                      value: "disaster_recovery",
-                      label: "Disaster recovery · password encrypted",
-                    },
-                  ]}
-                  className="w-full"
-                />
-              </div>
-
-              <div
-                className={`rounded-xl border p-3 ${mode === "operational" ? "border-blue-200 bg-blue-50/60" : "border-violet-200 bg-violet-50/60"}`}
-              >
-                <div className="flex items-start gap-2.5">
-                  {mode === "operational" ? (
-                    <ShieldCheck size={16} className="mt-0.5 text-blue-600" />
-                  ) : (
-                    <LockKeyhole size={16} className="mt-0.5 text-violet-600" />
-                  )}
-                  <div>
-                    <div className="text-[12.5px] font-medium text-neutral-900">
-                      {mode === "operational"
-                        ? "Standard safe export"
-                        : "Encrypted full recovery archive"}
-                    </div>
-                    <p className="mt-0.5 text-[12px] leading-5 text-neutral-600">
-                      {mode === "operational"
-                        ? "Includes workspace structure and operational data while excluding private server secrets."
-                        : "Includes full configuration data protected by your passphrase. The passphrase is never stored and cannot be recovered."}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {mode === 'disaster_recovery' && <p role="status" className="text-xs text-muted-foreground">{passphrase.length}/128 characters · use at least 12. {repeatPassphrase && passphrase !== repeatPassphrase ? 'Passphrases do not match.' : ''}</p>}
-              {mode === "disaster_recovery" && (
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  <label>
-                    <span className="mb-1 block text-xs font-medium text-neutral-600">
-                      Archive passphrase
-                    </span>
-                    <input
-                      type="password" minLength={12} maxLength={128}
-                      value={passphrase}
-                      onChange={(event) => setPassphrase(event.target.value)}
-                      placeholder="12–128 characters"
-                      className="h-10 w-full rounded-lg border border-neutral-200 px-3 text-[13px] outline-none focus:border-violet-400"
-                    />
-                  </label>
-                  <label>
-                    <span className="mb-1 block text-xs font-medium text-neutral-600">
-                      Repeat passphrase
-                    </span>
-                    <input
-                      type="password" minLength={12} maxLength={128}
-                      value={repeatPassphrase}
-                      onChange={(event) =>
-                        setRepeatPassphrase(event.target.value)
-                      }
-                      placeholder="Repeat exactly"
-                      className="h-10 w-full rounded-lg border border-neutral-200 px-3 text-[13px] outline-none focus:border-violet-400"
-                    />
-                  </label>
-                </div>
-              )}
-
-              <label className="flex items-start gap-2.5 rounded-xl border border-neutral-200 p-3">
-                <input
-                  type="checkbox"
-                  checked={includeStorageManifest}
-                  onChange={(event) =>
-                    setIncludeStorageManifest(event.target.checked)
-                  }
-                  className="mt-0.5 h-4 w-4 rounded border-neutral-300"
-                />
-                <div>
-                  <div className="text-[12.5px] font-medium text-neutral-800">
-                    Include uploaded files index
-                  </div>
-                  <p className="mt-0.5 text-[11.5px] text-neutral-500">
-                    Lists attachment references for recovery checks without downloading large uploaded files.
-                  </p>
-                </div>
-              </label>
-
-              <label>
-                <span className="mb-1 block text-xs font-medium text-neutral-600">
-                  Type{" "}
-                  <strong className="text-neutral-900">
-                    {expectedConfirmation}
-                  </strong>{" "}
-                  to confirm
-                </span>
-                <input
-                  value={confirmation}
-                  onChange={(event) => setConfirmation(event.target.value)}
-                  placeholder={expectedConfirmation}
-                  className="h-10 w-full rounded-lg border border-neutral-200 px-3 font-mono text-[13px] uppercase tracking-wide outline-none focus:border-neutral-500"
-                />
-              </label>
-
-              <label>
-                <span className="mb-1 block text-xs font-medium text-neutral-600">
-                  Confirm your account password
-                </span>
-                <input
-                  type="password"
-                  value={reauthPassword}
-                  onChange={(event) => setReauthPassword(event.target.value)}
-                  autoComplete="current-password"
-                  placeholder="Enter your password before starting"
-                  className="h-10 w-full rounded-lg border border-neutral-200 px-3 text-[13px] outline-none focus:border-neutral-500"
-                />
-                <span className="mt-1 block text-[11px] text-neutral-400">
-                  Verified directly with sign-in authentication and never stored.
-                </span>
-              </label>
-
-              <WButton
-                icon={
-                  busy || activeJob ? (
-                    <LoaderCircle size={14} className="animate-spin" />
-                  ) : (
-                    <HardDriveDownload size={14} />
-                  )
-                }
-                variant="primary"
-                onClick={create}
-                disabled={!canStart || busy}
-                className="w-full justify-center py-2.5"
-              >
-                {activeJob
-                  ? "Backup already running"
-                  : mode === "operational"
-                    ? "Create safe backup"
-                    : "Create encrypted full backup"}
-              </WButton>
-            </div>
-          </Card>
-
-          <details className="rounded-xl border border-[var(--eflow-border)] bg-[var(--eflow-surface)] px-4 py-3 text-xs text-[var(--eflow-text-muted)]">
-            <summary className="cursor-pointer font-medium text-[var(--eflow-text)]">
-              Technical backup contents ({overview?.preflight.table_count || 0} tables · SHA-256 verified)
-            </summary>
-            <p className="mt-2 leading-5">
-              Each ZIP package includes schema SQL, restore data SQL, row-level JSONL exports, and a SHA-256 verification manifest. Temporary archives automatically delete after {overview?.preflight.retention_hours || 24} hours.
-            </p>
-            {tablePreview.length > 0 && (
-              <p className="mt-2 font-mono text-[11px] text-neutral-500">
-                Sample tables: {tablePreview.slice(0, 8).join(", ")}
-                {tablePreview.length > 8 ? ` (+${(overview?.preflight.table_count || tablePreview.length) - 8} more)` : ""}
-              </p>
-            )}
-          </details>
-        </div>
-        <Card
-          title="Recent backups & downloads"
-          subtitle="Completed archives remain available until their expiration time."
-        >
-          {refreshing && (
-            <p className="mb-2 inline-flex items-center gap-1 text-xs text-neutral-400">
-              <LoaderCircle size={12} className="animate-spin" /> Refreshing jobs…
-            </p>
-          )}
-          {overview?.jobs.length ? (
-            <div className="space-y-2.5">
-              {overview.jobs.map((job) => (
-                <BackupJobCard
-                  key={job.id}
-                  job={job}
-                  onDownload={download}
-                  onDelete={remove}
-                  busy={busy}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="rounded-xl border border-dashed border-neutral-300 bg-white py-10 text-center">
-              <Archive size={24} className="mx-auto text-neutral-300" />
-              <div className="mt-2 text-[13px] font-medium text-neutral-700">
-                No backups created yet
-              </div>
-              <div className="mt-1 text-[12px] text-neutral-400">
-                Created backups will appear here with download links and verification hashes.
-              </div>
-            </div>
-          )}
-        </Card>
-      </div>
+      <WorkspaceTabs
+        label="Backup & export workspaces"
+        value={activeTab}
+        onValueChange={(next) => setActiveTab(next as BackupWorkspaceTab)}
+        tabs={tabs}
+      />
     </div>
   );
 }

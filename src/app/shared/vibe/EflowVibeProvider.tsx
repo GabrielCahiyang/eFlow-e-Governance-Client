@@ -6,26 +6,18 @@ import { eflowVibeTheme } from "./eflowVibeTheme";
 
 type VibeSystemTheme = "light" | "dark";
 
-function resolveSystemTheme(preference: ThemePreference): VibeSystemTheme {
-  if (preference === "dark") return "dark";
-  if (preference === "light") return "light";
-
-  return typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: dark)").matches
-    ? "dark"
-    : "light";
+function resolveSystemTheme(_preference: ThemePreference): VibeSystemTheme {
+  // Light mode is enforced system-wide for now.
+  return "light";
 }
 
 function useResolvedVibeTheme(preference: ThemePreference): VibeSystemTheme {
-  const [systemTheme, setSystemTheme] = useState(() => resolveSystemTheme(preference));
+  const [systemTheme, setSystemTheme] = useState<VibeSystemTheme>(() =>
+    resolveSystemTheme(preference),
+  );
 
   useEffect(() => {
     setSystemTheme(resolveSystemTheme(preference));
-    if (preference !== "system" || typeof window === "undefined") return;
-
-    const media = window.matchMedia("(prefers-color-scheme: dark)");
-    const onChange = () => setSystemTheme(resolveSystemTheme("system"));
-    media.addEventListener("change", onChange);
-    return () => media.removeEventListener("change", onChange);
   }, [preference]);
 
   return systemTheme;
@@ -73,5 +65,11 @@ export function EflowVibeThemeProvider({
 
 export function EflowVibeProvider({ children }: { children: ReactElement }) {
   const { theme } = useUserPreferences();
-  return <EflowVibeThemeProvider preference={theme}>{children}</EflowVibeThemeProvider>;
+  const isActivationRoute =
+    typeof window !== "undefined" && window.location.pathname === "/activate-account";
+  return (
+    <EflowVibeThemeProvider preference={isActivationRoute ? "light" : theme}>
+      {children}
+    </EflowVibeThemeProvider>
+  );
 }

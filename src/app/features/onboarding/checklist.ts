@@ -1,5 +1,12 @@
 import type { ChecklistStep } from './types';
 export function onboardingChecklist(role: string): ChecklistStep[] {
+  if (role === 'admin') return [
+    { id: 'account', label: 'Access Admin Center' },
+    { id: 'users', label: 'Review People & Accounts', section: 'users', page: 'People & Accounts' },
+    { id: 'roles', label: 'Configure Roles & Access', section: 'roles', page: 'Roles & Access' },
+    { id: 'audit', label: 'Inspect Account Audit', section: 'audit', page: 'Account Audit' },
+    { id: 'settings', label: 'Maintain System & Maintenance', section: 'system', page: 'System & Maintenance' },
+  ];
   if (role === 'head') return [
     { id: 'account', label: 'Access your Office' }, { id: 'invite', label: 'Invite your first team member', section: 'team', page: 'Office Team' },
     { id: 'team', label: 'Review your Office Team', section: 'team', page: 'Office Team' },

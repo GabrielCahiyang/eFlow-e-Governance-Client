@@ -16,7 +16,9 @@ export function BackupGatewayUnavailable({ error, refreshing, onRetry }: { error
           <ServerCog size={16} className="mt-0.5 shrink-0 text-neutral-500" />
           <div>
             <div className="text-[11.5px] font-medium text-neutral-800">Development recovery</div>
-            <p className="mt-1 text-[10.5px] leading-relaxed text-neutral-500">Stop the current development command with <code className="rounded bg-neutral-200 px-1 py-0.5">Ctrl+C</code>, then run <code className="rounded bg-neutral-200 px-1 py-0.5">npm run dev</code> again. Development startup now reloads Python routes automatically after future backend edits.</p>
+            <p className="mt-1 text-[10.5px] leading-relaxed text-neutral-500">
+              Ensure the local Python gateway on port <code className="rounded bg-neutral-200 px-1 py-0.5">8322</code> is running. If you launched <code className="rounded bg-neutral-200 px-1 py-0.5">npm run dev:frontend</code> alone, stop it with <code className="rounded bg-neutral-200 px-1 py-0.5">Ctrl+C</code> and start <code className="rounded bg-neutral-200 px-1 py-0.5">npm run dev</code> (or run <code className="rounded bg-neutral-200 px-1 py-0.5">npm run dev:gateway</code> in a second terminal). Development startup reloads Python routes automatically.
+            </p>
           </div>
         </div>
         <WButton icon={<RefreshCw size={13} className={refreshing ? "animate-spin" : ""} />} onClick={onRetry} disabled={refreshing} variant="primary" className="w-full justify-center">

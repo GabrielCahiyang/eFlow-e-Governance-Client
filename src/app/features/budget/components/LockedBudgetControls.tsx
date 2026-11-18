@@ -116,10 +116,10 @@ export function LockedBudgetControls({
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <div className="flex items-center gap-2 text-[12px] font-semibold text-neutral-900">
-            <History size={14} /> Locked-budget controls
+            <History size={14} /> Year-end and locked budget actions
           </div>
           <p className="mt-1 text-[10px] text-neutral-500">
-            An appropriation is the amount authorized for this fiscal year. Adjustments record the old and new amounts. Settle open cash advances before closing the year.
+            Every change to a locked budget records the previous and new amounts in the audit history. All released cash must be settled with receipts before you can close the fiscal year.
           </p>
         </div>
         {canManage && summary.status === "locked" && (

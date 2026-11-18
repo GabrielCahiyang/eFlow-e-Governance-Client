@@ -119,7 +119,19 @@ def main() -> int:
         trusted_proxy_ips(),
     ]
     if reload_enabled:
-        command.extend(["--reload", "--reload-dir", str(SERVER_DIR)])
+        command.extend([
+            "--reload",
+            "--reload-dir",
+            str(SERVER_DIR),
+            "--reload-exclude",
+            ".venv*",
+            "--reload-exclude",
+            "*__pycache__*",
+            "--reload-exclude",
+            "assets*",
+            "--reload-exclude",
+            "tests*",
+        ])
     process = subprocess.Popen(
         command,
         cwd=str(SERVER_DIR),

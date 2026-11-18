@@ -41,7 +41,7 @@ export function buildShellNavigation({ role, persistedRole = role, can, hasLeadi
 }): ShellNavigationItem[] {
   return getRoleNavigationCandidates(role)
     .filter(item => item.id !== 'announcements')
-    .filter(item => isRoleNavigationItemVisible(item, hasLeadingWork, persistedRole) && canOpenNavigationSection(role, item.id, can, Boolean(hasLeadingWork && (item.requiresLeadership || item.id === 'personal_work'))))
+    .filter(item => isRoleNavigationItemVisible(item, hasLeadingWork || Boolean(item.requiresLeadership && can('navigation.reviews')), persistedRole) && canOpenNavigationSection(role, item.id, can, Boolean(hasLeadingWork && (item.requiresLeadership || item.id === 'personal_work'))))
     .filter(item=>item.id!=='intelligence'||!canOpenNavigationSection(role,'team',can,false))
     .filter(item=>item.id!=='identity'||!canOpenNavigationSection(role,'team',can,false))
     .filter(item=>!(role==='head'&&item.id==='reports'&&(canOpenNavigationSection(role,'team',can,false)||canOpenNavigationSection(role,'intelligence',can,false))))

@@ -26,7 +26,7 @@ import {
   PERMISSIONS_CHANGED_EVENT,
   PERMISSIONS_CHANGED_STORAGE_KEY,
 } from '../features/permissions/constants';
-import { signInWithAccountProtection } from '../features/authentication';
+import { requestPasswordReset, signInWithAccountProtection } from '../features/authentication';
 import type { UserProfile, UserRole } from '../types';
 import { AuthContext, type AuthContextValue } from './authContextValue';
 
@@ -60,6 +60,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [error, setError] = useState<string | null>(null);
   const [permissions, setPermissions] = useState<Set<string>>(new Set());
   const [permissionsLoadedFor, setPermissionsLoadedFor] = useState<string | null>(null);
+  const [passwordRecovery, setPasswordRecovery] = useState(false);
   const [accessRevision, setAccessRevision] = useState(0);
   const activeUserIdRef = useRef<string | null>(null);
   const loginPortalRef = useRef<LoginPortal | null>(null);
@@ -70,7 +71,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setAccessRevision(value => value + 1);
   }, []);
   const publishProfile = useCallback((profile: UserProfile | null) => {
-    const scope = profile ? JSON.stringify([profile.id, profile.org_id, profile.role, profile.is_active]) : null;
+    const scope = profile ? JSON.stringify([profile.id, profile.org_id, profile.role, profile.custom_role_key ?? null, profile.is_active]) : null;
     if (profileScope.current !== null && profileScope.current !== scope) clearAccess();
     profileScope.current = scope;
     setUserProfile(profile);
@@ -185,9 +186,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // deadlock startup and leave the application loading forever.
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
+      (event, session) => {
         const nextUser = session?.user ?? null;
         const nextUserId = nextUser?.id ?? null;
+
+        if (event === 'PASSWORD_RECOVERY') {
+          setPasswordRecovery(true);
+        } else if (event === 'SIGNED_OUT' || !nextUser) {
+          setPasswordRecovery(false);
+        }
 
         if (activeUserIdRef.current !== nextUserId) {
           resetAuthCaches();
@@ -353,14 +360,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // ─── resetPassword ─────────────────────────────────────────────
   const resetPassword = useCallback(async (email: string) => {
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: window.location.origin,
-      });
-      if (error) throw error;
+      await requestPasswordReset(email);
     } catch (err: any) {
       setError(err?.message || 'Failed to send password reset email.');
       throw err;
     }
+  }, []);
+
+  const clearPasswordRecovery = useCallback(() => {
+    setPasswordRecovery(false);
   }, []);
 
   // ─── logout ────────────────────────────────────────────────────
@@ -379,7 +387,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } finally {
       resetAuthCaches();
       if (navigationUserId) clearNavigationPreferences(navigationUserId);
-      if (!['/activate-account','/accept-invite','/accept-project-invite','/project-share','/manage-project-share'].includes(window.location.pathname)) replaceNavigationHistory(logoutRedirectPath);
+      if (!['/activate-account','/accept-invite','/accept-project-invite','/project-share','/manage-project-share','/reset-password'].includes(window.location.pathname)) replaceNavigationHistory(logoutRedirectPath);
       activeUserIdRef.current = null;
       profileScope.current = null;
       permissionScope.current = null;
@@ -411,10 +419,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         userProfile,
         loading,
         permissionsLoading: !!userProfile && permissionsLoadedFor !== `${userProfile.id}:${userProfile.role}:${userProfile.custom_role_key || ''}`,
+        passwordRecovery,
         accessRevision,
         error,
         login,
         resetPassword,
+        clearPasswordRecovery,
         logout,
         updateUserProfile,
         clearError,

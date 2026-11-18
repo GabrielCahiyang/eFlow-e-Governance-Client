@@ -7,6 +7,7 @@ import {
   CircleSlash,
   Eye,
   KeyRound,
+  Mail,
   MoreHorizontal,
   Pencil,
   Plus,
@@ -41,7 +42,8 @@ import {
   StatusBadge,
   WorkloadBar,
 } from "./userManagementPrimitives";
-import { deleteManagedUser } from "../../services/managedUserService";
+import { deleteManagedUser, sendManagedUserPasswordReset } from "../../services/managedUserService";
+import { isManagedLeadershipRole } from "../../services/leadershipConstraints";
 import { isLastActiveAdmin } from "../../selectors/adminAccountProtection";
 import {
   DEFAULT_USER_DIRECTORY_FILTERS,
@@ -105,6 +107,7 @@ export function UsersTab({
   );
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [resettingPasswordId, setResettingPasswordId] = useState<string | null>(null);
   const [localFilters, setLocalFilters] = useState<UserDirectoryFilters>(
     DEFAULT_USER_DIRECTORY_FILTERS,
   );
@@ -139,6 +142,11 @@ export function UsersTab({
   const canEditProfile = (profile: UserProfile) =>
     canManageUsers &&
     (isAdminRole(userProfile?.role) || !isAdminRole(profile.role));
+  const canSendPasswordReset = (profile: UserProfile) =>
+    canManageUsers &&
+    profile.is_active &&
+    (isAdminRole(userProfile?.role) ||
+      (!isAdminRole(profile.role) && !isManagedLeadershipRole(profile.role)));
   const canManageAccountLifecycle = (profile: UserProfile) =>
     canManageUsers &&
     (isAdminRole(userProfile?.role) ||
@@ -180,6 +188,33 @@ export function UsersTab({
       statusPending.current = false;
       lifecycleDraft.pendingRef.current = false;
       setChangingStatus(false);
+    }
+  };
+
+  const handleSendPasswordReset = async (profile: UserProfile) => {
+    if (resettingPasswordId || !canSendPasswordReset(profile)) return;
+    setLifecycleError("");
+    if (
+      !(await confirmation.confirm({
+        title: "Send password reset link?",
+        description: `Send a one-time password reset email to ${profile.full_name} (${profile.email})? They can choose a new password on the dedicated reset page.`,
+        actionLabel: "Send reset link",
+      }))
+    ) {
+      return;
+    }
+    setResettingPasswordId(profile.id);
+    try {
+      const result = await sendManagedUserPasswordReset(profile.id);
+      const message = `Password reset link sent to ${result.email}.`;
+      setLifecycleResult(message);
+      toast(message, "success");
+    } catch (error: any) {
+      const message = error?.message || "Failed to send password reset link";
+      setLifecycleError(message);
+      toast(message, "error");
+    } finally {
+      setResettingPasswordId(null);
     }
   };
 
@@ -335,6 +370,22 @@ export function UsersTab({
                       ? "Only Admin can customize access"
                       : undefined,
                   onSelect: () => onOpenAccess(profile.id),
+                },
+                {
+                  id: "reset-password",
+                  label: "Send password reset",
+                  icon: <Mail size={14} aria-hidden="true" />,
+                  disabled: !canSendPasswordReset(profile) || resettingPasswordId === profile.id,
+                  disabledReason: !canManageUsers
+                    ? "User management permission is required"
+                    : !profile.is_active
+                      ? "Activate this account before sending a password reset link"
+                      : !canSendPasswordReset(profile)
+                        ? "Only Admin can reset a leadership or Admin account"
+                        : undefined,
+                  onSelect: () => {
+                    if (canSendPasswordReset(profile)) void handleSendPasswordReset(profile);
+                  },
                 },
                 {
                   id: "toggle-status",
@@ -502,6 +553,12 @@ export function UsersTab({
                 }
               : undefined
           }
+          onResetPassword={
+            canSendPasswordReset(inspected)
+              ? () => void handleSendPasswordReset(inspected)
+              : undefined
+          }
+          resettingPassword={resettingPasswordId === inspected.id}
         />
       )}
       <DataTable

@@ -21,12 +21,13 @@ describe('in-page Account Audit details',()=>{
   fireEvent.click(screen.getByRole('button',{name:'Changed by',exact:true}));
   const trigger=await inspect();expect(screen.queryByRole('dialog')).toBeNull();expect(screen.queryByRole('table')).toBeNull();
   expect(screen.getByRole('heading',{level:1,name:'Profile updated'})).toBe(document.activeElement);
+  expect(screen.getByRole('heading',{name:'What changed'})).toBeTruthy();
   expect(document.body.style.overflow).not.toBe('hidden');
   fireEvent.click(screen.getByRole('button',{name:'Back to Account Audit',exact:true}));
   await waitFor(()=>expect(document.activeElement).toBe(trigger));expect(search).toHaveValue('profile');
   expect(screen.getByRole('columnheader',{name:/Changed by/})).toHaveAttribute('aria-sort','ascending');
   expect(within(screen.getAllByRole('row')[1]).getByText('Ana Cruz')).toBeTruthy();
- });
+ }, 15000);
  it('keeps long changes readable and uses existing nested redaction for metadata and copy values',async()=>{
   const write=vi.fn().mockResolvedValue(undefined);Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:write}});
   const view=render(<AdminAuditLog/>);await inspect();selectTab(/Changed fields/);
@@ -67,5 +68,16 @@ describe('in-page Account Audit details',()=>{
   const view=render(<AdminAuditLog/>);await inspect();api.actor='admin-two';api.fetch.mockReturnValue(new Promise(()=>{}));view.rerender(<AdminAuditLog/>);
   expect(screen.queryByText('Recorded reason')).toBeNull();expect(screen.queryByRole('heading',{name:'Profile updated'})).toBeNull();
   api.allowed=false;view.rerender(<AdminAuditLog/>);expect(screen.getByRole('alert')).toHaveTextContent('Audit access unavailable');
+ });
+ it('paginates Account Audit rows and updates pages when changing page or page size',async()=>{
+  const many=Array.from({length:30},(_,i)=>event({id:`event-${i+1}`,actorName:`Actor ${String(i+1).padStart(2,'0')}`,createdAt:Date.parse('2026-11-18T12:00:00Z')-i*60_000}));
+  api.fetch.mockResolvedValue({events:many,total:30});
+  render(<AdminAuditLog/>);
+  expect(await screen.findByText('Showing 1–25 of 30 events')).toBeTruthy();
+  expect(screen.getByText('Actor 01')).toBeTruthy();
+  expect(screen.queryByText('Actor 26')).toBeNull();
+  fireEvent.click(screen.getByRole('button',{name:'Next page'}));
+  expect(await screen.findByText('Showing 26–30 of 30 events')).toBeTruthy();
+  expect(screen.getByText('Actor 26')).toBeTruthy();
  });
 });

@@ -1,7 +1,7 @@
 import {useAuth} from '../../../contexts/AuthContext';
 import { readableUiError } from '../../../shared/userFacingError';
 import {useEffect,useRef,useState} from 'react';
-import {ArrowRight,Check,ClipboardList,RotateCcw,Wallet} from 'lucide-react';
+import {ArrowRight,Check,ClipboardList,Lock,RotateCcw,Wallet} from 'lucide-react';
 import type {Organization,UserProfile} from '../../../types';
 import type {Task} from '../../tasks';
 import {useNavigationBlocker} from '../../../shared/navigationGuard';
@@ -112,12 +112,25 @@ export function ProjectDefinitionPanel({projectId,profiles,profilesLoading,organ
   }
  }
 
+ const readOnlyReason=closed
+  ?'Completed and archived project settings are read-only.'
+  :!planning
+   ?'Project settings are read-only once planning ends.'
+   :'Only the appointed lead Office Head can edit project settings.';
+ const readOnlyDetail=closed
+  ?`This project is ${project.status}. Completed and archived project details cannot be edited.`
+  :!planning
+   ?`Editing is locked because this project is ${project.status==='active'?'active':project.status.replace(/_/g,' ')}. Project details and scope can only be changed while the project is in planning.`
+   :'Only the appointed Lead Office Head can edit project settings.';
+
  return <div className="space-y-5">{section!=='funding'&&(data.ready?<form className="pf-panel pf-settings-form" aria-label="Project definition" onSubmit={e=>{void saveInline(e);}}>
   <header>
-   <div><h2><ClipboardList size={21}/>Project settings</h2><p>{editable?'Update project details and scope. The project timeline syncs automatically from tasks and subtasks.':closed?'Completed and archived project settings are read-only.':!planning?'Project settings are read-only once planning ends.':'Only the appointed lead Office Head can edit project settings.'}</p></div>
+   <div><h2><ClipboardList size={21}/>Project settings</h2><p>{editable?'Update project details and scope. The project timeline syncs automatically from tasks and subtasks.':readOnlyReason}</p></div>
+   {!editable&&<span className="pf-status-badge pf-readonly-badge"><Lock size={13} aria-hidden="true"/>Read-only</span>}
   </header>
-  <ProjectSetupFields step={0} draft={draft} update={update} profiles={profiles} disabled={!editable||busy} settings/>
-  <ProjectSetupFields step={1} draft={draft} update={update} profiles={profiles} disabled={!editable||busy} settings/>
+  {!editable&&<div className="pf-readonly-notice" role="status"><Lock size={16} aria-hidden="true"/><div><strong>Editing is disabled</strong><p>{readOnlyDetail}</p></div></div>}
+  <ProjectSetupFields step={0} draft={draft} update={update} profiles={profiles} disabled={!editable||busy} readOnlyReason={!editable?readOnlyDetail:undefined} settings/>
+  <ProjectSetupFields step={1} draft={draft} update={update} profiles={profiles} disabled={!editable||busy} readOnlyReason={!editable?readOnlyDetail:undefined} settings/>
   <dl className="pf-definition-summary"><div><dt>Timeline</dt><dd>{project.start_date&&project.target_date?`${project.start_date} → ${project.target_date}`:'Set automatically from tasks and subtasks'}</dd></div></dl>
   {error&&<FlowError error={error}/>}
   {notice&&<p role="status" className="pf-success">{notice}</p>}

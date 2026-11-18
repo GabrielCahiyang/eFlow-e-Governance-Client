@@ -52,7 +52,10 @@ export function useWorkTree(rootId:string):WorkTreeController & {fresh:boolean} 
  }
  useEffect(()=>{
   active.current=true;isolateWorkDraftActor(actorId);void reload(false);
-  const refresh=()=>{if(pending.current===undefined&&reading.current===undefined)void reload(true);};
+  const refresh=()=>{
+   if(typeof document!=='undefined'&&document.visibilityState==='hidden')return;
+   if(pending.current===undefined&&reading.current===undefined)void reload(true);
+  };
   const onWorkChange=()=>{if(pending.current===undefined&&reading.current===undefined)void reload(true);else refreshQueued.current=true;};
   const timer=window.setInterval(refresh,15000);window.addEventListener('focus',refresh);const stop=subscribeWorkChanges(onWorkChange,rootId);
   return()=>{active.current=false;++generation.current;refreshQueued.current=false;window.clearInterval(timer);window.removeEventListener('focus',refresh);stop();};

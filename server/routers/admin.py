@@ -6,6 +6,7 @@ from starlette.concurrency import run_in_threadpool
 from services.administrative_roles import is_administrator
 from services.private_validation import PrivateValidationRoute
 from services import managed_account_activation as activation
+from services import password_reset
 from gateway_dependencies import AuthenticatedUser, require_user_manager, require_user, supabase_admin
 
 router = APIRouter(prefix="/controlpanelEflow/api/admin", tags=["admin"], route_class=PrivateValidationRoute)
@@ -46,6 +47,18 @@ def revoke_activation(invitation_id: UUID, user: AuthenticatedUser = Depends(req
 @router.post("/users/pending-activation/{invitation_id}/approve")
 def approve_activation(invitation_id: UUID, user: AuthenticatedUser = Depends(require_user_manager)):
     return activation.manage(str(invitation_id), 'approve', user)
+
+@router.post("/users/pending-activation/{invitation_id}/delete")
+def delete_activation(invitation_id: UUID, user: AuthenticatedUser = Depends(require_user_manager)):
+    return activation.manage(str(invitation_id), 'delete', user)
+
+
+@router.post("/users/{uid}/reset-password")
+async def send_user_password_reset(
+    uid: UUID,
+    user: AuthenticatedUser = Depends(require_user_manager),
+):
+    return await run_in_threadpool(password_reset.send_admin_reset, str(uid), user)
 
 
 

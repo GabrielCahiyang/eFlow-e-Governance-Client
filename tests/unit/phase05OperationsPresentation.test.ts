@@ -49,11 +49,10 @@ describe("Phase 8 people, reports, and communications presentation", () => {
     expect(supervision).toContain("Add member");
   });
 
-  it("keeps access management oriented around accountable current access", () => {
+  it("keeps office head access management scoped to available staff accounting assignments", () => {
     expect(identity).toContain("Available staff");
-    expect(identity).toContain("Current access");
-    expect(identity).toContain("Protected leadership");
-    expect(identity).toContain("audit consequence");
+    expect(identity).not.toContain("Current access");
+    expect(identity).not.toContain("Protected leadership");
   });
 
   it("keeps communication unread affordances keyboard-labelled and viewport-safe", () => {

@@ -5,7 +5,6 @@ import { isAdminRole } from "../../../../shared/roles";
 import { RoleDefaultsTab, UserAccessTab } from "../../../permissions";
 import { UsersTab } from "./UsersTab";
 import { PendingActivationsTable } from "./PendingActivationsTable";
-import { ProjectGuestAccounts } from "../../guests/ProjectGuestAccounts";
 import { LockedAccountsTab } from "./LockedAccountsTab";
 import { listPendingActivations } from "../../../account-activation";
 import { readLoginSecurity } from "../../services/loginSecurityService";
@@ -34,7 +33,6 @@ export interface AccountDirectoryNavigation {
 export type UserManagementTab =
   | "users"
   | "invitations"
-  | "guests"
   | "locked-accounts"
   | "role-defaults"
   | "user-access";
@@ -42,7 +40,6 @@ export type UserManagementTab =
 const PEOPLE_TABS = new Set<UserManagementTab>([
   "users",
   "invitations",
-  "guests",
   "locked-accounts",
 ]);
 
@@ -129,7 +126,7 @@ export function UserManagement({
     : {
         title: "People & Accounts",
         description:
-          "Manage staff accounts, pending invitations, temporary project guests, and locked accounts.",
+          "Manage staff accounts, pending invitations, and locked accounts.",
       };
 
   const directoryNode = (
@@ -197,11 +194,6 @@ export function UserManagement({
             ),
           },
           {
-            id: "guests",
-            label: "Project Guests",
-            content: <ProjectGuestAccounts key={userProfile?.id} />,
-          },
-          {
             id: "locked-accounts",
             label: attention.lockedCount
               ? `Lockouts & Security (${attention.lockedCount})`
@@ -238,7 +230,6 @@ export function UserManagement({
       setTab(nextTab);
       if (nextTab === "users") writeNavigationLocation("users", "All Users");
       else if (nextTab === "invitations") writeNavigationLocation("users", "Pending Invitations");
-      else if (nextTab === "guests") writeNavigationLocation("users", "Project Guests");
       else if (nextTab === "locked-accounts") writeNavigationLocation("users", "Locked out accounts");
     });
   };

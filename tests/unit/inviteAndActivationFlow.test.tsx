@@ -53,6 +53,12 @@ vi.mock("../../src/app/features/account-activation/services/activationService", 
 
 import { CreateUserModal } from "../../src/app/features/administration/components/user-management/CreateUserModal";
 import { ActivateAccountPage } from "../../src/app/features/account-activation";
+import {
+  evaluatePasswordRequirements,
+  generateStrongPassword,
+  isStrongActivationPassword,
+  validateActivationFields,
+} from "../../src/app/features/account-activation/validation";
 import { buildRoleCatalog } from "../../src/app/features/permissions";
 import type { Organization } from "../../src/app/types";
 
@@ -171,13 +177,17 @@ describe("Streamlined Invite eFlow User + ActivateAccountPage full name", () => 
 
     const nameInput = await screen.findByLabelText("Full name");
     fireEvent.change(nameInput, { target: { value: "Maria Santos" } });
-    fireEvent.change(screen.getByLabelText("New password"), {
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+
+    fireEvent.change(await screen.findByLabelText("New password"), {
       target: { value: "StrongPassword12!" },
     });
     fireEvent.change(screen.getByLabelText("Confirm password"), {
       target: { value: "StrongPassword12!" },
     });
-    fireEvent.click(screen.getByRole("button", { name: "Budgeting" }));
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+
+    fireEvent.click(await screen.findByRole("button", { name: "Budgeting" }));
     fireEvent.click(screen.getByRole("button", { name: "Activate account" }));
 
     await waitFor(() => {
@@ -191,5 +201,102 @@ describe("Streamlined Invite eFlow User + ActivateAccountPage full name", () => 
       { Budgeting: true },
       "Maria Santos",
     );
+  });
+
+  it("enforces formal validation requiring a letter, number, and special character, suggests strong passwords, supports Back navigation, and defaults to light mode", async () => {
+    document.documentElement.classList.add("dark");
+    document.documentElement.dataset.theme = "dark";
+    window.history.replaceState({}, "", "/activate-account?token=" + "t".repeat(48));
+    mocks.validateAccountActivation.mockResolvedValue({
+      email: "maria@eflow.gov.ph",
+      full_name: "Maria Santos",
+      office_name: "Treasury Office",
+      account_role: "member",
+      requested_privileged_role: null,
+      expires_at: "2026-11-24T00:00:00Z",
+      skills: {},
+      available_skills: [],
+    });
+    mocks.completeAccountActivation.mockResolvedValue({
+      activated: true,
+      next_step: "sign_in",
+    });
+
+    render(<ActivateAccountPage />);
+
+    const nameInput = (await screen.findByLabelText("Full name")) as HTMLInputElement;
+    // Light mode enforced by default even if document was previously dark
+    expect(document.documentElement.classList.contains("dark")).toBe(false);
+    expect(document.documentElement.dataset.theme).toBe("light");
+    expect(document.body.classList.contains("light-app-theme")).toBe(true);
+
+    // Step 1 formal validation blocks empty/short full name before advancing
+    fireEvent.change(nameInput, { target: { value: "A" } });
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+    expect(screen.queryByLabelText("New password")).toBeNull();
+    expect(await screen.findAllByText(/2 to 160 characters/i)).not.toHaveLength(0);
+
+    fireEvent.change(nameInput, { target: { value: "Maria Santos" } });
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+
+    const newPasswordInput = (await screen.findByLabelText("New password")) as HTMLInputElement;
+    const confirmInput = screen.getByLabelText("Confirm password") as HTMLInputElement;
+
+    // Back returns to Step 1 preserving full name, then Continue returns to Step 2
+    fireEvent.click(screen.getByRole("button", { name: "Back" }));
+    expect(((await screen.findByLabelText("Full name")) as HTMLInputElement).value).toBe("Maria Santos");
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+
+    const step2PasswordInput = (await screen.findByLabelText("New password")) as HTMLInputElement;
+    const step2ConfirmInput = screen.getByLabelText("Confirm password") as HTMLInputElement;
+
+    // Rejects password missing a number and special character
+    fireEvent.change(step2PasswordInput, { target: { value: "OnlyLettersHere" } });
+    fireEvent.blur(step2PasswordInput);
+    fireEvent.change(step2ConfirmInput, { target: { value: "OnlyLettersHere" } });
+    fireEvent.click(screen.getByRole("button", { name: "Activate account" }));
+
+    expect(mocks.completeAccountActivation).not.toHaveBeenCalled();
+    expect(await screen.findAllByText(/missing a number, a special character/i)).not.toHaveLength(0);
+
+    // Rejects password missing only a special character
+    fireEvent.change(step2PasswordInput, { target: { value: "LettersAnd1234" } });
+    fireEvent.change(step2ConfirmInput, { target: { value: "LettersAnd1234" } });
+    fireEvent.click(screen.getByRole("button", { name: "Activate account" }));
+
+    expect(mocks.completeAccountActivation).not.toHaveBeenCalled();
+    expect(await screen.findAllByText(/missing a special character/i)).not.toHaveLength(0);
+
+    // Strong password suggestion populates both fields, reveals new password, and passes all rules
+    fireEvent.click(screen.getByRole("button", { name: /Suggest strong password/i }));
+    expect(step2PasswordInput.type).toBe("text");
+    expect(step2PasswordInput.value.length).toBeGreaterThanOrEqual(12);
+    expect(step2ConfirmInput.value).toBe(step2PasswordInput.value);
+    expect(isStrongActivationPassword(step2PasswordInput.value)).toBe(true);
+    expect(screen.getByRole("button", { name: /Copy password/i })).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: "Activate account" }));
+    await waitFor(() => expect(mocks.completeAccountActivation).toHaveBeenCalledTimes(1));
+  }, 20000);
+
+  it("validates activation rules and generated passwords in pure helpers", () => {
+    expect(evaluatePasswordRequirements("abcdefghijkl")).toEqual({
+      length: true,
+      letter: true,
+      number: false,
+      special: false,
+      noControlChars: true,
+    });
+    expect(validateActivationFields({ fullName: "A", password: "short", confirmation: "other" })).toEqual({
+      fullName: "Enter your full name (2 to 160 characters).",
+      password: "Use at least 12 characters.",
+      confirmation: "The passwords do not match.",
+    });
+
+    for (let i = 0; i < 10; i += 1) {
+      const generated = generateStrongPassword();
+      expect(generated.length).toBe(16);
+      expect(isStrongActivationPassword(generated)).toBe(true);
+    }
   });
 });

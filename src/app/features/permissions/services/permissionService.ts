@@ -106,12 +106,13 @@ async function fetchCustomRoleByKey(key: string): Promise<CustomRoleDefinition |
   if (!normalized || isAdminRole(normalized)) return null;
   const table = (supabase as any)?.from?.("custom_roles");
   if (!table || typeof table.select !== "function") return null;
-  const { data, error } = await table.select("*").eq("key", normalized).maybeSingle();
-  if (error) {
-    if (isMissingCustomRolesRelation(error)) return null;
-    throw error;
+  try {
+    const { data, error } = await table.select("*").eq("key", normalized).maybeSingle();
+    if (error) return null;
+    return data ? mapCustomRoleRow(data as Record<string, any>) : null;
+  } catch {
+    return null;
   }
-  return data ? mapCustomRoleRow(data as Record<string, any>) : null;
 }
 
 export async function fetchEffectivePermissions(
@@ -119,12 +120,20 @@ export async function fetchEffectivePermissions(
   role: string,
   customRoleKey?: string | null,
 ): Promise<Set<string>> {
+  const normalizedCustomKey = customRoleKey?.trim() || null;
   const [rolePermissions, overrides, customRole] = await Promise.all([
     readRolePermissions(true),
     readUserOverrides(userId, true),
-    customRoleKey && !isAdminRole(role) ? fetchCustomRoleByKey(customRoleKey) : Promise.resolve(null),
+    normalizedCustomKey && !isAdminRole(role)
+      ? fetchCustomRoleByKey(normalizedCustomKey)
+      : Promise.resolve(null),
   ]);
-  return resolvePermissions(role, rolePermissions, overrides, customRole);
+  const effectiveCustomRole =
+    customRole ||
+    (normalizedCustomKey && !isAdminRole(role)
+      ? { key: normalizedCustomKey, baseRole: role as BaseCustomRole }
+      : null);
+  return resolvePermissions(role, rolePermissions, overrides, effectiveCustomRole);
 }
 
 export function buildCustomRoleKey(label: string, existingKeys: Iterable<string> = []): string {

@@ -103,7 +103,7 @@ export function GuidedTourProvider({
     try {
       const record = await readOnboarding();
       if (cancelled) return;
-      serverOnboarding = role !== 'admin';
+      serverOnboarding = true;
       needsFirstRun = serverOnboarding && (record.status === 'not_started' || (record.status === 'in_progress' && !record.state.completed_steps?.includes('welcome')));
       remoteReady.current = true;
       if (record.state.tour_progress && typeof record.state.tour_progress === 'object') {
@@ -114,20 +114,6 @@ export function GuidedTourProvider({
     if (cancelled) return;
     setVoiceEnabled(progress.voiceEnabled);
     if (needsFirstRun) return;
-    timer = window.setTimeout(() => {
-      const current = startupState.current;
-      if (progress.activeTour) {
-        const saved = progress.activeTour;
-        if (saved.kind === "page") {
-          current.onNavigate(saved.section, saved.page || saved.section);
-          current.begin?.("page", getPageTourSteps(saved.section, saved.page), saved.index, saved.section, saved.page);
-        } else {
-          current.begin?.("system", getSystemTourSteps(current.sections, current.onNavigate), saved.index, saved.section, saved.page);
-        }
-      } else if (!progress.welcomed && !serverOnboarding) {
-        setWelcomeOpen(true);
-      }
-    }, 850);
     })();
     return () => { cancelled = true; window.clearTimeout(timer); initializedFor.current = ''; remoteReady.current = false; };
   }, [role, userId]);

@@ -161,7 +161,7 @@ export function BudgetExpensesReport({
     <div className="eflow-analytics">
       <WorkspaceHeader
         title="Verified expense register"
-        description="Approved liquidation packages with spending, returned cash and receipts."
+        description="Settled cash requests showing verified spending, returned change, and attached receipts."
       />
       <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))] gap-3">
         <BudgetCard
@@ -247,15 +247,15 @@ export function BudgetExpensesReport({
             <table className="eflow-budget-record-table min-w-[1000px] text-left">
               <thead className="bg-muted text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
                 <tr>
-                  <th className="px-4 py-3 font-semibold">Expense package</th>
-                  <th className="px-3 py-3 font-semibold">Proposal / work</th>
-                  <th className="px-3 py-3 font-semibold">Accountability</th>
-                  <th className="px-3 py-3 font-semibold">Classification</th>
-                  <th className="px-3 py-3 text-right font-semibold">Actual</th>
+                  <th className="px-4 py-3 font-semibold">Request &amp; date</th>
+                  <th className="px-3 py-3 font-semibold">Project &amp; task</th>
+                  <th className="px-3 py-3 font-semibold">Recipient</th>
+                  <th className="px-3 py-3 font-semibold">Category</th>
+                  <th className="px-3 py-3 text-right font-semibold">Verified spent</th>
                   <th className="px-3 py-3 text-right font-semibold">
-                    Returned
+                    Returned cash
                   </th>
-                  <th className="px-4 py-3 font-semibold">Evidence</th>
+                  <th className="px-4 py-3 font-semibold">Receipts</th>
                 </tr>
               </thead>
               <tbody>
@@ -364,7 +364,7 @@ export function BudgetExpensesReportSkeleton({
       <span className="sr-only">{label}</span>
       <WorkspaceHeader
         title="Verified expense register"
-        description="Approved liquidation packages with spending, returned cash and receipts."
+        description="Settled cash requests showing verified spending, returned change, and attached receipts."
       />
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4" aria-hidden="true">
         {[

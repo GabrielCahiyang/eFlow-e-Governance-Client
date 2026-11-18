@@ -15,18 +15,22 @@ for (const width of [1440, 390, 320]) test(`Managed activation validates passwor
     return r.fulfill({json:{status:'ok'}});
   });
   await page.goto('/activate-account?token='+'a'.repeat(43));
-  await expect(page.getByRole('heading',{name:'Welcome to eFlow'})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'Join LEDIPO'})).toBeVisible();
   await expect(page).toHaveURL(/\/activate-account$/);
+  await expect(page.locator('html')).toHaveAttribute('data-theme','light');
   await expect(page.getByText('new@example.test',{exact:true})).toBeVisible();
   await expect(page.getByRole('combobox')).toHaveCount(0);
+  await expect(page.getByLabel('Full name',{exact:true})).toHaveValue('New colleague');
+  await page.getByRole('button',{name:'Continue'}).click();
   const password=page.getByLabel('New password',{exact:true}), confirm=page.getByLabel('Confirm password',{exact:true});
-  await password.fill('short');await confirm.fill('short');await page.getByRole('button',{name:'Activate account'}).click();await expect(page.getByRole('alert').filter({hasText:'Use a password'})).toHaveText('Use a password with 12 to 128 characters.');expect(calls).toHaveLength(0);
-  await password.fill('synthetic-password');await confirm.fill('different-password');await page.getByRole('button',{name:'Activate account'}).click();await expect(page.getByRole('alert').filter({hasText:'The passwords'})).toHaveText('The passwords do not match.');expect(calls).toHaveLength(0);
-  await confirm.fill('synthetic-password');await page.getByRole('button',{name:'Activate account'}).click();await expect(page.getByRole('alert').filter({hasText:'Temporary connection'})).toContainText('Temporary connection');
+  await password.fill('short');await confirm.fill('short');await page.getByRole('button',{name:'Activate account'}).click();await expect(page.getByRole('alert').filter({hasText:'Use at least'})).toHaveText('Use at least 12 characters.');expect(calls).toHaveLength(0);
+  await password.fill('syntheticpassword');await confirm.fill('syntheticpassword');await page.getByRole('button',{name:'Activate account'}).click();await expect(page.getByRole('alert').filter({hasText:'Password must contain'})).toContainText('missing a number, a special character');expect(calls).toHaveLength(0);
+  await password.fill('synthetic-password-12');await confirm.fill('different-password-12');await page.getByRole('button',{name:'Activate account'}).click();await expect(page.getByRole('alert').filter({hasText:'The passwords'})).toHaveText('The passwords do not match.');expect(calls).toHaveLength(0);
+  await confirm.fill('synthetic-password-12');await page.getByRole('button',{name:'Activate account'}).click();await expect(page.getByRole('alert').filter({hasText:'Temporary connection'})).toContainText('Temporary connection');
   await page.screenshot({path:info.outputPath(`activation-${width}.png`),fullPage:true});
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
   await page.getByRole('button',{name:'Activate account'}).click();await expect(page.getByRole('heading',{name:'You’re ready to go'})).toBeVisible();
-  expect(calls).toHaveLength(2);expect(calls[0].attempt_id).toBe(calls[1].attempt_id);expect(Object.keys(calls[0]).sort()).toEqual(['attempt_id','password','token']);
+  expect(calls).toHaveLength(2);expect(calls[0].attempt_id).toBe(calls[1].attempt_id);expect(Object.keys(calls[0]).sort()).toEqual(['attempt_id','full_name','password','token']);
   expect(await page.evaluate(()=>Object.values(localStorage).some(v=>v.includes('a'.repeat(43))))).toBe(false);
 });
 

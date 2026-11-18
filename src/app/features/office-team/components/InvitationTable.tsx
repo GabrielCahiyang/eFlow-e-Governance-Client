@@ -1,4 +1,4 @@
-import { MoreHorizontal, Paperclip } from 'lucide-react';
+import { MoreHorizontal } from 'lucide-react';
 import { ActionMenu, StatusPill } from '../../../components/ui/workspace';
 import {
   deliveryLabel,
@@ -13,13 +13,12 @@ export function InvitationTable({
   busy,
   canManage,
   onAction,
-  onPds,
 }: {
   rows: Invitation[];
   busy: string;
   canManage: boolean;
   onAction: (item: Invitation, action: 'resend' | 'copy' | 'revoke') => void;
-  onPds: (item: Invitation, file: File) => void;
+  onPds?: (item: Invitation, file: File) => void;
 }) {
   return (
     <div className="eflow-team-table-wrap">
@@ -59,11 +58,6 @@ export function InvitationTable({
                           : 'warning'
                     }
                   />
-                  {item.pds_documents?.map((d) => (
-                    <span key={d.id} className="eflow-invite-help mt-1 block">
-                      PDS: {d.processing_status}
-                    </span>
-                  ))}
                 </td>
                 <td data-label="Email delivery">
                   {deliveryLabel(item)}
@@ -107,22 +101,6 @@ export function InvitationTable({
                           },
                         ]}
                       />
-                      <label className="eflow-pds-attach">
-                        <Paperclip size={13} aria-hidden="true" />
-                        <span>Attach PDS</span>
-                        <input
-                          className="eflow-small-file"
-                          type="file"
-                          aria-label={`Attach PDS for ${item.email}`}
-                          accept=".pdf,application/pdf"
-                          disabled={Boolean(busy)}
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) onPds(item, file);
-                            e.target.value = '';
-                          }}
-                        />
-                      </label>
                       {busy === item.id && (
                         <span role="status" className="eflow-invite-help">
                           Working…

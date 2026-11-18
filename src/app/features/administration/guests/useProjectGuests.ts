@@ -21,7 +21,7 @@ export function useProjectGuests(actor: string, enabled: boolean) {
     const visible = () => { if (!document.hidden) sync(); };
     void refresh();
     const channel = supabase.channel('admin-project-guests:' + actor + ':' + crypto.randomUUID());
-    for (const table of ['project_guest_accounts', 'project_guest_account_events', 'profiles', 'projects', 'project_guest_members', 'personal_projects'])
+    for (const table of ['project_guest_accounts', 'project_guest_account_events', 'profiles', 'projects'])
       channel.on('postgres_changes', {event: '*', schema: 'public', table}, sync);
     channel.subscribe();
     const timer = setInterval(visible, 60_000);

@@ -400,6 +400,7 @@ describe("dynamic custom roles & redesigned RoleDefaultsTab", () => {
     fireEvent.change(accountType, { target: { value: "member" } });
     fireEvent.click(screen.getByRole("button", { name: "Save changes" }));
     await waitFor(() => expect(screen.queryByRole("dialog", { name: "Edit custom role" })).toBeNull());
+    await waitFor(() => expect(screen.getByText("Account type: Member")).toBeTruthy());
 
     const catalog = buildRoleCatalog([{ key: "ojt", label: "OJT", description: "On the job training", baseRole: mockApi.customRoles[0].base_role }]);
     const assignment = resolveRoleSelection("ojt", catalog);

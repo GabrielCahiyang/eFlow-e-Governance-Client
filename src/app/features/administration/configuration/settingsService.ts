@@ -1,4 +1,5 @@
 import { supabase } from "../../../../lib/supabase";
+import { jsonRequest, phase2Request } from "../../../shared/phase2Api";
 import { setRuntimeSystemSettings } from "../../../shared/systemRuntimeConfig";
 
 export type PresentationSettings = {
@@ -125,6 +126,103 @@ export async function savePresentationSettings(
     );
   window.dispatchEvent(new CustomEvent("eflow-presentation-settings-changed"));
   return data;
+}
+
+export const PUBLIC_BRANDING_STORAGE_KEY = "eflow.public_branding.v1";
+
+export type LoginBrandingSettings = {
+  login_portal_title: string;
+  login_portal_subtitle: string;
+};
+
+export const DEFAULT_LOGIN_BRANDING: LoginBrandingSettings = {
+  login_portal_title: DEFAULT_PRESENTATION.organization_name,
+  login_portal_subtitle: "Use your official LGU account.",
+};
+
+function cacheLoginBranding(values: LoginBrandingSettings) {
+  try {
+    if (typeof window !== "undefined" && window.localStorage) {
+      window.localStorage.setItem(
+        PUBLIC_BRANDING_STORAGE_KEY,
+        JSON.stringify({
+          login_portal_title:
+            values.login_portal_title.trim() || DEFAULT_LOGIN_BRANDING.login_portal_title,
+          login_portal_subtitle:
+            values.login_portal_subtitle.trim() || DEFAULT_LOGIN_BRANDING.login_portal_subtitle,
+          organization_name:
+            values.login_portal_title.trim() || DEFAULT_LOGIN_BRANDING.login_portal_title,
+          organization_subtitle:
+            values.login_portal_subtitle.trim() || DEFAULT_LOGIN_BRANDING.login_portal_subtitle,
+        }),
+      );
+    }
+  } catch {
+    // Ignore storage write errors in restricted contexts
+  }
+}
+
+export async function fetchLoginBrandingSettings(): Promise<LoginBrandingSettings> {
+  try {
+    const data = await phase2Request<
+      Partial<LoginBrandingSettings> & {
+        organization_name?: string;
+        organization_subtitle?: string;
+      }
+    >("/auth/public-branding", { method: "GET" }, true);
+    const resolved: LoginBrandingSettings = {
+      login_portal_title:
+        (data?.login_portal_title ?? data?.organization_name ?? "").trim() ||
+        DEFAULT_LOGIN_BRANDING.login_portal_title,
+      login_portal_subtitle:
+        (data?.login_portal_subtitle ?? data?.organization_subtitle ?? "").trim() ||
+        DEFAULT_LOGIN_BRANDING.login_portal_subtitle,
+    };
+    cacheLoginBranding(resolved);
+    return resolved;
+  } catch {
+    return { ...DEFAULT_LOGIN_BRANDING };
+  }
+}
+
+export function validateLoginBrandingSettings(values: LoginBrandingSettings) {
+  if (
+    !values.login_portal_title.trim() ||
+    values.login_portal_title.length > 120 ||
+    /[\x00-\x1f\x7f]/.test(values.login_portal_title)
+  ) {
+    throw new Error("Sign-in organization label must contain 1–120 printable characters.");
+  }
+  if (
+    !values.login_portal_subtitle.trim() ||
+    values.login_portal_subtitle.length > 160 ||
+    /[\x00-\x1f\x7f]/.test(values.login_portal_subtitle)
+  ) {
+    throw new Error("Sign-in prompt text must contain 1–160 printable characters.");
+  }
+}
+
+export async function saveLoginBrandingSettings(
+  values: LoginBrandingSettings,
+): Promise<LoginBrandingSettings> {
+  validateLoginBrandingSettings(values);
+  const payload: LoginBrandingSettings = {
+    login_portal_title: values.login_portal_title.trim(),
+    login_portal_subtitle: values.login_portal_subtitle.trim(),
+  };
+  const data = await phase2Request<LoginBrandingSettings>(
+    "/admin/login-branding",
+    jsonRequest("PUT", payload),
+  );
+  const normalized: LoginBrandingSettings = {
+    login_portal_title:
+      data.login_portal_title?.trim() || DEFAULT_LOGIN_BRANDING.login_portal_title,
+    login_portal_subtitle:
+      data.login_portal_subtitle?.trim() || DEFAULT_LOGIN_BRANDING.login_portal_subtitle,
+  };
+  cacheLoginBranding(normalized);
+  window.dispatchEvent(new CustomEvent("eflow-presentation-settings-changed"));
+  return normalized;
 }
 
 function syncRuntimeFromGeneral(values: GeneralSystemSettings) {

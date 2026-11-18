@@ -8,9 +8,87 @@ from fastapi import HTTPException
 from gateway_dependencies import supabase_admin
 from services.phase2_config import app_url, invitation_ttl
 from services.email_delivery import invitation_email, send_email
+from services.skill_tags import validate_skill_map
 
 SAFE_FIELDS = 'id,email,invited_by,office_id,account_role,invitation_type,project_office_id,status,expires_at,accepted_at,revoked_at,last_sent_at,send_count,email_delivery_status,created_at'
 IDENTITY_SAFE_FIELDS = SAFE_FIELDS + ',project_office_identity_id'
+
+
+def normalize_skill_list(skills: list[str] | None) -> list[str]:
+    if not skills:
+        return []
+    cleaned: list[str] = []
+    seen: set[str] = set()
+    for item in skills:
+        if not isinstance(item, str):
+            continue
+        label = item.strip()
+        if not label or label in seen:
+            continue
+        seen.add(label)
+        cleaned.append(label)
+    validate_skill_map({label: True for label in cleaned})
+    return cleaned
+
+
+def _stage_invitation_skills(actor_id: str, office_id: str, invitation_id: str | None, skills: list[str] | None) -> None:
+    cleaned = normalize_skill_list(skills)
+    if not cleaned or not invitation_id:
+        return
+    try:
+        supabase_admin.table('audit_events').insert({
+            'actor_id': actor_id,
+            'action': 'invitation_skills_staged',
+            'entity_type': 'account',
+            'entity_id': str(invitation_id),
+            'after_data': {'skills': cleaned, 'office_id': office_id},
+        }).execute()
+    except Exception:
+        pass
+
+
+def staged_invitation_skills(invitation_id: str | None) -> list[str]:
+    if not invitation_id:
+        return []
+    try:
+        rows = (
+            supabase_admin.table('audit_events')
+            .select('after_data')
+            .eq('action', 'invitation_skills_staged')
+            .eq('entity_id', str(invitation_id))
+            .order('created_at', desc=True)
+            .limit(1)
+            .execute()
+            .data
+        )
+        if not isinstance(rows, list) or not rows:
+            return []
+        first = rows[0] if isinstance(rows[0], dict) else {}
+        after_data = first.get('after_data') if isinstance(first.get('after_data'), dict) else {}
+        raw_skills = after_data.get('skills')
+        if not isinstance(raw_skills, list):
+            return []
+        return [item.strip() for item in raw_skills if isinstance(item, str) and item.strip()]
+    except Exception:
+        return []
+
+
+def _apply_profile_skills(user_id: str | None, invitation_id: str | None, explicit_skills: list[str] | None) -> None:
+    if not user_id:
+        return
+    final_skills = (
+        normalize_skill_list(explicit_skills)
+        if explicit_skills is not None
+        else staged_invitation_skills(invitation_id)
+    )
+    if not final_skills:
+        return
+    try:
+        supabase_admin.table('profiles').update({
+            'skills': {label: True for label in final_skills},
+        }).eq('id', str(user_id)).execute()
+    except Exception:
+        pass
 
 def normalize_email(value: str) -> str:
     value = value.strip().lower()
@@ -124,9 +202,10 @@ def _clear_failed_cooldown_if_needed(invitation_id: str, office_id: str) -> None
         supabase_admin.table('user_invitations').update({'last_sent_at': past, 'updated_at': past}).eq('id', invitation_id).execute()
 
 
-def create(user, email: str, role: str) -> dict:
+def create(user, email: str, role: str, skills: list[str] | None = None) -> dict:
     require_head(user)
     app_url()
+    cleaned_skills = normalize_skill_list(skills)
     token = secrets.token_urlsafe(32)
     normalized = normalize_email(email)
     try:
@@ -137,8 +216,10 @@ def create(user, email: str, role: str) -> dict:
             if existing and existing[0].get('email_delivery_status') in ('failed', 'queued') and existing[0].get('account_role') == role:
                 _clear_failed_cooldown_if_needed(existing[0]['id'], user.org_id)
                 item = rpc('phase2_manage_invitation', {'p_actor': user.id, 'p_id': existing[0]['id'], 'p_action': 'resend', 'p_hash': token_hash(token), 'p_ttl': invitation_ttl()})
+                _stage_invitation_skills(user.id, user.org_id, item.get('id'), cleaned_skills)
                 return send_invitation(item, token)
         raise
+    _stage_invitation_skills(user.id, user.org_id, item.get('id'), cleaned_skills)
     return send_invitation(item, token)
 
 def manage(user, invitation_id: str, action: str, copy_link: bool = False) -> dict:
@@ -163,20 +244,22 @@ def create_project_invitation(user, project_id: str, office_id: str, email: str,
     item = rpc('phase6_create_invitation', {'p_actor': user.id, 'p_project': project_id, 'p_office': office_id, 'p_email': normalize_email(email), 'p_access': access, 'p_hash': token_hash(token), 'p_ttl': invitation_ttl()})
     return send_invitation(item, token)
 
-def accept_existing(token: str, identity, claim: UUID | None = None, full_name: str = '') -> dict:
+def accept_existing(token: str, identity, claim: UUID | None = None, full_name: str = '', skills: list[str] | None = None) -> dict:
     item = lookup(token, allow_accepted=True)
     if identity.email.lower() != item['email_normalized']:
         raise HTTPException(403, 'Switch accounts and sign in with the invited email.')
     profile = rpc('phase2_accept_invitation', {'p_hash': token_hash(token), 'p_user': identity.id, 'p_name': full_name, 'p_claim': str(claim) if claim else None})
+    _apply_profile_skills(profile.get('id') if isinstance(profile, dict) else identity.id, item.get('id'), skills)
     return acceptance_result(item, profile)
 
-def create_account(token: str, name: str, password: str, claim: UUID) -> dict:
+def create_account(token: str, name: str, password: str, claim: UUID, skills: list[str] | None = None) -> dict:
     item = rpc('phase2_claim_invitation', {'p_hash': token_hash(token), 'p_claim': str(claim)})
     created_id = None
     try:
         result = supabase_admin.auth.admin.create_user({'email': item['email_normalized'], 'password': password, 'email_confirm': True, 'user_metadata': {'full_name': name}})
         created_id = str(result.user.id)
         profile = rpc('phase2_accept_invitation', {'p_hash': token_hash(token), 'p_user': created_id, 'p_name': name, 'p_claim': str(claim)})
+        _apply_profile_skills(created_id, item.get('id'), skills)
         return acceptance_result(item, profile)
     except Exception as exc:
         if created_id:

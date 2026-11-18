@@ -43,6 +43,8 @@ export function filterAuditEvents(
         event.actorName,
         event.action,
         event.entityId,
+        event.targetLabel,
+        redactAuditDisplay("change_summary", event.changeSummary),
         redactAuditDisplay("reason", event.reason),
         label(event),
       ]

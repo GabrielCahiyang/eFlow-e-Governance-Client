@@ -17,19 +17,20 @@ import '../onboarding.css';
 export function OnboardingWorkspace({ onNavigate }: { onNavigate: (section: string, page: string) => void }) {
   const { user, userProfile } = useAuth(); const { orgs } = useOrgs();
   const [record, setRecord] = useState<OnboardingRecord>(); const [welcome, setWelcome] = useState(false); const [help, setHelp] = useState(false); const [profile, setProfile] = useState(false);
-  const [step, setStep] = useState('welcome'); const [interests, setInterests] = useState<string[]>(['Work on assigned tasks']); const [error, setError] = useState(''); const [busy, setBusy] = useState(false);
+  const [step, setStep] = useState('welcome'); const [interests, setInterests] = useState<string[]>([]); const [error, setError] = useState(''); const [busy, setBusy] = useState(false);
   const active = useRef(true); const role = userProfile?.role || 'member'; const items = onboardingChecklist(role);
   const helpReturnFocus = useRef<HTMLElement | null>(null);
   const profileOpen = useRef(profile); profileOpen.current = profile;
   const returnHelpFocus = (event: Event) => { event.preventDefault(); if (!profileOpen.current && helpReturnFocus.current?.isConnected) helpReturnFocus.current.focus(); };
-  const office = orgs.find(item => item.id === userProfile?.org_id)?.name || 'your Office';
+  const office = orgs.find(item => item.id === userProfile?.org_id)?.name || (role === 'admin' ? 'Admin Center' : 'your Office');
   const completed = record?.state?.completed_steps || ['account'];
+  const defaultInterest = role === 'admin' ? 'Manage People & Accounts' : 'Work on assigned tasks';
   useEffect(() => {
     active.current = true;
-    if (!user?.id || role === 'admin') return;
-    void readOnboarding().then(value => { if (!active.current) return; setRecord(value); setInterests(value.state.interests || ['Work on assigned tasks']); setStep(['welcome', 'interests', 'ready'].includes(value.current_step || '') ? value.current_step! : 'welcome'); setWelcome(value.status === 'not_started' || (value.status === 'in_progress' && !value.state.completed_steps?.includes('welcome'))); }).catch(reason => { if (active.current) setError((reason as Error).message); });
+    if (!user?.id) return;
+    void readOnboarding().then(value => { if (!active.current) return; setRecord(value); setInterests(value.state.interests?.length ? value.state.interests : [defaultInterest]); setStep(['welcome', 'interests', 'ready'].includes(value.current_step || '') ? value.current_step! : 'welcome'); setWelcome(value.status === 'not_started' || (value.status === 'in_progress' && !value.state.completed_steps?.includes('welcome'))); }).catch(reason => { if (active.current) setError((reason as Error).message); });
     return () => { active.current = false; };
-  }, [user?.id, role]);
+  }, [user?.id, role, defaultInterest]);
   useEffect(() => { const open = () => { helpReturnFocus.current = document.activeElement instanceof HTMLElement ? document.activeElement : null; setHelp(true); }; window.addEventListener('eflow-open-getting-started', open); return () => window.removeEventListener('eflow-open-getting-started', open); }, []);
   const save = useCallback(async (values: Parameters<typeof saveOnboarding>[0]) => { setBusy(true); setError(''); try { const next = await saveOnboarding(values); setRecord(next); return next; } catch (reason) { setError((reason as Error).message); throw reason; } finally { setBusy(false); } }, []);
   async function advance() {
@@ -47,15 +48,21 @@ export function OnboardingWorkspace({ onNavigate }: { onNavigate: (section: stri
     else if (item.action === 'notifications') { document.querySelector<HTMLButtonElement>("[data-tour-id='communications'] button[title$='notifications']")?.click(); }
     else if (item.section && item.page) { onNavigate(item.section, item.page); if (item.action === 'tour') window.setTimeout(() => window.dispatchEvent(new Event('eflow-start-context-tour')), 500); }
   }
-  if (role === 'admin') return null;
+  const interestOptions = role === 'admin'
+    ? ['Manage People & Accounts', 'Configure Roles & Access', 'Review Account Audit', 'Maintain System Settings']
+    : role === 'head'
+    ? ['Build my Office team', 'Assign and review work', 'Track Office reports']
+    : role === 'accounting_staff'
+    ? ['Work on assigned tasks', 'Cash and cheque releases', 'Liquidation and settlement', 'Accounting journal']
+    : ['Work on assigned tasks', 'Track deadlines', 'Submit project evidence', 'Collaborate with teammates'];
   const content = <><p>A few small steps to feel at home in eFlow.</p><div className="eflow-checklist">{items.map(item => <div key={item.id}><label><input type="checkbox" aria-label={`Mark ${item.label} complete`} checked={completed.includes(item.id)} disabled={busy || item.id === 'account'} onChange={event => { void mark(item.id, event.target.checked).catch(() => {}); }} /><span>{item.label}</span></label>{(item.section || item.action) && <WorkspaceTooltip content={`Open ${item.label}`}><button type="button" aria-label={`Open ${item.label}`} onClick={() => openItem(item)}><ArrowRight size={16} /></button></WorkspaceTooltip>}</div>)}</div>{record?.status === 'completed' && <p className="eflow-checklist-finished"><Check size={17} /> You’re all set. This checklist is always available from Help.</p>}</>;
   return <>
     <Dialog open={welcome} onOpenChange={value => { if (!value && !busy) { void save({ status: 'dismissed' }).then(() => { setWelcome(false); window.dispatchEvent(new Event('eflow-first-run-finished')); }).catch(() => {}); } }}><DialogContent className="eflow-onboarding-dialog"><section><span className="eflow-onboarding-wordmark">eFlow.</span><p className="eflow-eyebrow">{step === 'welcome' ? 'A NEW WAY TO WORK TOGETHER' : step === 'interests' ? 'MAKE IT YOURS' : 'YOU’RE READY'}</p><DialogTitle>{step === 'welcome' ? `Welcome to eFlow, ${(userProfile?.full_name || 'teammate').split(' ')[0]}.` : step === 'interests' ? 'What brings you here?' : 'Your workspace is ready.'}</DialogTitle><DialogDescription>{step === 'welcome' ? `You’re joining ${office} as ${getRoleLabel(role)}.` : step === 'interests' ? 'Choose what matters to your work. These choices won’t change your access.' : 'Start small. Your team, tasks, and guidance are one click away.'}</DialogDescription>
-      {step === 'interests' && <div className="eflow-onboarding-options">{(role === 'head' ? ['Build my Office team', 'Assign and review work', 'Track Office reports'] : role === 'accounting_staff' ? ['Work on assigned tasks', 'Cash and cheque releases', 'Liquidation and settlement', 'Accounting journal'] : ['Work on assigned tasks', 'Track deadlines', 'Submit project evidence', 'Collaborate with teammates']).map(option => <label key={option}><input type="checkbox" checked={interests.includes(option)} onChange={event => setInterests(current => event.target.checked ? [...current, option] : current.filter(item => item !== option))} />{option}</label>)}</div>}
+      {step === 'interests' && <div className="eflow-onboarding-options">{interestOptions.map(option => <label key={option}><input type="checkbox" checked={interests.includes(option)} onChange={event => setInterests(current => event.target.checked ? [...current, option] : current.filter(item => item !== option))} />{option}</label>)}</div>}
       {step === 'ready' && <div className="eflow-onboarding-ready"><Check size={23} /><span>{office}<small>{getRoleLabel(role)} workspace</small></span></div>}
       <footer><Button variant="ghost" disabled={busy} onClick={() => { void save({ status: 'dismissed' }).then(() => { setWelcome(false); window.dispatchEvent(new Event('eflow-first-run-finished')); }).catch(() => {}); }}>Skip for now</Button><Button disabled={busy} onClick={() => { void advance().catch(() => {}); }}>{busy ? 'Saving…' : step === 'ready' ? 'Enter your workspace' : 'Continue'} <ArrowRight size={16} /></Button></footer>{error && <p className="eflow-form-error" role="alert">{error}</p>}
     </section><WorkspaceIllustration /></DialogContent></Dialog>
-    <Dialog open={help} onOpenChange={setHelp}><DialogContent className="eflow-checklist-dialog" onCloseAutoFocus={returnHelpFocus}><DialogTitle>Help & Getting Started</DialogTitle><DialogDescription>Your role-aware guide to working with your Office.</DialogDescription>{content}<Button variant="outline" onClick={() => { setHelp(false); setProfile(true); }}>Review your professional profile</Button>{error && <p role="alert" className="eflow-form-error">{error}</p>}</DialogContent></Dialog>
+    <Dialog open={help} onOpenChange={setHelp}><DialogContent className="eflow-checklist-dialog" onCloseAutoFocus={returnHelpFocus}><DialogTitle>Help & Getting Started</DialogTitle><DialogDescription>Your role-aware guide to working with your Office.</DialogDescription>{content}{role !== 'admin' && <Button variant="outline" onClick={() => { setHelp(false); setProfile(true); }}>Review your professional profile</Button>}{error && <p role="alert" className="eflow-form-error">{error}</p>}</DialogContent></Dialog>
     <Dialog open={profile} onOpenChange={next=>{if(next)setProfile(true);else void requestNavigation(()=>setProfile(false));}}><DialogContent className="eflow-member-panel" onCloseAutoFocus={returnHelpFocus}><DialogTitle>Your professional profile</DialogTitle><DialogDescription>Review and confirm your work-relevant background.</DialogDescription><ProfessionalProfilePanel /></DialogContent></Dialog>
   </>;
 }

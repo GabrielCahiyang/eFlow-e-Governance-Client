@@ -61,32 +61,32 @@ export function BudgetPositionSummary({
             {peso.format(summary.availableAmount)}
           </div>
           <p className="text-xs text-muted-foreground">
-            Released budget available for new commitments.
+            Released budget ready to fund new projects and tasks.
           </p>
           <dl className="eflow-budget-position-numbers">
-            <PositionNumber label="Annual authority" value={summary.approvedAmount} />
-            <PositionNumber label="Committed" value={summary.committedAmount} />
-            <PositionNumber label="Actual spending" value={summary.spentAmount} />
+            <PositionNumber label="Total annual budget" value={summary.approvedAmount} />
+            <PositionNumber label="Reserved for work" value={summary.committedAmount} />
+            <PositionNumber label="Verified spending" value={summary.spentAmount} />
           </dl>
           {utilization && <div className="space-y-2">
             <div className="flex justify-between gap-2 text-xs">
-              <span>Annual utilization</span>
+              <span>Budget used</span>
               <strong className="tabular-nums">{utilization.value.toFixed(1)}%</strong>
             </div>
             <div className="eflow-budget-utilization" data-under-target={utilization.underTarget} aria-hidden="true">
               <span style={{ width: `${Math.max(0, Math.min(100, utilization.value))}%` }} />
             </div>
-            <p className="text-xs text-muted-foreground">Actual spending as a share of annual authority.</p>
+            <p className="text-xs text-muted-foreground">Verified spending as a share of the total annual budget.</p>
           </div>}
           <details className="eflow-budget-position-details text-sm">
-            <summary className="cursor-pointer font-medium">Cash and retained funding</summary>
+            <summary className="cursor-pointer font-medium">Cash released and remaining work funds</summary>
             <dl className="mt-3 grid grid-cols-2 gap-3 text-right">
               <PositionNumber label="Released cash" value={position.released} />
               <PositionNumber label="Returned cash" value={position.returned} />
-              <PositionNumber label="Unsettled advances" value={position.unsettled} />
-              <PositionNumber label="Unused commitment" value={position.unusedCommitment} />
+              <PositionNumber label="Cash awaiting receipts" value={position.unsettled} />
+              <PositionNumber label="Unspent work budget" value={position.unusedCommitment} />
             </dl>
-            <p className="mt-3 text-xs leading-relaxed text-muted-foreground">Cash returns clear advances. Unused commitments are handled through project funding closeout.</p>
+            <p className="mt-3 text-xs leading-relaxed text-muted-foreground">Submitting receipts and change clears released cash. Any unspent work budget returns when a project closes.</p>
           </details>
         </div>
 

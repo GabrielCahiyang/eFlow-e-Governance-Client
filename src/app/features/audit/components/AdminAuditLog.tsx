@@ -2,8 +2,11 @@ import { useMemo, useRef, useState } from "react";
 import { Activity, Eye, List, RefreshCw, RotateCcw } from "lucide-react";
 import {useAuth} from '../../../contexts/AuthContext';
 import { useProfiles, useOrgs } from "../../../hooks/useSupabaseData";
+import { getRoleLabel } from "../../../shared/roles";
+import { PERMISSION_LABELS, useRoleCatalog } from "../../permissions";
 import { DateInput } from "../../../components/ui/DateInput";
-import { DataTable, type Column } from "../../../components/ui/DataTable";
+import { DataTable, type Column, type DataTableViewState } from "../../../components/ui/DataTable";
+import { PaginationBar } from "../../../components/ui/PaginationBar";
 import { Button } from "../../../components/ui/button";
 import { FeedbackState } from "../../../components/ui/FeedbackState";
 import { SearchInput, WSelect } from "../../../components/workflow/primitives";
@@ -12,13 +15,25 @@ import { useAdministrativeAuditWindow } from "../hooks/useAdministrativeAuditWin
 import { WorkspaceHeader } from "../../../components/ui/workspace";
 import { AuditEventFeed } from "./AuditEventFeed";
 import {
+  enrichAdministrativeAuditEvents,
   humanizeAuditAction,
   humanizeEntityType,
   shortenIdentifier,
+  summarizeAuditChanges,
 } from "../presentation";
 import { EMPTY_AUDIT_FILTERS, filterAuditEvents } from "../auditFilters";
 import { AuditEventDetailPage } from "./AuditEventDetailPage";
 import {useAuditDetailNavigation} from '../hooks/useAuditDetailNavigation';
+
+function formatAuditTimestamp(timestamp: number): string {
+  return new Date(timestamp).toLocaleString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
 
 export function AdminAuditLog() {
   const {userProfile,permissionsLoading,can}=useAuth();
@@ -27,26 +42,91 @@ export function AdminAuditLog() {
 }
 
 function AdministrativeAuditView() {
-  const { events, total, loading, refreshing, checking, error, refresh } =
+  const { events: rawEvents, total, loading, refreshing, checking, error, refresh } =
     useAdministrativeAuditWindow();
   const [filters, setFilters] = useState(EMPTY_AUDIT_FILTERS);
   const [viewMode, setViewMode] = useState<"table" | "timeline">("table");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
+  const [tableView, setTableView] = useState<DataTableViewState>({
+    search: "",
+    sortKey: null,
+    sortDir: "asc",
+  });
   const list=useRef<HTMLDivElement>(null);
   const detail=useAuditDetailNavigation(list);
-  const selected=events.find(event=>event.id===detail.selectedId);
   const { profiles } = useProfiles();
   const { orgs } = useOrgs();
+  const { roleCatalog } = useRoleCatalog();
   const profileNames = useMemo(
     () => new Map(profiles.map((profile) => [profile.id, profile.full_name])),
     [profiles],
   );
+  const profileRoles = useMemo(
+    () => new Map(profiles.map((profile) => [profile.id, profile.role])),
+    [profiles],
+  );
+  const roleLabelByKey = useMemo(
+    () => new Map(roleCatalog.map((entry) => [entry.key, entry.label])),
+    [roleCatalog],
+  );
+  const orgNames = useMemo(
+    () => new Map(orgs.map((org) => [org.id, org.name])),
+    [orgs],
+  );
+  const lookup = useMemo(
+    () => ({ profileNames, orgNames }),
+    [profileNames, orgNames],
+  );
+  const events = useMemo(
+    () => enrichAdministrativeAuditEvents(rawEvents, profileNames, orgNames, profileRoles),
+    [rawEvents, profileNames, orgNames, profileRoles],
+  );
+  const selected=events.find(event=>event.id===detail.selectedId);
+  const formatRoleOrPerm = (roleKey: string, permission?: string) => {
+    const roleLabel =
+      roleLabelByKey.get(roleKey) ||
+      (roleKey ? getRoleLabel(roleKey) : "Role");
+    const resolvedRole =
+      roleLabel === "Unsupported role" ? roleKey : roleLabel;
+    if (!permission) return resolvedRole;
+    const permLabel =
+      PERMISSION_LABELS[permission as keyof typeof PERMISSION_LABELS] ||
+      permission;
+    return `${resolvedRole} · ${permLabel}`;
+  };
   const entityLabel = (event: AuditEvent) =>
-    (/^(profile|profiles|user|users|employee)$/.test(event.entityType) &&
-      profileNames.get(event.entityId || "")) ||
+    event.targetLabel ||
+    (/^(profile|profiles|user|users|employee|account)$/i.test(event.entityType) &&
+      (profileNames.get(event.entityId || "") ||
+        (typeof event.metadata?.full_name === "string" && event.metadata.full_name) ||
+        (typeof event.metadata?.email === "string" && event.metadata.email))) ||
+    (/^(role_permissions)$/i.test(event.entityType) &&
+      (() => {
+        const [roleKey, perm] = String(event.entityId || "").split(":");
+        return roleKey ? formatRoleOrPerm(roleKey, perm) : undefined;
+      })()) ||
+    (/^(custom_roles)$/i.test(event.entityType) &&
+      event.entityId &&
+      formatRoleOrPerm(event.entityId)) ||
+    (/^(user_permission_override|user_permission_overrides)$/i.test(event.entityType) &&
+      (() => {
+        const [uid, perm] = String(event.entityId || "").split(":");
+        const who = profileNames.get(uid || "");
+        const permLabel = perm
+          ? PERMISSION_LABELS[perm as keyof typeof PERMISSION_LABELS] || perm
+          : undefined;
+        if (who && permLabel) return `${who} · ${permLabel}`;
+        return who || permLabel || undefined;
+      })()) ||
+    (/^(organization|organizations|office|offices|org)$/i.test(event.entityType) &&
+      orgNames.get(event.entityId || "")) ||
     `${humanizeEntityType(event.entityType)}${event.entityId ? " · " + shortenIdentifier(event.entityId) : ""}`;
   const filtered = filterAuditEvents(events, filters, entityLabel);
-  const set = (key: keyof typeof filters, value: string) =>
+  const set = (key: keyof typeof filters, value: string) => {
     setFilters((current) => ({ ...current, [key]: value }));
+    setPage(1);
+  };
   const distinct = (key: "entityType" | "action") =>
     [...new Set(events.map((event) => event[key]))].sort();
   const columns: Column<AuditEvent>[] = [
@@ -54,40 +134,109 @@ function AdministrativeAuditView() {
       key: "time",
       header: "Recorded at",
       sortable: true,
+      defaultWidthPx: 185,
+      minWidthPx: 155,
+      nowrap: true,
       sortValue: (event) => event.createdAt,
-      render: (event) => new Date(event.createdAt).toLocaleString("en-US"),
+      render: (event) => (
+        <span
+          className="eflow-tabular whitespace-nowrap text-xs text-[var(--eflow-text)]"
+          title={new Date(event.createdAt).toLocaleString("en-US")}
+        >
+          {formatAuditTimestamp(event.createdAt)}
+        </span>
+      ),
     },
     {
       key: "actor",
       header: "Changed by",
       sortable: true,
+      defaultWidthPx: 160,
+      minWidthPx: 130,
       sortValue: (event) => event.actorName,
-      render: (event) => event.actorName,
+      render: (event) => (
+        <span className="block truncate font-medium text-[var(--eflow-text)]" title={event.actorName}>
+          {event.actorName}
+        </span>
+      ),
     },
     {
       key: "action",
       header: "Action",
-      render: (event) => humanizeAuditAction(event.action),
+      sortable: true,
+      defaultWidthPx: 215,
+      minWidthPx: 170,
+      sortValue: (event) => humanizeAuditAction(event.action),
+      render: (event) => {
+        const label = humanizeAuditAction(event.action);
+        return (
+          <span className="block truncate text-[var(--eflow-text)]" title={label}>
+            {label}
+          </span>
+        );
+      },
     },
-    { key: "record", header: "Resource", render: entityLabel },
+    {
+      key: "record",
+      header: "Resource",
+      defaultWidthPx: 240,
+      minWidthPx: 180,
+      render: (event) => {
+        const label = entityLabel(event);
+        return (
+          <span className="block truncate text-[var(--eflow-text)]" title={label}>
+            {label}
+          </span>
+        );
+      },
+    },
+    {
+      key: "changes",
+      header: "What changed",
+      defaultWidthPx: 280,
+      minWidthPx: 210,
+      render: (event) => {
+        const summary = summarizeAuditChanges(event, lookup);
+        return (
+          <span className="block truncate text-xs text-[var(--eflow-text-muted)]" title={summary}>
+            {summary}
+          </span>
+        );
+      },
+    },
     {
       key: "office",
       header: "Office",
-      render: (event) =>
-        orgs.find((org) => org.id === event.orgId)?.name ||
-        event.orgId ||
-        "Not recorded",
+      defaultWidthPx: 130,
+      minWidthPx: 108,
+      nowrap: true,
+      render: (event) => {
+        const officeLabel = orgNames.get(event.orgId || "") || event.orgId || "";
+        return officeLabel ? (
+          <span className="block truncate" title={officeLabel}>
+            {officeLabel}
+          </span>
+        ) : (
+          <span title="Not recorded" aria-label="Not recorded" className="text-[var(--eflow-text-muted)]">
+            —
+          </span>
+        );
+      },
     },
     {
       key: "details",
       header: "Details",
       action: true,
+      defaultWidthPx: 112,
+      minWidthPx: 104,
+      nowrap: true,
       render: (event) => (
         <Button
           size="sm"
           variant="outline"
           onClick={(click) => detail.open(event.id,click.currentTarget)}
           aria-label={`Inspect audit event ${event.id}`}
+          className="whitespace-nowrap"
         >
           <Eye size={13} aria-hidden="true" />
           Inspect
@@ -95,6 +244,27 @@ function AdministrativeAuditView() {
       ),
     },
   ];
+  const sortedFiltered = useMemo(() => {
+    if (!tableView.sortKey) return filtered;
+    const col = columns.find((candidate) => candidate.key === tableView.sortKey);
+    if (!col?.sortValue) return filtered;
+    const getSortValue = col.sortValue;
+    return [...filtered].sort((left, right) => {
+      const leftVal = getSortValue(left);
+      const rightVal = getSortValue(right);
+      const cmp =
+        typeof leftVal === "number" && typeof rightVal === "number"
+          ? leftVal - rightVal
+          : String(leftVal).localeCompare(String(rightVal));
+      return tableView.sortDir === "asc" ? cmp : -cmp;
+    });
+  }, [filtered, tableView.sortKey, tableView.sortDir]);
+  const totalPages = Math.max(1, Math.ceil(sortedFiltered.length / pageSize));
+  const currentPage = Math.min(page, totalPages);
+  const pagedEvents = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return sortedFiltered.slice(start, start + pageSize);
+  }, [sortedFiltered, currentPage, pageSize]);
   const hasFilters = Boolean(
     filters.query ||
       filters.entityType !== "all" ||
@@ -160,7 +330,7 @@ function AdministrativeAuditView() {
           {error}
         </FeedbackState>
       )}
-      <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 items-end">
         <SearchInput
           value={filters.query}
           onChange={(value) => set("query", value)}
@@ -177,6 +347,7 @@ function AdministrativeAuditView() {
               label: humanizeEntityType(value),
             })),
           ]}
+          className="w-full !min-w-0"
         />
         <WSelect
           ariaLabel="Audit action"
@@ -189,6 +360,7 @@ function AdministrativeAuditView() {
               label: humanizeAuditAction(value),
             })),
           ]}
+          className="w-full !min-w-0"
         />
         <WSelect
           ariaLabel="Changed by"
@@ -205,6 +377,7 @@ function AdministrativeAuditView() {
               ).entries(),
             ].map(([value, label]) => ({ value, label })),
           ]}
+          className="w-full !min-w-0"
         />
         <WSelect
           ariaLabel="Audit Office"
@@ -223,11 +396,12 @@ function AdministrativeAuditView() {
               label: orgs.find((org) => org.id === value)?.name || value,
             })),
           ]}
+          className="w-full !min-w-0"
         />
         <label className="text-xs text-[var(--eflow-text-muted)]">
           From
           <DateInput
-            className="mt-1 h-10 w-full rounded-lg border border-[var(--eflow-border)] px-3 text-sm"
+            className="mt-1 h-9 w-full rounded-lg border border-[var(--eflow-border)] px-3 text-xs"
             value={filters.from}
             onChange={(event) => set("from", event.target.value)}
           />
@@ -235,7 +409,7 @@ function AdministrativeAuditView() {
         <label className="text-xs text-[var(--eflow-text-muted)]">
           Through
           <DateInput
-            className="mt-1 h-10 w-full rounded-lg border border-[var(--eflow-border)] px-3 text-sm"
+            className="mt-1 h-9 w-full rounded-lg border border-[var(--eflow-border)] px-3 text-xs"
             value={filters.to}
             onChange={(event) => set("to", event.target.value)}
           />
@@ -244,7 +418,11 @@ function AdministrativeAuditView() {
           <Button
             variant="outline"
             disabled={!hasFilters}
-            onClick={() => setFilters(EMPTY_AUDIT_FILTERS)}
+            onClick={() => {
+              setFilters(EMPTY_AUDIT_FILTERS);
+              setPage(1);
+            }}
+            className="h-9 whitespace-nowrap"
           >
             <RotateCcw size={13} aria-hidden="true" />
             Clear audit filters
@@ -265,22 +443,63 @@ function AdministrativeAuditView() {
         <span>Project task activity appears inside each project’s Activity view.</span>
       </div>
       {viewMode === "timeline" ? (
-        <AuditEventFeed
-          events={filtered}
-          entityLabel={entityLabel}
-          onSelect={(event, trigger) => detail.open(event.id, trigger)}
-        />
+        <div className="space-y-3">
+          <AuditEventFeed
+            events={pagedEvents}
+            totalCount={sortedFiltered.length}
+            entityLabel={entityLabel}
+            lookup={lookup}
+            onSelect={(event, trigger) => detail.open(event.id, trigger)}
+          />
+          {sortedFiltered.length > 0 && (
+            <PaginationBar
+              page={currentPage}
+              pageSize={pageSize}
+              total={sortedFiltered.length}
+              totalPages={totalPages}
+              itemLabel="events"
+              disabled={loading}
+              onPageChange={setPage}
+              onPageSizeChange={(nextSize) => {
+                setPageSize(nextSize);
+                setPage(1);
+              }}
+            />
+          )}
+        </div>
       ) : (
         <DataTable
           ariaLabel="Account audit events"
-          error={error || undefined}
-          onRetry={() => void refresh()}
+          resizable
           emptyIllustration={events.length ? "search" : "empty"}
           density="compact"
           loading={loading}
-          data={filtered}
+          data={pagedEvents}
           columns={columns}
           keyExtractor={(event) => event.id}
+          viewState={tableView}
+          onViewStateChange={(next) => {
+            setTableView(next);
+            setPage(1);
+          }}
+          hideFooterCount
+          footer={
+            sortedFiltered.length > 0 ? (
+              <PaginationBar
+                page={currentPage}
+                pageSize={pageSize}
+                total={sortedFiltered.length}
+                totalPages={totalPages}
+                itemLabel="events"
+                disabled={loading}
+                onPageChange={setPage}
+                onPageSizeChange={(nextSize) => {
+                  setPageSize(nextSize);
+                  setPage(1);
+                }}
+              />
+            ) : undefined
+          }
           emptyMessage={
             events.length
               ? "No loaded events match. Clear filters to see the loaded set."
@@ -292,8 +511,8 @@ function AdministrativeAuditView() {
       )}
     </div>
     {detail.selectedId&&<AuditEventDetailPage key={detail.selectedId} event={checking||error?undefined:selected} checking={checking} error={error}
-      entityLabel={selected?entityLabel(selected):''} officeLabel={orgs.find(org=>org.id===selected?.orgId)?.name||selected?.orgId||'Not recorded'}
-      onBack={detail.back} onRefresh={()=>void refresh()}/>}
+      entityLabel={selected?entityLabel(selected):''} officeLabel={orgNames.get(selected?.orgId||'')||selected?.orgId||'Not recorded'}
+      lookup={lookup} onBack={detail.back} onRefresh={()=>void refresh()}/>}
     </div>
   );
 }
