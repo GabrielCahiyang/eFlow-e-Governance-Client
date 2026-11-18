@@ -5,6 +5,7 @@ import { supabase } from '../../../../lib/supabase';
 import { signInWithAccountProtection } from '../../authentication';
 import { Input } from '../../../components/ui/input';
 import { useNavigationBlocker } from '../../../shared/navigationGuard';
+import { validateNewPassword } from '../../../shared/passwordPolicy';
 import { ResultMessage, SectionHeading, Surface, inputClass, type Result } from './settingsPrimitives';
 
 export function SecuritySettingsPage() {
@@ -31,9 +32,10 @@ export function SecuritySettingsPage() {
       setResult({ tone: 'error', text: 'Enter your current password to continue.' });
       return;
     }
-    if (newPassword.length < 12 || newPassword.length > 128) {
+    const passwordIssue = validateNewPassword(newPassword);
+    if (passwordIssue) {
       clearPasswords();
-      setResult({ tone: 'error', text: 'Your new password must be 12 to 128 characters.' });
+      setResult({ tone: 'error', text: passwordIssue });
       return;
     }
     if (newPassword !== confirmation) {
@@ -84,7 +86,7 @@ export function SecuritySettingsPage() {
               <Input id="confirm-password" type="password" minLength={12} maxLength={128} autoComplete="new-password" value={confirmation} onChange={(event) => setConfirmation(event.target.value)} className={inputClass} disabled={saving} />
             </div>
           </div>
-          <p className="text-[11px] leading-5 text-neutral-500 dark:text-slate-400">Use 12 to 128 characters. Any additional password policy configured for your account will be checked before saving.</p>
+          <p className="text-[11px] leading-5 text-neutral-500 dark:text-slate-400">Use at least 12 characters, including a letter, a number, and a special character. Any additional password policy configured for your account will be checked before saving.</p>
           <button type="submit" disabled={saving} className="inline-flex h-10 items-center gap-2 rounded-xl bg-primary px-4 text-[12px] font-semibold text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50">
             <KeyRound size={15} /> {saving ? 'Updating password…' : 'Update password'}
           </button>

@@ -18,16 +18,16 @@ import { peso } from "./budgetUi";
 import { AuditEventDetails } from "./AuditEventDetails";
 
 const FLOW = [
-  "Appropriation",
-  "Commitment",
-  "Allocation",
-  "Request",
-  "Endorsement",
-  "Authorization",
-  "Release",
-  "Liquidation",
-  "Change return",
-  "Settlement",
+  "Annual budget",
+  "Project reserved",
+  "Task budget",
+  "Cash request",
+  "Lead review",
+  "Head approval",
+  "Cash released",
+  "Receipts submitted",
+  "Change returned",
+  "Settled",
 ];
 
 export function AccountingTrailPanel({
@@ -134,8 +134,8 @@ export function AccountingTrailPanel({
           <div className="eflow-accounting-panel__title">
             <ShieldCheck size={17} aria-hidden="true" />
             <div>
-              <h2>End-to-end accounting trail</h2>
-              <p>Select an event to inspect its audit record and linked journal entries.</p>
+              <h2>Budget &amp; cash activity history</h2>
+              <p>Click any record to view full details and its linked journal entry.</p>
             </div>
           </div>
           <span className="text-xs font-medium text-muted-foreground tabular-nums">

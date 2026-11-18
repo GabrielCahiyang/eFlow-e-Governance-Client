@@ -19,6 +19,7 @@ import {
   getLeadershipSlotConflict,
 } from "../../services/leadershipConstraints";
 import { getAssignableRoleOptions } from "./userManagementPrimitives";
+import { getRoleLabel } from "../../../../shared/roles";
 import {
   parsePdsFile,
   type ParsedPdsImport,
@@ -431,6 +432,11 @@ export function CreateUserModal({
                 </FormField>
               )}
             </div>
+            {resolvedRole.customRoleKey && resolvedRole.role !== 'head' && resolvedRole.role !== 'admin' && (
+              <p className="text-[11.5px] text-muted-foreground">
+                Assigns a {getRoleLabel(resolvedRole.role)} account with {resolvedRole.label} permissions.
+              </p>
+            )}
           </div>
         )}
 

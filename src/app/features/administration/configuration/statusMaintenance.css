@@ -5,6 +5,11 @@
 .status-maintenance-retire { font-size: var(--eflow-text-sm); color: var(--eflow-text-secondary); }
 .status-maintenance-editor, .status-maintenance-table { border: 1px solid var(--eflow-border); border-radius: var(--eflow-radius-surface); background: var(--eflow-surface); }
 .status-maintenance-editor { padding: var(--eflow-space-5); display: grid; gap: var(--eflow-space-4); }
+.status-maintenance-dialog-form { padding: var(--eflow-space-6); display: grid; gap: var(--eflow-space-4); overflow-y: auto; }
+.status-maintenance-dialog-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--eflow-space-2); padding-inline-end: var(--eflow-space-8); }
+.status-maintenance-dialog-header h2 { margin: 0; font-size: var(--eflow-text-lg, 1.125rem); font-weight: 600; color: var(--eflow-text); }
+.status-maintenance-dialog-footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--eflow-space-3); padding-top: var(--eflow-space-1); }
+.status-maintenance-dialog-reset { display: flex; align-items: center; flex-wrap: wrap; gap: var(--eflow-space-2); }
 .status-maintenance-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr)); gap: var(--eflow-space-3); }
 .status-maintenance-fields label { display: grid; gap: var(--eflow-space-1); font-size: var(--eflow-text-sm); font-weight: 500; color: var(--eflow-text); }
 .status-maintenance-fields input, .status-maintenance-fields select { border: 1px solid var(--eflow-border); border-radius: var(--eflow-radius-control); padding: 8px 10px; background: var(--eflow-surface); color: var(--eflow-text); min-height: var(--eflow-control-height); }

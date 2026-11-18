@@ -1,6 +1,6 @@
 import { readableUiError } from '../../../../shared/userFacingError';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Mail, RefreshCw, ShieldCheck, XCircle } from 'lucide-react';
+import { Mail, RefreshCw, ShieldCheck, Trash2, XCircle } from 'lucide-react';
 import { Button } from '../../../../components/ui/button';
 import { EmptyState } from '../../../../components/ui/EmptyState';
 import { FeedbackState } from '../../../../components/ui/FeedbackState';
@@ -20,6 +20,8 @@ export function PendingActivationsTable({
   onCountChange?: (count: number) => void;
 }) {
   const [rows, setRows] = useState<PendingActivation[]>([]), [error, setError] = useState(''), [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [directFeedback, setDirectFeedback] = useState<{ tone: 'success' | 'error'; text: string } | null>(null);
   const mounted = useRef(true), generation = useRef(0), [refreshVersion, setRefreshVersion] = useState(0);
   const onCountChangeRef = useRef(onCountChange);
   onCountChangeRef.current = onCountChange;
@@ -46,12 +48,14 @@ export function PendingActivationsTable({
   }, []);
   useEffect(() => { void refresh(); }, [refresh, revision]);
   const manage = async (row: PendingActivation, operation: 'resend' | 'revoke' | 'approve') => {
+    setDirectFeedback(null);
     const label = operation === 'resend' ? 'Resend email' : operation === 'revoke' ? 'Revoke invitation' : 'Approve account';
     await action.run({
       key: `${row.invitation_id}:${operation}:${refreshVersion}`,
       confirmation: operation === 'resend' ? undefined : {
         title: `${label}?`, actionLabel: label, danger: operation === 'revoke',
-        description: operation === 'approve' ? `Give ${row.full_name || row.email} the ${activationRoleLabel(row.requested_privileged_role || row.account_role)} role in ${row.office_name}?`
+        description: operation === 'approve'
+          ? `Give ${row.full_name || row.email} the ${activationRoleLabel(row.requested_privileged_role || row.account_role)} role in ${row.office_name}?`
           : `${row.full_name || row.email} will no longer be able to use this activation link.`,
       },
       operation: async () => {
@@ -63,19 +67,48 @@ export function PendingActivationsTable({
       refresh,
     });
   };
+  const deleteRevoked = async (row: PendingActivation) => {
+    if (deletingId || action.pending) return;
+    setDeletingId(row.invitation_id);
+    setDirectFeedback(null);
+    try {
+      await manageAccountActivation(row.invitation_id, 'delete');
+      if (!mounted.current) return;
+      setDirectFeedback({ tone: 'success', text: 'Invitation deleted.' });
+      await refresh();
+    } catch (reason) {
+      if (!mounted.current) return;
+      const raw = reason instanceof Error ? reason.message : '';
+      const text = raw === 'Not Found'
+        ? 'The delete route is not active on the running gateway. Restart the gateway server and try again.'
+        : readableUiError(reason, 'Could not delete this invitation.', 'write');
+      setDirectFeedback({ tone: 'error', text });
+    } finally {
+      if (mounted.current) setDeletingId(null);
+    }
+  };
+  const busy = action.pending || loading || Boolean(deletingId);
   return <section className="eflow-pending-activations" aria-label="Pending activation">
     <header>
       <div>
         <h2>Pending invitations & role approvals</h2>
         <p>Invited users activate their account from their email link. Privileged roles require Admin approval after verification.</p>
       </div>
-      <Button variant="outline" size="sm" disabled={action.pending || loading} onClick={() => void refresh()}>
+      <Button variant="outline" size="sm" disabled={busy} onClick={() => { setDirectFeedback(null); void refresh(); }}>
         <RefreshCw size={13} aria-hidden="true" className={loading ? 'animate-spin' : ''} />
         Refresh invitations
       </Button>
     </header>
     {action.dialog}
-    {action.message && <FeedbackState tone={action.tone} title={action.tone === 'success' ? 'Saved' : 'Please review'}>{action.message}</FeedbackState>}
+    {directFeedback ? (
+      <FeedbackState tone={directFeedback.tone} title={directFeedback.tone === 'success' ? 'Saved' : 'Please review'}>
+        {directFeedback.text}
+      </FeedbackState>
+    ) : action.message ? (
+      <FeedbackState tone={action.tone} title={action.tone === 'success' ? 'Saved' : 'Please review'}>
+        {action.message}
+      </FeedbackState>
+    ) : null}
     {error ? <FeedbackState tone="error" title="Invitations unavailable" onRetry={() => void refresh()}>{error}</FeedbackState> : loading ? (
       <div role="status" aria-label="Loading invitations…">
         <span className="sr-only">Loading invitations…</span>
@@ -99,7 +132,8 @@ export function PendingActivationsTable({
       </div>
     ) : !rows.length ? <EmptyState illustration="inbox" size="compact" title="No pending invitations or role approvals."/> : <div className="eflow-pending-scroll"><table aria-label="Account activation invitations"><thead><tr><th>Person</th><th>Role / Office</th><th>Status</th><th>Email</th><th>Link expires</th><th>Actions</th></tr></thead><tbody>{rows.map(row => {
       const pending = row.status === 'pending' || row.status === 'expired';
-      return <tr key={row.invitation_id}><td>{row.full_name || row.email}<small>{row.full_name ? row.email : 'Name entered at activation'}</small></td><td>{activationRoleLabel(row.requested_privileged_role || row.account_role)}<small>{row.office_name}</small></td><td><span className="eflow-activation-status">{activationLabel(row)}</span>{row.needs_reconciliation && <small>Contact support before resending this invitation.</small>}{pending&&row.requires_reinvite&&<small>Revoke this invitation, then send a new one from your Admin account.</small>}</td><td>{deliveryLabel(row.email_delivery_status)}</td><td className="eflow-tabular">{new Date(row.expires_at).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })}</td><td><div className="eflow-pending-actions">{pending && <><Button variant="outline" size="sm" disabled={action.pending || loading || row.needs_reconciliation || row.requires_reinvite} onClick={() => void manage(row, 'resend')}><Mail size={13} aria-hidden="true" />Resend</Button><Button variant="ghost" size="sm" className="text-[var(--eflow-negative-text)]" disabled={action.pending || loading} onClick={() => void manage(row, 'revoke')}><XCircle size={13} aria-hidden="true" />Revoke</Button></>}{row.awaiting_authority && <Button size="sm" disabled={action.pending || loading} onClick={() => void manage(row, 'approve')}><ShieldCheck size={13} aria-hidden="true" />Approve role</Button>}</div></td></tr>;
+      const revoked = row.status === 'revoked';
+      return <tr key={row.invitation_id}><td>{row.full_name || row.email}<small>{row.full_name ? row.email : 'Name entered at activation'}</small></td><td>{activationRoleLabel(row.requested_privileged_role || row.account_role)}<small>{row.office_name}</small></td><td><span className="eflow-activation-status">{activationLabel(row)}</span>{row.needs_reconciliation && <small>Contact support before resending this invitation.</small>}{pending&&row.requires_reinvite&&<small>Revoke this invitation, then send a new one from your Admin account.</small>}</td><td>{deliveryLabel(row.email_delivery_status)}</td><td className="eflow-tabular">{new Date(row.expires_at).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })}</td><td><div className="eflow-pending-actions">{pending && <><Button variant="outline" size="sm" disabled={busy || row.needs_reconciliation || row.requires_reinvite} onClick={() => void manage(row, 'resend')}><Mail size={13} aria-hidden="true" />Resend</Button><Button variant="ghost" size="sm" className="text-[var(--eflow-negative-text)]" disabled={busy} onClick={() => void manage(row, 'revoke')}><XCircle size={13} aria-hidden="true" />Revoke</Button></>}{revoked && !row.awaiting_authority && <Button variant="ghost" size="sm" className="text-[var(--eflow-negative-text)]" disabled={busy} onClick={() => void deleteRevoked(row)}><Trash2 size={13} aria-hidden="true" />Delete</Button>}{row.awaiting_authority && <Button size="sm" disabled={busy} onClick={() => void manage(row, 'approve')}><ShieldCheck size={13} aria-hidden="true" />Approve role</Button>}</div></td></tr>;
     })}</tbody></table></div>}
   </section>;
 }

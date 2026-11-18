@@ -1,4 +1,4 @@
-import { Building2, CalendarClock, Info, MailCheck, RotateCcw } from "lucide-react";
+import { Building2, CalendarClock, Globe, Info, MailCheck, RotateCcw } from "lucide-react";
 import { useAuth } from "../../../contexts/AuthContext";
 import { Button } from "../../../components/ui/button";
 import { FeedbackState } from "../../../components/ui/FeedbackState";
@@ -45,6 +45,8 @@ function SettingsForm({ canManage, embedded }: { canManage: boolean; embedded: b
     saved,
     form,
     setForm,
+    loginBranding,
+    setLoginBranding,
     loading,
     pending,
     error,
@@ -121,6 +123,79 @@ function SettingsForm({ canManage, embedded }: { canManage: boolean; embedded: b
                       setForm({ ...form, organization_name: e.target.value })
                     }
                   />
+                  <small>
+                    Shown in the top navigation bar, exported CSV/PDF report headers, and invitation emails.
+                  </small>
+                </label>
+
+                <label>
+                  Header Subtitle
+                  <input
+                    maxLength={160}
+                    disabled={locked}
+                    placeholder="e.g., Investment Promotion & Economic Development Office"
+                    value={form.organization_subtitle}
+                    onChange={(e) =>
+                      setForm({ ...form, organization_subtitle: e.target.value })
+                    }
+                  />
+                  <small>
+                    Optional subtitle shown in exported report headers and emails.
+                  </small>
+                </label>
+              </div>
+
+              <div className="eflow-admin-card eflow-admin-settings-form">
+                <div className="eflow-admin-card__title-row">
+                  <span className="eflow-admin-icon-chip" aria-hidden="true">
+                    <Globe size={16} />
+                  </span>
+                  <div>
+                    <h2>Sign-in screen branding</h2>
+                    <p className="eflow-admin-copy">
+                      Customize the organization title beside the eFlow logo and the prompt text displayed on the public sign-in page.
+                    </p>
+                  </div>
+                </div>
+
+                <label>
+                  Sign-in Organization Label
+                  <input
+                    maxLength={120}
+                    required
+                    disabled={locked}
+                    placeholder="LGU Ormoc City"
+                    value={loginBranding.login_portal_title}
+                    onChange={(e) =>
+                      setLoginBranding({
+                        ...loginBranding,
+                        login_portal_title: e.target.value,
+                      })
+                    }
+                  />
+                  <small>
+                    Displayed next to the eFlow logo on the sign-in screen (default: “LGU Ormoc City”).
+                  </small>
+                </label>
+
+                <label>
+                  Sign-in Prompt Text
+                  <input
+                    maxLength={160}
+                    required
+                    disabled={locked}
+                    placeholder="Use your official LGU account."
+                    value={loginBranding.login_portal_subtitle}
+                    onChange={(e) =>
+                      setLoginBranding({
+                        ...loginBranding,
+                        login_portal_subtitle: e.target.value,
+                      })
+                    }
+                  />
+                  <small>
+                    Displayed below “Sign in to eFlow” on the sign-in screen (default: “Use your official LGU account.”).
+                  </small>
                 </label>
               </div>
 

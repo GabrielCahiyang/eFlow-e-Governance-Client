@@ -153,8 +153,8 @@ export function BudgetReleasesPanel({
           <div className="eflow-accounting-panel__title">
             <Banknote size={17} aria-hidden="true" />
             <div>
-              <h3>Voucher &amp; release schedule</h3>
-              <p>Confirm physical cash or cheque disbursements and track recipient receipts.</p>
+              <h3>Cash release schedule</h3>
+              <p>Record cash or cheque payouts and track who has confirmed receiving the money.</p>
             </div>
           </div>
           <span className="text-xs font-medium text-muted-foreground tabular-nums">
@@ -304,8 +304,8 @@ export function BudgetReleasesPanel({
           <div className="eflow-accounting-panel__title">
             <ReceiptText size={17} aria-hidden="true" />
             <div>
-              <h3>Liquidation timeline</h3>
-              <p>Post-release liquidation due dates and settlement status.</p>
+              <h3>Receipt submission &amp; settlement</h3>
+              <p>Deadlines for staff to turn in receipts and change after receiving cash.</p>
             </div>
           </div>
         </header>

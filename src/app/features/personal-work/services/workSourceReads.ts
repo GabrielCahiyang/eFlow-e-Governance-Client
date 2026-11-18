@@ -22,7 +22,7 @@ export function isTransientWorkSourceError(reason: unknown): boolean {
 /** Retry transient timeouts/network glitches silently before letting a work source defer. */
 export async function retryTransientWorkRead<T>(
   run: () => Promise<T>,
-  delaysMs: readonly number[] = [350, 900],
+  delaysMs: readonly number[] = [350],
 ): Promise<T> {
   let attempt = 0;
   for (;;) {

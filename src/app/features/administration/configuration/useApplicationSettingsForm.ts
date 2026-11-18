@@ -2,11 +2,16 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigationBlocker } from "../../../shared/navigationGuard";
 import {
   DEFAULT_GENERAL_SETTINGS,
+  DEFAULT_LOGIN_BRANDING,
   fetchGeneralSystemSettings,
+  fetchLoginBrandingSettings,
   saveGeneralSystemSettings,
+  saveLoginBrandingSettings,
   SettingsWriteError,
   validateGeneralSystemSettings,
+  validateLoginBrandingSettings,
   type GeneralSystemSettings,
+  type LoginBrandingSettings,
 } from "./settingsService";
 
 function normalizeGeneralForm(
@@ -30,9 +35,26 @@ function normalizeGeneralForm(
   };
 }
 
+function normalizeLoginBranding(
+  values?: Partial<LoginBrandingSettings> | null,
+): LoginBrandingSettings {
+  return {
+    login_portal_title:
+      values?.login_portal_title || DEFAULT_LOGIN_BRANDING.login_portal_title,
+    login_portal_subtitle:
+      values?.login_portal_subtitle || DEFAULT_LOGIN_BRANDING.login_portal_subtitle,
+  };
+}
+
 export function useApplicationSettingsForm(canManage: boolean) {
   const [saved, setSaved] = useState<GeneralSystemSettings>();
   const [form, setForm] = useState<GeneralSystemSettings>(DEFAULT_GENERAL_SETTINGS);
+  const [savedLoginBranding, setSavedLoginBranding] = useState<LoginBrandingSettings>(
+    DEFAULT_LOGIN_BRANDING,
+  );
+  const [loginBranding, setLoginBranding] = useState<LoginBrandingSettings>(
+    DEFAULT_LOGIN_BRANDING,
+  );
   const [loading, setLoading] = useState(true),
     [pending, setPending] = useState(false),
     [error, setError] = useState(""),
@@ -49,13 +71,22 @@ export function useApplicationSettingsForm(canManage: boolean) {
       | undefined
     >(undefined);
 
-  const dirty =
+  const generalDirty =
     !!saved &&
     JSON.stringify(normalizeGeneralForm(form)) !==
       JSON.stringify(normalizeGeneralForm(saved));
 
+  const loginBrandingDirty =
+    !!saved &&
+    (loginBranding.login_portal_title.trim() !== savedLoginBranding.login_portal_title.trim() ||
+      loginBranding.login_portal_subtitle.trim() !==
+        savedLoginBranding.login_portal_subtitle.trim());
+
+  const dirty = generalDirty || loginBrandingDirty;
+
   const resetDraft = () => {
     setForm(normalizeGeneralForm(saved));
+    setLoginBranding(normalizeLoginBranding(savedLoginBranding));
     setUncertain(false);
     attempt.current = undefined;
   };
@@ -72,11 +103,17 @@ export function useApplicationSettingsForm(canManage: boolean) {
     setLoading(true);
     setError("");
     try {
-      const data = await fetchGeneralSystemSettings();
+      const [data, branding] = await Promise.all([
+        fetchGeneralSystemSettings(),
+        fetchLoginBrandingSettings(),
+      ]);
       if (live.current) {
         const normalized = normalizeGeneralForm(data);
+        const normalizedBranding = normalizeLoginBranding(branding);
         setSaved(normalized);
         setForm(normalized);
+        setSavedLoginBranding(normalizedBranding);
+        setLoginBranding(normalizedBranding);
       }
     } catch (reason) {
       if (live.current)
@@ -116,20 +153,42 @@ export function useApplicationSettingsForm(canManage: boolean) {
         due_soon_days: form.due_soon_days,
       },
     };
+    const nextBranding: LoginBrandingSettings = {
+      login_portal_title: loginBranding.login_portal_title.trim(),
+      login_portal_subtitle: loginBranding.login_portal_subtitle.trim(),
+    };
+    const shouldSaveGeneral = generalDirty || Boolean(attempt.current);
     try {
-      validateGeneralSystemSettings(current.values);
-      attempt.current = current;
-      const data = await saveGeneralSystemSettings(
-        current.id,
-        current.expected,
-        current.values,
-      );
-      if (live.current) {
-        const normalized = normalizeGeneralForm(data);
-        setSaved(normalized);
-        setForm(normalized);
-        setUncertain(false);
-        attempt.current = undefined;
+      if (shouldSaveGeneral) {
+        validateGeneralSystemSettings(current.values);
+      }
+      if (loginBrandingDirty) {
+        validateLoginBrandingSettings(nextBranding);
+      }
+      if (shouldSaveGeneral) {
+        attempt.current = current;
+        const data = await saveGeneralSystemSettings(
+          current.id,
+          current.expected,
+          current.values,
+        );
+        if (live.current) {
+          const normalized = normalizeGeneralForm(data);
+          setSaved(normalized);
+          setForm(normalized);
+          setUncertain(false);
+          attempt.current = undefined;
+        }
+      }
+      if (loginBrandingDirty) {
+        const savedBranding = await saveLoginBrandingSettings(nextBranding);
+        if (live.current) {
+          const normalizedBranding = normalizeLoginBranding(savedBranding);
+          setSavedLoginBranding(normalizedBranding);
+          setLoginBranding(normalizedBranding);
+        }
+      }
+      if (live.current && (shouldSaveGeneral || loginBrandingDirty)) {
         setReceipt(
           "General settings saved and audited. Updates apply across open sessions automatically.",
         );
@@ -157,6 +216,8 @@ export function useApplicationSettingsForm(canManage: boolean) {
     saved,
     form,
     setForm,
+    loginBranding,
+    setLoginBranding,
     loading,
     pending,
     error,

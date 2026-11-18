@@ -63,14 +63,14 @@ export function BudgetAccountMappings({
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <h3 className="text-[13px] font-semibold text-foreground">
-              Expense-account mapping
+              Link budget accounts to journal codes (optional)
             </h3>
             <span className="rounded-[5px] border border-border bg-muted px-2 py-0.5 text-[11px] font-medium tabular-nums text-muted-foreground">
               {mappedCount}/{leaves.length} mapped
             </span>
           </div>
           <p className="mt-0.5 text-[12px] text-muted-foreground">
-            Optional per-account General Journal expense override. Unmapped accounts post to the default office expense code.
+            Choose which General Journal expense code each budget account uses when expenses are settled. Unlinked accounts use the default office expense code.
           </p>
         </div>
         <ChevronRight

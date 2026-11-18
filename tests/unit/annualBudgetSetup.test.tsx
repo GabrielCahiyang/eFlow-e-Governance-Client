@@ -21,7 +21,7 @@ const saved = { ...empty, summary: {
 afterEach(() => { cleanup(); vi.clearAllMocks(); });
 it('lets the Head edit a locked Q4 target through audited readjustment and restores it on Cancel',async()=>{
  render(<AnnualBudgetSetup orgId="office" fiscalYear={2026} data={{...saved,sectionsAvailable:true,sections:[{id:'supplies',name:'Supplies',amount:30000,heldAmount:0,position:0}]}} canEdit onChanged={vi.fn()}/>);
- const target=screen.getByLabelText('Q4 utilization target (%)') as HTMLInputElement;expect(target.disabled).toBe(true);
+ const target=screen.getByLabelText('Q4 budget spending goal (%)') as HTMLInputElement;expect(target.disabled).toBe(true);
  fireEvent.click(screen.getByRole('button',{name:'Readjust budget'}));expect(target.disabled).toBe(false);fireEvent.change(target,{target:{value:'90'}});fireEvent.click(screen.getByRole('button',{name:'Cancel adjustment'}));expect(target.value).toBe('75');
  fireEvent.click(screen.getByRole('button',{name:'Readjust budget'}));fireEvent.change(target,{target:{value:'90'}});fireEvent.change(screen.getByPlaceholderText('Explain what changed and why.'),{target:{value:'Updated Q4 goal'}});fireEvent.click(screen.getByRole('button',{name:'Save V2'}));
  await waitFor(()=>expect(saveBudgetSections).toHaveBeenCalledWith(expect.objectContaining({reason:'Updated Q4 goal',settings:expect.objectContaining({threshold:90})})));

@@ -13,6 +13,8 @@ export function AccountInspector({
   onClose,
   onEdit,
   onAccess,
+  onResetPassword,
+  resettingPassword = false,
 }: {
   profile: UserProfile;
   office: string;
@@ -21,6 +23,8 @@ export function AccountInspector({
   onClose: () => void;
   onEdit?: () => void;
   onAccess?: () => void;
+  onResetPassword?: () => void;
+  resettingPassword?: boolean;
 }) {
   const [copiedId, setCopiedId] = useState(false);
   const copyId = async () => {
@@ -108,6 +112,19 @@ export function AccountInspector({
         <Button variant="outline" disabled={!onAccess} onClick={onAccess}>
           <KeyRound size={14} aria-hidden="true" />
           Individual access
+        </Button>
+        <Button
+          variant="outline"
+          disabled={!onResetPassword || !profile.is_active || resettingPassword}
+          title={
+            !profile.is_active
+              ? "Activate this account before sending a password reset link"
+              : undefined
+          }
+          onClick={onResetPassword}
+        >
+          <Mail size={14} aria-hidden="true" />
+          {resettingPassword ? "Sending reset…" : "Send password reset"}
         </Button>
       </footer>
     </InspectorPanel>

@@ -348,6 +348,7 @@ export async function controlPanelFetch(
     ? resolveAiControlPanelBase
     : resolveControlPanelBase;
   const firstBase = await resolveBase();
+  let lastResponse: Response | null = null;
 
   try {
     let response = await authenticatedFetch(
@@ -367,6 +368,7 @@ export async function controlPanelFetch(
     if (!retryOnEndpointChange || !RETRYABLE_GATEWAY_STATUSES.has(response.status)) {
       return response;
     }
+    lastResponse = response;
   } catch (error) {
     if (error instanceof Error && error.message === SESSION_REFRESH_MESSAGE) throw error;
     if (!retryOnEndpointChange || (error instanceof DOMException && error.name === "AbortError")) {
@@ -407,9 +409,28 @@ export async function controlPanelFetch(
     }
   }
   if (refreshedBase === firstBase) {
-    // Endpoint did not change — server is unreachable, surface a clear message.
-    throw new AiServiceUnavailableError(
-      "The AI service is unreachable. The secure tunnel may have gone offline. Please wait for it to restart automatically.",
+    let responseDetail = "";
+    if (lastResponse) {
+      try {
+        const body = (await lastResponse.clone().json()) as { detail?: unknown } | null;
+        if (body && typeof body.detail === "string" && body.detail.trim()) {
+          responseDetail = body.detail.trim();
+        }
+      } catch {
+        // Ignore non-JSON gateway responses.
+      }
+    }
+    if (options.requireAiOnline) {
+      throw new AiServiceUnavailableError(
+        responseDetail ||
+          "The AI service is unreachable. The secure tunnel may have gone offline. Please wait for it to restart automatically.",
+      );
+    }
+    throw new ControlPanelUnavailableError(
+      responseDetail ||
+        (isLocalhostBrowser()
+          ? "Local eFlow gateway (port 8322) is unreachable. Start both frontend and backend with `npm run dev` (or run `npm run dev:gateway`)."
+          : CONTROL_PANEL_UNAVAILABLE_MESSAGE),
     );
   }
   return authenticatedFetch(

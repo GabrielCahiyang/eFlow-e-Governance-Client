@@ -1,7 +1,8 @@
 import { readableUiError } from '../../../shared/userFacingError';
 import { useState, type FormEvent } from 'react';
-import { Pencil } from 'lucide-react';
+import { Pencil, RotateCcw } from 'lucide-react';
 import { Button } from '../../../components/ui/button';
+import { FeatureDialog } from '../../../components/ui/FeatureDialog';
 import { FeedbackState } from '../../../components/ui/FeedbackState';
 import { StatusPill, WorkspaceHeader } from '../../../components/ui/workspace';
 import { builtInStatuses, useWorkStatuses, type StatusDefinition, type StatusScope } from '../../work-status';
@@ -28,27 +29,64 @@ export function StatusMaintenance({ embedded = false }: { embedded?: boolean }) 
     setDraft(item);
   }
 
-  async function save(event: FormEvent) {
-    event.preventDefault();
-    if (!draft || busy) return;
-    const label = draft.label.trim().replace(/\s+/g, ' ');
-    if (!label) return setError('Enter a status name.');
-    if (!draft.retired && [...builtIn, ...custom].some(item =>
-      item.id !== draft.id && !item.retired && item.label.toLowerCase() === label.toLowerCase())) {
+  function closeDraft() {
+    if (busy) return;
+    setError('');
+    setDraft(null);
+  }
+
+  async function persistDefinition(next: StatusDefinition, successNotice: string, fallbackError: string) {
+    if (busy) return;
+    if (!next.retired && [...builtIn, ...custom].some(item =>
+      item.id !== next.id && !item.retired && item.label.toLowerCase() === next.label.toLowerCase())) {
       return setError('That status name is already in use.');
     }
     setBusy(true);
     setError('');
     try {
-      await catalog.save({ ...draft, label });
+      await catalog.save(next);
       setDraft(null);
-      setNotice('Status updated.');
+      setNotice(successNotice);
     } catch (reason) {
-      setError(readableUiError(reason, "Could not save this status.", 'write'));
+      setError(readableUiError(reason, fallbackError, 'write'));
     } finally {
       setBusy(false);
     }
   }
+
+  async function save(event: FormEvent) {
+    event.preventDefault();
+    if (!draft || busy) return;
+    const label = draft.label.trim().replace(/\s+/g, ' ');
+    if (!label) return setError('Enter a status name.');
+    await persistDefinition({ ...draft, label }, 'Status updated.', 'Could not save this status.');
+  }
+
+  async function restoreDefault() {
+    if (!draft || draft.scope !== 'builtin' || busy) return;
+    const defaultLabel = builtInStatuses[draft.id as keyof typeof builtInStatuses];
+    if (!defaultLabel) return;
+    await persistDefinition(
+      { ...draft, label: defaultLabel, color: null, retired: false },
+      `Restored “${defaultLabel}” to default.`,
+      'Could not restore the default status.',
+    );
+  }
+
+  const defaultBuiltInLabel = draft?.scope === 'builtin'
+    ? builtInStatuses[draft.id as keyof typeof builtInStatuses]
+    : undefined;
+  const savedBuiltIn = draft?.scope === 'builtin'
+    ? builtIn.find(item => item.id === draft.id)
+    : undefined;
+  const canRestoreBuiltInDefault = Boolean(
+    draft && defaultBuiltInLabel && (
+      draft.label.trim().replace(/\s+/g, ' ') !== defaultBuiltInLabel
+      || Boolean(draft.color)
+      || (savedBuiltIn ? savedBuiltIn.label !== defaultBuiltInLabel || Boolean(savedBuiltIn.color) : false)
+    ),
+  );
+  const dialogTitle = draft?.label ? `Edit “${draft.label}”` : 'Create custom status';
 
   function table(items: StatusDefinition[]) {
     return (
@@ -115,68 +153,100 @@ export function StatusMaintenance({ embedded = false }: { embedded?: boolean }) 
       )}
       {notice && <FeedbackState tone="success" title="Saved">{notice}</FeedbackState>}
       {catalog.ready && (
-        <>
-          {draft && (
-            <form className="status-maintenance-editor" onSubmit={save}>
-              <div className="eflow-admin-subsection-header">
-                <h3>{draft.label ? `Edit “${draft.label}”` : 'Create custom status'}</h3>
-                {draft.scope === 'builtin' && (
-                  <StatusPill label={`Built-in · ${builtInStatuses[draft.id as keyof typeof builtInStatuses]}`} tone="info" />
-                )}
-              </div>
-              <div className="status-maintenance-fields">
-                <label>
-                  Status name
-                  <input required maxLength={50} value={draft.label} disabled={busy}
-                    onChange={event => setDraft({ ...draft, label: event.target.value })} />
-                </label>
-                <label>
-                  Badge color
-                  <input type="color" value={draft.color || '#0c6f6b'} disabled={busy}
-                    onChange={event => setDraft({ ...draft, color: event.target.value })} />
-                </label>
-                {draft.scope !== 'builtin' && (
-                  <label>
-                    Applies to
-                    <select value={draft.scope} disabled={busy}
-                      onChange={event => setDraft({ ...draft, scope: event.target.value as StatusScope })}>
-                      <option value="both">Tasks and subtasks</option>
-                      <option value="task">Tasks only</option>
-                      <option value="subtask">Subtasks only</option>
-                    </select>
-                  </label>
-                )}
-              </div>
+        <section className="eflow-admin-card space-y-4">
+          <div>
+            <h3>Core workflow statuses</h3>
+            <p className="eflow-admin-copy">Rename core statuses or customize their colors without changing approval steps.</p>
+          </div>
+          {table(builtIn)}
+        </section>
+      )}
+      {draft && (
+        <FeatureDialog
+          title={dialogTitle}
+          description="Edit the status name and badge color, or restore a built-in status to its default settings."
+          onClose={closeDraft}
+          preventClose={busy}
+          contentClassName="max-w-lg"
+        >
+          <form className="status-maintenance-dialog-form" onSubmit={save}>
+            <div className="status-maintenance-dialog-header">
+              <h2>{dialogTitle}</h2>
+              {draft.scope === 'builtin' && defaultBuiltInLabel && (
+                <StatusPill label={`Built-in · ${defaultBuiltInLabel}`} tone="info" />
+              )}
+            </div>
+            <div className="status-maintenance-fields">
+              <label>
+                Status name
+                <input
+                  required
+                  maxLength={50}
+                  value={draft.label}
+                  disabled={busy}
+                  onChange={event => setDraft({ ...draft, label: event.target.value })}
+                />
+              </label>
+              <label>
+                Badge color
+                <input
+                  type="color"
+                  value={draft.color || '#0c6f6b'}
+                  disabled={busy}
+                  onChange={event => setDraft({ ...draft, color: event.target.value })}
+                />
+              </label>
               {draft.scope !== 'builtin' && (
-                <label className="status-maintenance-retire">
-                  <input type="checkbox" checked={draft.retired} disabled={busy} onChange={event => setDraft({ ...draft, retired: event.target.checked })} />
-                  <span>Hide from new items (keeps label visible on existing work)</span>
+                <label>
+                  Applies to
+                  <select
+                    value={draft.scope}
+                    disabled={busy}
+                    onChange={event => setDraft({ ...draft, scope: event.target.value as StatusScope })}
+                  >
+                    <option value="both">Tasks and subtasks</option>
+                    <option value="task">Tasks only</option>
+                    <option value="subtask">Subtasks only</option>
+                  </select>
                 </label>
               )}
-              {error && <FeedbackState tone="error" title="Check status details">{error}</FeedbackState>}
-              <div className="status-maintenance-actions">
+            </div>
+            {draft.scope !== 'builtin' && (
+              <label className="status-maintenance-retire">
+                <input
+                  type="checkbox"
+                  checked={draft.retired}
+                  disabled={busy}
+                  onChange={event => setDraft({ ...draft, retired: event.target.checked })}
+                />
+                <span>Hide from new items (keeps label visible on existing work)</span>
+              </label>
+            )}
+            {error && <FeedbackState tone="error" title="Check status details">{error}</FeedbackState>}
+            <div className="status-maintenance-dialog-footer">
+              <div className="status-maintenance-dialog-reset">
+                {canRestoreBuiltInDefault && (
+                  <Button type="button" variant="outline" size="sm" disabled={busy} onClick={() => void restoreDefault()}>
+                    <RotateCcw size={13} aria-hidden="true" /> Back to default
+                  </Button>
+                )}
                 {draft.color && (
                   <Button type="button" variant="ghost" size="sm" disabled={busy} onClick={() => setDraft({ ...draft, color: null })}>
                     Reset color
                   </Button>
                 )}
-                <Button type="button" variant="outline" disabled={busy} onClick={() => setDraft(null)}>
+              </div>
+              <div className="status-maintenance-actions">
+                <Button type="button" variant="outline" disabled={busy} onClick={closeDraft}>
                   Cancel
                 </Button>
                 <Button type="submit" disabled={busy}>
                   {busy ? 'Saving…' : 'Save status'}
                 </Button>
               </div>
-            </form>
-          )}
-          <section className="eflow-admin-card space-y-4">
-            <div>
-              <h3>Core workflow statuses</h3>
-              <p className="eflow-admin-copy">Rename core statuses or customize their colors without changing approval steps.</p>
             </div>
-            {table(builtIn)}
-          </section>
-        </>
+          </form>
+        </FeatureDialog>
       )}
     </section>
   );

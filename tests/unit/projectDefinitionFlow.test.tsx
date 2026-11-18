@@ -298,7 +298,13 @@ it('keeps project settings and funding-requirement toggle read-only once the pro
  api.data={...initial(),project:activeProject,ready:true};
  const settingsView=render(<ProjectDefinitionPanel projectId="p" profiles={[lead] as any} section="details"/>);
  expect(screen.getByText('Project settings are read-only once planning ends.')).toBeInTheDocument();
- expect((screen.getByLabelText('Project title *') as HTMLInputElement).closest('fieldset')?.disabled).toBe(true);
+ expect(screen.getByText('Editing is disabled')).toBeInTheDocument();
+ expect(screen.getByText(/Editing is locked because this project is active/)).toBeInTheDocument();
+ const titleInput=screen.getByLabelText('Project title *') as HTMLInputElement;
+ const scopeTextarea=screen.getByLabelText('Scope of the project *') as HTMLTextAreaElement;
+ expect(titleInput.closest('fieldset')?.disabled).toBe(true);
+ expect(titleInput.closest('fieldset')?.getAttribute('data-readonly')).toBe('true');
+ expect(scopeTextarea.readOnly).toBe(true);
  expect(screen.queryByRole('button',{name:'Save changes'})).toBeNull();
  settingsView.unmount();
  render(<ProjectDefinitionPanel projectId="p" profiles={[lead] as any} section="funding"/>);

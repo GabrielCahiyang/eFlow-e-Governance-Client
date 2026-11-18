@@ -7,10 +7,12 @@ export interface AuthContextValue {
   userProfile: UserProfile | null;
   loading: boolean;
   permissionsLoading: boolean;
+  passwordRecovery?: boolean;
   accessRevision?: number;
   error: string | null;
   login: (email: string, password: string) => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
+  clearPasswordRecovery?: () => void;
   logout: () => Promise<void>;
   updateUserProfile: (changes: Partial<Pick<UserProfile, 'full_name' | 'avatar_path' | 'email_notifications_enabled'>>) => void;
   clearError: () => void;

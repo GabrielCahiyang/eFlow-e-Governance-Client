@@ -8,7 +8,7 @@ export const stageAccountActivation = async (input: StageAccountActivation) => {
 };
 export const listPendingActivations = () => phase2Request<{ invitations: PendingActivation[] }>('/admin/users/pending-activation');
 export const listActivationOffices = () => phase2Request<{ offices: ActivationOffice[] }>('/admin/users/invite-options');
-export const manageAccountActivation = (id: string, action: 'resend' | 'revoke' | 'approve') => phase2Request<PendingActivation>(`/admin/users/pending-activation/${encodeURIComponent(id)}/${action}`, { method: 'POST' });
+export const manageAccountActivation = (id: string, action: 'resend' | 'revoke' | 'approve' | 'delete') => phase2Request<PendingActivation>(`/admin/users/pending-activation/${encodeURIComponent(id)}/${action}`, { method: 'POST' });
 export const validateAccountActivation = (token: string) => phase2Request<ActivationPreview>('/invitations/managed-account/validate', jsonRequest('POST', { token }), true);
 export const completeAccountActivation = (
   token: string,

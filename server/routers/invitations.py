@@ -23,6 +23,12 @@ class CreateAccountRequest(TokenRequest):
     full_name: str = Field(min_length=2, max_length=160)
     password: SecretStr = Field(min_length=12, max_length=128)
     attempt_id: UUID
+    skills: list[str] | None = Field(default=None, max_length=100)
+
+    @field_validator('skills')
+    @classmethod
+    def valid_create_skills(cls, value):
+        return service.normalize_skill_list(value) if value is not None else None
 
 class ManagedActivationComplete(TokenRequest):
     password: SecretStr = Field(min_length=12, max_length=128)
@@ -64,11 +70,23 @@ def complete_managed_activation(payload: ManagedActivationComplete, request: Req
 
 class AcceptRequest(TokenRequest):
     full_name: str | None = Field(default=None, min_length=2, max_length=160)
+    skills: list[str] | None = Field(default=None, max_length=100)
+
+    @field_validator('skills')
+    @classmethod
+    def valid_accept_skills(cls, value):
+        return service.normalize_skill_list(value) if value is not None else None
 
 class InviteRow(BaseModel):
     model_config = ConfigDict(extra='forbid')
     email: str = Field(min_length=3, max_length=254)
     account_role: str
+    skills: list[str] | None = Field(default=None, max_length=100)
+
+    @field_validator('skills')
+    @classmethod
+    def valid_invite_skills(cls, value):
+        return service.normalize_skill_list(value) if value is not None else None
 
 class InviteBatch(BaseModel):
     model_config = ConfigDict(extra='forbid')
@@ -155,7 +173,7 @@ def create_invitations(payload: InviteBatch, user=Depends(require_user)):
     results = []
     for row in payload.invitations:
         try:
-            results.append({'email': row.email, 'invitation': service.create(user, row.email, row.account_role)})
+            results.append({'email': row.email, 'invitation': service.create(user, row.email, row.account_role, skills=row.skills)})
         except HTTPException as exc:
             results.append({'email': row.email, 'error': exc.detail})
     return {'results': results}
@@ -167,7 +185,17 @@ def validate_invitation(payload: TokenRequest):
     # Existing-identity detection stays server-side, accessible only with the opaque token.
     exists = supabase_admin.rpc('phase2_identity_exists', {'p_email': item['email_normalized']}).execute().data
     has_profile = supabase_admin.rpc('phase2_profile_exists', {'p_email': item['email_normalized']}).execute().data if exists else False
-    result = {'email': item['email'], 'office_name': office['name'], 'account_role': item['account_role'], 'expires_at': item['expires_at'], 'existing_account': bool(exists), 'needs_full_name': bool(exists and not has_profile), 'available_skills': active_skill_labels(supabase_admin)}
+    staged_skills = service.staged_invitation_skills(item.get('id'))
+    result = {
+        'email': item['email'],
+        'office_name': office['name'],
+        'account_role': item['account_role'],
+        'expires_at': item['expires_at'],
+        'existing_account': bool(exists),
+        'needs_full_name': bool(exists and not has_profile),
+        'available_skills': active_skill_labels(supabase_admin),
+        'skills': staged_skills,
+    }
     if item.get('invitation_type') in ('project_office', 'project_office_identity'):
         context = service.project_context(item, pending=True)
         result.update(invitation_type=item['invitation_type'], office_name=context['office_name'], project_title=context['project_title'], project_id=context['project_id'], workspace_access=context['relationship_type'])
@@ -202,11 +230,22 @@ def project_invitations(project_id: UUID, user=Depends(require_user)):
 
 @router.post('/create-account', dependencies=[Depends(public_limit)])
 def create_invited_account(payload: CreateAccountRequest):
-    return service.create_account(payload.token.get_secret_value(), payload.full_name, payload.password.get_secret_value(), payload.attempt_id)
+    return service.create_account(
+        payload.token.get_secret_value(),
+        payload.full_name,
+        payload.password.get_secret_value(),
+        payload.attempt_id,
+        skills=payload.skills,
+    )
 
 @router.post('/accept', dependencies=[Depends(public_limit)])
 def accept_invitation(payload: AcceptRequest, identity=Depends(require_identity)):
-    return service.accept_existing(payload.token.get_secret_value(), identity, full_name=payload.full_name or '')
+    return service.accept_existing(
+        payload.token.get_secret_value(),
+        identity,
+        full_name=payload.full_name or '',
+        skills=payload.skills,
+    )
 
 @router.post('/{invitation_id}/resend')
 def resend(invitation_id: UUID, payload: ResendRequest, user=Depends(require_user)):

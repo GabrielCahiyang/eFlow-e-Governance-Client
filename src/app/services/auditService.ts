@@ -14,8 +14,10 @@ export interface AuditEvent {
   actorName: string;
   entityType: string;
   entityId?: string;
+  targetLabel?: string;
   action: string;
   reason?: string;
+  changeSummary?: string;
   beforeData?: unknown;
   afterData?: unknown;
   metadata?: Record<string, unknown>;
@@ -41,8 +43,10 @@ function rowToEvent(row: Record<string, unknown>): AuditEvent {
     actorName: (row.actor_name as string) || 'System',
     entityType: (row.entity_type as string) || '',
     entityId: (row.entity_id as string) || undefined,
+    targetLabel: (row.target_label as string) || undefined,
     action: (row.action as string) || '',
     reason: (row.reason as string) || undefined,
+    changeSummary: (row.change_summary as string) || undefined,
     beforeData: row.before_data ?? undefined,
     afterData: row.after_data ?? undefined,
     metadata: (row.metadata as Record<string, unknown>) || undefined,
@@ -160,6 +164,13 @@ export function buildDiff(before: unknown, after: unknown): DiffRow[] {
   return keys.map((key) => {
     const bv = redactValue(key, b[key]);
     const av = redactValue(key, a[key]);
-    return { key, before: bv, after: av, changed: JSON.stringify(bv) !== JSON.stringify(av) };
+    const normalizedBefore = bv === undefined ? null : bv;
+    const normalizedAfter = av === undefined ? null : av;
+    return {
+      key,
+      before: bv,
+      after: av,
+      changed: JSON.stringify(normalizedBefore) !== JSON.stringify(normalizedAfter),
+    };
   });
 }

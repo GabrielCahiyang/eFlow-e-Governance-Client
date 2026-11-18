@@ -43,7 +43,7 @@ export function AdministrationWorkspace({ activeSection = 'users', activePage }:
   const subTab = resolveSupportSubTab(activeSection, requestedPage);
   const directoryProps = { directoryNavigation: navigation, onDirectoryNavigationChange: update };
   const peopleTab: UserManagementTab =
-    subTab === 'locked-accounts' || subTab === 'invitations' || subTab === 'guests'
+    subTab === 'locked-accounts' || subTab === 'invitations'
       ? subTab
       : 'users';
   const accessTab: UserManagementTab =

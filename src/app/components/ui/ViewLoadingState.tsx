@@ -1,31 +1,32 @@
-import type { CSSProperties } from 'react';
-import { EFlowMark } from '../../../components/EFlowMark';
-import { useNetworkConnectivity } from '../../shared/networkConnectivity';
-import { SignalBarsIcon } from './SignalBarsIcon';
-import './viewLoadingState.css';
+import type { CSSProperties } from "react";
+import { EFlowMark } from "../../../components/EFlowMark";
+import { useNetworkConnectivity } from "../../shared/networkConnectivity";
+import { SignalBarsIcon } from "./SignalBarsIcon";
+import "./viewLoadingState.css";
 
-type SkeletonKind = 'split' | 'settings' | 'table' | 'overview';
+type SkeletonKind = "split" | "settings" | "table" | "overview";
 
 /** Stagger index consumed by the CSS entrance, dot wave, and chart animations. */
-const stagger = (index: number) => ({ '--i': index }) as CSSProperties;
+const stagger = (index: number) => ({ "--i": index }) as CSSProperties;
 
 function resolveRouteSkeletonKind(): SkeletonKind {
-  if (typeof window === 'undefined') return 'overview';
-  const href = `${window.location.pathname}${window.location.search}`.toLowerCase();
-  if (href.includes('inbox') || href.includes('review')) return 'split';
-  if (href.includes('setting')) return 'settings';
+  if (typeof window === "undefined") return "overview";
+  const href =
+    `${window.location.pathname}${window.location.search}`.toLowerCase();
+  if (href.includes("inbox") || href.includes("review")) return "split";
+  if (href.includes("setting")) return "settings";
   if (
-    href.includes('user') ||
-    href.includes('audit') ||
-    href.includes('budget') ||
-    href.includes('journal') ||
-    href.includes('expense') ||
-    href.includes('report') ||
-    href.includes('history') ||
-    href.includes('deadline')
+    href.includes("user") ||
+    href.includes("audit") ||
+    href.includes("budget") ||
+    href.includes("journal") ||
+    href.includes("expense") ||
+    href.includes("report") ||
+    href.includes("history") ||
+    href.includes("deadline")
   )
-    return 'table';
-  return 'overview';
+    return "table";
+  return "overview";
 }
 
 function WorkspaceTabs() {
@@ -43,7 +44,11 @@ function StatCards({ count = 4 }: { count?: number }) {
   return (
     <div className="eflow-view-loading__cards">
       {Array.from({ length: count }, (_, index) => (
-        <div className="eflow-view-loading__card" key={index} style={stagger(index)}>
+        <div
+          className="eflow-view-loading__card"
+          key={index}
+          style={stagger(index)}
+        >
           <div className="eflow-view-loading__card-head">
             <span className="eflow-view-loading__block eflow-view-loading__label" />
             <span className="eflow-view-loading__tile" />
@@ -56,7 +61,13 @@ function StatCards({ count = 4 }: { count?: number }) {
   );
 }
 
-function ListPanel({ count = 5, table = false }: { count?: number; table?: boolean }) {
+function ListPanel({
+  count = 5,
+  table = false,
+}: {
+  count?: number;
+  table?: boolean;
+}) {
   return (
     <div className="eflow-view-loading__panel">
       <div className="eflow-view-loading__panel-head">
@@ -65,13 +76,19 @@ function ListPanel({ count = 5, table = false }: { count?: number; table?: boole
       </div>
       <div className="eflow-view-loading__rows">
         {Array.from({ length: count }, (_, index) => (
-          <div className="eflow-view-loading__row" key={index} style={stagger(index)}>
+          <div
+            className="eflow-view-loading__row"
+            key={index}
+            style={stagger(index)}
+          >
             <span className="eflow-view-loading__tile" />
             <div className="eflow-view-loading__row-label">
               <span className="eflow-view-loading__block" />
               <span className="eflow-view-loading__block eflow-view-loading__hint" />
             </div>
-            {table && <span className="eflow-view-loading__block eflow-view-loading__column" />}
+            {table && (
+              <span className="eflow-view-loading__block eflow-view-loading__column" />
+            )}
             <span className="eflow-view-loading__block eflow-view-loading__pill" />
           </div>
         ))}
@@ -82,7 +99,7 @@ function ListPanel({ count = 5, table = false }: { count?: number; table?: boole
 
 function RoutePreview({ kind }: { kind: SkeletonKind }) {
   switch (kind) {
-    case 'settings':
+    case "settings":
       return (
         <div className="eflow-view-loading__panes eflow-view-loading__panes--settings">
           <ListPanel count={6} />
@@ -99,7 +116,7 @@ function RoutePreview({ kind }: { kind: SkeletonKind }) {
           </div>
         </div>
       );
-    case 'split':
+    case "split":
       return (
         <div className="eflow-view-loading__panes eflow-view-loading__panes--split">
           <ListPanel count={6} />
@@ -111,14 +128,14 @@ function RoutePreview({ kind }: { kind: SkeletonKind }) {
           </div>
         </div>
       );
-    case 'table':
+    case "table":
       return (
         <>
           <StatCards count={3} />
           <ListPanel count={6} table />
         </>
       );
-    case 'overview':
+    case "overview":
       return (
         <>
           <StatCards count={4} />
@@ -130,7 +147,10 @@ function RoutePreview({ kind }: { kind: SkeletonKind }) {
               </div>
               <div className="eflow-view-loading__chart">
                 {[32, 54, 42, 68, 52, 86, 72].map((height, index) => (
-                  <span key={index} style={{ ...stagger(index), height: `${height}%` }} />
+                  <span
+                    key={index}
+                    style={{ ...stagger(index), height: `${height}%` }}
+                  />
                 ))}
               </div>
             </div>
@@ -145,21 +165,21 @@ export function ViewLoadingState() {
   const kind = resolveRouteSkeletonKind();
   const { status: effectiveStatus, checking, retry } = useNetworkConnectivity();
 
-  const offline = effectiveStatus === 'offline';
-  const serverDown = effectiveStatus === 'server_down';
-  const slow = effectiveStatus === 'slow';
+  const offline = effectiveStatus === "offline";
+  const serverDown = effectiveStatus === "server_down";
+  const slow = effectiveStatus === "slow";
   const disconnected = offline || serverDown;
   const ariaLabel = offline
-    ? 'No internet connection'
+    ? "No internet connection"
     : serverDown
-      ? 'Server is down or lagging'
+      ? "Server is down"
       : slow
-        ? 'Slow internet connection'
-        : 'Getting things done';
+        ? "Slow internet connection"
+        : "Getting things done";
 
   const rootClass =
-    effectiveStatus === 'online'
-      ? 'eflow-view-loading'
+    effectiveStatus === "online"
+      ? "eflow-view-loading"
       : `eflow-view-loading eflow-view-loading--${effectiveStatus}`;
 
   return (
@@ -171,16 +191,26 @@ export function ViewLoadingState() {
     >
       <div className="eflow-view-loading__frame">
         <div className="eflow-view-loading__aurora" aria-hidden="true" />
-        
+
         {/* Topbar matching live eFlow header */}
         <header className="eflow-view-loading__brand">
           <div className="eflow-view-loading__brand-lead">
-            <EFlowMark className="eflow-view-loading__mark" height={38} state={disconnected ? 'idle' : 'submitting'} />
-            <span className="eflow-view-loading__brand-divider" aria-hidden="true" />
-            <span className="eflow-view-loading__brand-org" aria-hidden="true" />
+            <EFlowMark
+              className="eflow-view-loading__mark"
+              height={38}
+              state={disconnected ? "idle" : "submitting"}
+            />
+            <span
+              className="eflow-view-loading__brand-divider"
+              aria-hidden="true"
+            />
+            <span
+              className="eflow-view-loading__brand-org"
+              aria-hidden="true"
+            />
           </div>
           <div className="eflow-view-loading__status-wrap">
-            {effectiveStatus === 'online' ? (
+            {effectiveStatus === "online" ? (
               <span className="eflow-view-loading__status">
                 Getting things done
                 <span className="eflow-view-loading__dots" aria-hidden="true">
@@ -195,7 +225,13 @@ export function ViewLoadingState() {
                   className={`eflow-view-loading__signal eflow-view-loading__signal--${effectiveStatus}`}
                 >
                   <SignalBarsIcon status={effectiveStatus} />
-                  <span>{offline ? 'No internet connection' : serverDown ? 'Server is down or lagging' : 'Slow internet'}</span>
+                  <span>
+                    {offline
+                      ? "No internet connection"
+                      : serverDown
+                        ? "Server is down or lagging"
+                        : "Slow internet"}
+                  </span>
                 </span>
                 {disconnected && (
                   <button
@@ -206,7 +242,7 @@ export function ViewLoadingState() {
                       void retry();
                     }}
                   >
-                    {checking ? 'Checking…' : 'Retry'}
+                    {checking ? "Checking…" : "Retry"}
                   </button>
                 )}
               </div>
@@ -220,7 +256,11 @@ export function ViewLoadingState() {
         </div>
 
         {/* Workspace body matching live tabs and scale */}
-        <div className="eflow-view-loading__skeleton" data-kind={kind} aria-hidden="true">
+        <div
+          className="eflow-view-loading__skeleton"
+          data-kind={kind}
+          aria-hidden="true"
+        >
           <WorkspaceTabs />
 
           <div className="eflow-view-loading__heading">

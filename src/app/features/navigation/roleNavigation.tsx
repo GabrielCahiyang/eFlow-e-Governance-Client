@@ -28,6 +28,7 @@ const administrativeDestinations: RoleNavItem[] = [
   { id: "users", icon: <UserMultiple size={16} />, label: "User Management" },
   { id: "audit", icon: <Report size={16} />, label: "Account Audit" },
   { id: "administration", icon: <Settings size={16} />, label: "System Settings" },
+  { id: "migration", icon: <Folder size={16} />, label: "Data Tools" },
 ];
 
 export function getRoleNavigation(role: string): RoleNavigation {

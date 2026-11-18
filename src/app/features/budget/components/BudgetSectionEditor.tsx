@@ -244,8 +244,8 @@ export function BudgetSectionEditor({
           <h4 className="text-[13px] font-semibold text-foreground">Budget accounts</h4>
           <p className="text-[12px] text-muted-foreground">
             {disabled
-              ? `${activeCount} top-level account${activeCount === 1 ? "" : "s"} locked in the office appropriation. An account with subaccounts uses their combined total.`
-              : "An account with subaccounts uses their combined total. Manage optional expense codes and release holds inline."}
+              ? `${activeCount} main account${activeCount === 1 ? "" : "s"} locked in this annual budget. Accounts with subaccounts automatically total their subaccounts.`
+              : "Add your main budget accounts or break them into subaccounts. You can also add optional account codes or hold part of an account for later release."}
           </p>
         </div>
         {!disabled && (
@@ -264,10 +264,10 @@ export function BudgetSectionEditor({
       >
         <div className="eflow-budget-ledger-table">
           <div className="eflow-budget-ledger-head" aria-hidden="true">
-            <span>Account &amp; breakdown</span>
-            <span>Expense code</span>
-            <span className="text-right">Appropriated</span>
-            <span className="text-right">{scheduleEnabled ? "Pending release" : "Held"}</span>
+            <span>Account &amp; subaccounts</span>
+            <span>Account code (optional)</span>
+            <span className="text-right">Total budget</span>
+            <span className="text-right">{scheduleEnabled ? "Scheduled later" : "On hold"}</span>
             {!disabled && <span className="text-right">Actions</span>}
           </div>
           {hasActiveRows ? (

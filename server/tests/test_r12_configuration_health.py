@@ -72,3 +72,45 @@ class ConfigurationHealthTests(unittest.TestCase):
             data = configuration_health()
         self.assertEqual(data['redirect']['state'], 'configured')
         self.assertEqual(data['invitations']['ttlHours'], 168)
+
+    def test_login_branding_endpoints_require_admin_to_save_and_serve_public_text(self):
+        config = ModuleType('gateway_config')
+        config.settings = SimpleNamespace(supabase_url='https://example.test', supabase_service_role_key='synthetic-only')
+        mock_sb = MagicMock()
+        mock_sb.table.return_value.select.return_value.in_.return_value.execute.return_value.data = [
+            {'key': 'login_portal_title', 'value': 'Ormoc City Hall'},
+            {'key': 'login_portal_subtitle', 'value': 'Sign in with your LGU email.'},
+        ]
+        mock_sb.table.return_value.select.return_value.eq.return_value.limit.return_value.execute.return_value.data = [
+            {'full_name': 'Super Admin'}
+        ]
+        with patch.dict(sys.modules, {'gateway_config': config}), patch('supabase.create_client', return_value=mock_sb):
+            dependencies = importlib.import_module('gateway_dependencies')
+            admin_cfg = importlib.reload(importlib.import_module('routers.admin_configuration'))
+            login_sec = importlib.reload(importlib.import_module('routers.login_security'))
+
+        app = FastAPI()
+        app.include_router(admin_cfg.router)
+        app.include_router(login_sec.router)
+        client = TestClient(app)
+
+        with patch.object(login_sec, 'supabase_admin', mock_sb), patch.object(admin_cfg, 'supabase_admin', mock_sb):
+            pub = client.get('/controlpanelEflow/api/auth/public-branding')
+            self.assertEqual(pub.status_code, 200)
+            self.assertEqual(pub.json()['login_portal_title'], 'Ormoc City Hall')
+            self.assertEqual(pub.json()['login_portal_subtitle'], 'Sign in with your LGU email.')
+
+            app.dependency_overrides[dependencies.require_user] = lambda: dependencies.AuthenticatedUser('m', 'm@example.test', 'member', None)
+            forbidden = client.put(
+                '/controlpanelEflow/api/admin/login-branding',
+                json={'login_portal_title': 'New Org', 'login_portal_subtitle': 'New Prompt'},
+            )
+            self.assertEqual(forbidden.status_code, 403)
+
+            app.dependency_overrides[dependencies.require_user] = lambda: dependencies.AuthenticatedUser('a', 'a@example.test', 'admin', None)
+            saved = client.put(
+                '/controlpanelEflow/api/admin/login-branding',
+                json={'login_portal_title': 'City of Ormoc', 'login_portal_subtitle': 'Use your city account.'},
+            )
+            self.assertEqual(saved.status_code, 200)
+            self.assertEqual(saved.json(), {'login_portal_title': 'City of Ormoc', 'login_portal_subtitle': 'Use your city account.'})

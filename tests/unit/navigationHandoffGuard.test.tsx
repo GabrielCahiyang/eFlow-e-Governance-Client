@@ -10,7 +10,6 @@ vi.mock('../../src/app/features/personal-work/components/WorkInspector', () => (
 vi.mock('../../src/app/features/permissions', () => ({ RoleDefaultsTab: () => null, UserAccessTab: ({ selectedUserId }: { selectedUserId: string }) => <p>Selected account {selectedUserId}</p> }));
 vi.mock('../../src/app/features/administration/components/user-management/UsersTab', () => ({ UsersTab: ({ onOpenAccess }: { onOpenAccess: (id: string) => void }) => <button onClick={() => onOpenAccess('account-1')}>Open synthetic account</button> }));
 vi.mock('../../src/app/features/administration/components/user-management/PendingActivationsTable', () => ({ PendingActivationsTable: () => null }));
-vi.mock('../../src/app/features/administration/guests/ProjectGuestAccounts', () => ({ ProjectGuestAccounts: () => null }));
 vi.mock('../../src/app/features/administration/components/user-management/LockedAccountsTab', () => ({ LockedAccountsTab: () => null }));
 vi.mock('../../src/app/components/ui/workspace', () => ({
   WorkspaceHeader: ({ title, actions }: any) => <header><h1>{title}</h1>{actions}</header>,

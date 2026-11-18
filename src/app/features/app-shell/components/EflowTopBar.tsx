@@ -4,7 +4,6 @@ import { ChevronDown } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAuth } from "../../../contexts/AuthContext";
 import { useUserPreferences } from "../../../contexts/UserPreferencesContext";
-import { useMediaQuery } from "../../../shared/useMediaQuery";
 import { MessagesButton } from "../../chat-calls";
 import { WorkspaceHelpMenu } from "../../guided-tours";
 import { getProfileAvatarUrl } from "../../../services/userSettingsService";
@@ -117,9 +116,8 @@ export function EflowTopBar({
   helpReturnFocusTarget,
 }: EflowTopBarProps) {
   const { user, userProfile } = useAuth();
-  const { theme } = useUserPreferences();
-  const systemDark = useMediaQuery("(prefers-color-scheme: dark)");
-  const dark = theme === "dark" || (theme === "system" && systemDark);
+  useUserPreferences();
+  const dark = false;
   const branding = usePresentationBranding(user?.id);
   const connectivity = useNetworkConnectivity();
   const topbarClass =

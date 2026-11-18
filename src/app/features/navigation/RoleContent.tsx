@@ -250,7 +250,7 @@ export function RoleContent({
   leadershipLoading = false,
   onNavigate,
 }: RoleContentProps) {
-  const { can } = useAuth();
+  const { can, permissionsLoading } = useAuth();
   if (!["admin", "head", "accounting_staff", "member"].includes(role))
     return (
       <PageFrame>
@@ -258,6 +258,14 @@ export function RoleContent({
           Unsupported account role. Ask an Admin to correct this account.
         </p>
       </PageFrame>
+    );
+  if (permissionsLoading)
+    return (
+      <RoleLoading
+        role={role}
+        activeSection={activeSection}
+        activePage={activePage}
+      />
     );
   if (activeSection === "dashboard" && role !== "admin")
     return (
@@ -362,7 +370,14 @@ export function RoleContent({
   const activeNavigationItem = getRoleNavigation(role).navItems.find(
     (item) => item.id === activeSection,
   );
-  if (activeNavigationItem?.requiresLeadership && leadershipLoading)
+  const hasExplicitRequiredPermission = Boolean(
+    requiredPermission && can(requiredPermission),
+  );
+  if (
+    activeNavigationItem?.requiresLeadership &&
+    leadershipLoading &&
+    !hasExplicitRequiredPermission
+  )
     return (
       <RoleLoading
         role={role}
@@ -371,7 +386,9 @@ export function RoleContent({
       />
     );
   if (
-    (activeNavigationItem?.requiresLeadership && !hasLeadingWork) ||
+    (activeNavigationItem?.requiresLeadership &&
+      !hasLeadingWork &&
+      !hasExplicitRequiredPermission) ||
     (activeNavigationItem?.requiresHead && role !== "head")
   )
     return (
@@ -416,6 +433,28 @@ export function RoleContent({
     );
   }
 
+  if (role !== "admin" && isAccountingSection(activeSection)) {
+    return (
+      <Suspense
+        fallback={
+          <RoleLoading
+            role={role}
+            activeSection={activeSection}
+            activePage={activePage}
+          />
+        }
+      >
+        <PageFrame padded={false}>
+          <AccountingStaffContent
+            activeSection={activeSection}
+            activePage={activePage}
+            onNavigate={onNavigate}
+          />
+        </PageFrame>
+      </Suspense>
+    );
+  }
+
   let content: ReactNode;
   switch (role) {
     case "admin":
@@ -437,23 +476,10 @@ export function RoleContent({
       );
       break;
     case "member":
-      content = (
-        <PageFrame padded={!isProjectsWorkspace}>
-          <MemberContent
-            activeSection={activeSection}
-            activePage={activePage}
-          />
-        </PageFrame>
-      );
-      break;
     case "accounting_staff":
-      content = isAccountingSection(activeSection) ? (
-        <PageFrame padded={false}>
-          <AccountingStaffContent
-            activeSection={activeSection}
-            activePage={activePage}
-            onNavigate={onNavigate}
-          />
+      content = ["budget", "team", "intelligence"].includes(activeSection) ? (
+        <PageFrame padded={!isProjectsWorkspace}>
+          <HeadContent activeSection={activeSection} activePage={activePage} />
         </PageFrame>
       ) : (
         <PageFrame padded={!isProjectsWorkspace}>

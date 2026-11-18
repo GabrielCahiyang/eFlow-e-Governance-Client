@@ -180,7 +180,14 @@ export function AnnualBudgetSetup({
       setMessage(locked ? "Account adjustment recorded." : "Annual budget draft saved.");
       await onChanged();
     } catch (error) {
-      setSaveError(new Error(financialErrorMessage(error, "We couldn’t save the annual budget draft. Check the current budget before resubmitting.")));
+      const wrapped = new Error(
+        financialErrorMessage(
+          error,
+          "We couldn’t save the annual budget draft. Check the current budget before resubmitting.",
+        ),
+      ) as Error & { protection?: BudgetProtection };
+      wrapped.protection = (error as { protection?: BudgetProtection } | null)?.protection;
+      setSaveError(wrapped);
     } finally {
       pending.current = false;
       draft.pendingRef.current = false;
@@ -275,7 +282,7 @@ export function AnnualBudgetSetup({
           <div className="mb-4 flex items-center gap-2 rounded-[6px] border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
             <LockKeyhole size={14} className="shrink-0 text-primary" />
             <span>
-              Budget locked. Commitments and expenses are tracked against the approved amounts.
+              Budget locked. Project funding and verified expenses are tracked against these approved accounts.
             </span>
             {canEdit && !editingLocked && data.sectionsAvailable && (
               <button
@@ -328,36 +335,43 @@ export function AnnualBudgetSetup({
           </div>
           <div>
             <h3 className="text-[14px] font-semibold text-foreground">
-              Cash release and liquidation controls
+              Cash release and receipt rules
             </h3>
             <p className="mt-0.5 max-w-3xl text-[12px] leading-relaxed text-muted-foreground">
-              These controls apply to task-funded cash requests. Office petty cash
-              has a separate ₱30,000 revolving fund and a strict ₱5,000 per-receipt
-              limit in the Office Petty Cash view. Only Accounting may replenish it.
+              Set the cash release limits, receipt submission deadline, and
+              year-end spending goal for task-funded requests. Office petty cash
+              uses a separate ₱30,000 fund with a ₱5,000 limit per receipt.
             </p>
           </div>
         </div>
-        <div className="mt-4 grid gap-3 grid-cols-[repeat(auto-fit,minmax(min(100%,11rem),1fr))]">
+        <div className="mt-4 grid gap-3 grid-cols-[repeat(auto-fit,minmax(min(100%,13rem),1fr))]">
           <NumberField
-            money label="Daily cash release ceiling"
+            money
+            label="Daily cash release limit (₱)"
+            hint="Max cash released per day across task requests."
             value={pettyLimit}
             onChange={setPettyLimit}
             disabled={!canEdit || locked}
           />
           <NumberField
-            money label="Per-receipt review threshold"
+            money
+            label="Single-receipt review limit (₱)"
+            hint="Receipts above this amount need a written reason."
             value={requestLimit}
             onChange={setRequestLimit}
             disabled={!canEdit || locked}
           />
           <NumberField
-            label="Liquidation due after release (days)"
+            isDays
+            label="Days to submit receipts"
+            hint="Days after receiving cash to turn in receipts and change."
             value={liquidationDueDays}
             onChange={setLiquidationDueDays}
             disabled={!canEdit || locked}
           />
           <NumberField
-            label="Q4 utilization target (%)"
+            label="Q4 budget spending goal (%)"
+            hint="Target share of the annual budget to use by Q4."
             value={threshold}
             onChange={setThreshold}
             disabled={!writable || busy}
@@ -374,21 +388,23 @@ export function AnnualBudgetSetup({
           <ReceiptText size={14} className="mt-0.5 text-muted-foreground" />
           <span>
             <span className="block text-[12px] font-medium text-foreground">
-              Allow justified receipts above the review threshold
+              Allow receipts above the single-receipt limit with a written reason
             </span>
             <span className="mt-0.5 block text-[12px] text-secondary-foreground">
-              The threshold is not a request cap. When enabled, a receipt above
-              it requires a written exception reason and remains visible to both
-              reviewers.
+              When turned on, staff can submit a receipt above this limit if
+              they explain why. Both reviewers will see the reason.
             </span>
           </span>
         </label>
         <label className="mt-4 block">
-          <span className="text-[12px] text-neutral-600">Budget notes</span>
+          <span className="text-[12px] font-medium text-neutral-700">
+            Budget notes (optional)
+          </span>
           <textarea
             disabled={!canEdit || locked}
             value={notes}
             onChange={(event) => setNotes(event.target.value)}
+            placeholder="Add context or reminders for this year's budget…"
             rows={2}
             className="mt-1 w-full rounded-xl border border-neutral-200 px-3 py-2 text-[12px] disabled:bg-neutral-50"
           />
@@ -434,26 +450,54 @@ export function AnnualBudgetSetup({
 
 function NumberField({
   label,
+  hint,
   value,
   onChange,
-  disabled, money = false,
+  disabled,
+  money = false,
+  isDays = false,
 }: {
-  label: string; money?: boolean;
+  label: string;
+  hint?: string;
+  money?: boolean;
+  isDays?: boolean;
   value: number;
   onChange: (value: number) => void;
   disabled: boolean;
 }) {
   return (
-    <label>
-      <span className="text-[12px] text-neutral-600">{label}</span>
-      {money ? <MoneyInput
-        min={0}
-        step="0.01"
-        disabled={disabled}
-        value={value}
-        onValueChange={raw => onChange(Number(raw))}
-        className="mt-1 h-10 w-full rounded-xl border border-neutral-200 px-3 text-[12px] tabular-nums disabled:bg-neutral-50"
-      /> : <input type="number" min={label.includes('days')?1:0} max={label.includes('days')?90:100} step={label.includes('days')?1:.01} disabled={disabled} value={Number.isNaN(value)?'':value} onChange={event => onChange(event.target.value===''?NaN:Number(event.target.value))} className="mt-1 h-10 w-full rounded-xl border border-neutral-200 px-3 text-[12px]" />}
-    </label>
+    <div className="flex flex-col">
+      <label className="block">
+        <span className="text-[12px] font-medium text-neutral-700">{label}</span>
+        {money ? (
+          <MoneyInput
+            min={0}
+            step="0.01"
+            disabled={disabled}
+            value={value}
+            onValueChange={(raw) => onChange(Number(raw))}
+            className="mt-1 h-10 w-full rounded-xl border border-neutral-200 px-3 text-[12px] tabular-nums disabled:bg-neutral-50"
+          />
+        ) : (
+          <input
+            type="number"
+            min={isDays ? 1 : 0}
+            max={isDays ? 90 : 100}
+            step={isDays ? 1 : 0.01}
+            disabled={disabled}
+            value={Number.isNaN(value) ? "" : value}
+            onChange={(event) =>
+              onChange(event.target.value === "" ? NaN : Number(event.target.value))
+            }
+            className="mt-1 h-10 w-full rounded-xl border border-neutral-200 px-3 text-[12px] tabular-nums disabled:bg-neutral-50"
+          />
+        )}
+      </label>
+      {hint && (
+        <p className="mt-1 text-[11px] leading-snug text-neutral-500">
+          {hint}
+        </p>
+      )}
+    </div>
   );
 }

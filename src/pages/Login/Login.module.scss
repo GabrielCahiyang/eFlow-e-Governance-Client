@@ -251,6 +251,116 @@
   color: #323338;
 }
 
+.alertSuccess {
+  background: #f0fdf4;
+  border: 1px solid #16a34a;
+  color: #166534;
+}
+
+.backToLoginRow {
+  display: flex;
+  justify-content: center;
+  margin-top: 4px;
+
+  a, button {
+    color: #0073ea !important;
+    font-weight: 600 !important;
+    font-size: 13.5px !important;
+  }
+}
+
+.forgotLinkButton {
+  background: transparent;
+  border: 0;
+  padding: 4px 2px;
+  color: #0073ea;
+  font-weight: 600;
+  font-size: 13.5px;
+  cursor: pointer;
+  line-height: 1.3;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: 2px solid #0073ea;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+.recoveryBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1d4ed8;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  margin-bottom: 4px;
+}
+
+.recoverySentCard {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #bbf7d0;
+  background: #f0fdf4;
+  color: #14532d;
+}
+
+.recoverySentHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+
+  strong {
+    display: block;
+    font-size: 15px;
+    font-weight: 700;
+    color: #14532d;
+  }
+
+  p {
+    margin: 4px 0 0;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #166534;
+    word-break: break-word;
+  }
+}
+
+.recoverySentSteps {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 12.5px;
+  line-height: 1.65;
+  color: #166534;
+}
+
+.recoverySentActions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 2px;
+}
+
+.recoverySecondaryRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 /* ─────────────────────────────────────────────────────────────
    RIGHT PANEL — Elevated eFlow | LGU Ormoc City & Bigger Living Board
    ───────────────────────────────────────────────────────────── */

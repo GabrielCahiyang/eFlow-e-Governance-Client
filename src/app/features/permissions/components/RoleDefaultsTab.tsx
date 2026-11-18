@@ -453,7 +453,7 @@ export function RoleDefaultsTab() {
                           <span className="truncate">{role.label}</span>
                         </div>
                         <div className="mt-0.5 text-[11px] text-neutral-400">
-                          Custom role
+                          Custom role · {getRoleLabel(role.baseRole)}
                         </div>
                       </div>
                       <span className="shrink-0 rounded-full bg-neutral-100 px-2 py-0.5 text-[11px] font-medium text-neutral-600">
@@ -480,9 +480,14 @@ export function RoleDefaultsTab() {
                           {selectedRole.isLocked ? "Built-in · Locked" : "Built-in"}
                         </span>
                       ) : (
-                        <span className="rounded-full bg-teal-50 px-2.5 py-0.5 text-[11px] font-medium text-teal-700">
-                          Custom role
-                        </span>
+                        <>
+                          <span className="rounded-full bg-teal-50 px-2.5 py-0.5 text-[11px] font-medium text-teal-700">
+                            Custom role
+                          </span>
+                          <span className="rounded-full bg-neutral-100 px-2.5 py-0.5 text-[11px] font-medium text-neutral-700">
+                            Account type: {getRoleLabel(selectedRole.baseRole)}
+                          </span>
+                        </>
                       )}
                       {hasCustomizedPermissions ? (
                         <span className="rounded-full bg-blue-50 px-2.5 py-0.5 text-[11px] font-medium text-blue-700">

@@ -156,7 +156,7 @@ function OfficeBudgetContent({ orgId, fiscalYear, embedded, tab, setTab, setFisc
   return (
     <div className={`eflow-budget-workspace min-h-full text-foreground ${embedded ? "eflow-budget-embedded" : "eflow-budget-standalone"}`}>
       <div className="eflow-budget-frame">
-        {!embedded && <WorkspaceHeader title="Office Budget" description="Manage annual accounts, funding and settlements." actions={
+        {!embedded && <WorkspaceHeader title="Office Budget" description="Plan your annual budget, track project and task funding, and review cash releases and receipts." actions={
           <div className="eflow-budget-header-actions">
             {!budget.loading && tab !== 'office-petty-cash' && <StatusPill label={statusLabel} tone={budgetStatus === 'locked' ? 'positive' : budgetStatus === 'draft' ? 'warning' : budget.error ? 'negative' : 'neutral'} />}
             <FiscalYearControl compact value={fiscalYear} onChange={setFiscalYear} />
@@ -320,12 +320,12 @@ function Overview({
           <AlertTriangle size={18} className="mt-0.5 shrink-0" />
           <div>
             <div className="text-sm font-semibold">
-              Q4 utilization is below target
+              Q4 budget spending is below goal
             </div>
             <p className="mt-1 text-xs">
-              Current utilization is {utilization.toFixed(1)}%; the office
-              target is {summary.underutilizationThreshold}%. Review stalled
-              commitments and pending liquidations.
+              Current spending is {utilization.toFixed(1)}% of the annual
+              budget (goal: {summary.underutilizationThreshold}%). Review active
+              project budgets and unsubmitted receipts.
             </p>
           </div>
         </div>

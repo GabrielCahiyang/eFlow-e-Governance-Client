@@ -85,7 +85,7 @@ def rpc(name: str, values: dict):
 def safe(row: dict) -> dict:
     fields = {'invitation_id', 'email', 'full_name', 'office_id', 'office_name', 'account_role',
               'requested_privileged_role', 'source_mode', 'status', 'email_delivery_status',
-              'expires_at', 'created_at', 'last_sent_at', 'awaiting_authority', 'needs_reconciliation', 'requires_reinvite'}
+              'expires_at', 'created_at', 'last_sent_at', 'awaiting_authority', 'needs_reconciliation', 'requires_reinvite', 'deleted'}
     return {k: v for k, v in row.items() if k in fields}
 
 
@@ -165,6 +165,8 @@ def list_safe(actor):
 
 
 def manage(invitation_id: str, action: str, actor):
+    if action not in ('resend', 'revoke', 'approve', 'delete'):
+        raise HTTPException(400, 'Invalid activation action.')
     token = secrets.token_urlsafe(32) if action == 'resend' else None
     row = rpc('eflow_manage_managed_activation', {'p_actor': actor.id, 'p_id': invitation_id, 'p_action': action, 'p_hash': token_hash(token) if token else None, 'p_ttl': ttl()})
     return dispatch(row, token) if token else safe(row)
@@ -204,6 +206,18 @@ def _reconcile(invitation_id, attempt, created_id):
     return None
 
 
+def validate_activation_password(password: str) -> str | None:
+    if len(password) < 12:
+        return 'Use at least 12 characters.'
+    if len(password) > 128:
+        return 'Use 128 characters or fewer.'
+    if INVALID_SKILL_CHARACTERS.search(password):
+        return 'Password cannot contain hidden or control characters.'
+    if not re.search(r'[A-Za-z]', password) or not re.search(r'[0-9]', password) or not re.search(r'[^A-Za-z0-9\s]', password):
+        return 'Password must contain a letter, a number, and a special character.'
+    return None
+
+
 def activate(
     token: str,
     password: str,
@@ -212,8 +226,9 @@ def activate(
     skills: dict[str, bool] | None = None,
     full_name: str | None = None,
 ):
-    if not 12 <= len(password) <= 128:
-        raise HTTPException(422, 'Use a password with 12 to 128 characters.')
+    password_error = validate_activation_password(password)
+    if password_error:
+        raise HTTPException(422, password_error)
     cleaned_full_name: str | None = None
     if full_name is not None:
         trimmed = full_name.strip()

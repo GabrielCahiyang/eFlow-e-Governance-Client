@@ -3,6 +3,7 @@ import React, { useState, useMemo } from "react";
 import { EmptyState, Search, Skeleton, Text } from "@vibe/core";
 import { FeedbackState } from "./FeedbackState";
 import { EmptyStateIllustration, type EmptyIllustration } from './EmptyStateIllustration';
+import { useResizableColumns } from "./useResizableColumns";
 
 export interface Column<T> {
   key: string;
@@ -11,6 +12,10 @@ export interface Column<T> {
   sortable?: boolean;
   sortValue?: (item: T) => string | number;
   width?: string;
+  minWidthPx?: number;
+  defaultWidthPx?: number;
+  maxWidthPx?: number;
+  nowrap?: boolean;
   action?: boolean;
 }
 
@@ -35,6 +40,9 @@ interface DataTableProps<T> {
   onRetry?: () => void;
   viewState?: DataTableViewState;
   onViewStateChange?: (state: DataTableViewState) => void;
+  resizable?: boolean;
+  hideFooterCount?: boolean;
+  footer?: React.ReactNode;
 }
 
 export function DataTable<T>({
@@ -57,11 +65,26 @@ export function DataTable<T>({
   onRetry,
   viewState,
   onViewStateChange,
+  resizable = false,
+  hideFooterCount = false,
+  footer,
 }: DataTableProps<T>) {
   const [localViewState, setLocalViewState] = useState<DataTableViewState>({ search: '', sortKey: null, sortDir: 'asc' });
   const { search, sortKey, sortDir } = viewState ?? localViewState;
   const updateView = (next: Partial<DataTableViewState>) => (onViewStateChange ?? setLocalViewState)({ ...(viewState ?? localViewState), ...next });
   const setSearch = (search: string) => updateView({ search });
+
+  const columnSpecs = useMemo(
+    () =>
+      columns.map((col) => ({
+        key: col.key,
+        defaultWidth: col.defaultWidthPx ?? (col.action ? 112 : Math.max(120, col.header.length * 9 + 44)),
+        minWidth: col.minWidthPx ?? (col.action ? 96 : 104),
+        maxWidth: col.maxWidthPx ?? 640,
+      })),
+    [columns],
+  );
+  const { widths, totalWidth, getResizeHandleProps } = useResizableColumns(columnSpecs);
 
   const filtered = useMemo(() => {
     let result = data;
@@ -116,36 +139,65 @@ export function DataTable<T>({
       {/* Table */}
       {error && <FeedbackState tone="error" title="Unable to load records" onRetry={onRetry} pending={loading}>{error}</FeedbackState>}
       <div className="eflow-scroll-region overflow-x-auto" role="region" aria-label={`Scrollable ${ariaLabel.toLowerCase()}`} tabIndex={0}>
-        <table className="w-full min-w-[720px]">
+        <table
+          className={resizable ? "border-collapse" : "w-full min-w-[720px]"}
+          style={resizable ? { width: `${totalWidth}px`, minWidth: "100%", tableLayout: "fixed" } : undefined}
+        >
+          {resizable && (
+            <colgroup>
+              {columns.map((col) => (
+                <col key={col.key} style={{ width: `${widths[col.key]}px` }} />
+              ))}
+            </colgroup>
+          )}
           <thead>
             <tr className="border-b border-border bg-muted">
-              {columns.map((col) => (
-                <th
-                  key={col.key}
-                  scope="col"
-                  data-action={col.action || undefined}
-                  aria-sort={
-                    col.sortable && sortKey === col.key
-                      ? sortDir === "asc" ? "ascending" : "descending"
-                      : col.sortable ? "none" : undefined
-                  }
-                  className={`px-5 py-3 text-left text-[12px] font-semibold text-muted-foreground uppercase tracking-[0.08em] ${
-                    col.sortable ? "select-none" : ""
-                  }`}
-                  style={col.width ? { width: col.width } : undefined}
-                >
-                  {col.sortable ? (
-                    <button
-                      type="button"
-                      className="flex items-center gap-1 rounded-sm text-left transition-colors hover:text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-                      onClick={() => handleSort(col.key)}
-                    >
-                      {col.header}
-                      {sortKey === col.key && <span aria-hidden="true">{sortDir === "asc" ? "▲" : "▼"}</span>}
-                    </button>
-                  ) : col.header}
-                </th>
-              ))}
+              {columns.map((col) => {
+                const headerWidthStyle = resizable
+                  ? undefined
+                  : {
+                      ...(col.width ? { width: col.width } : {}),
+                      ...(col.minWidthPx ? { minWidth: `${col.minWidthPx}px` } : {}),
+                      ...(col.maxWidthPx ? { maxWidth: `${col.maxWidthPx}px` } : {}),
+                    };
+                return (
+                  <th
+                    key={col.key}
+                    scope="col"
+                    data-action={col.action || undefined}
+                    aria-sort={
+                      col.sortable && sortKey === col.key
+                        ? sortDir === "asc" ? "ascending" : "descending"
+                        : col.sortable ? "none" : undefined
+                    }
+                    className={`relative px-5 py-3 text-left text-[12px] font-semibold text-muted-foreground uppercase tracking-[0.06em] whitespace-nowrap ${
+                      col.sortable ? "select-none" : ""
+                    }`}
+                    style={headerWidthStyle}
+                  >
+                    <div className="flex items-center justify-between gap-2 min-w-0">
+                      {col.sortable ? (
+                        <button
+                          type="button"
+                          className="flex min-w-0 items-center gap-1 rounded-sm text-left whitespace-nowrap transition-colors hover:text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                          onClick={() => handleSort(col.key)}
+                        >
+                          {col.header}
+                          {sortKey === col.key && <span aria-hidden="true">{sortDir === "asc" ? "▲" : "▼"}</span>}
+                        </button>
+                      ) : (
+                        <span className="truncate">{col.header}</span>
+                      )}
+                      {resizable && !col.action && (
+                        <span
+                          {...getResizeHandleProps(col.key, col.header)}
+                          className="absolute right-0 top-1.5 bottom-1.5 w-2 cursor-col-resize select-none border-r border-transparent hover:border-primary/60 focus-visible:border-primary focus-visible:outline-none"
+                        />
+                      )}
+                    </div>
+                  </th>
+                );
+              })}
             </tr>
           </thead>
           <tbody>
@@ -192,7 +244,19 @@ export function DataTable<T>({
                   }`}
                 >
                   {columns.map((col) => (
-                    <td key={col.key} data-action={col.action || undefined} className="px-5 py-3">
+                    <td
+                      key={col.key}
+                      data-action={col.action || undefined}
+                      className={`px-5 py-3 align-middle ${col.nowrap ? "whitespace-nowrap" : ""}`}
+                      style={
+                        resizable
+                          ? undefined
+                          : {
+                              ...(col.minWidthPx ? { minWidth: `${col.minWidthPx}px` } : {}),
+                              ...(col.maxWidthPx ? { maxWidth: `${col.maxWidthPx}px` } : {}),
+                            }
+                      }
+                    >
                       {col.render(item)}
                     </td>
                   ))}
@@ -203,12 +267,14 @@ export function DataTable<T>({
         </table>
       </div>
 
-      {/* Row count */}
-      {!loading && !error && (
+      {/* Footer / Row count */}
+      {!loading && !error && (footer || !hideFooterCount) && (
         <div className="border-t border-border px-5 py-3">
-          <Text type="text3" color="secondary">
-            <span className="tabular-nums">{filtered.length} of {totalRecords ?? data.length}</span> records
-          </Text>
+          {footer || (
+            <Text type="text3" color="secondary">
+              <span className="tabular-nums">{filtered.length} of {totalRecords ?? data.length}</span> records
+            </Text>
+          )}
         </div>
       )}
     </section>

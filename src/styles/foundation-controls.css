@@ -18,7 +18,8 @@
 .eflow-data-table { box-shadow: var(--eflow-shadow-surface); }
 .eflow-data-table th, .eflow-data-table td { padding: var(--eflow-table-cell-y) var(--eflow-table-cell-x); }
 .eflow-data-table[data-density=compact] th, .eflow-data-table[data-density=compact] td { padding-block: var(--eflow-table-compact-y); }
-.eflow-data-table [data-action=true] { position: sticky; right: 0; background: var(--eflow-surface); }
+.eflow-data-table [data-action=true] { position: sticky; right: 0; background: var(--eflow-surface); box-shadow: -1px 0 0 var(--eflow-border); }
+.eflow-data-table thead [data-action=true] { background: var(--eflow-subtle, var(--muted)); z-index: 1; }
 .eflow-data-table .eflow-table-toolbar { display: flex; gap: var(--eflow-space-2); align-items: center; flex-wrap: wrap; }
 .eflow-scroll-region, [data-slot=dropdown-menu-content], [data-slot=select-content], [data-slot=popover-content] { scrollbar-width: thin; scrollbar-color: var(--eflow-scrollbar) transparent; }
 .eflow-scroll-region::-webkit-scrollbar, [data-slot=dropdown-menu-content]::-webkit-scrollbar, [data-slot=select-content]::-webkit-scrollbar { display: block; width: 8px; height: 8px; }

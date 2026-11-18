@@ -20,8 +20,8 @@ export function BudgetFundingHierarchy({ data, tasks }: FundingHierarchyProps) {
   if (!data.commitments.length) {
     return (
       <BudgetEmpty
-        title="No funded work"
-        description="Drafts do not consume funds. Publishing a proposal reserves its approved task budgets once and creates the operational allocations shown here."
+        title="No funded projects or tasks yet"
+        description="Drafts do not use budget. Once a project proposal is published, its approved task budgets are reserved and appear here."
       />
     );
   }
@@ -34,8 +34,8 @@ export function BudgetFundingHierarchy({ data, tasks }: FundingHierarchyProps) {
     >
       <header className="eflow-budget-section-heading border-b">
         <div>
-          <h2>Funding commitments</h2>
-          <p>Expand a funded task to inspect its account lines and subtask allocations.</p>
+          <h2>Project &amp; task funding</h2>
+          <p>Select a project or task to view its item breakdown and how funds are shared across subtasks.</p>
         </div>
         <span className="rounded-[5px] border border-border bg-muted px-2.5 py-1 text-[11px] font-semibold tabular-nums text-muted-foreground">
           {data.commitments.length} {data.commitments.length === 1 ? "record" : "records"}

@@ -184,6 +184,20 @@ class Phase2Tests(unittest.TestCase):
         self.assertNotIn('<script>', message['html'])
         self.assertIn('Office &amp; Team', message['html'])
         self.assertIn('https://example.test/accept-invite?token=abc', message['text'])
+        self.assertIn('cid:eflow-logo', message['html'])
+
+    def test_send_email_attaches_inline_eflow_logo_assets_over_smtp(self):
+        smtp_server = MagicMock()
+        smtp_ctx = MagicMock()
+        smtp_ctx.__enter__.return_value = smtp_server
+        content = invitation_email('Rivaly Kun', 'LEDIPO Office', 'member', 'https://app.example.test/accept-invite?token=abc', 168)
+        with patch.dict(os.environ, {'SMTP_EMAIL': 'sender@gmail.com', 'SMTP_APP_PASSWORD': 'abcd efgh ijkl mnop'}, clear=True), patch('services.email_delivery.smtplib.SMTP', return_value=smtp_ctx):
+            receipt = send_email('user@example.test', content, 'req-logo')
+        self.assertEqual(receipt, 'smtp:req-logo')
+        raw_mime = smtp_server.sendmail.call_args.args[2]
+        self.assertIn('Content-ID: <eflow-logo>', raw_mime)
+        self.assertIn('Content-ID: <eflow-user-badge>', raw_mime)
+        self.assertIn('Content-ID: <eflow-workspace-badge>', raw_mime)
 
     def test_professional_profile_allowlist_excludes_sensitive_pds_fields(self):
         clean = clean_professional_profile({'skills': ['Python', 'Python', 'TIN 123456789', 'Birth date 2000'], 'home_address': 'secret', 'family': ['secret'], 'competency_summary': 'Government ID 123456789'})

@@ -12,12 +12,17 @@ import {
 const api = vi.hoisted(() => ({
   rpc: vi.fn(),
   from: vi.fn(),
+  phase2: vi.fn(),
   manage: true,
   role: "admin",
   blocker: vi.fn(),
 }));
 vi.mock("../../src/lib/supabase", () => ({
   supabase: { rpc: api.rpc, from: api.from },
+}));
+vi.mock("../../src/app/shared/phase2Api", () => ({
+  phase2Request: api.phase2,
+  jsonRequest: (method: string, body: unknown) => ({ method, body: JSON.stringify(body) }),
 }));
 vi.mock("../../src/app/contexts/AuthContext", () => ({
   useAuth: () => ({
@@ -73,7 +78,20 @@ beforeEach(() => {
   api.manage = true;
   api.role = "admin";
   api.rpc.mockReset();
+  api.phase2.mockReset();
   api.blocker.mockClear();
+  api.phase2.mockImplementation(async (path: string, init?: { body?: string }) => {
+    if (path === "/auth/public-branding") {
+      return {
+        login_portal_title: "LGU Ormoc City",
+        login_portal_subtitle: "Use your official LGU account.",
+      };
+    }
+    if (path === "/admin/login-branding" && init?.body) {
+      return JSON.parse(init.body);
+    }
+    return {};
+  });
   config = [
     { key: "organization_name", value: "Original City" },
     { key: "app_version", value: "2.0" },
@@ -129,14 +147,15 @@ describe("R12 effective administration", () => {
     expect(screen.queryByLabelText(/Version String/)).toBeNull();
     expect(screen.queryByLabelText("Session Timeout (minutes)")).toBeNull();
     expect(screen.queryByText(/Calendars & session timeouts/i)).toBeNull();
+    expect(screen.queryByLabelText(/Support \/ Reply-To Email/i)).toBeNull();
+    expect(
+      screen.queryByText(/Optional reply-to address included in account activation and password recovery emails/i),
+    ).toBeNull();
     fireEvent.change(screen.getByLabelText(/Organization Name/), {
       target: { value: "LEDIPO City" },
     });
     fireEvent.change(screen.getByLabelText(/Header Subtitle/i), {
       target: { value: "Investment Office" },
-    });
-    fireEvent.change(screen.getByLabelText(/Support \/ Reply-To Email/i), {
-      target: { value: "help@eflow.gov.ph" },
     });
     fireEvent.change(screen.getByLabelText(/Activation Link Expiry/i), {
       target: { value: "72" },
@@ -153,7 +172,6 @@ describe("R12 effective administration", () => {
         ...DEFAULT_GENERAL_SETTINGS,
         organization_name: "LEDIPO City",
         organization_subtitle: "Investment Office",
-        support_email: "help@eflow.gov.ph",
         activation_expiry_hours: "72",
         due_soon_days: "5",
       },
@@ -171,6 +189,25 @@ describe("R12 effective administration", () => {
         maintenance_banner_message: "   ",
       }),
     ).toThrow(/Enter a maintenance notice message/i);
+
+    fireEvent.change(screen.getByLabelText(/Sign-in Organization Label/i), {
+      target: { value: "City of Ormoc Portal" },
+    });
+    fireEvent.change(screen.getByLabelText(/Sign-in Prompt Text/i), {
+      target: { value: "Sign in with your verified LGU account." },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Save Settings" }));
+    await screen.findByText(/General settings saved and audited/);
+    expect(api.phase2).toHaveBeenCalledWith(
+      "/admin/login-branding",
+      expect.objectContaining({
+        method: "PUT",
+        body: JSON.stringify({
+          login_portal_title: "City of Ormoc Portal",
+          login_portal_subtitle: "Sign in with your verified LGU account.",
+        }),
+      }),
+    );
   });
   it("keeps the same uncertain request and locks editing until verification succeeds", async () => {
     api.rpc.mockResolvedValueOnce({

@@ -171,5 +171,34 @@ class ManagedActivationTests(unittest.TestCase):
             self.assertIn('support@ledipo.gov.ph', send.call_args.args[1]['text'])
             self.assertIn('LEDIPO', send.call_args.args[1]['subject'])
 
+    def test_activate_requires_letter_number_and_special_character(self):
+        for weak_password in ['onlyletterslong', 'lettersand1234', '1234567890!@#$', 'letters-without-num']:
+            with self.subTest(weak_password=weak_password), self.assertRaises(HTTPException) as raised:
+                service.activate('token', weak_password, 'attempt', '127.0.0.1')
+            self.assertEqual(raised.exception.status_code, 422)
+        self.client.auth.admin.create_user.assert_not_called()
+
+    def test_manage_supports_delete_for_revoked_invitations_and_preserves_deleted_flag(self):
+        invitation_id = str(uuid4())
+        deleted_row = {**self.row, 'invitation_id': invitation_id, 'status': 'revoked', 'deleted': True}
+        with patch.object(service, 'rpc', return_value=deleted_row) as mocked_rpc:
+            result = service.manage(invitation_id, 'delete', self.actor)
+            self.assertTrue(result['deleted'])
+            self.assertEqual(mocked_rpc.call_args.args[0], 'eflow_manage_managed_activation')
+            self.assertEqual(mocked_rpc.call_args.args[1]['p_action'], 'delete')
+
+        with self.assertRaises(HTTPException) as raised:
+            service.manage(invitation_id, 'unknown', self.actor)
+        self.assertEqual(raised.exception.status_code, 400)
+
+        app = FastAPI()
+        app.include_router(admin.router)
+        app.dependency_overrides[admin.require_user_manager] = lambda: self.actor
+        with TestClient(app) as client, patch.object(service, 'rpc', return_value=deleted_row) as mocked_rpc:
+            res = client.post(f'/controlpanelEflow/api/admin/users/pending-activation/{invitation_id}/delete')
+            self.assertEqual(res.status_code, 200)
+            self.assertTrue(res.json()['deleted'])
+            self.assertEqual(mocked_rpc.call_args.args[1]['p_action'], 'delete')
+
 
 if __name__=='__main__': unittest.main()

@@ -1,7 +1,7 @@
 import { Activity, AlertTriangle, CheckCircle2, ChevronRight, Clock3, Info, ShieldCheck } from "lucide-react";
 import type { AuditEvent } from "../../../services/auditService";
 import { InitialsAvatar } from "../../../components/workflow/StatusBadges";
-import { auditActionTone, humanizeAuditAction, humanizeEntityType } from "../presentation";
+import { auditActionTone, humanizeAuditAction, humanizeEntityType, summarizeAuditChanges, type AuditValueLookup } from "../presentation";
 
 const TONE_STYLE = {
   good: "border-emerald-100 bg-emerald-50 text-emerald-700",
@@ -25,21 +25,29 @@ function eventTime(timestamp: number): string {
 
 export function AuditEventFeed({
   events,
+  totalCount,
   entityLabel,
+  lookup,
   onSelect,
 }: {
   events: AuditEvent[];
+  totalCount?: number;
   entityLabel: (event: AuditEvent) => string;
+  lookup?: AuditValueLookup;
   onSelect: (event: AuditEvent, trigger: HTMLElement) => void;
 }) {
+  const countLabel =
+    totalCount !== undefined && totalCount !== events.length
+      ? `${events.length} of ${totalCount} events`
+      : `${events.length} events`;
   return (
     <section className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
       <div className="flex items-center justify-between border-b border-neutral-100 px-5 py-3.5">
         <div>
           <h2 className="text-[13px] font-medium text-neutral-900">System activity</h2>
-          <p className="mt-0.5 text-[10.5px] text-neutral-500">Entries can't be edited. Each one shows who performed the action and which record changed.</p>
+          <p className="mt-0.5 text-[10.5px] text-neutral-500">Entries cannot be edited. Each record shows who took the action and what changed.</p>
         </div>
-        <span className="rounded-full bg-neutral-100 px-2.5 py-1 text-[10px] font-medium text-neutral-600">{events.length} events</span>
+        <span className="shrink-0 whitespace-nowrap rounded-full bg-neutral-100 px-2.5 py-1 text-[10px] font-medium text-neutral-600">{countLabel}</span>
       </div>
       <div className="max-h-[calc(100vh-330px)] divide-y divide-neutral-100 overflow-y-auto">
         {events.map((event) => {
@@ -59,6 +67,7 @@ export function AuditEventFeed({
                   <span className="truncate font-medium text-neutral-700">{entityLabel(event)}</span>
                 </div>
                 {event.reason && <p className="mt-1 truncate text-[10.5px] text-neutral-500">Note: “{event.reason}”</p>}
+                <p className="mt-0.5 truncate text-[10.5px] text-[var(--eflow-primary)]">{summarizeAuditChanges(event, lookup)}</p>
               </div>
               <span className="hidden shrink-0 items-center gap-1.5 text-[10px] text-neutral-400 md:flex"><Clock3 size={11} />{eventTime(event.createdAt)}</span>
               <ChevronRight size={15} className="shrink-0 text-neutral-300 transition-transform group-hover:translate-x-0.5 group-hover:text-neutral-500" />

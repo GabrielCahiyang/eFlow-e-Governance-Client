@@ -35,7 +35,6 @@ export const administrativePages = [
 
 export const administrativeSubPages = [
   { label: "Pending Invitations", kind: "People & Access", section: "users", page: "Pending Invitations", adminOnly: true },
-  { label: "Project Guests", kind: "People & Access", section: "users", page: "Project Guests", adminOnly: true },
   { label: "Lockouts & Security", kind: "People & Access", section: "users", page: "Locked out accounts", adminOnly: true },
   { label: "Role Defaults", kind: "People & Access", section: "users", page: "Role Defaults", adminOnly: true },
   { label: "Individual Access", kind: "People & Access", section: "users", page: "User Access", adminOnly: true },
@@ -130,7 +129,6 @@ export function resolveSupportPage(section: string, page?: string) {
 
 export function resolveSupportSubTab(section: string, page?: string): string | undefined {
   if (page === "Pending Invitations") return "invitations";
-  if (page === "Project Guests") return "guests";
   if (page === "Locked out accounts" || page === "Lockouts & Security") return "locked-accounts";
   if (page === "Role Defaults" || (section === "permissions" && !page)) return "role-defaults";
   if (page === "User Access" || page === "Individual Access") return "user-access";

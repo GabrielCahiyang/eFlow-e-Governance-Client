@@ -15,3 +15,20 @@ export async function deleteManagedUser(userId: string): Promise<void> {
 
   await refreshProfiles();
 }
+
+export async function sendManagedUserPasswordReset(
+  userId: string,
+): Promise<{ sent: boolean; email: string }> {
+  const response = await controlPanelFetch(
+    `admin/users/${encodeURIComponent(userId)}/reset-password`,
+    { method: "POST" },
+    { retryOnEndpointChange: true },
+  );
+
+  if (!response.ok) {
+    const payload = (await response.json().catch(() => ({}))) as { detail?: string };
+    throw new Error(payload.detail || "Failed to send password reset link.");
+  }
+
+  return (await response.json()) as { sent: boolean; email: string };
+}

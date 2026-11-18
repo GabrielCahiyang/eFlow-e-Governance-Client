@@ -284,8 +284,13 @@ export function CustomRoleModal({
                 <option value="head">Head</option>
               </select>
               <p id="custom-role-base-description" className="mt-1.5 text-[12px] text-neutral-500">
-                Used when assigning this role. Choose Head only for the appointed Office Head.
+                Determines the account seat when assigning this role. Leave as Member unless this role replaces the Office Head.
               </p>
+              {baseRole === "head" && (
+                <p className="mt-1.5 rounded-lg border border-amber-200 bg-amber-50 px-3 py-1.5 text-[11.5px] text-amber-800">
+                  Only one active Head can lead an Office. Selecting Head subjects this role to Office Head approval and uniqueness limits.
+                </p>
+              )}
             </div>
 
             <div className="space-y-3 pt-1">

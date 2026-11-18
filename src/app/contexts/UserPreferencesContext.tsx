@@ -7,22 +7,23 @@ import {
   type UserPreferencesContextValue,
 } from './userPreferencesContextValue';
 
-function resolvedDarkMode(theme: ThemePreference): boolean {
-  return theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+function resolvedDarkMode(_theme: ThemePreference): boolean {
+  // Light mode is enforced system-wide for now; never activate dark mode.
+  return false;
 }
 
-function applyTheme(theme: ThemePreference): void {
-  document.documentElement.classList.toggle('dark', resolvedDarkMode(theme));
-  document.documentElement.dataset.theme = theme;
+function applyTheme(_theme: ThemePreference): void {
+  document.documentElement.classList.toggle('dark', resolvedDarkMode('light'));
+  document.documentElement.dataset.theme = 'light';
 }
 
 export function UserPreferencesProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
   const [preferences, setPreferences] = useState<UserPreferences | null>(null);
-  const [theme, setThemeState] = useState<ThemePreference>('system');
+  const [theme, setThemeState] = useState<ThemePreference>('light');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const themeRef = useRef<ThemePreference>('system');
+  const themeRef = useRef<ThemePreference>('light');
 
   const applyAndRemember = useCallback((nextTheme: ThemePreference) => {
     themeRef.current = nextTheme;
@@ -34,9 +35,9 @@ export function UserPreferencesProvider({ children }: { children: React.ReactNod
 
     if (!user?.id) {
       setPreferences(null);
-      setThemeState('system');
+      setThemeState('light');
       setError(null);
-      applyAndRemember('system');
+      applyAndRemember('light');
       setLoading(false);
       return;
     }
@@ -45,20 +46,20 @@ export function UserPreferencesProvider({ children }: { children: React.ReactNod
     setError(null);
     fetchUserPreferences(user.id)
       .then(async (stored) => {
-        const preference = stored ?? await upsertUserPreferences(user.id, { theme: 'system' });
+        const preference = stored ?? await upsertUserPreferences(user.id, { theme: 'light' });
         if (cancelled) return;
-        setPreferences(preference);
-        setThemeState(preference.theme);
-        applyAndRemember(preference.theme);
+        const effectiveTheme: ThemePreference =
+          preference.theme === 'dark' || preference.theme === 'system' ? 'light' : preference.theme;
+        setPreferences({ ...preference, theme: effectiveTheme });
+        setThemeState(effectiveTheme);
+        applyAndRemember(effectiveTheme);
       })
       .catch(() => {
-        // The app remains usable with the system palette; a later explicit save
-        // gives the user a clear, inline error instead of silently claiming success.
         if (!cancelled) {
           setPreferences(null);
-          setThemeState('system');
-          setError('We could not load your saved appearance preference. System appearance is being used for now.');
-          applyAndRemember('system');
+          setThemeState('light');
+          setError('We could not load your saved appearance preference. Light appearance is being used for now.');
+          applyAndRemember('light');
         }
       })
       .finally(() => {
@@ -70,22 +71,15 @@ export function UserPreferencesProvider({ children }: { children: React.ReactNod
     };
   }, [applyAndRemember, user?.id]);
 
-  useEffect(() => {
-    if (theme !== 'system') return;
-    const media = window.matchMedia('(prefers-color-scheme: dark)');
-    const onChange = () => applyTheme('system');
-    media.addEventListener('change', onChange);
-    return () => media.removeEventListener('change', onChange);
-  }, [theme]);
-
   const setTheme = useCallback(async (nextTheme: ThemePreference) => {
     if (!user?.id) throw new Error('Your session has expired. Please sign in again.');
     const previousTheme = themeRef.current;
+    const normalizedTheme: ThemePreference = nextTheme === 'dark' || nextTheme === 'system' ? 'light' : nextTheme;
     setError(null);
-    applyTheme(nextTheme);
+    applyTheme(normalizedTheme);
 
     try {
-      const saved = await upsertUserPreferences(user.id, { theme: nextTheme });
+      const saved = await upsertUserPreferences(user.id, { theme: normalizedTheme });
       setPreferences(saved);
       setThemeState(saved.theme);
       themeRef.current = saved.theme;
