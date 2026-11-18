@@ -1,4 +1,5 @@
 import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
+import { DateInput } from "../../../components/ui/DateInput";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Building2, CalendarClock, Plus, Trash2 } from "lucide-react";
 import type { Organization } from "../../../types";
@@ -201,9 +202,8 @@ export function OrganizationScopePanel({
             </option>
           ))}
         </select>
-        <input
+        <DateInput
           aria-label="Access expiry date"
-          type="date"
           value={expiresAt}
           onChange={(event) => setExpiresAt(event.target.value)}
           className="h-9 rounded-lg border border-neutral-200 bg-white px-3 text-[11px] outline-none focus:border-neutral-400"
@@ -253,7 +253,7 @@ export function OrganizationScopePanel({
               {grant.expiresAt ? (
                 <span className="inline-flex items-center gap-1 text-[9.5px] text-neutral-400">
                   <CalendarClock size={11} />{" "}
-                  {new Date(grant.expiresAt).toLocaleDateString()}
+                  {new Date(grant.expiresAt).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })}
                 </span>
               ) : (
                 <span className="text-[9.5px] text-neutral-400">No expiry date</span>

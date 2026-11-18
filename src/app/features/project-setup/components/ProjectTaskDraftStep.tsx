@@ -1,7 +1,8 @@
 import { readableUiError } from '../../../shared/userFacingError';
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '@vibe/core';
-import { BookmarkPlus, ClipboardList, Sparkles } from 'lucide-react';
+import { BookmarkPlus, ClipboardList, Sparkles, X } from 'lucide-react';
+import { WorkspaceTooltip } from '../../../components/ui/workspace/WorkspaceTooltip';
 import { ProjectImportSaveError, saveReviewedProject } from '../../project-import';
 import {
   parseProjectTaskGroups,
@@ -15,7 +16,17 @@ import { FlowError } from './FlowError';
 
 export function ProjectTaskDraftStep({ projectId, project, templates, templateError, initialTemplate, onTemplateSaved, onSaved, onBusyChange, formId, onSaveStateChange }: {
   projectId: string;
-  project: { title: string; description: string; scope: string; start?: string; end?: string };
+  project: {
+    title: string;
+    description: string;
+    scope: string;
+    start?: string;
+    end?: string;
+    noFunding?: boolean;
+    totalBudget?: number;
+    unallocatedBudget?: number;
+    budgetSources?: string[];
+  };
   templates: ProjectTaskTemplate[];
   templateError: string;
   initialTemplate?: ProjectTaskTemplate;
@@ -47,6 +58,66 @@ export function ProjectTaskDraftStep({ projectId, project, templates, templateEr
       const next = new Set(current);
       if (next.has(key)) next.delete(key);
       else next.add(key);
+      return next;
+    });
+  }
+
+  function removeGroup(gIndex: number) {
+    request.current = undefined;
+    setGroups(current => current.filter((_, index) => index !== gIndex));
+    setOmitted(current => {
+      const next = new Set<string>();
+      for (const entry of current) {
+        const [rawG, ...rest] = entry.split('/');
+        const g = Number(rawG);
+        if (g === gIndex) continue;
+        next.add(`${g > gIndex ? g - 1 : g}/${rest.join('/')}`);
+      }
+      return next;
+    });
+  }
+
+  function removeTask(gIndex: number, tIndex: number) {
+    request.current = undefined;
+    setGroups(current => current.map((item, index) =>
+      index === gIndex ? { ...item, tasks: item.tasks.filter((_, taskIndex) => taskIndex !== tIndex) } : item));
+    setOmitted(current => {
+      const next = new Set<string>();
+      for (const entry of current) {
+        const parts = entry.split('/');
+        const g = Number(parts[0]), t = Number(parts[1]);
+        if (g === gIndex && t === tIndex) continue;
+        if (g === gIndex && t > tIndex) {
+          next.add(`${g}/${t - 1}${parts.length > 2 ? `/${parts.slice(2).join('/')}` : ''}`);
+        } else {
+          next.add(entry);
+        }
+      }
+      return next;
+    });
+  }
+
+  function removeSubtask(gIndex: number, tIndex: number, sIndex: number) {
+    request.current = undefined;
+    setGroups(current => current.map((item, index) =>
+      index === gIndex ? {
+        ...item,
+        tasks: item.tasks.map((row, taskIndex) => taskIndex === tIndex
+          ? { ...row, subtasks: row.subtasks.filter((_, subIndex) => subIndex !== sIndex) }
+          : row),
+      } : item));
+    setOmitted(current => {
+      const next = new Set<string>();
+      for (const entry of current) {
+        const parts = entry.split('/');
+        const g = Number(parts[0]), t = Number(parts[1]), s = parts.length > 2 ? Number(parts[2]) : NaN;
+        if (g === gIndex && t === tIndex && s === sIndex) continue;
+        if (g === gIndex && t === tIndex && Number.isFinite(s) && s > sIndex) {
+          next.add(`${g}/${t}/${s - 1}`);
+        } else {
+          next.add(entry);
+        }
+      }
       return next;
     });
   }
@@ -134,8 +205,15 @@ export function ProjectTaskDraftStep({ projectId, project, templates, templateEr
     <FlowError error={error}/>
     {groups.map((group, g) => <fieldset key={g} className="pf-task-draft-group" disabled={!!busy || retry}>
       <legend>{group.title}</legend>
-      <input aria-label={`Group ${g + 1} name`} value={group.title} maxLength={120}
-        onChange={event => setGroups(current => current.map((item, index) => index === g ? { ...item, title: event.target.value } : item))}/>
+      <div className="pf-task-draft-group-row">
+        <input aria-label={`Group ${g + 1} name`} value={group.title} maxLength={120}
+          onChange={event => setGroups(current => current.map((item, index) => index === g ? { ...item, title: event.target.value } : item))}/>
+        <WorkspaceTooltip content="Remove this group">
+          <button type="button" className="pf-task-draft-remove" aria-label={`Remove group ${group.title || g + 1}`} onClick={() => removeGroup(g)}>
+            <X size={15}/>
+          </button>
+        </WorkspaceTooltip>
+      </div>
       {group.tasks.map((task, t) => {
         const key = `${g}/${t}`;
         const included = !omitted.has(key);
@@ -143,11 +221,22 @@ export function ProjectTaskDraftStep({ projectId, project, templates, templateEr
           index === g ? { ...item, tasks: item.tasks.map((row, taskIndex) => taskIndex === t ? next : row) } : item));
         return <div className="pf-task-draft-task" key={key}>
           <div><input type="checkbox" aria-label={`Include ${task.title}`} checked={included} onChange={() => toggle(key)}/>
-            <input aria-label={`Task ${t + 1} name in group ${g + 1}`} maxLength={300} disabled={!included} value={task.title} onChange={event => editTask({ ...task, title: event.target.value })}/></div>
+            <input aria-label={`Task ${t + 1} name in group ${g + 1}`} maxLength={300} disabled={!included} value={task.title} onChange={event => editTask({ ...task, title: event.target.value })}/>
+            <WorkspaceTooltip content="Remove this task">
+              <button type="button" className="pf-task-draft-remove" aria-label={`Remove task ${task.title || t + 1}`} onClick={() => removeTask(g, t)}>
+                <X size={14}/>
+              </button>
+            </WorkspaceTooltip>
+          </div>
           {task.subtasks.map((item, s) => <div className="pf-task-draft-subtask" key={s}>
             <input type="checkbox" aria-label={`Include ${item}`} disabled={!included} checked={included && !omitted.has(`${key}/${s}`)} onChange={() => toggle(`${key}/${s}`)}/>
             <input aria-label={`Subtask ${s + 1} for ${task.title}`} maxLength={300} disabled={!included || omitted.has(`${key}/${s}`)} value={item}
               onChange={event => editTask({ ...task, subtasks: task.subtasks.map((value, index) => index === s ? event.target.value : value) })}/>
+            <WorkspaceTooltip content="Remove this subtask">
+              <button type="button" className="pf-task-draft-remove" aria-label={`Remove subtask ${item || s + 1}`} onClick={() => removeSubtask(g, t, s)}>
+                <X size={13}/>
+              </button>
+            </WorkspaceTooltip>
           </div>)}
         </div>;
       })}

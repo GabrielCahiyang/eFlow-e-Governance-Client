@@ -1,4 +1,5 @@
 import { getPhilippineCalendarDate, scheduledDateError } from '../../../shared/calendarDates';
+import { DateInput } from '../../../components/ui/DateInput';
 import { useMemo, useState } from "react";
 import {
   Check,
@@ -390,9 +391,8 @@ export function DraftCockpit({
                               </span>
                             )}
                           </label>
-                          <input
+                          <DateInput
                             aria-label={`${activity.title || `Activity ${activity.ai + 1}`} target date`}
-                            type="date"
                             min={getPhilippineCalendarDate()}
                             value={activity.schedule}
                             onChange={(event) =>

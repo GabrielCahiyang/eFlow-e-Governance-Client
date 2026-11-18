@@ -120,25 +120,50 @@ describe("networkConnectivity & offline/slow UI states", () => {
     expect(view.container.querySelector(".eflow-view-loading--offline")).toBeTruthy();
   });
 
-  it("switches LoadingScreen and ViewLoadingState to 'Slow internet' after threshold", () => {
+  it("switches LoadingScreen and ViewLoadingState to 'Slow internet' only when a monitored request is slow, not from a local timer", async () => {
     vi.useFakeTimers();
+    let resolveSlow!: (res: Response) => void;
+    const fetchMock = vi.fn(
+      () =>
+        new Promise<Response>((resolve) => {
+          resolveSlow = resolve;
+        }),
+    );
+    window.fetch = fetchMock as typeof fetch;
+    installConnectivityMonitor();
+
     const { container } = render(<LoadingScreen />);
     expect(screen.getByRole("heading", { name: "Getting things done" })).toBeVisible();
 
+    //Without an in-flight slow request, elapsed time alone must NOT spam "Slow internet".
     act(() => {
-      vi.advanceTimersByTime(SLOW_CONNECTION_THRESHOLD_MS);
+      vi.advanceTimersByTime(SLOW_CONNECTION_THRESHOLD_MS + 1000);
+    });
+    expect(screen.getByRole("heading", { name: "Getting things done" })).toBeVisible();
+    expect(container.querySelector(".eflow-loading--slow")).toBeNull();
+
+    // When a real monitored request stalls past SLOW_CONNECTION_THRESHOLD_MS, show "Slow internet".
+    const baseUrl = import.meta.env.VITE_SUPABASE_URL || window.location.origin;
+    const pendingRemote = window.fetch(`${baseUrl}/rest/v1/tasks`);
+    act(() => {
+      vi.advanceTimersByTime(SLOW_CONNECTION_THRESHOLD_MS + 10);
     });
     expect(screen.getByRole("heading", { name: "Slow internet connection" })).toBeVisible();
     expect(container.querySelector(".eflow-loading--slow")).toBeTruthy();
 
     cleanup();
     const view = render(<ViewLoadingState />);
-    act(() => {
-      vi.advanceTimersByTime(SLOW_CONNECTION_THRESHOLD_MS);
-    });
     expect(screen.getByRole("status", { name: "Slow internet connection" })).toBeVisible();
     expect(screen.getByText("Slow internet")).toBeVisible();
     expect(view.container.querySelector(".eflow-view-loading--slow")).toBeTruthy();
+
+    // Completing the slow request immediately clears the "Slow internet" state.
+    await act(async () => {
+      resolveSlow(new Response("[]", { status: 200 }));
+      await pendingRemote;
+    });
+    expect(screen.getByRole("status", { name: "Getting things done" })).toBeVisible();
+    expect(view.container.querySelector(".eflow-view-loading--slow")).toBeNull();
   });
 
   it("shows topbar signal indicator beside Help with red downward accent when offline and clears on retry", async () => {

@@ -101,6 +101,11 @@
 .pf-task-draft button:disabled{opacity:.55}
 .pf-task-draft-group{display:grid;gap:10px;min-width:0;margin:0;padding:12px 16px 16px;border:1px solid var(--border,#cfddd9);border-radius:10px}
 .pf-task-draft-group legend{padding:0 5px;font-weight:600}
+.pf-task-draft-group-row{display:flex;align-items:center;gap:8px;min-width:0}
+.pf-task-draft-group-row>input{flex:1;min-width:0}
+.pf-task-draft-remove{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;flex-shrink:0;border:1px solid var(--border,#cfddd9);border-radius:7px;background:var(--background,#fff);color:var(--muted-foreground,#5b7670);cursor:pointer;transition:color .15s,border-color .15s,background .15s}
+.pf-task-draft-remove:hover:not(:disabled){color:#b42335;border-color:#f0b8bf;background:#fff4f5}
+.pf-task-draft-remove:disabled{opacity:.45;cursor:not-allowed}
 .pf-task-draft-task{display:grid;gap:6px;padding:8px 0;border-top:1px solid var(--border,#cfddd9)}
 .pf-task-draft-task>div{display:flex;align-items:center;gap:8px}
 .pf-task-draft-task input[type=checkbox]{accent-color:#087972}

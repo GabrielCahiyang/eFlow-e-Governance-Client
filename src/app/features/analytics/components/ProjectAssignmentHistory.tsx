@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { fetchWorkEvents, presentWorkEvent, type WorkEvent } from "../../nested-work";
 
-const dateTime = new Intl.DateTimeFormat("en-PH", { timeZone: "Asia/Manila", dateStyle: "medium", timeStyle: "short" });
+const dateTime = new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Manila", dateStyle: "medium", timeStyle: "short" });
 
 export function ProjectAssignmentHistory({ taskId, projectId }: { taskId: string; projectId: string }) {
   const [pages, setPages] = useState(1);

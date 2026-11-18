@@ -11,8 +11,8 @@ import { ProjectAssignmentHistory } from "./ProjectAssignmentHistory";
 import "../projectAnalysis.css";
 
 const zone = "Asia/Manila";
-const dateTime = new Intl.DateTimeFormat("en-PH", { timeZone: zone, dateStyle: "medium", timeStyle: "short" });
-const dateOnly = new Intl.DateTimeFormat("en-PH", { timeZone: zone, dateStyle: "medium" });
+const dateTime = new Intl.DateTimeFormat("en-US", { timeZone: zone, month: "2-digit", day: "2-digit", year: "numeric", hour: "numeric", minute: "2-digit" });
+const dateOnly = new Intl.DateTimeFormat("en-US", { timeZone: zone, month: "2-digit", day: "2-digit", year: "numeric" });
 const number = new Intl.NumberFormat("en-PH", { maximumFractionDigits: 1 });
 const timestamp = (value: number) => dateTime.format(new Date(value));
 const duration = (hours: number) => {

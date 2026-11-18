@@ -1,3 +1,5 @@
+import { createElement } from "react";
+import { CardSectionSkeleton } from "../../components/ui/SurfaceSkeletons";
 import { lazyFeature } from "../../shared/lazyFeature";
 export {
   type ForReviewInboxProps,
@@ -18,7 +20,15 @@ export {
   getInitialReviewWorkspaceKind,
   isTaskVisibleInReviewQueue,
 } from "./selectors";
-export const SubtaskReviewInbox = lazyFeature(() => import('./components/SubtaskReviewInbox').then(m => ({default:m.SubtaskReviewInbox})),undefined,'SubtaskReviewInbox');
+export const SubtaskReviewInbox = lazyFeature(
+  () => import('./components/SubtaskReviewInbox').then(m => ({default:m.SubtaskReviewInbox})),
+  undefined,
+  'SubtaskReviewInbox',
+  createElement(CardSectionSkeleton, {
+    rows: 3,
+    label: "Loading subtask reviews…",
+  }),
+);
 export type {
   ReviewAttachment,
   ReviewSubmission,

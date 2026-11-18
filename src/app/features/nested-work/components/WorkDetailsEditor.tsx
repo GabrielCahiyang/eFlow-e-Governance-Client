@@ -3,6 +3,7 @@ import type {ComponentProps} from 'react';
 import type {WorkEditorFields} from '../types/editor';
 import {getPhilippineCalendarDate} from '../../../shared/calendarDates';
 import {CalendarDays, ListPlus, UsersRound} from 'lucide-react';
+import { DateInput } from '../../../components/ui/DateInput';
 
 export interface WorkDetailsEditorProps {
  fields:WorkEditorFields;disabled:boolean;maxDue?:string;minDue?:string;showStart?:boolean;presentation?:'default'|'dialog';planningLocked?:boolean;dueDisabled?:boolean;staffingLocked?:boolean;
@@ -12,8 +13,8 @@ export interface WorkDetailsEditorProps {
 export function WorkDetailsEditor({fields,disabled,maxDue,minDue=getPhilippineCalendarDate(),update,peoplePicker,showStart=false,presentation='default',planningLocked=false,dueDisabled=false,staffingLocked=false}:WorkDetailsEditorProps){
  const dialog=presentation==='dialog';
  const title=<label>Subtask title<input value={fields.title} maxLength={200} disabled={disabled} placeholder={dialog?'What needs to be done?':undefined} onChange={event=>update('title',event.target.value)}/></label>;
- const start=showStart?<label>Subtask start date<input type="date" value={fields.start||''} min={minDue||undefined} max={maxDue} disabled={disabled||planningLocked} onChange={event=>update('start',event.target.value)}/></label>:null;
- const due=<label>Subtask due date<input type="date" value={fields.due} min={fields.start||minDue||undefined} max={maxDue} disabled={disabled||dueDisabled} onChange={event=>update('due',event.target.value)}/></label>;
+ const start=showStart?<label>Subtask start date<DateInput value={fields.start||''} min={minDue||undefined} max={maxDue} disabled={disabled||planningLocked} onChange={event=>update('start',event.target.value)}/></label>:null;
+ const due=<label>Subtask due date<DateInput value={fields.due} min={fields.start||minDue||undefined} max={maxDue} disabled={disabled||dueDisabled} onChange={event=>update('due',event.target.value)}/></label>;
  const priority=<label>Priority<select value={fields.priority||'medium'} disabled={disabled} onChange={event=>update('priority',event.target.value as 'low'|'medium'|'high')}><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option></select></label>;
  const mode=<label>Work order<select value={fields.standalone?'independent':'sequence'} disabled={disabled||planningLocked} onChange={event=>update('standalone',event.target.value==='independent')}>
    <option value="sequence">In sequence</option><option value="independent">Can start out of order</option>

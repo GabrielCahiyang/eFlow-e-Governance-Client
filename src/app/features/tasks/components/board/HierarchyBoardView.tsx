@@ -26,7 +26,7 @@ export function HierarchyBoardView({
   tasks,
   employees,
   role,
-  onVerify,
+  onOpenReview,
   onExecute,
   onSubmitRequest,
   onOpenTaskEditor,
@@ -39,7 +39,7 @@ export function HierarchyBoardView({
   tasks: Task[];
   employees: Employee[];
   role: "head" | "member";
-  onVerify?: MondayBoardProps["onVerify"];
+  onOpenReview?: MondayBoardProps["onOpenReview"];
   onExecute?: MondayBoardProps["onExecute"];
   onSubmitRequest?: (task: Task) => void;
   onOpenTaskEditor?: (task: Task) => void;
@@ -151,7 +151,7 @@ export function HierarchyBoardView({
                             employeeById={employeeById}
                             role={role}
                             currentUserId={currentUserId}
-                            onVerify={onVerify}
+                            onOpenReview={onOpenReview}
                             onExecute={onExecute}
                             onSubmitRequest={onSubmitRequest}
                             onOpenTaskEditor={onOpenTaskEditor}

@@ -11,7 +11,7 @@ export function getManilaMonthPeriod(date = new Date()): ManilaMonthPeriod {
   const shifted = new Date(date.getTime() + MANILA_OFFSET);
   const year = shifted.getUTCFullYear(); const month = shifted.getUTCMonth();
   const start = Date.UTC(year, month, 1) - MANILA_OFFSET; const end = Date.UTC(year, month + 1, 1) - MANILA_OFFSET;
-  return { key: `${year}-${String(month + 1).padStart(2, "0")}`, label: new Intl.DateTimeFormat("en-PH", { month: "long", year: "numeric", timeZone: "Asia/Manila" }).format(new Date(start)), start, end };
+  return { key: `${year}-${String(month + 1).padStart(2, "0")}`, label: new Intl.DateTimeFormat("en-US", { month: "long", year: "numeric", timeZone: "Asia/Manila" }).format(new Date(start)), start, end };
 }
 
 export function getRecentManilaMonthPeriods(count = 12, date = new Date()): ManilaMonthPeriod[] {

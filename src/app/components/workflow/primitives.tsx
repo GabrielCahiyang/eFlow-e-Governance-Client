@@ -528,19 +528,20 @@ export function formatDate(d?: string | number | null): string {
   if (typeof d === "string" && /month|phase|week/i.test(d)) return d;
   const day = workDay(d);
   if (day !== null) {
-    return new Date(day * 86400000).toLocaleDateString("en-PH", {
+    return new Date(day * 86400000).toLocaleDateString("en-US", {
       timeZone: "UTC",
+      month: "2-digit",
+      day: "2-digit",
       year: "numeric",
-      month: "short",
-      day: "numeric",
     });
   }
   const date = typeof d === "number" ? new Date(d) : new Date(d);
   if (isNaN(date.getTime())) return "—";
-  return date.toLocaleDateString("en-PH", {
+  return date.toLocaleDateString("en-US", {
+    timeZone: "Asia/Manila",
+    month: "2-digit",
+    day: "2-digit",
     year: "numeric",
-    month: "short",
-    day: "numeric",
   });
 }
 

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { readableUiError } from "../../../shared/userFacingError";
 import type { SubtaskAllocationContext, TaskFundingContext } from "../types";
 import { fetchSubtaskAllocationContext, fetchTaskFundingContext, SUBTASK_BUDGET_CHANGED_EVENT } from "../services/budgetService";
 
@@ -30,7 +31,7 @@ export function useTaskFundingContext(taskId: string, subtaskId?: string, versio
     } catch (caught) {
       if (run !== generation.current) return;
       setLoaded({scope, context: null});
-      setError(caught instanceof Error ? caught.message : "Task funding could not be loaded.");
+      setError(readableUiError(caught, "Couldn't load task funding.", "read"));
     } finally {
       if (run === generation.current) setLoading(false);
     }
@@ -54,6 +55,11 @@ export function useTaskFundingContext(taskId: string, subtaskId?: string, versio
     return () => window.removeEventListener(SUBTASK_BUDGET_CHANGED_EVENT, onBudgetChanged);
   }, [refresh, taskId]);
 
+  const readLatest = useCallback(async () => {
+    if (!taskId) return null;
+    return fetchTaskFundingContext(taskId, subtaskId);
+  }, [subtaskId, taskId]);
+
   const current = loaded?.scope === scope ? loaded : undefined;
-  return { context: current?.context ?? null, allocation: current?.allocation, loading, error, refresh };
+  return { context: current?.context ?? null, allocation: current?.allocation, loading, error, refresh, readLatest };
 }

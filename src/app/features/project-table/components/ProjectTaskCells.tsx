@@ -1,4 +1,4 @@
-import {approvedWorkProgress,workStateLabel,WorkStatusControl} from '../../work-state';
+import {directWorkProgress,workStateLabel,WorkStatusControl} from '../../work-state';
 import {useWorkStatus} from '../../work-status';
 import { ProjectTaskBudgetCell, ProjectWorkExpensesCell } from '../../budget';
 import { useConfirmation } from '../../../components/ui/useConfirmation';
@@ -39,7 +39,7 @@ export function ProjectTaskCell({ column, task, tasks, profiles, people, orgs, e
   if (column === 'dependencies') return <DependencyCell task={task} tasks={tasks} disabled={disabled} save={save}/>;
   if (column === 'budget') return <ProjectTaskBudgetCell task={task} readOnly={readOnly||busy||!editable}/>;
   if (column === 'actualExpenses') return <ProjectWorkExpensesCell task={task}/>;
-  const steps=approvedWorkProgress(controller?.data?.nodes||[]);
-  const progress=task.status==='completed'?100:steps.percent;
+  const steps=directWorkProgress(controller?.data?.nodes||[], task.status);
+  const progress=steps.percent;
   return <div className="pt-progress" aria-label={'Progress for ' + task.title}><progress max={100} value={progress}/><span>{task.status==='completed'?'Approved':steps.total?`${steps.approved}/${steps.total} steps complete`:workStateLabel(task.status)}</span></div>;
 }

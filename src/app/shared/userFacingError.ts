@@ -80,12 +80,12 @@ export function readableUiError(reason: unknown, fallback: string, operation: 'r
   const message = messageOf(reason).trim();
   const code = reason && typeof reason === 'object' && 'code' in reason ? String((reason as { code?: unknown }).code || '') : '';
   const status = reason && typeof reason === 'object' && 'status' in reason ? Number((reason as { status?: unknown }).status) : undefined;
-  const network = /failed to fetch|networkerror|network request failed|load failed|err_internet_disconnected|err_name_not_resolved|gateway timeout|connection reset|connection refused|econnreset|econnrefused/i.test(message)
-    || status === 0 || status === 502 || status === 503 || status === 504
+  const network = /failed to fetch|networkerror|network request failed|load failed|err_internet_disconnected|err_name_not_resolved|upstream request timeout|canceling statement due to statement timeout|statement timeout|request timeout|gateway timeout|timed out|connection reset|connection refused|econnreset|econnrefused/i.test(message)
+    || status === 0 || status === 408 || status === 502 || status === 503 || status === 504 || code === '57014'
     || (!message && typeof navigator !== 'undefined' && navigator.onLine === false);
   if (network) return operation === 'read'
-    ? "We couldn't connect to eFlow. Check your internet connection and reload this view."
-    : "We couldn't confirm the result because the connection was interrupted. Check your connection and the current record before trying again.";
+    ? "Couldn't connect right now. Check your internet and reload this view."
+    : "We couldn't confirm the result because the connection was interrupted. Check your internet and the current record before trying again.";
   const technical = /\b(?:RPC|RLS|SQLSTATE|PGRST\d+|Supabase|JWT|UUID|migration|payload)\b|schema cache|row.level security|violates .*constraint|relation .+does not exist|function .+does not exist|permission denied for|cannot read (?:properties|property)|is not a function|unexpected token|not valid JSON|invalid input syntax|^column .+does not exist|^null value in column|^(?:HTTP|Error)\s+\d{3}\b|\bat \S+\s*\([^)]*:\d+:\d+\)/i.test(message)
     || /^(?:42P01|42703|42883|42501|PGRST202|PGRST204|23505|23503)$/i.test(code);
   if (technical) {

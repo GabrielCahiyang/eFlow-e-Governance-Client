@@ -20,7 +20,7 @@ function ToneIcon({ tone }: { tone: keyof typeof TONE_STYLE }) {
 }
 
 function eventTime(timestamp: number): string {
-  return new Date(timestamp).toLocaleString("en-PH", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" });
+  return new Date(timestamp).toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" });
 }
 
 export function AuditEventFeed({

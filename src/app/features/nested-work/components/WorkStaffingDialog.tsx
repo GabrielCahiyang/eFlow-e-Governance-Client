@@ -138,20 +138,21 @@ function WorkStaffingDialogContent({controller,nodeId,readOnly=false,executionBl
   }
  }
  const title=nodeId?'Subtask Lead and contributors':'Task lead and contributors';
- return <Modal isOpen title={title} onClose={close} preventClose={busy} width="max-w-2xl">
-  <form className="r7-work r7-form m-0 overflow-y-auto border-0" aria-label="Task/subtask people changes" onSubmit={event=>{event.preventDefault();void submit();}}>
+ const showDraftAlert=!!draftError&&!busy&&(dirty||!!request.current||!!controller.verificationFailed||!caps.appointment.allowed);
+ return <Modal isOpen title={title} description={nodeId?'Assign the subtask lead and contributors responsible for this step.':'Choose the primary Task Lead and optional contributors directly from eligible Office members.'} onClose={close} preventClose={busy} width="max-w-2xl">
+  <form className="nw-staffing-form" aria-label="Task/subtask people changes" onSubmit={event=>{event.preventDefault();void submit();}}>
    {!nodeId&&data.root.kind==='office'&&data.can_transfer&&caps.appointment.allowed&&!baseline.leadId&&!contributorsOnly&&!readOnly&&<AutoAssignTaskButton snapshot={data} disabled={locked||dirty||executionBlocked} onBusyChange={value=>{guard.pendingRef.current=value;setAiBusy(value);setBusy(value);}} onAssigned={async receipt=>{confirmed.current=true;recovery.clear();setSaved(true);guard.markClean();await latest.current.onChanged(receipt);}}/>}
    <WorkPeoplePicker people={data.people} lead={lead||''} selected={workers} onLead={setLead} onSelected={setWorkers}
     appointmentCapability={contributorsOnly?{allowed:false,reason_code:'read_only',disabledReason:'Change the lead from the Lead menu.'}:caps.appointment} contributorCapability={caps.contributors} disabled={locked} disabledReason={lockReason}
     invite={!readOnly&&!locked?{project:data.root.project,office:data.root.office,root:controller.rootId,node:nodeId||undefined,canRequest:scopedInvitationRequestAllowed(data,nodeId,context)}:undefined}/>
-   {selfLeadReviewerRisk&&<div role="status" className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-xs text-amber-950">Heads up: assigning yourself as both Office Head and Task Lead means you cannot review your own task submission. Unless an independent Project Lead is assigned on the project, final review submission will be blocked.</div>}
-   {draftError&&!busy&&<p role="alert">{draftError}</p>}
-   {error&&<p role="alert">{error}{request.current&&!saved?' Press Try again to check and finish the last save.':''}</p>}
-   {saved&&<p role="status">People saved.</p>}
-   {recovery.recovered&&<p role="status">{recovery.stale?"Task details changed after this team draft was saved. Review the current Lead and contributors before saving.":'People draft recovered after current access verification.'}</p>}
-   {recovery.storageFailed&&<p role="alert">Draft recovery could not be stored in this tab. Keep the editor open to retain your changes.</p>}
-   <div className="r7-actions"><button type="button" disabled={busy} onClick={close}>{saved?'Close':'Cancel changes'}</button>
-    {!saved&&<button type="submit" disabled={busy||!request.current&&!!draftError}>{busy?(aiBusy?'Choosing team…':'Saving…'):request.current?'Try again':'Save changes'}</button>}
+   {selfLeadReviewerRisk&&<div role="status" className="nw-staffing-banner nw-staffing-banner--warn">Heads up: assigning yourself as both Office Head and Task Lead means you cannot review your own task submission. Unless an independent Project Lead is assigned on the project, final review submission will be blocked.</div>}
+   {showDraftAlert&&<p role="alert" className="nw-staffing-banner nw-staffing-banner--error">{draftError}</p>}
+   {error&&<p role="alert" className="nw-staffing-banner nw-staffing-banner--error">{error}{request.current&&!saved?' Press Try again to check and finish the last save.':''}</p>}
+   {saved&&<p role="status" className="nw-staffing-banner nw-staffing-banner--ok">People saved.</p>}
+   {recovery.recovered&&<p role="status" className="nw-staffing-banner nw-staffing-banner--info">{recovery.stale?"Task details changed after this team draft was saved. Review the current Lead and contributors before saving.":'People draft recovered after current access verification.'}</p>}
+   {recovery.storageFailed&&<p role="alert" className="nw-staffing-banner nw-staffing-banner--error">Draft recovery could not be stored in this tab. Keep the editor open to retain your changes.</p>}
+   <div className="nw-staffing-footer"><button type="button" className="nw-staffing-btn nw-staffing-btn--secondary" disabled={busy} onClick={close}>{saved?'Close':'Cancel changes'}</button>
+    {!saved&&<button type="submit" className="nw-staffing-btn nw-staffing-btn--primary" disabled={busy||!request.current&&!!draftError}>{busy?(aiBusy?'Choosing team…':'Saving…'):request.current?'Try again':'Save changes'}</button>}
    </div>
    {confirmation.dialog}
   </form>

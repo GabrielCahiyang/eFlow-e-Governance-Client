@@ -1,5 +1,6 @@
 // ─── Reusable Form Components ────────────────────────────────────
 import React from "react";
+import { DateInput } from "./DateInput";
 
 interface FormFieldProps {
   label: string;
@@ -38,10 +39,22 @@ interface TextInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   hasError?: boolean;
 }
 
-export function TextInput({ hasError, className = "", ...props }: TextInputProps) {
+export function TextInput({ hasError, className = "", type, value, ...props }: TextInputProps) {
+  if (type === "date") {
+    return (
+      <DateInput
+        hasError={hasError}
+        className={className}
+        value={typeof value === "string" ? value : ""}
+        {...props}
+      />
+    );
+  }
   const invalid = hasError || props["aria-invalid"] === true || props["aria-invalid"] === "true";
   return (
     <input
+      type={type}
+      value={value}
       className={`eflow-form-input h-10 w-full rounded-lg border bg-input-background px-3 text-[13px] font-normal text-foreground placeholder:text-muted-foreground outline-none transition-all ${
         invalid
           ? "border-destructive focus:border-destructive focus:ring-2 focus:ring-destructive/10"

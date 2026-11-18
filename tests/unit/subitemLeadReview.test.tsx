@@ -3,9 +3,11 @@ import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/re
 import { afterEach, expect, it, vi } from 'vitest';
 
 const api = vi.hoisted(() => ({ load: vi.fn(), submit: vi.fn(), decide: vi.fn() }));
-vi.mock('../../src/app/features/subtasks/services/subitemLeadReview', () => ({
-  fetchSubitemLeadReview: api.load, proposeSubitemWork: api.submit, decideSubitemWork: api.decide,
+vi.mock('../../src/app/features/subtasks/services/subitemLeadReview', async importOriginal => ({
+  ...await importOriginal<typeof import('../../src/app/features/subtasks/services/subitemLeadReview')>(),
+  fetchSubitemLeadReview: api.load, proposeSubitemWork: api.submit, saveSubitemDecision: api.decide,
 }));
+vi.mock('../../src/app/features/budget', () => ({ assertWorkAcceptanceAvailable: vi.fn() }));
 vi.mock('../../src/app/shared/workChanges', () => ({ subscribeWorkChanges: () => () => {} }));
 vi.mock('@vibe/core',()=>({Button:({children,onClick,disabled}:any)=><button onClick={onClick} disabled={disabled}>{children}</button>}));
 vi.mock('../../src/app/features/work-status',()=>({useWorkStatuses:()=>({definitions:[]}),resolveStatus:(_definitions:any,_status:string,label:string)=>({label}),CustomWorkStatusSelect:()=>null}));
@@ -14,6 +16,15 @@ import { SubitemLeadReview } from '../../src/app/features/subtasks/components/Su
 afterEach(() => { cleanup(); vi.resetAllMocks(); });
 const submission = { id: 'proposal', kind: 'completion', state: 'pending', author_id: 'cheryl', reviewer_id: 'cris', canDecide: false, terms: { note: 'Supplies delivered' } };
 const base = { root: 'task', node: 'subtask', readOnly: false, pending: false, onChanged: async () => {} };
+
+it('offers both available root proposal actions even when whole-task completion is separate', async () => {
+  api.load.mockResolvedValue({ canProposeCompletion: true, canProposeProgress: true, items: [] });
+  render(<SubitemLeadReview {...base} node={null} actor="contributor" />);
+  const progress = await screen.findByRole('button', { name: 'Propose a progress update' });
+  expect(screen.getByRole('button', { name: 'Propose completion' })).toBeTruthy();
+  fireEvent.click(progress);
+  expect(await screen.findByLabelText('Work update')).toBeTruthy();
+});
 
 it('uses task work fields for a contributor blocker and submits them for lead review',async()=>{
  api.load.mockResolvedValue({canProposeProgress:true,items:[]});
@@ -70,11 +81,12 @@ it('lets the subtask lead submit a completion note and shows the pending review'
 });
 
 it('lets the assigned Task Lead approve completion through the review action', async () => {
-  api.load.mockResolvedValue({ items: [{ ...submission, canDecide: true }] });
+  const leadSubmission = { ...submission, canDecide: true, submitted_as_lead: true };
+  api.load.mockResolvedValue({ items: [leadSubmission] });
   api.decide.mockResolvedValue({ ...submission, state: 'approved' });
   render(<SubitemLeadReview {...base} actor="cris"/>);
-  fireEvent.click(await screen.findByRole('button', { name: 'Approve and complete subtask' }));
-  await waitFor(() => expect(api.decide).toHaveBeenCalledExactlyOnceWith('proposal', expect.any(String), true, ''));
+  fireEvent.click(await screen.findByRole('button', { name: 'Approve work' }));
+  await waitFor(() => expect(api.decide).toHaveBeenCalledExactlyOnceWith('task', 'subtask', 'cris', leadSubmission, expect.objectContaining({approve:true,note:''})));
   await screen.findByText('Completion · Approved');
 });
 it('keeps self and unassigned review decisions unavailable and resubmits against returned history',async()=>{
@@ -83,7 +95,7 @@ it('keeps self and unassigned review decisions unavailable and resubmits against
  api.submit.mockResolvedValue({...submission,id:'revised'});
  render(<SubitemLeadReview {...base} actor="cheryl"/>);
  await screen.findByText('Completion · Changes requested');
- expect(screen.queryByRole('button',{name:'Approve and complete subtask'})).toBeNull();
+ expect(screen.queryByRole('button',{name:'Approve work'})).toBeNull();
  fireEvent.click(screen.getByRole('button',{name:'Submit for Task Lead review'}));
  fireEvent.change(screen.getByLabelText('Work note'),{target:{value:'Delivery confirmation added'}});
  fireEvent.click(screen.getByRole('button',{name:'Submit for Task Lead review'}));

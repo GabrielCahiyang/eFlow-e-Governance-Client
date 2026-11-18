@@ -24,6 +24,8 @@ import {
   markPettyCashReleased,
 } from "../services/budgetService";
 import { BudgetEmpty, peso, StatusPill } from "./budgetUi";
+import { CashReturnPanel } from "./CashReturnPanel";
+import { fetchCashReturnClearance } from "../services/workFinancialClearanceService";
 import { useApprovalThreshold } from "../hooks/useApprovalThreshold";
 import { ApprovalThresholdDialog } from "./ApprovalThresholdDialog";
 import { DEFAULT_BUDGET_PAGE_SIZE, useBudgetPagination } from "../hooks/useBudgetPagination";
@@ -657,25 +659,37 @@ export function BudgetApprovalQueue({
                           : "Settle liquidation"
                     }
                     onApprove={() =>
-                      void act(item.id, () =>
-                        item.status === "pending_leader_review"
-                          ? decidePettyCashLiquidationLeaderReview(
-                              item.id,
-                              true,
-                              "Receipts endorsed for office settlement",
-                            )
-                          : needsHead && isHead
-                            ? authorizeLateLiquidation(
-                                item.id,
-                                true,
-                                "Late package authorized for independent accounting settlement",
-                              )
-                            : decidePettyCashLiquidation(
-                                item.id,
-                                true,
-                                "Receipts verified and settled",
-                              ),
-                      )
+                      void act(item.id, async () => {
+                        if (item.status === "pending_leader_review") {
+                          await decidePettyCashLiquidationLeaderReview(
+                            item.id,
+                            true,
+                            "Receipts endorsed for office settlement",
+                          );
+                          return;
+                        }
+                        if (needsHead && isHead) {
+                          await authorizeLateLiquidation(
+                            item.id,
+                            true,
+                            "Late package authorized for independent accounting settlement",
+                          );
+                          return;
+                        }
+                        if (
+                          item.returnedAmount > 0 &&
+                          !(await fetchCashReturnClearance(item.id)).approved
+                        ) {
+                          throw new Error(
+                            "Accounting must acknowledge the cash received and the Office Head must approve the return before settlement.",
+                          );
+                        }
+                        await decidePettyCashLiquidation(
+                          item.id,
+                          true,
+                          "Receipts verified and settled",
+                        );
+                      })
                     }
                     onReject={() => {
                       setMessage('');
@@ -690,6 +704,13 @@ export function BudgetApprovalQueue({
                     }}
                   />
                 </div>
+                <CashReturnPanel
+                  liquidationId={item.id}
+                  rootId={request?.taskId}
+                  version={item.version}
+                  amount={item.returnedAmount}
+                  onSaved={onChanged}
+                />
                 <div className="mt-3 flex flex-wrap gap-2">
                   {item.receipts.map((receipt) => (
                     <button

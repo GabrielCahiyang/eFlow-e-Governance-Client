@@ -10,7 +10,8 @@ export function canHandoverTask(task: Task, hasSubitems: boolean) {
   return task.status === 'pending_assignment' && !task.archivedAt && !task.assigneeId && !task.recommendationLeadId && !(task.teamMemberIds || []).length && !hasSubitems;
 }
 export function projectOfficePeople(office: ProjectOffice | undefined, members: ProjectOfficeMember[], profiles: UserProfile[], organizations: Organization[]) {
-  if (!office) return [];
+  if (!office || office.invitation_status !== 'joined' || office.relationship_type === 'observer') return [];
+  void members;
   void organizations;
-  return profiles.filter(p => p.is_active && p.role !== 'admin' && p.org_id === office.office_id && members.some(m => m.project_office_id === office.id && m.user_id === p.id));
+  return profiles.filter(p => p.is_active && !['admin', 'super_admin', 'viewer'].includes(p.role) && p.org_id === office.office_id);
 }

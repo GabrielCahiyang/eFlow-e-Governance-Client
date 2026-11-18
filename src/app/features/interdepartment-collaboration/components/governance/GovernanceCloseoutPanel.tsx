@@ -1,4 +1,5 @@
 import { useExplicitDraft } from "../../../../shared/useExplicitDraft";
+import { DateInput } from "../../../../components/ui/DateInput";
 import * as React from "react";
 import {
   Archive,
@@ -186,8 +187,7 @@ export function GovernanceCloseoutPanel({
                 placeholder="Board resolution number (optional)"
                 className="h-9 rounded-lg border border-amber-200 bg-white px-3 text-[10px] outline-none"
               />
-              <input
-                type="date"
+              <DateInput
                 value={meetingDate}
                 onChange={(event) => setMeetingDate(event.target.value)}
                 className="h-9 rounded-lg border border-amber-200 bg-white px-3 text-[10px] outline-none"

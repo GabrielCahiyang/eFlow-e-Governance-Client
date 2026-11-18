@@ -11,9 +11,9 @@ export function AutoAssignTaskButton({snapshot,disabled,onBusyChange,onAssigned}
     pending.current=true;setBusy(true);onBusyChange(true);setError('');setMessage('Finding the right people…');
     try{
       if(!request.current)request.current=await prepareAutoAssignment(snapshot,update=>setMessage(update.status==='queued'?`Waiting for AI · ${update.jobsAhead} ahead`:update.progress?.message||'AI is choosing your task team…'));
-      setMessage('Adding people and saving assignments…');
+      setMessage('Saving task assignment…');
       const receipt=await applyAutoAssignment(request.current);
-      setSaved(true);setMessage('Team assigned and added to the project.');
+      setSaved(true);setMessage('Team assigned to this task.');
       try{await onAssigned(receipt);}catch{setError('The team was saved. Reopen the task to see its current people.');}
     }catch(reason){
       const failure=reason as Error & {code?:string};
@@ -22,7 +22,7 @@ export function AutoAssignTaskButton({snapshot,disabled,onBusyChange,onAssigned}
     }finally{pending.current=false;setBusy(false);onBusyChange(false);}
   }
   return <section className="r7-auto-assignment" aria-label="AI task assignment">
-    <div><strong>Let AI choose the team</strong><p>Find people across your office, add them to this project, and assign this task.</p></div>
+    <div><strong>Let AI choose the team</strong><p>Review eligible people across your office and assign the best fit to this task.</p></div>
     <button type="button" disabled={disabled||busy||saved} onClick={()=>void assign()}><Sparkles size={16} aria-hidden="true"/>{busy?'Assigning…':saved?'Team assigned':request.current?'Retry assignment':'AI auto assign'}</button>
     <small>Qwen3.5 4B + LAYA review · Existing assignments stay unchanged.</small>
     {message&&<p role="status">{message}</p>}{error&&<p role="alert">{error}</p>}

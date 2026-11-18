@@ -2,7 +2,9 @@ import { supabase } from "../../lib/supabase";
 import { fetchConfig } from "../../lib/supabaseService";
 import { SESSION_REFRESH_MESSAGE } from "./userFacingError";
 
-const RETRYABLE_GATEWAY_STATUSES = new Set([502, 503, 504, 530]);
+const RETRYABLE_GATEWAY_STATUSES = new Set([502, 503, 504, 524, 530]);
+const LOCAL_AI_HEALTH_CACHE_TTL_MS = 15_000;
+let cachedLocalAiHealthyUntil = 0;
 
 export const AI_RESTARTING_MESSAGE =
   "The AI service is down. The system detected the outage and is automatically restarting the secure connection. Please try again shortly.";
@@ -43,6 +45,7 @@ export type ControlPanelFetchOptions = {
   timeoutMs?: number;
   retryOnEndpointChange?: boolean;
   requireAiOnline?: boolean;
+  reconnectWaitMs?: number;
 };
 
 export function normalizeControlPanelBase(rawValue: string): string {
@@ -101,6 +104,30 @@ export async function resolveAiControlPanelBase(): Promise<string> {
   return runtime.endpoint;
 }
 
+function isLocalhostBrowser(): boolean {
+  return (
+    typeof window !== "undefined" &&
+    ["localhost", "127.0.0.1"].includes(window.location.hostname)
+  );
+}
+
+async function checkLocalAiHealth(): Promise<boolean> {
+  if (!isLocalhostBrowser()) return false;
+  if (Date.now() < cachedLocalAiHealthyUntil) return true;
+  try {
+    const resp = await fetch("/controlpanelEflow/api/ai/local-health");
+    if (!resp.ok) return false;
+    const body = (await resp.json()) as { local_ai?: boolean };
+    if (body.local_ai === true) {
+      cachedLocalAiHealthyUntil = Date.now() + LOCAL_AI_HEALTH_CACHE_TTL_MS;
+      return true;
+    }
+  } catch {
+    // Local gateway or AI server is unreachable; fall back to remote discovery.
+  }
+  return false;
+}
+
 export async function getAiEndpointStatus(): Promise<AiRuntimeState> {
   // Primary: read AI config from the local EflowWeb server which uses the
   // service role key — this bypasses Supabase RLS and works on every machine
@@ -109,15 +136,26 @@ export async function getAiEndpointStatus(): Promise<AiRuntimeState> {
   let configuredStatus: string | null = null;
   let configuredMessage: string | null = null;
   let heartbeat: string | null = null;
+  let explicitLocalAi: boolean | undefined;
 
   try {
     const resp = await fetch("/controlpanelEflow/api/ai/status");
     if (resp.ok) {
-      const body = await resp.json() as {
+      const body = (await resp.json()) as {
         ai_endpoint?: string | null;
         ai_endpoint_status?: string | null;
         ai_endpoint_heartbeat?: string | null;
+        local_ai?: boolean;
       };
+      explicitLocalAi = body.local_ai;
+      if (isLocalhostBrowser() && body.local_ai === true) {
+        cachedLocalAiHealthyUntil = Date.now() + LOCAL_AI_HEALTH_CACHE_TTL_MS;
+        return {
+          endpoint: "/controlpanelEflow/api",
+          status: "online",
+          message: "",
+        };
+      }
       publishedEndpoint = body.ai_endpoint ?? null;
       configuredStatus = body.ai_endpoint_status ?? null;
       heartbeat = body.ai_endpoint_heartbeat ?? null;
@@ -141,6 +179,18 @@ export async function getAiEndpointStatus(): Promise<AiRuntimeState> {
   const effectiveStatus = status === "online" && !isAiHeartbeatFresh(heartbeat)
     ? "restarting"
     : status;
+  if (
+    isLocalhostBrowser() &&
+    explicitLocalAi !== false &&
+    (!publishedEndpoint || effectiveStatus !== "online") &&
+    (await checkLocalAiHealth())
+  ) {
+    return {
+      endpoint: "/controlpanelEflow/api",
+      status: "online",
+      message: "",
+    };
+  }
   return {
     endpoint: normalizeControlPanelBase(publishedEndpoint || ""),
     status:
@@ -273,9 +323,37 @@ export async function controlPanelFetch(
   }
 
   // A Quick Tunnel can rotate after discovery. Refetch the published endpoint
-  // and retry exactly once — but only if the endpoint actually changed.
-  // If the URL is the same the server is genuinely down; propagate the error.
-  const refreshedBase = await resolveBase();
+  // and retry — waiting when reconnectWaitMs is configured so an in-progress
+  // rotation has time to publish its new URL.
+  let refreshedBase = await resolveBase().catch(() => firstBase);
+  const waitBudgetMs = Math.max(0, options.reconnectWaitMs ?? 0);
+  if (refreshedBase === firstBase && waitBudgetMs > 0) {
+    const waitDeadline = Date.now() + waitBudgetMs;
+    while (Date.now() < waitDeadline) {
+      const stepMs = Math.min(5_000, Math.max(50, waitDeadline - Date.now()));
+      await new Promise((resolve) => globalThis.setTimeout(resolve, stepMs));
+      try {
+        if (options.requireAiOnline) {
+          const runtime = await getAiEndpointStatus();
+          if (
+            runtime.endpoint &&
+            (runtime.endpoint !== firstBase || runtime.status === "online")
+          ) {
+            refreshedBase = runtime.endpoint;
+            break;
+          }
+        } else {
+          const candidate = await resolveBase();
+          if (candidate && candidate !== firstBase) {
+            refreshedBase = candidate;
+            break;
+          }
+        }
+      } catch {
+        // Keep waiting until the reconnect budget expires.
+      }
+    }
+  }
   if (refreshedBase === firstBase) {
     // Endpoint did not change — server is unreachable, surface a clear message.
     throw new AiServiceUnavailableError(

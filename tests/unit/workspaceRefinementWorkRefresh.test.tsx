@@ -78,7 +78,7 @@ describe("R10 access-sensitive feed lifecycle", () => {
     fireEvent.click(screen.getByText('Details'));
     expect(screen.getByLabelText('Work path').textContent).toBe('Root / Permitted ancestor / Same');
     expect(screen.getByText(/Lead: Current Lead · Contributors \(1\)/)).toBeTruthy();
-    expect(screen.getByText('21 Oct 2026')).toBeTruthy();
+    expect(screen.getByText('10/21/2026')).toBeTruthy();
     expect(screen.getByText('Contributor')).toBeTruthy();
     expect(screen.getByText(row.timezone)).toBeTruthy();
     expect(screen.queryByText(/Depth \d/)).toBeNull();
@@ -152,7 +152,7 @@ describe("R10 access-sensitive feed lifecycle", () => {
 
     rerender(<WorkList rows={[{ ...row, status: 'completed', history: true, updatedAt: Date.UTC(2026, 9, 25) }]} onOpen={open} historyView />);
     expect(screen.queryByText('Approved')).toBeNull();
-    expect(screen.getByText('25 Oct 2026')).toBeTruthy();
+    expect(screen.getByText('10/25/2026')).toBeTruthy();
   });
   it("rechecks access events, clears denied data, and unregisters on unmount", async () => {
     api.load.mockResolvedValue(data);

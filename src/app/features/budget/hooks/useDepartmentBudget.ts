@@ -13,6 +13,7 @@ import type { DepartmentBudgetBundle } from "../types";
 import { fetchDepartmentBudgetBundle } from "../services/budgetService";
 import { AuthContext } from "../../../contexts/authContextValue";
 import { isQueryAccessDenied } from "../../../shared/queryAccess";
+import { readableUiError } from "../../../shared/userFacingError";
 
 const EMPTY: DepartmentBudgetBundle = {
   summary: null,
@@ -119,11 +120,7 @@ export function useDepartmentBudget(
         }
       } catch (caught) {
         if (valid()) {
-          setError(
-            caught instanceof Error
-              ? caught.message
-              : "Budget data could not be loaded.",
-          );
+          setError(readableUiError(caught, "Couldn't load office budget details.", "read"));
           const denied = isQueryAccessDenied(caught);
           if (denied || loadedScopeRef.current !== scope) {
             if (denied) evictQueryDomain(BUDGET_DOMAIN, cacheScope);

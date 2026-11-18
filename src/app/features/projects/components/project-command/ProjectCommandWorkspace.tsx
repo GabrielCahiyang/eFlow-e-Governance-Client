@@ -5,7 +5,6 @@ import { useMemo, useState, useEffect } from "react";
 import { hasDirtyNavigation, requestNavigation } from '../../../../shared/navigationGuard';
 import { NAVIGATION_LOCATION_EVENT, pushNavigationHistory, replaceNavigationHistory } from '../../../../shared/navigationHistory';
 import { ProjectViewLoading } from "../../../../components/workflow/ProjectWorkspaceSkeleton";
-import { Modal } from "../../../../components/ui/Modal";
 import { Button } from '@vibe/core';
 import { isAppointedOfficeHead } from '../../../../shared/officeAuthority';
 import { isHeadWorkspaceRole } from '../../../../shared/roles';
@@ -41,7 +40,7 @@ import { useAuth } from '../../../../contexts/AuthContext';
 import { ProjectViewFilters, ProjectGanttView, useProjectViewPreferences, filterProjectViewTasks } from '../../../project-views';
 import { scopeProjectViewData } from '../../selectors/projectViewContext';
 import { ProjectMembers } from '../../../project-members';
-import { ProjectOfficeContext, ProjectPeoplePage, useProjectOffices, canStaffProjectOffice } from '../../../project-offices';
+import { ProjectOfficeContext, useProjectOffices, canStaffProjectOffice } from '../../../project-offices';
 
 export interface ProjectCommandWorkspaceProps {
   project: Project;
@@ -93,16 +92,8 @@ export function ProjectCommandWorkspace({
     && !officeState.loading && !officeState.error && userProfile?.is_active !== false
     && ownOffice?.invitation_status === 'joined' && ownOffice.relationship_type !== 'observer'
     && officeState.members.some(member => member.project_office_id === ownOffice.id && member.user_id === userProfile?.id && member.can_edit);
-  const canAddPeople = setupReady && !closed && !project.sourceCollaborationDraftId && !officeState.loading && !officeState.error && canStaffProjectOffice(ownOffice, userProfile, orgs);
-  const [peopleOpen, setPeopleOpen] = useState(() => new URLSearchParams(window.location.search).get('people') === 'add');
   const [pdfOpen,setPdfOpen]=useState(false),[importRevision,setImportRevision]=useState(0),[importGroupId,setImportGroupId]=useState('');
   useEffect(()=>{let active=true;if(canManage&&!closed&&setupReady)void hasPendingPdfImport(project.id).then(pending=>{if(active&&pending)setPdfOpen(true);}).catch(()=>{});return()=>{active=false;};},[project.id,userProfile?.id,canManage,closed,setupReady]);
-  const closePeople = () => {
-    setPeopleOpen(false);
-    const url = new URL(window.location.href); url.searchParams.delete('people');
-    replaceNavigationHistory(`${url.pathname}${url.search}${url.hash}`);
-    window.dispatchEvent(new Event(NAVIGATION_LOCATION_EVENT));
-  };
   const ownWorkAccess = !officeState.error && (!shared || ownOffice?.invitation_status === 'joined' && ownOffice.relationship_type !== 'observer' && (ownOffice.relationship_type === 'lead' || canStaffProjectOffice(ownOffice, userProfile, orgs) || officeState.members.some(m => m.project_office_id === ownOffice.id && m.user_id === userProfile?.id)));
   const [tab, setTabState] = useState<ProjectCommandTab>(() => resolveProjectView(typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("view") : null) || resolveProjectView(initialTool || initialTab) || 'tasks');
   const inspector = useTaskInspector(project.id + ':' + (userProfile?.id || ''));
@@ -171,7 +162,6 @@ export function ProjectCommandWorkspace({
     <ProjectFlowProvider projectId={project.id} flow={flow}><ProjectOfficeContext.Provider value={officeState}><div className="eflow-project-command space-y-4 font-sans">
       <div hidden={!!inspector.taskId}>
       <div className="eflow-project-context-actions"><Button kind="tertiary" size="small" onClick={() => { void requestNavigation(onBack); }}>← All projects</Button>
-        {canAddPeople && <Button size="small" onClick={() => { void requestNavigation(() => setPeopleOpen(true)); }}>+ Add people</Button>}
         {!flow.error&&project.status!=='planning'&&<ProjectChatLink projectId={project.id}/>}
         {setupReady && canManage && !closed && <Button size="small" kind="tertiary" onClick={()=>{selectTab('tasks');setPdfOpen(true);}}>Import PDF</Button>}
         {setupReady && canManage && !closed && activeTabId !== 'tasks' && <ProjectTaskCreateAction projectId={project.id}/>}
@@ -277,9 +267,6 @@ export function ProjectCommandWorkspace({
       )}
 
       </div>
-      {setupReady && peopleOpen && !inspector.taskId && <Modal isOpen title="Add people" description={`${project.title}${orgs.find(item => item.id === userProfile?.org_id)?.name ? ` · ${orgs.find(item => item.id === userProfile?.org_id)!.name}` : ''}`} width="max-w-2xl" onClose={closePeople}>
-        <ProjectPeoplePage modal projectTitle={project.title} projectStatus={project.status} projectLeadId={project.projectLeadId} governed={!!project.sourceCollaborationDraftId} profiles={profiles} profilesLoading={profilesLoading} organizations={orgs} tasks={projectTasks} onClose={closePeople} onOpenTask={setOpenTaskId}/>
-      </Modal>}
       <TaskDetailDrawer
         presentation="dialog"
         task={openTask}

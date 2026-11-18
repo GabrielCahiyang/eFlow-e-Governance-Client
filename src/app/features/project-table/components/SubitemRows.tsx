@@ -5,6 +5,7 @@ import {supportsNestedWork,type WorkTreeController} from '../../nested-work';
 import { useState } from 'react';
 import { PanelRight } from 'lucide-react';
 import { InlineEditableText, PrerequisiteCell, PriorityCell } from '../../../components/ui/workspace';
+import { DateInput } from '../../../components/ui/DateInput';
 import { ProjectSubtaskBudgetCell, ProjectWorkExpensesCell } from '../../budget';
 import { TaskSubtasksWidget, createSubtask, updateSubtask, parentTaskDueDate, type Subtask } from '../../subtasks';
 import { resolveStatus, useWorkStatuses } from '../../work-status';
@@ -77,7 +78,7 @@ function LegacySubitemRows({ task, subtasks, columns, profiles, canAdd, readOnly
               ...(dueDate ? { dueDate } : {}),
             });
           }} onCreated={refresh} onBusyChange={setBusy}
-          extraFields={saving => <input type="date" aria-label={'Due date for new subtask to ' + task.title}
+          extraFields={saving => <DateInput aria-label={'Due date for new subtask to ' + task.title}
             min={getPhilippineCalendarDate()} value={dueDate} max={parentDue} readOnly={saving} onChange={event => setDueDate(event.target.value)}/>} />
       </div></td></tr></tfoot>}
       </table></div>

@@ -130,7 +130,7 @@ describe("R10 workspace calendars and discovery", () => {
       matchesWorkDate("2026-10-09", "Today", now, "America/New_York"),
     ).toBe(false);
     expect(workDateLabel("2026-10-08T23:30:00Z", "Asia/Singapore")).toBe(
-      "9 Oct 2026",
+      "10/09/2026",
     );
     expect(workDay("2026-02-30")).toBeNull();
     expect(workDay("bad")).toBeNull();
@@ -460,5 +460,57 @@ describe("R10 source coverage and authorization refresh", () => {
     const data = await loadWorkFeed("me");
     expect(data.rows.map((r) => r.id)).toEqual(["private-task"]);
     expect(data.issues.join()).toContain("Office read denied");
+  });
+
+  it("auto-retries statement timeouts on work trees silently and defers without raw SQL issues", async () => {
+    api.range.mockResolvedValue({ data: [], error: null });
+    api.list.mockResolvedValue([privateWorkspace]);
+    api.select.mockResolvedValue({
+      projects: [
+        {
+          id: "p",
+          kind: "personal",
+          title: "Research",
+          status: "active",
+          home_workspace_id: "private",
+        },
+      ],
+    });
+    api.personal.mockResolvedValue({
+      owner: "me",
+      project: { workspace_id: "private", status: "active" },
+      members: [],
+      tasks: [
+        {
+          id: "private-task",
+          title: "Prepare logistics",
+          lead_id: "me",
+          status: "todo",
+          progress: 0,
+        },
+      ],
+    });
+    const timeoutErr = Object.assign(
+      new Error("canceling statement due to statement timeout"),
+      { code: "57014" },
+    );
+    api.tree
+      .mockRejectedValueOnce(timeoutErr)
+      .mockResolvedValueOnce({
+        root: { id: "private-task", open: true, due: null },
+        nodes: [],
+        people: [{ id: "me", eligible: true }],
+      });
+
+    const recovered = await loadWorkFeed("me");
+    expect(recovered.issues).toEqual([]);
+    expect(recovered.retrying).toBeUndefined();
+    expect(recovered.rows.map((r) => r.title)).toEqual(["Prepare logistics"]);
+    expect(api.tree).toHaveBeenCalledTimes(2);
+
+    api.tree.mockRejectedValue(timeoutErr);
+    const deferred = await loadWorkFeed("me");
+    expect(deferred.issues).toEqual([]);
+    expect(deferred.retrying).toBe(true);
   });
 });

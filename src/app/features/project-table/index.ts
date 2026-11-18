@@ -1,12 +1,16 @@
+import { createElement } from "react";
+import { ProjectViewLoading } from "../../components/workflow/ProjectWorkspaceSkeleton";
 import { lazyFeature } from "../../shared/lazyFeature";
 export { CreateProjectDialog } from "./components/CreateProjectDialog";
 export { ProjectTaskCreateAction } from './components/ProjectTaskCreateAction';
-export const ProjectTableWorkspace = lazyFeature(() =>
-  import("./components/ProjectTableWorkspace").then((module) => ({
-    default: module.ProjectTableWorkspace,
-  })),
+export const ProjectTableWorkspace = lazyFeature(
+  () =>
+    import("./components/ProjectTableWorkspace").then((module) => ({
+      default: module.ProjectTableWorkspace,
+    })),
   undefined,
   "ProjectTableWorkspace",
+  createElement(ProjectViewLoading, { view: "tasks" }),
 );
 export type { ProjectGroup, ProjectColumn } from "./types";
 export type { WorkspaceTaskPatch } from "./types";

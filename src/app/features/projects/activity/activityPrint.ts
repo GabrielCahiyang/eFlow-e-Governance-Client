@@ -5,10 +5,14 @@ import {
 import type { ProjectActivityItem } from "../components/project-command/types";
 import type { ActivityFilters, ActivityPage } from "./types";
 export function formatActivityTime(time: number, timezone: string) {
-  return new Intl.DateTimeFormat("en-PH", {
+  return new Intl.DateTimeFormat("en-US", {
     timeZone: timezone,
-    dateStyle: "medium",
-    timeStyle: "long",
+    month: "2-digit",
+    day: "2-digit",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    second: "2-digit",
   }).format(time);
 }
 export function buildActivityPrint(

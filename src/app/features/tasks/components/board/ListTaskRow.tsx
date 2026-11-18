@@ -22,11 +22,11 @@ interface ListTaskRowProps {
   onCancelTaskRequest?: (task: Task) => void;
   onSubmitRequest?: (task: Task) => void;
   onUndoRequest?: (task: Task) => void;
-  onVerify?: MondayBoardProps['onVerify'];
+  onOpenReview?: MondayBoardProps['onOpenReview'];
   onExecute?: MondayBoardProps['onExecute'];
 }
 
-export function ListTaskRow({ task, role, employeeById, currentUserId, onEditTeam, onOpenTaskEditor, onDeleteTaskRequest, onArchiveTaskRequest, onCancelTaskRequest, onSubmitRequest, onUndoRequest, onVerify, onExecute }: ListTaskRowProps) {
+export function ListTaskRow({ task, role, employeeById, currentUserId, onEditTeam, onOpenTaskEditor, onDeleteTaskRequest, onArchiveTaskRequest, onCancelTaskRequest, onSubmitRequest, onUndoRequest, onOpenReview, onExecute }: ListTaskRowProps) {
   const dlInfo = getDeadlineInfo(task);
                   const pm =
                     priorityMeta[task.priority || "medium"] ||
@@ -208,11 +208,7 @@ export function ListTaskRow({ task, role, employeeById, currentUserId, onEditTea
                         {hasActions ? (
                           <TaskManagementMenu
                             task={task}
-                            onApprove={role === "head" && task.status === "for_review" ? () => onVerify?.(task.id, true) : undefined}
-                            onReject={role === "head" && task.status === "for_review" ? () => {
-                              const msg = prompt("Reason for rejection:");
-                              onVerify?.(task.id, false, msg || "Needs rework");
-                            } : undefined}
+                            onReview={role === "head" && task.status === "for_review" && onOpenReview ? () => onOpenReview(task.id) : undefined}
                             onStart={role === "member" && task.status === "todo" ? () => onExecute?.(task.id) : undefined}
                             onSubmit={canSubmit ? () => onSubmitRequest?.(task) : undefined}
                             onEdit={role === "head" ? onOpenTaskEditor : undefined}

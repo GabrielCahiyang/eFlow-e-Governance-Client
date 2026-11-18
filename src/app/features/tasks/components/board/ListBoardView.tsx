@@ -20,7 +20,7 @@ export function ListBoardView({
   employeeNotes,
   onAssign,
   onUpdateTask,
-  onVerify,
+  onOpenReview,
   onExecute,
   onSubmitRequest,
   onOpenTaskEditor,
@@ -38,7 +38,7 @@ export function ListBoardView({
   employeeNotes?: EmployeeNotesMap;
   onAssign?: MondayBoardProps["onAssign"];
   onUpdateTask?: MondayBoardProps["onUpdateTask"];
-  onVerify?: MondayBoardProps["onVerify"];
+  onOpenReview?: MondayBoardProps["onOpenReview"];
   onExecute?: MondayBoardProps["onExecute"];
   onSubmitRequest?: (task: Task) => void;
   onOpenTaskEditor?: (task: Task) => void;
@@ -159,7 +159,7 @@ export function ListBoardView({
                     onCancelTaskRequest={onCancelTaskRequest}
                     onSubmitRequest={onSubmitRequest}
                     onUndoRequest={onUndoRequest}
-                    onVerify={onVerify}
+                    onOpenReview={onOpenReview}
                     onExecute={onExecute}
                   />
                 ))}

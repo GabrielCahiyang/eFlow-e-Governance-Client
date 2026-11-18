@@ -325,7 +325,7 @@ function AccessRow({
           Role default: {inherited ? "Allowed" : "Denied"}
           {override ? ` · Individual ${override.allowed ? "allow" : "deny"}` : ""}
         </div>
-        {override && <div className="mt-0.5 text-[11px] text-neutral-400">Exception owner: {override.setBy || "Recorded manager"}{override.updatedAt ? ` · Updated ${new Date(override.updatedAt).toLocaleDateString()}` : ""}</div>}
+        {override && <div className="mt-0.5 text-[11px] text-neutral-400">Exception owner: {override.setBy || "Recorded manager"}{override.updatedAt ? ` · Updated ${new Date(override.updatedAt).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })}` : ""}</div>}
       </div>
       <span
         className={`rounded-[6px] px-2 py-1 text-[11px] font-semibold uppercase tracking-wide ${

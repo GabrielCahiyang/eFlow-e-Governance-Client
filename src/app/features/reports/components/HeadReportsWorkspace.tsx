@@ -1,4 +1,5 @@
 import { getPhilippineCalendarDate } from '../../../shared/calendarDates';
+import { DateInput } from '../../../components/ui/DateInput';
 import { useMemo, useState, type ReactNode } from "react";
 import {
   AlertTriangle,
@@ -416,8 +417,7 @@ export function HeadReportsWorkspace({ embedded = false }: { embedded?: boolean 
                     <div className="flex items-center gap-2 text-[12px] text-muted-foreground">
                       <label className="flex items-center gap-1.5">
                         From{" "}
-                        <input
-                          type="date"
+                        <DateInput
                           max={toDate || getPhilippineCalendarDate()}
                           value={fromDate}
                           onChange={(event) => { const day = event.target.value; if (day > getPhilippineCalendarDate()) return; setFromDate(day); if (toDate && day > toDate) setToDate(day); }}
@@ -426,8 +426,7 @@ export function HeadReportsWorkspace({ embedded = false }: { embedded?: boolean 
                       </label>
                       <label className="flex items-center gap-1.5">
                         To{" "}
-                        <input
-                          type="date"
+                        <DateInput
                           min={fromDate || undefined} max={getPhilippineCalendarDate()}
                           value={toDate}
                           onChange={(event) => { const day = event.target.value; if (day > getPhilippineCalendarDate()) return; setToDate(day); if (day && fromDate > day) setFromDate(day); }}

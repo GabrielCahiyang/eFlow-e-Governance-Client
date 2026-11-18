@@ -101,7 +101,7 @@ export function RecurringTaskTemplatesPanel({
                     ? `${template.recurrenceRule.interval} `
                     : ""}
                   {template.recurrenceRule.frequency} · next{" "}
-                  {new Date(template.nextRunAt).toLocaleString("en-PH")}
+                  {new Date(template.nextRunAt).toLocaleString("en-US")}
                 </div>
               </div>
               <span

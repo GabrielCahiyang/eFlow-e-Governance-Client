@@ -144,6 +144,7 @@ function SubitemInspectorContent(props:SubitemInspectorProps&{controller:WorkTre
   </nav>
   <div className={isDialog ? 'task-dialog__body subitem-page-body' : 'task-page__body subitem-page-body'}>
    <div hidden={section!=='work'} className="subitem-work-layout"><SubitemWorkflow dependencyBlockedReason={dependencyBlockedReason} recheckCompletion={recheckCompletion} task={fundingTask} subtask={current} prerequisite={prerequisite} capabilities={capabilities} pending={data.pending} saving={data.saving} submissions={data.data.submissions} progressUpdates={data.data.progressUpdates} onSaved={reload} schedule={schedule} onReview={()=>reviewNode(itemId)} startPanel={startPanel}
+    clearanceReadOnly={scopeReadOnly||startPaused||tree.root.project_status==='on_hold'}
     leadReview={leadReview} directUpdates={!usesLeadReview||leadsStep||leadsTask} directCompletion={!usesLeadReview||leadsStep&&leadsTask}/>
    {tree.nodes.some(child=>child.parent_subtask_id===itemId)&&<section className="subitem-child-work" aria-label="Child subtasks"><SubitemChildWork itemId={itemId} controller={props.controller} readOnly={scopeReadOnly} executionBlocked={!!props.executionBlocked} onOpenItem={openItem} onReviewItem={reviewNode}/></section>}</div>
    {section==='activity'&&<section aria-label="Subtask activity"><WorkActivity roots={[props.rootTask.id]} focusedNode={{rootId:props.rootTask.id,nodeId:itemId}} snapshot={data.tree}/></section>}

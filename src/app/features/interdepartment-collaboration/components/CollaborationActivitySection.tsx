@@ -1,4 +1,5 @@
 import { CalendarDays } from "lucide-react";
+import { DateInput } from "../../../components/ui/DateInput";
 import { Label } from "@vibe/core";
 import type { Organization } from "../../../types";
 import type {
@@ -100,8 +101,7 @@ export function CollaborationActivitySection({
                   <CalendarDays size={14} className="text-neutral-400" />
                   <span>Target:</span>
                   {editable ? (
-                    <input
-                      type="date"
+                    <DateInput
                       value={task.deadline.slice(0, 10)}
                       onChange={(event) =>
                         onPatchTask(task.key, { deadline: event.target.value })

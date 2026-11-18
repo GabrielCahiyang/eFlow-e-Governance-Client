@@ -62,7 +62,7 @@ export function LockedAccountsTab() {
     {key:'full_name',header:'Account',render:a=><div><strong className="text-[var(--eflow-text)]">{a.full_name}</strong><p className="text-xs text-[var(--eflow-text-muted)]">{a.email}</p></div>},
     {key:'role',header:'Role',render:a=>a.role},
     {key:'failed_attempts',header:'Failed attempts',render:a=><span className="eflow-tabular">{a.failed_attempts}</span>},
-    {key:'locked_at',header:'Locked at',render:a=><span className="eflow-tabular">{new Date(a.locked_at).toLocaleString()}</span>},
+    {key:'locked_at',header:'Locked at',render:a=><span className="eflow-tabular">{new Date(a.locked_at).toLocaleString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric', hour: 'numeric', minute: '2-digit' })}</span>},
     {key:'actions',header:'Actions',render:a=><Button variant="outline" size="sm" disabled={busy} onClick={()=>void unlock(a)}><Unlock size={13} aria-hidden="true" />Unlock account</Button>},
   ];
   if (!admin) return <p className="text-sm text-[var(--eflow-text-muted)]">Only Admin can view and unlock locked accounts.</p>;

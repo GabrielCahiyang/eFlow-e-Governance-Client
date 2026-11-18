@@ -45,9 +45,9 @@ const outsideOffice = [
     "Lead Office Head", "Projects / Main table / Choose people"),
 ];
 
-const officeTeam = scene("office-team", "Project team", "Add the project’s team",
-  "After setup, open Add people and select office colleagues. In the main table, use Choose people to set the task lead and contributors.",
-  "Head", "Projects / Community Services Seminar / Add people");
+const officeTeam = scene("office-team", "Project team", "Assign office colleagues to tasks",
+  "In the main table, use Choose people on a task to set the task lead and contributors directly from your office.",
+  "Head", "Projects / Community Services Seminar / Main table");
 
 const delivery = [
   scene("allocate-task", "Deliver work", "Allocate the task budget",

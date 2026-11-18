@@ -5,6 +5,7 @@ import {useConfirmation} from '../../../components/ui/useConfirmation';
 import {sendProjectInvitation,submitProjectInvitation} from '../services/projectInvitationService';
 import type {InvitationDraft} from '../types';
 import { SkillTagSelector } from '../../../components/ui/SkillTagSelector';
+import { DateInput } from '../../../components/ui/DateInput';
 import { useSkillTags } from '../../../shared/skillTags';
 
 const blank=():InvitationDraft=>({id:crypto.randomUUID(),email:'',summary:'',skills:'',engagement:'Other',end:'',untilClose:true});
@@ -37,7 +38,7 @@ export function ProjectInvitationForm({project,office,root,node,timezone,canSend
     <label>Email address {index+1}<input type="email" autoComplete="off" required value={row.email} maxLength={254} placeholder="name@example.com" onChange={event=>change(row.id,{email:event.target.value})}/></label>
     <label>Engagement<select aria-label="Engagement" value={row.engagement} onChange={event=>change(row.id,{engagement:event.target.value as InvitationDraft['engagement']})}>{['Permanent','Job Order','OJT','Consultant','Other'].map(value=><option key={value}>{value}</option>)}</select></label>
     <label className="r8-invite-until"><input type="checkbox" checked={row.untilClose} onChange={event=>change(row.id,{untilClose:event.target.checked,end:event.target.checked?'':row.end})}/>Until project completion or archive</label>
-    {!row.untilClose&&<label>Access ends after this date · {timezone}<input type="date" required={row.engagement!=='Permanent'} value={row.end} onChange={event=>change(row.id,{end:event.target.value})}/></label>}
+    {!row.untilClose&&<label>Access ends after this date · {timezone}<DateInput required={row.engagement!=='Permanent'} value={row.end} onChange={event=>change(row.id,{end:event.target.value})}/></label>}
     {(availableSkillTags.length > 0 || row.skills) && (
       <SkillTagSelector
         availableTags={availableSkillTags}

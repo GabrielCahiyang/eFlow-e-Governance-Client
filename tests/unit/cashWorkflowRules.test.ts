@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+import { cashNeededByBounds, cashNeededByError } from '../../src/app/features/budget/selectors/cashNeededBy';
 import {
   assertCashNeededByIsCurrentOrFuture,
   formatEvidenceCount,
@@ -16,6 +17,16 @@ import type {
 } from "../../src/app/features/budget/types";
 
 describe("cash workflow timing rules", () => {
+  it('requires a real date within the applicable schedule and rejects an expired range', () => {
+    const bounds = cashNeededByBounds('2026-11-18', '2026-11-20', '2026-11-25');
+    expect(cashNeededByError('', bounds)).toMatch(/required/);
+    expect(cashNeededByError('2026-11-31', bounds)).toMatch(/valid date/);
+    expect(cashNeededByError('2026-11-19', bounds)).toMatch(/on or after/);
+    expect(cashNeededByError('2026-11-26', bounds)).toMatch(/on or before/);
+    expect(cashNeededByError('2026-11-20', bounds)).toBe('');
+    expect(cashNeededByError('2026-11-25', bounds)).toBe('');
+    expect(cashNeededByError('2026-11-18', cashNeededByBounds('2026-11-18', undefined, '2026-11-17'))).toMatch(/schedule has passed/);
+  });
   it('treats the Manila morning as due today even while UTC is yesterday',()=>{
     vi.useFakeTimers();vi.setSystemTime(new Date('2026-10-20T23:20:00Z'));
     try {expect(getScheduledReleaseSummary([{id:'release',status:'scheduled',scheduledDate:'2026-10-21',amount:500} as PettyCashRelease]).dueAmount).toBe(500);}finally{vi.useRealTimers();}

@@ -1,5 +1,12 @@
+import { createElement } from "react";
+import { CardSectionSkeleton } from "../../components/ui/SurfaceSkeletons";
 import { lazyFeature } from "../../shared/lazyFeature";
-export const AssignedIndependentReviews = lazyFeature(() => import('./components/AssignedIndependentReviews').then(module => ({ default: module.AssignedIndependentReviews })));
+export const AssignedIndependentReviews = lazyFeature(
+  () => import('./components/AssignedIndependentReviews').then(module => ({ default: module.AssignedIndependentReviews })),
+  undefined,
+  undefined,
+  null,
+);
 export * from "./types";
 export * from "./constants";
 export * from "./services/budgetService";
@@ -31,6 +38,10 @@ export const WorkBudgetCard = lazyFeature(
     })),
   undefined,
   "WorkBudgetCard",
+  createElement(CardSectionSkeleton, {
+    rows: 2,
+    label: "Loading funding details…",
+  }),
 );
 export { peso, pesoShort, StatusPill } from "./components/budgetUi";
 export { useTaskFundingContext } from "./hooks/useTaskFundingContext";
@@ -41,6 +52,9 @@ export { TaskCashClearancePanel } from "./components/TaskCashClearancePanel";
 export { useTaskCashClearance } from "./hooks/useTaskCashClearance";
 export { isTaskCashApprovalBlocked } from "./selectors/taskCashClearance";
 export { isCashCompletionError } from "./selectors/taskCashClearance";
+export * from "./services/workFinancialClearanceService";
+export { WorkFinancialClearancePanel } from "./components/WorkFinancialClearancePanel";
+export { CashReturnPanel } from "./components/CashReturnPanel";
 
 export {
   ACCOUNTING_VIEWS,

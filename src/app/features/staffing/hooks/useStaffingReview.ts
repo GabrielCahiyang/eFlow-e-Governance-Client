@@ -39,7 +39,7 @@ export function useStaffingReview(task: Task, onAssigned?: () => void | Promise<
       if (supportsNestedWork(task)) {
         const tree = await fetchWorkTree(task.id); if (request !== version.current) return;
         if (tree.root.id !== task.id || tree.root.project !== task.linkedProjectId || tree.root.office !== task.orgId || tree.root.kind !== 'office') throw new Error('Could not verify the responsible Office and project for this recommendation.');
-        if (!tree.people.some(person => person.id === eligible.id && person.eligible === true)) throw new Error('This person is not currently selected and eligible for this project. Ask the responsible Office Head to review Members, then refresh recommendations.');
+        if (!tree.people.some(person => person.id === eligible.id && person.eligible === true)) throw new Error('This person is not currently eligible for this project task. Refresh recommendations.');
         appointmentOpen.current = true; setAppointment({leadId:eligible.id,version:request});
         return;
       }

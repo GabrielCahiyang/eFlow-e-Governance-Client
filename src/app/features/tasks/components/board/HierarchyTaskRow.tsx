@@ -11,7 +11,7 @@ interface HierarchyTaskRowProps {
   employeeById: Record<string, Employee>;
   role: 'head' | 'member';
   currentUserId?: string;
-  onVerify?: MondayBoardProps['onVerify'];
+  onOpenReview?: MondayBoardProps['onOpenReview'];
   onExecute?: MondayBoardProps['onExecute'];
   onSubmitRequest?: (task: Task) => void;
   onOpenTaskEditor?: (task: Task) => void;
@@ -21,7 +21,7 @@ interface HierarchyTaskRowProps {
   onUndoRequest?: (task: Task) => void;
 }
 
-export function HierarchyTaskRow({ task, employeeById, role, currentUserId, onVerify, onExecute, onSubmitRequest, onOpenTaskEditor, onDeleteTaskRequest, onArchiveTaskRequest, onCancelTaskRequest, onUndoRequest }: HierarchyTaskRowProps) {
+export function HierarchyTaskRow({ task, employeeById, role, currentUserId, onOpenReview, onExecute, onSubmitRequest, onOpenTaskEditor, onDeleteTaskRequest, onArchiveTaskRequest, onCancelTaskRequest, onUndoRequest }: HierarchyTaskRowProps) {
   const pm =
                                     priorityMeta[task.priority || "medium"] ||
                                     priorityMeta.medium;
@@ -125,32 +125,11 @@ export function HierarchyTaskRow({ task, employeeById, role, currentUserId, onVe
                                         </div>
 
                                         <div className="flex items-center gap-1">
-                                          {role === "head" &&
-                                            task.status === "for_review" && (
-                                              <>
-                                                <button
-                                                  onClick={() =>
-                                                    onVerify?.(task.id, true)
-                                                  }
-                                                  className="text-[10px] bg-emerald-500 text-white px-2 py-0.5 rounded-md hover:bg-emerald-600 transition"
-                                                >
-                                                  Approve
-                                                </button>
-                                                <button
-                                                  onClick={() => {
-                                                    const msg =
-                                                      prompt("Reason:");
-                                                    onVerify?.(
-                                                      task.id,
-                                                      false,
-                                                      msg || "Needs rework",
-                                                    );
-                                                  }}
-                                                  className="text-[10px] bg-red-500 text-white px-2 py-0.5 rounded-md hover:bg-red-600 transition"
-                                                >
-                                                  Reject
-                                                </button>
-                                              </>
+                                          {role === "head" && task.status === "for_review" && onOpenReview && (
+                                              <button type="button" onClick={() => onOpenReview(task.id)}
+                                                className="text-[10px] rounded-md border px-2 py-0.5">
+                                                Review submission
+                                              </button>
                                             )}
                                           {role === "member" &&
                                             task.status === "todo" && (

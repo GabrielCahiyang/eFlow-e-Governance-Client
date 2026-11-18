@@ -2,6 +2,7 @@ import { useMemo, useRef, useState } from "react";
 import { Activity, Eye, List, RefreshCw, RotateCcw } from "lucide-react";
 import {useAuth} from '../../../contexts/AuthContext';
 import { useProfiles, useOrgs } from "../../../hooks/useSupabaseData";
+import { DateInput } from "../../../components/ui/DateInput";
 import { DataTable, type Column } from "../../../components/ui/DataTable";
 import { Button } from "../../../components/ui/button";
 import { FeedbackState } from "../../../components/ui/FeedbackState";
@@ -54,7 +55,7 @@ function AdministrativeAuditView() {
       header: "Recorded at",
       sortable: true,
       sortValue: (event) => event.createdAt,
-      render: (event) => new Date(event.createdAt).toLocaleString("en-PH"),
+      render: (event) => new Date(event.createdAt).toLocaleString("en-US"),
     },
     {
       key: "actor",
@@ -225,18 +226,16 @@ function AdministrativeAuditView() {
         />
         <label className="text-xs text-[var(--eflow-text-muted)]">
           From
-          <input
+          <DateInput
             className="mt-1 h-10 w-full rounded-lg border border-[var(--eflow-border)] px-3 text-sm"
-            type="date"
             value={filters.from}
             onChange={(event) => set("from", event.target.value)}
           />
         </label>
         <label className="text-xs text-[var(--eflow-text-muted)]">
           Through
-          <input
+          <DateInput
             className="mt-1 h-10 w-full rounded-lg border border-[var(--eflow-border)] px-3 text-sm"
-            type="date"
             value={filters.to}
             onChange={(event) => set("to", event.target.value)}
           />

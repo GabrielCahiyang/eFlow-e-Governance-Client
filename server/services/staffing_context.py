@@ -48,9 +48,6 @@ def build_staffing_context(task_id, user, auto_assign=False):
     if office and office['relationship_type'] != 'lead' and not auto_assign:
         if office['relationship_type'] == 'observer' or office['invitation_status'] != 'joined':
             raise HTTPException(403, 'Observer or pending Offices cannot recommend staff.')
-        selected = supabase_admin.table('project_office_members').select('user_id').eq('project_office_id', office['id']).execute().data or []
-        allowed = {r['user_id'] for r in selected} | {user.id}
-        profiles = [p for p in profiles if p['id'] in allowed]
     ids = [p['id'] for p in profiles]
     if not ids:
         return {'task': task, 'candidates': [], 'excludedUnconfirmed': 0}

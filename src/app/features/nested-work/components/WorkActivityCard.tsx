@@ -4,7 +4,7 @@ import type {WorkEventPresentation} from '../selectors/workEventPresentation';
 import {DeadlineBadge} from '../../../components/ui/DeadlineBadge';
 const icons:Record<string,typeof Users>={create:ListPlus,staff:Users,root_lead:Users,contributors:Users,edit:FilePenLine,move:ArrowRightLeft,order:ListOrdered,delete:Trash2,progress:MessageSquareText,submit:CheckCircle2,review:CheckCircle2};
 function valueLabel(label:string,value:string){
- if(label==='Deadline'&&/^\d{4}-\d{2}-\d{2}$/.test(value))return new Date(value+'T00:00:00Z').toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric',timeZone:'UTC'});
+ if(label==='Deadline'&&/^\d{4}-\d{2}-\d{2}$/.test(value))return new Date(value+'T00:00:00Z').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',timeZone:'UTC'});
  return value;
 }
 function Change({entry,at}:{entry:string;at:number}){
@@ -20,7 +20,7 @@ export function WorkActivityCard({event,presentation}:{event:WorkEvent;presentat
  const Icon=icons[event.command]||MessageSquareText;
  const initials=event.actor_name.trim().split(/\s+/).filter(Boolean).slice(0,2).map(part=>part[0]).join('').toUpperCase()||'?';
  return <li className="nw-activity-entry"><span className="nw-activity-marker" data-command={event.command}><Icon size={18} aria-hidden="true"/></span><article className="nw-activity-card" aria-label={presentation.title}>
-  <header><span className="nw-activity-avatar" aria-hidden="true">{initials}</span><div className="nw-activity-person"><strong>{event.actor_name}</strong><span>{presentation.title}</span></div><time dateTime={event.occurred_at}><CalendarDays size={13} aria-hidden="true"/>{new Date(event.occurred_at).toLocaleString(undefined,{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'})}</time></header>
+  <header><span className="nw-activity-avatar" aria-hidden="true">{initials}</span><div className="nw-activity-person"><strong>{event.actor_name}</strong><span>{presentation.title}</span></div><time dateTime={event.occurred_at}><CalendarDays size={13} aria-hidden="true"/>{new Date(event.occurred_at).toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'})}</time></header>
   <dl className="nw-activity-changes">{presentation.entries.length?presentation.entries.map((entry,index)=><Change key={index} entry={entry} at={Date.parse(event.occurred_at)}/>):<div className="nw-activity-change"><dt>Details</dt><dd>{presentation.detail}</dd></div>}</dl>
  </article></li>;
 }

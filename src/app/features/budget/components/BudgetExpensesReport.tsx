@@ -111,7 +111,7 @@ export function BudgetExpensesReport({
     {
       key: "settled",
       header: "Settled",
-      value: (r) => new Date(r.settledAt).toLocaleString(),
+      value: (r) => new Date(r.settledAt).toLocaleString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric', hour: 'numeric', minute: '2-digit' }),
     },
     { key: "proposal", header: "Proposal", value: (r) => r.proposal },
     { key: "task", header: "Task", value: (r) => r.task },
@@ -273,7 +273,7 @@ export function BudgetExpensesReport({
                           {formatFundingRequestCode(row.requestNumber)}
                         </strong>
                         <div className="mt-1 text-muted-foreground">
-                          {new Date(row.settledAt).toLocaleDateString()}
+                          {new Date(row.settledAt).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })}
                         </div>
                       </td>
                       <td className="max-w-[300px] px-3 py-3">
@@ -478,7 +478,7 @@ function unique(values: string[]) {
   );
 }
 function formatMonth(value: string) {
-  return new Date(`${value}-01T00:00:00`).toLocaleDateString(undefined, {
+  return new Date(`${value}-01T00:00:00`).toLocaleDateString('en-US', {
     month: "long",
     year: "numeric",
   });

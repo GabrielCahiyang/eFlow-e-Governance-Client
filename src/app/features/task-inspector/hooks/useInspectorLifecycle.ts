@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { fetchTaskById, updateTaskStatus, type Task } from '../../tasks';
+import { checkTaskExecution, updateTaskStatus, type Task } from '../../tasks';
 import { useAuth } from '../../../contexts/AuthContext';
 import { requestNavigation, useNavigationBlocker } from '../../../shared/navigationGuard';
 import { useConfirmation } from '../../../components/ui/useConfirmation';
@@ -18,11 +18,11 @@ export function useInspectorLifecycle(task: Task | null, onChanged?: () => void,
    const accepted=await confirmation.confirm({title:action+'?',description:`${action} on “${task.title}”? This records work in progress and makes its subtasks visible to authorized project readers.`,actionLabel:action});
    if(!accepted)return;
    if(currentScope.current.taskId!==task.id||currentScope.current.actorId!==user?.id)throw new Error('Your current task or sign-in changed. Refresh before starting work.');
-   const current=await fetchTaskById(task.id);
+   if(!user?.id)throw new Error('Sign in again before starting work.');
+   const current=await checkTaskExecution(task.id,user.id,['todo','changes_requested']);
    if(currentScope.current.taskId!==task.id||currentScope.current.actorId!==user?.id)throw new Error('Your current task or sign-in changed. Refresh before starting work.');
-   if(!current||current.status!==task.status||!['todo','changes_requested'].includes(String(current.status))||Date.parse(String(current.updated_at||''))!==task.updatedAt)throw new Error('The task changed while Start work was open. Refresh and review the current task.');
-   if(!user?.id||current.assigned_to!==user.id)throw new Error('Only the appointed Task Lead can start or resume this task.');
-   await updateTaskStatus(task.id,'in_progress',user?.id?{id:user.id,name:userProfile?.full_name||''}:undefined);onChanged?.();
+   if(current.status!==task.status||current.org_id!==(task.orgId??null)||current.linked_project_id!==(task.linkedProjectId??null)||Date.parse(String(current.updated_at||''))!==task.updatedAt)throw new Error('The task changed while Start work was open. Refresh and review the current task.');
+   await updateTaskStatus(task.id,'in_progress',{id:user.id,name:userProfile?.full_name||''});onChanged?.();
   }catch(reason){setError(reason instanceof Error?reason.message:'Could not update this task.');}
   finally{pending.current=false;setBusy(false);}
  };

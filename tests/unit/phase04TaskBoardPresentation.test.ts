@@ -10,6 +10,12 @@ const reviewInbox = readFileSync("src/app/features/reviews/components/ForReviewI
 const subtaskReviewInbox = readFileSync("src/app/features/reviews/components/SubtaskReviewInbox.tsx", "utf8");
 
 describe("Phase 04 task board presentation", () => {
+  it('opens the verified submission panel from the Department Head board', () => {
+    expect(deptHeadContent).toContain('onOpenReview={setReviewId}');
+    expect(deptHeadContent).toContain('<TaskReviewPanel task={reviewTask}');
+    expect(deptHeadContent).not.toContain('verifyTask(');
+    expect(mondayBoard.match(/onOpenReview=\{onOpenReview\}/g)).toHaveLength(4);
+  });
   it("uses a left task context rail and addable work views", () => {
     expect(mondayBoard).toContain('aria-label="Task board context"');
     expect(mondayBoard).toContain("Project context");

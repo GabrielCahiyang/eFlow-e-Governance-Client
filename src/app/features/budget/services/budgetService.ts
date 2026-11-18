@@ -5,8 +5,10 @@ import { mapAdjustment, mapAllocation, mapAllocationLine, mapBudgetLine, mapBudg
 import { assertCashNeededByIsCurrentOrFuture } from "../selectors/cashWorkflowRules";
 import { fetchBudgetSections } from "./budgetSectionService";
 import {liquidationInputError} from '../validation/financialValidation';
+import { assertActionActor } from '../../../shared/actionActor';
+import { isCommandId } from '../../../shared/pendingActionStore';
 
-const throwIf = (error: { message: string } | null) => { if (error) throw new Error(error.message); };
+const throwIf = (error: { message: string; code?: string } | null) => { if (error) throw Object.assign(new Error(error.message), { code: error.code }); };
 
 export async function fetchDepartmentFiscalYears(orgId: string) {
   const { data, error } = await supabase.from("department_fiscal_budgets")
@@ -243,8 +245,9 @@ export async function createContextualCashRequest(input: {
   purpose: string;
   neededBy?: string;
   idempotencyKey: string;
+  recovering?: boolean;
 }) {
-  assertCashNeededByIsCurrentOrFuture(input.neededBy);
+  if (!input.recovering) assertCashNeededByIsCurrentOrFuture(input.neededBy);
   const { data, error } = await supabase.rpc("create_contextual_cash_request", {
     p_task_id: input.taskId,
     p_subtask_id: input.subtaskId || null,
@@ -429,37 +432,78 @@ export function runDepartmentBudgetMaintenance() {
 
 function safeFileName(name: string) { return (name.trim() || "receipt").replace(/[^a-zA-Z0-9._-]/g, "_"); }
 
-export async function uploadCashRequestAttachment(input: { orgId: string; requestId: string; file: File }) {
-  const filePath = `${input.orgId}/${input.requestId}/requests/${crypto.randomUUID()}-${safeFileName(input.file.name)}`;
-  const { error: uploadError } = await supabase.storage.from("budget-receipts").upload(filePath, input.file, { upsert: false });
-  throwIf(uploadError);
-  const { data, error } = await supabase.rpc("add_cash_request_attachment", {
-    p_request_id: input.requestId,
-    p_file_name: input.file.name,
-    p_file_path: filePath,
-    p_mime_type: input.file.type || "application/octet-stream",
-    p_file_size: input.file.size,
-  });
-  if (error) {
-    await supabase.storage.from("budget-receipts").remove([filePath]);
-    throw new Error(error.message);
+export async function uploadCashRequestAttachment(input: { orgId: string; requestId: string; file: File; actor: string; commandId: string; readOnly?: boolean }) {
+  const { actor, file, orgId, requestId, commandId } = input;
+  if (!isCommandId(commandId)) throw new Error('The saved attachment could not be verified.');
+  const filePath = `${orgId}/${requestId}/requests/${commandId}-${safeFileName(file.name)}`;
+  async function receipt() {
+    await assertActionActor(actor);
+    const { data, error } = await supabase.from('petty_cash_request_attachments').select('id,file_size')
+      .eq('request_id', requestId).eq('file_path', filePath).eq('created_by', actor).maybeSingle();
+    throwIf(error);
+    if (data && (!isCommandId(data.id) || Number(data.file_size) !== file.size)) throw new Error('The stored attachment does not match the saved action.');
+    return data?.id as string | undefined;
   }
-  return String(data);
+  const existing = await receipt();
+  if (existing) return existing;
+  if (input.readOnly) throw new Error('Current funding access is required to attach this file.');
+  await assertActionActor(actor);
+  const bucket = supabase.storage.from('budget-receipts');
+  const { error: uploadError } = await bucket.upload(filePath, file, { upsert: false });
+  if (uploadError) {
+    const stored = await bucket.info(filePath);
+    if (stored.error || stored.data?.size !== file.size) throwIf(uploadError);
+  }
+  await assertActionActor(actor);
+  const { data, error } = await supabase.rpc('add_cash_request_attachment', {
+    p_request_id: requestId, p_file_name: file.name, p_file_path: filePath,
+    p_mime_type: file.type || 'application/octet-stream', p_file_size: file.size,
+  });
+  if (isCommandId(data) && !error) return data;
+  const saved = await receipt();
+  if (saved) return saved;
+  throwIf(error);
+  throw new Error('The attachment upload could not be confirmed. Check the original request.');
 }
 
-export async function submitPettyCashLiquidation(input: { orgId: string; requestId: string; spent: number; note: string; receipts: ReceiptDraft[]; refundReceiptNumber?: string; refundDate?: string; idempotencyKey?: string }) {
+export type LiquidationAttempt = {
+  orgId: string; requestId: string; spent: number; note: string; receipts: ReceiptDraft[];
+  refundReceiptNumber?: string; refundDate?: string; idempotencyKey?: string; actor: string;
+};
+
+export async function findSavedLiquidation(input: LiquidationAttempt) {
+  await assertActionActor(input.actor);
+  if (!isCommandId(input.idempotencyKey)) throw new Error('The saved liquidation command could not be verified.');
+  const { data, error } = await supabase.from('petty_cash_liquidations')
+    .select('id,declared_spent,note,refund_receipt_number,refund_date')
+    .eq('request_id', input.requestId).eq('submitted_by', input.actor).eq('idempotency_key', input.idempotencyKey)
+    .maybeSingle();
+  throwIf(error);
+  if (!data) return undefined;
+  if (!isCommandId(data.id) || Number(data.declared_spent) !== input.spent || data.note !== input.note.trim() ||
+      (input.refundReceiptNumber?.trim() && (data.refund_receipt_number !== input.refundReceiptNumber.trim() || data.refund_date !== input.refundDate))) {
+    throw new Error('The saved liquidation does not match this receipt package.');
+  }
+  return data.id;
+}
+
+export async function submitPettyCashLiquidation(input: LiquidationAttempt) {
   const validationIssue=liquidationInputError(input);if(validationIssue)throw new Error(validationIssue);
   const uploaded: Array<{ fileName: string; filePath: string; mimeType: string; fileSize: number }> = [];
   const idempotencyKey = input.idempotencyKey || crypto.randomUUID();
-  let rpcStarted = false;
   try {
     for (const [index, receipt] of input.receipts.entries()) {
       if (!receipt.file) throw new Error("Attach a file for every receipt row.");
       // A stable command-scoped path makes a network retry idempotent at the
       // storage layer as well as in PostgreSQL, avoiding orphaned duplicates.
       const filePath = `${input.orgId}/${input.requestId}/${idempotencyKey}-${index}-${safeFileName(receipt.file.name)}`;
-      const { error } = await supabase.storage.from("budget-receipts").upload(filePath, receipt.file, { upsert: false });
-      if (error && !/already exists|duplicate/i.test(error.message)) throwIf(error);
+      await assertActionActor(input.actor);
+      const bucket = supabase.storage.from('budget-receipts');
+      const { error } = await bucket.upload(filePath, receipt.file, { upsert: false });
+      if (error) {
+        const stored = await bucket.info(filePath);
+        if (stored.error || stored.data?.size !== receipt.file.size) throwIf(error);
+      }
       uploaded.push({ fileName: receipt.file.name, filePath, mimeType: receipt.file.type || "application/octet-stream", fileSize: receipt.file.size });
     }
     const payload = input.receipts.map((receipt, index) => ({
@@ -469,7 +513,7 @@ export async function submitPettyCashLiquidation(input: { orgId: string; request
     }));
     // Once PostgreSQL is called, a transport failure cannot prove the command
     // rolled back. Keep the stable files so an idempotent retry can reconcile.
-    rpcStarted = true;
+    await assertActionActor(input.actor);
     const itemized = input.receipts.some(r=>r.items!==undefined);
     const { data, error } = itemized ? await supabase.rpc("submit_itemized_cash_liquidation", {
       p_request:input.requestId,p_spent:input.spent,p_note:input.note,p_receipts:payload,p_key:idempotencyKey,
@@ -488,20 +532,20 @@ export async function submitPettyCashLiquidation(input: { orgId: string; request
         p_receipts: payload, p_idempotency_key: idempotencyKey,
       });
       throwIf(fallback.error);
-      return String(fallback.data);
+      if (isCommandId(fallback.data)) return fallback.data;
+      throw new Error('The liquidation response could not be verified.');
     }
     if (error?.code === "PGRST202") {
       if (itemized) throw new Error("The itemized liquidation function is unavailable. Refresh the funding context and verify the itemized cash migration before retrying.");
       throw new Error("The accounting liquidation function is not installed in Supabase. Apply migration 20260919000000_phase04_phase05_accounting.sql before submitting a cash return.");
     }
     throwIf(error);
-    return String(data);
+    if (isCommandId(data)) return data;
+    throw new Error('The liquidation response could not be verified.');
   } catch (error) {
-    if (!rpcStarted && uploaded.length) await supabase.storage.from("budget-receipts").remove(uploaded.map((item) => item.filePath));
-    const message = error instanceof Error ? error.message
-      : error && typeof error === "object" && "message" in error && typeof error.message === "string"
-        ? error.message : "Could not submit the liquidation.";
-    throw new Error(message);
+    const saved = await findSavedLiquidation({ ...input, idempotencyKey }).catch(() => undefined);
+    if (saved) return saved;
+    throw error;
   }
 }
 

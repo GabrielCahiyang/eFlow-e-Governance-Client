@@ -1,3 +1,5 @@
+import { createElement } from "react";
+import { InspectorSkeleton } from "../../components/ui/SurfaceSkeletons";
 import { lazyFeature } from "../../shared/lazyFeature";
 export const TaskInspector = lazyFeature(
   () =>
@@ -6,6 +8,11 @@ export const TaskInspector = lazyFeature(
     })),
   (props) => Boolean(props.task || props.taskId),
   "TaskInspector",
+  (props) =>
+    createElement(InspectorSkeleton, {
+      presentation: props.presentation,
+      label: "Loading task details…",
+    }),
 );
 export { TaskInspector as TaskDetailDrawer };
 export {

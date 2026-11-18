@@ -14,9 +14,14 @@ export interface ImportGroup {
   key: string; title: string; color: string; existingGroupId: string; tasks: ImportTask[];
 }
 export interface ImportProjectDetails { title: string; description: string; objectives: string; startDate: string; targetDate: string }
+export interface ProjectImportBudgetAllocation {
+  key: string;
+  lines: Array<{ sourceId: string; amount: number; particular?: string }>;
+}
 export interface ProjectImportDraft {
   schemaVersion: 1; project: ImportProjectDetails; offices: ProposedOffice[]; groups: ImportGroup[];
   warnings: string[]; pipeline?: Record<string, unknown>;
   sourceBudgetTotal?: number;
+  budgetAllocations?: ProjectImportBudgetAllocation[];
 }
 export interface ProjectImportResult { taskCount: number; subitemCount: number; groupCount: number; taskIds: Record<string, string>; groupIds: string[]; alreadyImported?: boolean; existingTaskCount?: number; reusedGroupCount?: number;assignedTaskCount?:number;officeCount?:number;needsPeopleCount?:number }

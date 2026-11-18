@@ -3,7 +3,7 @@ export {WorkRootOwner} from './components/WorkRootOwner';
 export {fetchWorkTree,fetchWorkTreeCached,fetchWorkImpact,saveWorkTree,WorkTreeUnavailable} from './services/workTreeService';
 export {descendantIds,reparentChoices,leafCompletion,MAX_WORK_DEPTH,supportsNestedWork} from './selectors/tree';
 export type {WorkPerson,WorkNode,WorkTreeSnapshot,WorkCommand,WorkRequest,WorkImpact} from './types';
-export {selectRootWorkCapability,selectNodeWorkCapability,isCurrentWorkSnapshot} from './selectors/capabilities';
+export {selectRootWorkCapability,selectNodeWorkCapability,isCurrentWorkSnapshot,isTaskSubtaskPlanningBlocked,isProjectLeadSubtaskPlanningBlocked,type SubtaskPlanningBlockOptions} from './selectors/capabilities';
 export type {RootWorkAction,NodeWorkAction,WorkCapabilityReasonCode,WorkCapabilityEntry,WorkCapabilityMap,WorkCapabilityContext,WorkActionAvailability} from './types';
 
 export {fetchPersonalWorkRoots} from './services/workTreeService';

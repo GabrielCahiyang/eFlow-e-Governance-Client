@@ -6,7 +6,7 @@ export function WorkPeoplePicker({people,selected,lead,onSelected,onLead,appoint
  people:WorkPerson[];selected:string[];lead:string;onSelected:(ids:string[])=>void;onLead:(id:string)=>void;
  appointmentCapability:WorkActionAvailability;contributorCapability:WorkActionAvailability;disabled?:boolean;disabledReason?:string;
 }){
- return <div className="r7-people">
+ return <div className="nw-staffing-picker">
   <WorkLeadField leadId={lead||null} contributorIds={selected} people={people} appointmentCapability={appointmentCapability} busy={disabled} busyReason={disabledReason}
    onChange={(id,retained)=>{onLead(id);onSelected(retained);}}/>
   <WorkContributorsField leadId={lead||null} contributorIds={selected} people={people} contributorCapability={contributorCapability} busy={disabled} busyReason={disabledReason} onChange={onSelected}/>

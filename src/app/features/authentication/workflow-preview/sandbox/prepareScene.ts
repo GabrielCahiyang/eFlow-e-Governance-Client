@@ -98,8 +98,8 @@ export async function prepareScene(scene: string) {
       reveal(await button("Activate project"));
       return;
     case "office-team":
-      await click("+ Add people");
-      reveal(await button("Save project team"));
+      await click("Choose people");
+      reveal(await button("Save changes"));
       return;
     case "add-office":
       await click("Add named Office");

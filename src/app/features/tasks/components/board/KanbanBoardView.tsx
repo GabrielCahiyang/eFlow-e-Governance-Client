@@ -15,7 +15,7 @@ export function KanbanBoardView({
   tasks,
   employees,
   role,
-  onVerify,
+  onOpenReview,
   onExecute,
   onSubmitRequest,
   onOpenTaskEditor,
@@ -30,7 +30,7 @@ export function KanbanBoardView({
   tasks: Task[];
   employees: Employee[];
   role: "head" | "member";
-  onVerify?: MondayBoardProps["onVerify"];
+  onOpenReview?: MondayBoardProps["onOpenReview"];
   onExecute?: MondayBoardProps["onExecute"];
   onSubmitRequest?: (task: Task) => void;
   onOpenTaskEditor?: (task: Task) => void;
@@ -210,24 +210,11 @@ export function KanbanBoardView({
 
                     {/* Actions */}
                     <div className="mt-2.5 flex gap-1">
-                      {!readOnly && role === "head" && task.status === "for_review" && (
-                        <>
-                          <button
-                            onClick={() => onVerify?.(task.id, true)}
-                            className="flex-1 text-[10.5px] font-medium bg-emerald-600 text-white py-1 rounded-[6px] hover:bg-emerald-700 transition"
-                          >
-                            Approve
-                          </button>
-                          <button
-                            onClick={() => {
-                              const msg = prompt("Reason:");
-                              onVerify?.(task.id, false, msg || "Needs rework");
-                            }}
-                            className="flex-1 text-[10.5px] font-medium bg-red-600 text-white py-1 rounded-[6px] hover:bg-red-700 transition"
-                          >
-                            Reject
-                          </button>
-                        </>
+                      {!readOnly && role === "head" && task.status === "for_review" && onOpenReview && (
+                        <button type="button" onClick={() => onOpenReview(task.id)}
+                          className="flex-1 rounded-md border py-1 text-xs font-medium">
+                          Review submission
+                        </button>
                       )}
                       {!readOnly && role === "member" && !!currentUserId && task.assigneeId === currentUserId && task.status === "todo" && (
                         <button

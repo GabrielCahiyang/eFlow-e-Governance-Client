@@ -3,7 +3,7 @@ import {cleanup,render,screen} from '@testing-library/react';
 import {afterEach,describe,expect,it,vi} from 'vitest';
 vi.mock('../../src/app/contexts/AuthContext',()=>({useAuth:()=>({user:{id:'lead'},userProfile:{full_name:'Lead'}})}));
 vi.mock('../../src/app/services/taskDiscussionService',()=>({subscribeToProgressUpdates:()=>()=>{},submitProgressUpdate:vi.fn()}));
-vi.mock('../../src/app/features/tasks',()=>({updateTaskStatus:vi.fn(),submitTaskForReview:vi.fn()}));
+vi.mock('../../src/app/features/tasks',async()=>({...await import('../../src/app/features/tasks/selectors/submissionReadiness'),updateTaskStatus:vi.fn(),submitTaskForReview:vi.fn()}));
 vi.mock('../../src/app/features/work-state',async()=>({...await import('../../src/app/features/work-state/selectors'),WorkExecutionForm:()=>null}));
 import {InspectorExecution} from '../../src/app/features/task-inspector/components/InspectorExecution';
 import type {Task} from '../../src/app/features/tasks';

@@ -62,6 +62,46 @@ function actionEntry(map:unknown,action:NodeWorkAction):WorkActionAvailability {
  return deny('capability_unavailable');
 }
 
+export interface SubtaskPlanningBlockOptions {
+ projectStatus?:string|null;
+ projectLeadId?:string|null;
+ actorRole?:string|null;
+}
+
+/**
+ * In office projects, once the project leaves planning (for example `active` or
+ * `on_hold`), Project Leads and Office Heads who are not the appointed Task
+ * Lead may no longer add/edit/delete/reorder subtasks or staff subtask teams.
+ */
+export function isTaskSubtaskPlanningBlocked(options:{
+ isOfficeProject:boolean;
+ projectStatus?:string|null;
+ projectLeadId?:string|null;
+ taskLeadId?:string|null;
+ actorId?:string|null;
+ actorRole?:string|null;
+}):boolean {
+ if(!options.isOfficeProject||!options.actorId)return false;
+ if(!options.projectStatus||options.projectStatus==='planning')return false;
+ if(options.taskLeadId===options.actorId)return false;
+ return Boolean(options.projectLeadId)&&options.projectLeadId===options.actorId||options.actorRole==='head';
+}
+
+export function isProjectLeadSubtaskPlanningBlocked(
+ tree:{root:{kind:'office'|'personal';lead:string|null;project_status?:string|null;project_lead_id?:string|null}},
+ actorId?:string|null,
+ options?:SubtaskPlanningBlockOptions,
+):boolean {
+ return isTaskSubtaskPlanningBlocked({
+  isOfficeProject:tree.root.kind==='office',
+  projectStatus:options?.projectStatus??tree.root.project_status,
+  projectLeadId:options?.projectLeadId??tree.root.project_lead_id,
+  taskLeadId:tree.root.lead,
+  actorId,
+  actorRole:options?.actorRole,
+ });
+}
+
 export function selectRootWorkCapability(snapshot:WorkTreeSnapshot|undefined,action:RootWorkAction,context:WorkCapabilityContext):WorkActionAvailability {
  const blocked=currentSnapshot(snapshot,context);
  if(blocked)return blocked;

@@ -70,7 +70,7 @@ function timeAgo(ts: number): string {
   if (h < 24) return `${h}h ago`;
   const d = Math.floor(h / 24);
   if (d < 7) return `${d}d ago`;
-  return new Date(ts).toLocaleDateString("en-PH", { month: "short", day: "numeric" });
+  return new Date(ts).toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
 export function TaskActivityTimeline({ taskId,projectId }: { taskId: string;projectId?:string }) {

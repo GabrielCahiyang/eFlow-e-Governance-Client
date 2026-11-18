@@ -42,6 +42,17 @@ it('rejects a retry after the signed-in account changes',async()=>{
 it('does not report success for an unverified server result',async()=>{
  api.rpc.mockResolvedValue({data:{id:'step',status:'for_review'}});await expect(completeSubitem(subitemCompletionAttempt('step','',[]))).rejects.toThrow('not verified');
 });
+it('records subtask work acceptance when open cash keeps canonical status non-completed',async()=>{
+ const attempt=subitemCompletionAttempt('step','Done',[],'root');
+ api.rpc.mockImplementation(async(name:string)=>{
+  if(name==='work_financial_clearance')return {data:{version:1,rootId:'root',nodeId:'step',workAccepted:true,cashOutstanding:true,completed:false,canFinalize:false}};
+  if(name==='complete_subitem')return {data:{id:'step',status:'in_progress'}};
+  return {data:null};
+ });
+ await expect(completeSubitem(attempt)).resolves.toEqual({id:'step',status:'in_progress'});
+ expect(api.rpc).toHaveBeenCalledWith('work_financial_clearance',{p_root:'root',p_node:'step'});
+ expect(api.rpc).toHaveBeenCalledWith('complete_subitem',expect.objectContaining({p_subtask_id:'step'}));
+});
 it('rechecks current completion access before uploading, but preserves receipt recovery after a lost response',async()=>{
  const attempt=subitemCompletionAttempt('step','',[]),recheck=vi.fn().mockResolvedValue(undefined);
  api.rpc.mockRejectedValueOnce(new Error('Lost response')).mockResolvedValueOnce({data:{id:'step',status:'completed'}});

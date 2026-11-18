@@ -11,7 +11,7 @@ interface MetricCardProps {
   loading?: boolean;
 }
 
-export function MetricCard({ label, value, icon, trend, color = "#0c6f6b", loading }: MetricCardProps) {
+export function MetricCard({ label, value, icon, trend, color = "#0073ea", loading }: MetricCardProps) {
   if (loading) {
     return (
       <section className="rounded-[10px] border border-border bg-card p-5 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]" aria-label={`${label} is loading`}>
@@ -68,7 +68,7 @@ export function MetricCardWide({
   label,
   value,
   suffix,
-  color = "#0c6f6b",
+  color = "#0073ea",
   loading,
 }: {
   label: string;

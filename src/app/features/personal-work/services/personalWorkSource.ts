@@ -1,7 +1,12 @@
 import { fetchPersonalProject } from "../../workspaces";
 import { buildWorkNodeDisplayMetadata, fetchWorkTree, WorkTreeUnavailable } from "../../nested-work";
 import type { WorkSnapshot } from "../types";
-import { settledMap, message } from "./workSourceReads";
+import {
+  isTransientWorkSourceError,
+  message,
+  retryTransientWorkRead,
+  settledMap,
+} from "./workSourceReads";
 /** Personal projects use their own membership and completion contract. */
 export async function appendPersonalRows(out: WorkSnapshot, userId: string) {
   const personalProjects = out.projects.filter((p) => p.kind === "personal");
@@ -9,15 +14,19 @@ export async function appendPersonalRows(out: WorkSnapshot, userId: string) {
     personalProjects,
     async (project) => ({
       project,
-      snapshot: await fetchPersonalProject(project.id),
+      snapshot: await retryTransientWorkRead(() => fetchPersonalProject(project.id)),
     }),
   );
   for (let i = 0; i < personalResults.length; i++) {
     const r = personalResults[i];
     if (r.status === "rejected") {
-      out.issues.push(
-        `Personal project · ${personalProjects[i].title}: ${message(r.reason)}`,
-      );
+      if (isTransientWorkSourceError(r.reason)) {
+        out.retrying = true;
+      } else {
+        out.issues.push(
+          `Personal project · ${personalProjects[i].title}: ${message(r.reason)}`,
+        );
+      }
       continue;
     }
     const { project, snapshot } = r.value;
@@ -30,7 +39,7 @@ export async function appendPersonalRows(out: WorkSnapshot, userId: string) {
         (m) => m.user_id === userId && m.eligible && m.state === "active",
       );
     const personalTrees = await settledMap(snapshot.tasks, (t) =>
-      fetchWorkTree(t.id),
+      retryTransientWorkRead(() => fetchWorkTree(t.id)),
     );
     snapshot.tasks.forEach((storedTask, index) => {
       const tr = personalTrees[index];
@@ -38,7 +47,11 @@ export async function appendPersonalRows(out: WorkSnapshot, userId: string) {
         tr.status === "rejected" &&
         !(tr.reason instanceof WorkTreeUnavailable)
       ) {
-        out.issues.push(`Personal tree · ${storedTask.title}: ${message(tr.reason)}`);
+        if (isTransientWorkSourceError(tr.reason)) {
+          out.retrying = true;
+        } else {
+          out.issues.push(`Personal tree · ${storedTask.title}: ${message(tr.reason)}`);
+        }
         return;
       }
       const tree = tr.status === "fulfilled" ? tr.value : undefined,

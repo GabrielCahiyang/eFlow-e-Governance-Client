@@ -4,7 +4,8 @@ import {useNavigationBlocker} from '../../../shared/navigationGuard';
 import {Plus,Wallet,Check,Trash2,Undo2} from 'lucide-react';
 import {MoneyInput} from '../../../components/ui/MoneyInput';
 import {DecisionModal} from '../../../components/ui/DecisionModal';
-import {decimalError} from '../../../shared/numericValidation';
+import { getPhilippineCalendarDate } from '../../../shared/calendarDates';
+import { decimalError } from '../../../shared/numericValidation';
 import {projectFlowCall,ProjectFlowError} from '../services/projectFlow';
 import {FlowError} from './FlowError';
 import {fundingEntryError,fundingErrorMessage} from '../fundingMessages';
@@ -15,24 +16,21 @@ type FundingDecision={title:string;description:string;label:string;action:(reaso
 export function ProjectFundingPanel({data,reload,wizard=false,allowFundingEntry=true,onBusyChange,onDraftChange,onUncertainChange,recoveryKey=''}:{data:ProjectFlow;reload:()=>Promise<void>;wizard?:boolean;allowFundingEntry?:boolean;onBusyChange?:(busy:boolean)=>void;onDraftChange?:(dirty:boolean)=>void;onUncertainChange?:(uncertain:boolean)=>void;recoveryKey?:string}){
  const [recovered]=useState(()=>readFundingDraft(recoveryKey));
  const [lines,setLines]=useState<FundingDraft[]>(recovered?.lines??[{partitionId:'',amount:0}]),[reason,setReason]=useState(recovered?.reason??''),[busy,setBusy]=useState(false),[error,setError]=useState(''),[notice,setNotice]=useState('');
- const [selectedYears,setSelectedYears]=useState<Record<number,number|undefined>>(recovered?.years??{});
  const attempt=useRef<FundingDraftRecovery['request']>(recovered?.request),[uncertain,setUncertain]=useState(!!recovered?.request);
  const inFlight=useRef(false);
  const [decision,setDecision]=useState<FundingDecision>(),[decisionReason,setDecisionReason]=useState('');
  const total=lines.reduce((sum,line)=>sum+line.amount,0);
- const sources=data.sources.filter(source=>source.available>0&&(!wizard||(
-  !!data.project.start_date&&!!data.project.target_date&&source.year>=Number(data.project.start_date.slice(0,4))&&source.year<=Number(data.project.target_date.slice(0,4))
- )));
- const years=Array.from(new Set(sources.map(source=>source.year))).sort((a,b)=>a-b);
+ const currentYear=Number(getPhilippineCalendarDate().slice(0,4));
+ const sources=data.sources.filter(source=>source.available>0&&(!wizard||source.year===currentYear));
  const entryAllowed=data.canAllocate&&(!wizard||data.canAuthorize);
  const entryHintId=useId();
  const entryIssue=wizard&&lines.some(line=>!!line.partitionId&&!!decimalError(line.amount,'Amount',0.01,90_000_000_000,2))
   ?'Enter an amount from ₱0.01 to ₱90,000,000,000 with up to two decimal places.'
   :fundingEntryError(lines,wizard?sources:data.sources,reason);
- const draftDirty=!!reason.trim()||lines.some(line=>!!line.partitionId||line.amount!==0)||Object.values(selectedYears).some(Boolean);
+ const draftDirty=!!reason.trim()||lines.some(line=>!!line.partitionId||line.amount!==0);
  const [localSaved,setLocalSaved]=useState(false);
- useEffect(()=>{setLocalSaved(storeFundingDraft(recoveryKey,draftDirty?{lines,reason,years:selectedYears,request:attempt.current}:undefined));},[recoveryKey,lines,reason,draftDirty,uncertain,selectedYears]);
- useNavigationBlocker({label:'Unsaved project funding',dirty:allowFundingEntry&&draftDirty&&!localSaved,pending:busy||uncertain&&!localSaved,onDiscard:()=>{setLines([{partitionId:'',amount:0}]);setReason('');setSelectedYears({});}});
+ useEffect(()=>{setLocalSaved(storeFundingDraft(recoveryKey,draftDirty?{lines,reason,request:attempt.current}:undefined));},[recoveryKey,lines,reason,draftDirty,uncertain]);
+ useNavigationBlocker({label:'Unsaved project funding',dirty:allowFundingEntry&&draftDirty&&!localSaved,pending:busy||uncertain&&!localSaved,onDiscard:()=>{setLines([{partitionId:'',amount:0}]);setReason('');}});
  useEffect(()=>()=>{onBusyChange?.(false);onDraftChange?.(false);onUncertainChange?.(false);},[onBusyChange,onDraftChange,onUncertainChange]);
  useEffect(()=>onBusyChange?.(busy),[busy,onBusyChange]);useEffect(()=>onDraftChange?.(draftDirty),[draftDirty,onDraftChange]);useEffect(()=>onUncertainChange?.(uncertain),[uncertain,onUncertainChange]);
  async function run(action:()=>Promise<unknown>,success:string){if(inFlight.current)return false;inFlight.current=true;setBusy(true);setError('');setNotice('');try{await action();setNotice(success);await reload();window.dispatchEvent(new Event('eflow:project-setup'));return true;}catch(e){setError(fundingErrorMessage(e));return false;}finally{inFlight.current=false;setBusy(false);}}
@@ -43,44 +41,36 @@ export function ProjectFundingPanel({data,reload,wizard=false,allowFundingEntry=
   const operation=data.canAuthorize?'authorize_project_funding':'request_project_funding';
   if(attempt.current&&attempt.current.operation!==operation)throw new Error('The original funding authority is required to verify this request.');
   attempt.current??={id:crypto.randomUUID(),operation};
-  storeFundingDraft(recoveryKey,{lines,reason,years:selectedYears,request:attempt.current});
+  storeFundingDraft(recoveryKey,{lines,reason,request:attempt.current});
   try{
    const receipt=await projectFlowCall<{authorized:number}>(operation,{p_project:data.project.id,p_lines:lines,p_reason:reason.trim(),p_key:attempt.current.id});
    if(wizard&&(!Number.isFinite(receipt?.authorized)||receipt.authorized<=0))throw new Error('Could not confirm the authorization. Verify the saved funding request.');
   }
   catch(e){
-   if(e instanceof ProjectFlowError&&!uncertain){attempt.current=undefined;storeFundingDraft(recoveryKey,{lines,reason,years:selectedYears});}
+   if(e instanceof ProjectFlowError&&!uncertain){attempt.current=undefined;storeFundingDraft(recoveryKey,{lines,reason});}
    else setUncertain(true);
    throw e;
   }
-  attempt.current=undefined;storeFundingDraft(recoveryKey);setUncertain(false);setLines([{partitionId:'',amount:0}]);setReason('');setSelectedYears({});
+  attempt.current=undefined;storeFundingDraft(recoveryKey);setUncertain(false);setLines([{partitionId:'',amount:0}]);setReason('');
  },data.canAuthorize?(wizard?'Project funding authorized.':'Project budget updated.'):'Funding request sent to the Head.');
  return <section className="pf-panel" aria-label="Project budget">
- <header><div><h2><Wallet size={20}/> Project budget</h2><p>Authorize funding from named Office Budget sources. Tasks divide this funding; they do not charge Office Budget again.</p></div><span className="pf-status-badge" data-tone={data.project.funding_not_required?'neutral':data.total>0?'positive':data.fundingRequests.length?'warning':'attention'}>{data.project.funding_not_required?'Funding not required':data.total>0?'Funding authorized':data.fundingRequests.length?'Funding request pending':'Funding required · no funding authorized'}</span></header>
+ <header><div><h2><Wallet size={20}/> Project budget</h2><p>Authorize funding from named Office Budget sources{wizard?` for FY ${currentYear}`:''}. Tasks divide this funding; they do not charge Office Budget again.</p></div><span className="pf-status-badge" data-tone={data.project.funding_not_required?'neutral':data.total>0?'positive':data.fundingRequests.length?'warning':'attention'}>{data.project.funding_not_required?'Funding not required':data.total>0?'Funding authorized':data.fundingRequests.length?'Funding request pending':'Funding required · no funding authorized'}</span></header>
  <div className="pf-summary">{[['Authorized budget',data.total],['Allocated to tasks',data.allocated],['Unallocated',data.unallocated],['Cash released',data.released],['Actual spent',data.spent],['Cash returned',data.returned??0],['Outstanding advances',data.outstanding??0]].map(([label,value])=><div key={String(label)}><small>{label}</small><strong>{money(Number(value))}</strong></div>)}</div>
  {data.funds.length>0&&<div className="pf-table-scroll"><table><thead><tr><th>Funding source</th><th>Fiscal year</th><th>Authorized</th><th>Unallocated</th>{data.canAuthorize&&<th>Closeout</th>}</tr></thead><tbody>{data.funds.map(source=><tr key={source.id}><td>{source.name}</td><td>FY {source.fiscal_year}</td><td>{money(source.amount)}</td><td>{money(source.available)}</td>{data.canAuthorize&&<td><button className="pf-closeout-button" disabled={busy||source.available<=0} onClick={()=>{const requestId=crypto.randomUUID();confirmDecision({title:'Return unused funding to Office Budget',description:'Only the unallocated amount is returned to Office Budget. Task allocations and cash records stay recorded. '+source.name+' · '+money(source.available),label:'Return to Office Budget',action:reason=>projectFlowCall('release_project_funding',{p_project:data.project.id,p_source:source.id,p_amount:source.available,p_reason:reason,p_key:requestId}),success:'Unused funding returned to Office Budget with an audit record.'});}}><Undo2 size={14}/>Return to Office Budget</button></td>}</tr>)}</tbody></table></div>}
  {wizard&&!data.canAuthorize&&<p className="pf-warning">Only the appointed Office Head can authorize project funding.</p>}
  {allowFundingEntry&&entryAllowed&&!data.project.funding_not_required&&!['completed','archived'].includes(data.project.status)&&<fieldset disabled={busy||uncertain} className="min-w-0 space-y-4"><h3>{data.canAuthorize?'Add authorized funding':'Request additional project funding'}</h3>
- {!sources.length&&<p className="pf-warning">{wizard?'No Office Budget sources with available balances overlap the project dates.':'No funding is available from Office Budget. Check the Office Budget balances first.'}</p>}
+ {!sources.length&&<p className="pf-warning">{wizard?`No FY ${currentYear} Office Budget sources with available balances yet. Check the Office Budget balances first.`:'No funding is available from Office Budget. Check the Office Budget balances first.'}</p>}
  {lines.map((line,index)=>{
-  const sourceList=uncertain?data.sources:sources;
-  const year=selectedYears[index]??sourceList.find(source=>source.id===line.partitionId)?.year;
-  const rowSources=wizard?sourceList.filter(source=>source.year===year):sourceList;
-  return <div key={index} className={wizard?'pf-funding-row pf-wizard-funding-row':'pf-funding-row'}>
-   {wizard&&<label>Fiscal year<select value={year??''} onChange={event=>{
-    const nextYear=Number(event.target.value)||undefined;
-    setSelectedYears(current=>({...current,[index]:nextYear}));
-    if(line.partitionId)setLines(rows=>rows.map((row,i)=>i===index?{...row,partitionId:''}:row));
-   }}><option value="">Select fiscal year</option>{Array.from(new Set(year?[...years,year]:years)).map(value=><option key={value} value={value}>FY {value}</option>)}</select></label>}
-   <label>Office Budget source<select disabled={wizard&&!year} value={rowSources.some(source=>source.id===line.partitionId)?line.partitionId:''} onChange={event=>{
+  const sourceList=uncertain?data.sources.filter(source=>!wizard||source.year===currentYear):sources;
+  return <div key={index} className="pf-funding-row">
+   <label>Office Budget source<select value={sourceList.some(source=>source.id===line.partitionId)?line.partitionId:''} onChange={event=>{
     const partitionId=event.target.value;
     setLines(rows=>rows.map((row,i)=>i===index?{...row,partitionId}:row));
-   }}><option value="">{wizard?'Select an Office Budget source':'Select fiscal year and account'}</option>
-   {rowSources.map(source=><option key={source.id} value={source.id} disabled={lines.some((row,i)=>i!==index&&row.partitionId===source.id)}>{!wizard&&`FY ${source.year} · `}{source.name} · {money(source.available)} available</option>)}</select></label>
+   }}><option value="">{wizard?`Select a FY ${currentYear} Office Budget source`:'Select fiscal year and account'}</option>
+   {sourceList.map(source=><option key={source.id} value={source.id} disabled={lines.some((row,i)=>i!==index&&row.partitionId===source.id)}>FY {source.year} · {source.name} · {money(source.available)} available</option>)}</select></label>
    <label>Amount<MoneyInput min="0" step="0.01" value={line.amount||''} onValueChange={value=>setLines(rows=>rows.map((row,i)=>i===index?{...row,amount:Number(value)}:row))}/></label>
    <WorkspaceTooltip content={`Remove funding row ${index+1}`}><button type="button" className="pf-remove-funding" aria-label={`Remove funding row ${index+1}`} disabled={lines.length===1} onClick={()=>{
     setLines(rows=>rows.filter((_,i)=>i!==index));
-    setSelectedYears(current=>Object.fromEntries(Object.entries(current).filter(([key])=>Number(key)!==index).map(([key,value])=>[Number(key)>index?Number(key)-1:Number(key),value])));
    }}><Trash2 size={16}/></button></WorkspaceTooltip>
   </div>;
  })}

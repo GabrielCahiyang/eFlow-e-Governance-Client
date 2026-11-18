@@ -6,12 +6,22 @@ import type {Subtask} from '../../src/app/services/subtaskService';
 import type {WorkNode,WorkTreeController,WorkTreeSnapshot} from '../../src/app/features/nested-work';
 import {rememberWorkCapabilityContext} from '../../src/app/features/nested-work/selectors/capabilities';
 import {installNavigationConfirmation} from '../../src/app/shared/navigationGuard';
-const api=vi.hoisted(()=>({actor:'actor',read:vi.fn(),tree:vi.fn(),save:vi.fn(),legacyRead:vi.fn(),progress:vi.fn(),impact:vi.fn(),start:vi.fn()}));
+import {WorkFinancialClearancePanel} from '../../src/app/features/budget/components/WorkFinancialClearancePanel';
+const api=vi.hoisted(()=>({actor:'actor',read:vi.fn(),tree:vi.fn(),save:vi.fn(),legacyRead:vi.fn(),progress:vi.fn(),impact:vi.fn(),start:vi.fn(),clearance:vi.fn(),finalize:vi.fn()}));
 vi.mock('../../src/app/contexts/AuthContext',()=>({useAuth:()=>({user:{id:api.actor}})}));
 vi.mock('../../src/app/features/nested-work/services/workTreeService',()=>({fetchWorkTree:api.tree,saveWorkTree:api.save,fetchWorkImpact:api.impact,fetchWorkEvents:vi.fn(),WorkTreeUnavailable:class extends Error{}}));
 vi.mock('../../src/app/features/subtasks/services/subtaskWorkflowService',()=>({fetchSubitemInspectorRecord:api.read,fetchSubtask:api.legacyRead,fetchSubtaskProgressUpdates:vi.fn().mockResolvedValue([]),fetchSubtaskSubmissions:vi.fn().mockResolvedValue([]),saveSubtaskProgress:api.progress,saveSubtaskWorkUpdate:api.progress,submitSubtaskForReview:vi.fn(),startScheduledSubtask:api.start}));
 vi.mock('../../src/app/features/subtasks/hooks/useSubtaskReviewerDirectory',()=>({useSubtaskReviewerDirectory:()=>({reviewersById:{},loading:false})}));
-vi.mock('../../src/app/features/budget',()=>({WorkBudgetCard:()=> <div>Existing budget composition</div>}));
+vi.mock('../../src/app/features/budget',()=>({
+ WorkBudgetCard:()=> <div>Existing budget composition</div>,
+ get WorkFinancialClearancePanel(){return WorkFinancialClearancePanel;},
+ assertWorkAcceptanceAvailable:vi.fn(),
+}));
+vi.mock('../../src/app/features/budget/services/workFinancialClearanceService',async importOriginal=>({
+ ...await importOriginal<typeof import('../../src/app/features/budget/services/workFinancialClearanceService')>(),
+ fetchWorkFinancialClearance:api.clearance,
+ saveClearanceCommand:api.finalize,
+}));
 vi.mock('../../src/app/features/subtasks/components/SubtaskDeadlineEditor',()=>({SubtaskDeadlineEditor:()=>null}));
 import {SubitemInspector} from '../../src/app/features/subtasks/components/SubitemInspector';
 import {SubtaskWorkDrawer} from '../../src/app/features/subtasks/components/SubtaskWorkDrawer';
@@ -24,10 +34,63 @@ function tree(nodes=Array.from({length:8},(_,i)=>node(`n${i+1}`,i?`n${i}`:null,i
 }
 function controller(data=tree()):WorkTreeController{return {rootId:'root',actorId:api.actor,data,loading:false,error:'',unavailable:false,authorityFresh:true,refreshPending:false,pending:false,reload:vi.fn(),save:api.save};}
 function record(id:string,root='root'){return {subtask:{id,taskId:root,title:'Stale root-only title',assignedToIds:['root-lead'],status:'todo',percentComplete:0,isStandalone:true,isCompleted:false,position:0,source:'manual',createdAt:1,updatedAt:1} as Subtask,submissions:[],progressUpdates:[]};}
+function clearance(rootId:string,nodeId:string){
+ return {version:1,rootId,nodeId,workAccepted:false,cashOutstanding:false,completed:false,canFinalize:false} as const;
+}
+function acceptedSubtaskController(){
+ const locked={allowed:false,reason_code:'lifecycle_blocked'} as const;
+ const data=tree([{...node('n1',null,1),status:'in_progress',capabilities:{execute:locked,submit:locked}}]);
+ data.root.status='in_progress';
+ data.root.project_status='active';
+ return controller(data);
+}
 let uninstall:(()=>void)|undefined;
-beforeEach(()=>{vi.clearAllMocks();api.actor='actor';api.read.mockImplementation(async(_root,id)=>record(id));api.tree.mockImplementation(async()=>tree());api.legacyRead.mockImplementation(async(id)=>record(id).subtask);sessionStorage.clear();});
+beforeEach(()=>{vi.clearAllMocks();api.actor='actor';api.read.mockImplementation(async(_root,id)=>record(id));api.tree.mockImplementation(async()=>tree());api.legacyRead.mockImplementation(async(id)=>record(id).subtask);api.clearance.mockImplementation(async(root,id)=>clearance(root,id));sessionStorage.clear();});
 afterEach(()=>{cleanup();uninstall?.();uninstall=undefined;});
 describe('NW8.1 canonical Subtask Inspector',()=>{
+ it('finalizes accepted and settled work when execution and submission are disabled',async()=>{
+  api.actor='deep-lead';
+  const c=acceptedSubtaskController();
+  const ready={...clearance('root','n1'),workAccepted:true,canFinalize:true};
+  api.clearance.mockResolvedValue({...ready,cashOutstanding:true,canFinalize:false});
+  api.finalize.mockImplementationOnce(async()=>{
+   const completed={...ready,completed:true,canFinalize:false};
+   api.clearance.mockResolvedValue(completed);
+   return completed;
+  });
+  await act(async()=>{
+   render(<SubitemInspector onClose={()=>{}} rootTask={{...task,status:'in_progress'}} itemId="n1" controller={c}/>);
+  });
+  expect(api.clearance).toHaveBeenCalledWith('root','n1');
+  expect(screen.queryByRole('button',{name:'Mark as complete'})).toBeNull();
+  expect(screen.queryByRole('button',{name:'Save update'})).toBeNull();
+
+  api.clearance.mockResolvedValue(ready);
+  await act(async()=>{window.dispatchEvent(new Event('eflow:finance-updated'));});
+  const panel=screen.getByRole('region',{name:'Financial clearance'});
+  fireEvent.click(within(panel).getByRole('button',{name:'Mark as complete'}));
+  const dialog=await screen.findByRole('alertdialog',{name:'Mark this work complete?'});
+  fireEvent.click(within(dialog).getByRole('button',{name:'Mark as complete'}));
+  await screen.findByText('Completion confirmed.');
+  expect(api.finalize).toHaveBeenCalledExactlyOnceWith(
+   'deep-lead','finalize-clearance:root:n1','finalize_cleared_work',
+   {id:expect.any(String),args:{p_root:'root',p_node:'n1'}},expect.any(Function),false,
+  );
+  expect(c.reload).toHaveBeenCalledOnce();
+ });
+ it.each(['read-only','on hold','refreshing','outside finalization authority'])(
+  'hides accepted-work finalization when the inspector is %s',async(blocked)=>{
+   api.actor='deep-lead';
+   const c=acceptedSubtaskController();
+   if(blocked==='on hold')c.data!.root.project_status='on_hold';
+   if(blocked==='refreshing')c.refreshPending=true;
+   api.clearance.mockResolvedValue({...clearance('root','n1'),workAccepted:true,canFinalize:blocked!=='outside finalization authority'});
+   render(<SubitemInspector onClose={()=>{}} readOnly={blocked==='read-only'} rootTask={{...task,status:'in_progress'}} itemId="n1" controller={c}/>);
+   const panel=await screen.findByRole('region',{name:'Financial clearance'});
+   expect(within(panel).queryByRole('button',{name:'Mark as complete'})).toBeNull();
+   expect(api.finalize).not.toHaveBeenCalled();
+  },
+ );
  it.each([
   {dependencies:[],prerequisiteStatus:'todo',ready:true},
   {dependencies:['selected'],prerequisiteStatus:'completed',ready:true},

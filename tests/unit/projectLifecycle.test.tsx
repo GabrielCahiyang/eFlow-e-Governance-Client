@@ -3,6 +3,7 @@ import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-libra
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { Project } from "../../src/app/features/projects/services/types";
 const api = vi.hoisted(() => ({ readiness: vi.fn(), complete: vi.fn(), actor: { id:'head',role:'head',is_active:true,org_id:'office' } }));
+vi.mock('../../src/app/shared/actionActor',()=>({assertActionActor:vi.fn()}));
 vi.mock('../../src/app/contexts/AuthContext',()=>({useAuth:()=>({userProfile:api.actor})}));
 vi.mock("../../src/app/features/projects/services/projectLifecycleService", () => ({ fetchProjectCompletionReadiness: api.readiness, completeProject: api.complete }));
 vi.mock("../../src/app/features/tasks", () => ({ tasksForProject: (tasks: unknown[]) => tasks }));

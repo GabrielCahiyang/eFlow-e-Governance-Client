@@ -1,5 +1,7 @@
 import { useReviewedMutation } from "../../../shared/useReviewedMutation";
 import { FeedbackState } from "../../../components/ui/FeedbackState";
+import { useToast } from "../../../components/ui/Toast";
+import { formatManilaDate } from "../../../shared/calendarDisplay";
 import type { ConfirmationOptions } from "../../../components/ui/useConfirmation";
 import { useMemo, useRef, useState } from "react";
 import {
@@ -20,6 +22,10 @@ import { peso, StatusPill } from "./budgetUi";
 import { CashLiquidationDialog } from "./CashLiquidationDialog";
 import { isLiquidationCurrentlyOverdue } from "../selectors/cashWorkflowRules";
 import {LiquidationStageNotice} from './LiquidationStageNotice';
+import { CashReturnPanel } from "./CashReturnPanel";
+import { usePendingAction } from '../../../shared/usePendingAction';
+import { pendingActionKey } from '../../../shared/pendingActionStore';
+import type { LiquidationAttempt } from '../services/budgetService';
 
 export function CashRequestTimeline({
   data,
@@ -29,6 +35,7 @@ export function CashRequestTimeline({
   onCorrect,
   onChanged,
   canCorrect: allowCorrection = true,
+  workCompleted = false,
 }: {
   data: DepartmentBudgetBundle;
   requests: PettyCashRequest[];
@@ -37,7 +44,9 @@ export function CashRequestTimeline({
   onCorrect: (request: PettyCashRequest) => void;
   onChanged: () => Promise<void>;
   canCorrect?: boolean;
+  workCompleted?: boolean;
 }) {
+  const { toast } = useToast();
   const [busy, setBusy] = useState("");
   const safety = useReviewedMutation(`${orgId}:${currentUserId}`);
   const latestRequests = useRef(requests);
@@ -53,6 +62,7 @@ export function CashRequestTimeline({
     operation: () => Promise<void>,
     confirmation?: ConfirmationOptions,
     validate?: () => void,
+    successToast = "Funding action saved.",
   ) => {
     if (safety.pending) return;
     setBusy(id);
@@ -63,6 +73,7 @@ export function CashRequestTimeline({
         validate,
         operation,
         success: "Funding action recorded.",
+        onSaved: () => toast(successToast, "success"),
         refresh: onChanged,
       });
     } finally {
@@ -104,14 +115,14 @@ export function CashRequestTimeline({
     );
   };
 
-  if (!requests.length && !safety.message && !safety.pending) return null;
+  if (!requests.length && !(safety.message && safety.tone !== "success") && !safety.pending) return null;
   return (
     <div className="mt-3 space-y-2">
       <div className="flex items-center gap-1 text-[12px] font-semibold uppercase tracking-[0.12em] text-neutral-400">
         <Clock3 size={10} /> Funding activity
       </div>
       {safety.dialog}
-      {safety.message && (
+      {safety.message && safety.tone !== "success" && (
         <FeedbackState tone={safety.tone} title="Funding result">
           <p>{safety.message}</p>
           <button
@@ -135,12 +146,21 @@ export function CashRequestTimeline({
         const attachments = data.requestAttachments.filter(
           (item) => item.requestId === request.id,
         );
-        const unacknowledged = releases.find(
-          (item) =>
-            item.status === "released" &&
-            item.recipientId === currentUserId &&
-            !item.acknowledgedAt,
+        const unacknowledged = workCompleted
+          ? undefined
+          : releases.find(
+              (item) =>
+                item.status === "released" &&
+                item.recipientId === currentUserId &&
+                !item.acknowledgedAt,
+            );
+        const hasUnacknowledgedRelease = releases.some(
+          (item) => item.status === "released" && !item.acknowledgedAt,
         );
+        const cashAcknowledged =
+          !unacknowledged &&
+          !hasUnacknowledgedRelease &&
+          (!releases.length || releases.some((item) => item.status === "released" && !!item.acknowledgedAt));
         const canCorrect = allowCorrection &&
           request.requesterId === currentUserId &&
           ["leader_changes_requested", "department_changes_requested"].includes(
@@ -162,6 +182,8 @@ export function CashRequestTimeline({
             "expired",
           ].includes(request.status);
         const canLiquidate =
+          !workCompleted &&
+          cashAcknowledged &&
           request.cashRecipientId === currentUserId &&
           ["released", "changes_requested", "overdue_liquidation"].includes(
             request.status,
@@ -215,7 +237,7 @@ export function CashRequestTimeline({
               ].includes(request.status) && (
                 <div className="mt-1 text-[12px] text-amber-700">
                   Temporary hold—not approved spending · expires{" "}
-                  {new Date(request.reservationExpiresAt).toLocaleDateString()}
+                  {new Date(request.reservationExpiresAt).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })}
                 </div>
               )}
             {[
@@ -253,7 +275,7 @@ export function CashRequestTimeline({
                     key={release.id}
                     className="rounded-md bg-blue-50 px-2 py-1 text-[12px] text-blue-700"
                   >
-                    {peso.format(release.amount)} · {release.scheduledDate} ·{" "}
+                    {peso.format(release.amount)} · {formatManilaDate(release.scheduledDate, release.scheduledDate)} ·{" "}
                     {release.acknowledgedAt ? "received" : release.status}
                   </span>
                 ))}
@@ -268,7 +290,7 @@ export function CashRequestTimeline({
                 >
                   {liquidationOverdue
                     ? "Liquidation is overdue. Submission remains open, but Head approval is required."
-                    : `Receipts due ${new Date(request.liquidationDueAt).toLocaleDateString()} (${data.summary?.liquidationDueDays || 15}-day window).`}
+                    : `Receipts due ${new Date(request.liquidationDueAt).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })} (${data.summary?.liquidationDueDays || 15}-day window).`}
                 </div>
               )}
             {latest && (
@@ -301,9 +323,18 @@ export function CashRequestTimeline({
                     ))}
                   </div>
                 )}
+                {latest.returnedAmount > 0 && ["pending_leader_review", "pending_department_settlement"].includes(latest.status) && (
+                  <CashReturnPanel
+                    liquidationId={latest.id}
+                    rootId={request.taskId}
+                    version={latest.version}
+                    amount={latest.returnedAmount}
+                    onSaved={onChanged}
+                  />
+                )}
               </div>
             )}
-            {(canCorrect || canCancel || unacknowledged || canLiquidate) && (
+            {(canCorrect || canCancel || unacknowledged || canLiquidate || request.cashRecipientId === currentUserId) && (
               <div className="mt-2 flex flex-wrap justify-end gap-1.5">
                 {canCancel && (
                   <button
@@ -330,14 +361,21 @@ export function CashRequestTimeline({
                     type="button"
                     disabled={safety.pending || busy === unacknowledged.id}
                     onClick={() =>
-                      void act(unacknowledged.id, () =>
-                        acknowledgePettyCashRelease(unacknowledged.id),
+                      void act(
+                        unacknowledged.id,
+                        () => acknowledgePettyCashRelease(unacknowledged.id),
+                        undefined,
+                        undefined,
+                        "Cash receipt acknowledged.",
                       )
                     }
                     className="inline-flex h-7 items-center gap-1 rounded-md bg-blue-600 px-2 text-[12px] text-white"
                   >
                     <CheckCircle2 size={9} /> Acknowledge cash
                   </button>
+                )}
+                {!canLiquidate && request.cashRecipientId === currentUserId && (
+                  <SavedLiquidationLink actor={currentUserId} orgId={orgId} requestId={request.id} open={() => setLiquidating(request)} />
                 )}
                 {canLiquidate && (
                   <button
@@ -358,6 +396,7 @@ export function CashRequestTimeline({
       })}
       {liquidating && (
         <CashLiquidationDialog
+          key={`${currentUserId}:${liquidating.id}`}
           request={liquidating}
           orgId={orgId}
           perReceiptLimit={data.summary?.perReceiptLimit || 0}
@@ -367,11 +406,16 @@ export function CashRequestTimeline({
           )}
           onClose={() => setLiquidating(undefined)}
           onSaved={async () => {
-            setLiquidating(undefined);
             await onChanged();
+            setLiquidating(undefined);
           }}
         />
       )}
     </div>
   );
+}
+
+function SavedLiquidationLink({ actor, orgId, requestId, open }: { actor: string; orgId: string; requestId: string; open: () => void }) {
+  const pending = usePendingAction<LiquidationAttempt>(pendingActionKey(actor, 'cash-liquidation', orgId, requestId));
+  return pending.value ? <button type="button" className="text-xs underline" onClick={open}>Check saved liquidation</button> : null;
 }

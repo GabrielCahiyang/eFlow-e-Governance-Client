@@ -202,7 +202,7 @@ export function ChangeRequestsPanel({
                           {requester?.full_name || "Office Reviewer"}
                         </span>
                         {org?.name && ` (${org.name})`} ·{" "}
-                        {new Date(request.createdAt).toLocaleDateString([], {
+                        {new Date(request.createdAt).toLocaleDateString('en-US', {
                           month: "short",
                           day: "numeric",
                           year: "numeric",

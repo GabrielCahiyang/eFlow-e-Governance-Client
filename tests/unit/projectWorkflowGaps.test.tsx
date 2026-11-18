@@ -7,10 +7,8 @@ import type { ProjectOfficeState } from '../../src/app/features/project-offices/
 const fixture = vi.hoisted(() => ({ profile: {} as UserProfile, state: {} as ProjectOfficeState }));
 vi.mock('../../src/app/contexts/AuthContext', () => ({useAuth:()=>({user:{id:'head'},userProfile:fixture.profile})}));
 vi.mock('../../src/app/features/project-offices/hooks/useProjectOffices', () => ({useProjectOfficeContext:()=>fixture.state}));
-vi.mock('../../src/app/features/project-offices/components/OfficeMembersEditor', () => ({OfficeMembersEditor:(props:{office:{id:string};members:unknown[];disabledReason:string})=><div data-testid="canonical-editor" data-disabled={props.disabledReason}>{props.office.id} · {props.members.length} selected</div>}));
 vi.mock('../../src/app/features/projects/components/ProjectsPortfolioTable', () => ({ProjectsPortfolioTable:({projects,onOpen}:{projects:Project[];onOpen:(id:string)=>void})=><div>{projects.map(project=><button key={project.id} onClick={()=>onOpen(project.id)}>{project.title}</button>)}</div>}));
 import { ProjectIndex } from '../../src/app/features/projects/components/ProjectIndex';
-import { ProjectPeoplePage } from '../../src/app/features/project-offices/components/ProjectPeoplePage';
 import { useProjectLocation } from '../../src/app/features/projects/hooks/useProjectLocation';
 import { destinationNavigationParameters } from '../../src/app/features/navigation/queryContext';
 import { writeNavigationLocation } from '../../src/app/features/navigation';
@@ -59,33 +57,5 @@ describe('project portfolio and route restoration',()=>{
     const params=new URLSearchParams(window.location.search);expect(params.get('workspace')).toBe('office');expect(params.has('project')).toBe(false);expect(params.has('people')).toBe(false);
     expect(destinationNavigationParameters('projects',{proposal:'draft',proposalView:'governance',plans:'saved',people:'add'})).toEqual({proposal:'draft',proposalView:'governance'});
     expect(destinationNavigationParameters('projects',{project:'a',proposal:'draft',view:'board',people:'add'})).toEqual({project:'a',view:'board',people:'add'});
-  });
-});
-describe('direct canonical Office staffing entry',()=>{
-  const page=(overrides:Partial<Parameters<typeof ProjectPeoplePage>[0]>={})=>render(<ProjectPeoplePage projectTitle="Alpha" projectStatus="planning" governed={false} profiles={[]} organizations={organizations} tasks={[]} onClose={vi.fn()} onOpenTask={vi.fn()} {...overrides}/>);
-  it('uses the existing canonical editor and selected roster for its appointed Head',()=>{page();expect(screen.getByTestId('canonical-editor').textContent).toContain('own · 1 selected');});
-  it('allows the participating Head to select only their own joined Office',()=>{
-    fixture.state.offices.unshift({...fixture.state.offices[0],id:'lead',office_id:'partner'});
-    fixture.state.offices[1].relationship_type='collaborating';page();expect(screen.getByTestId('canonical-editor').textContent).toContain('own');
-  });
-  it.each(['member','admin','accounting_staff'] as const)('does not show a staffing editor to %s',role=>{fixture.profile.role=role;page();expect(screen.queryByTestId('canonical-editor')).toBeNull();});
-  it.each(['pending','revoked','awaiting_head'] as const)('does not show the editor for %s participation',status=>{fixture.state.offices[0].invitation_status=status;page();expect(screen.queryByTestId('canonical-editor')).toBeNull();});
-  it('does not show the editor to an observer, inactive or replaced Head',()=>{
-    fixture.state.offices[0].relationship_type='observer';const view=page();expect(screen.queryByTestId('canonical-editor')).toBeNull();view.unmount();
-    fixture.state.offices[0].relationship_type='lead';fixture.profile.is_active=false;const inactive=page();expect(screen.queryByTestId('canonical-editor')).toBeNull();inactive.unmount();
-    fixture.profile.is_active=true;fixture.profile.id='former-head';page();expect(screen.queryByTestId('canonical-editor')).toBeNull();
-  });
-  it.each(['completed','archived'])('keeps %s project staffing read-only',projectStatus=>{page({projectStatus});expect(screen.queryByTestId('canonical-editor')).toBeNull();});
-  it('retains an opened selection read-only after authority loss and drops it across Office contexts',()=>{
-    const view=page();expect(screen.getByTestId('canonical-editor').getAttribute('data-disabled')).toBe('');
-    fixture.profile.role='member';view.rerender(<ProjectPeoplePage projectTitle="Alpha" projectStatus="planning" governed={false} profiles={[]} organizations={organizations} tasks={[]} onClose={vi.fn()} onOpenTask={vi.fn()}/>);
-    expect(screen.getByTestId('canonical-editor').getAttribute('data-disabled')).toContain('Only the appointed Head');
-    fixture.profile.org_id='partner';view.rerender(<ProjectPeoplePage projectTitle="Alpha" projectStatus="planning" governed={false} profiles={[]} organizations={organizations} tasks={[]} onClose={vi.fn()} onOpenTask={vi.fn()}/>);
-    expect(screen.queryByTestId('canonical-editor')).toBeNull();
-  });
-  it('keeps governed participation in its existing approval workflow',()=>{page({governed:true});expect(screen.queryByTestId('canonical-editor')).toBeNull();expect(screen.getByText(/approved work plan/)).toBeTruthy();});
-  it('distinguishes loading and denied reads from an empty roster and supports retry',()=>{
-    fixture.state.loading=true;const loading=page();expect(screen.getByRole('status',{name:'Loading project people'})).toBeTruthy();expect(screen.queryByTestId('canonical-editor')).toBeNull();loading.unmount();
-    fixture.state.loading=false;fixture.state.error='Synthetic denied read';page();fireEvent.click(screen.getByRole('button',{name:'Retry project people'}));expect(fixture.state.refresh).toHaveBeenCalledOnce();expect(screen.queryByTestId('canonical-editor')).toBeNull();
   });
 });

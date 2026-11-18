@@ -1,7 +1,11 @@
 import { lazyFeature } from '../../shared/lazyFeature';
 
-export const OnboardingWorkspace = lazyFeature(() =>
-  import('./components/OnboardingWorkspace').then(module => ({ default: module.OnboardingWorkspace })),
+export const OnboardingWorkspace = lazyFeature(
+  () =>
+    import('./components/OnboardingWorkspace').then(module => ({ default: module.OnboardingWorkspace })),
+  undefined,
+  undefined,
+  null,
 );
 export { OnboardingHelpButton } from './components/OnboardingHelpButton';
 export { readOnboarding, saveOnboarding } from './services/onboardingService';

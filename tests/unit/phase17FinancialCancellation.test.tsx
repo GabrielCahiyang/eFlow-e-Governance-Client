@@ -49,4 +49,31 @@ describe('Phase 17 funding cancellation', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Cancel', exact: true }));
     await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull()); expect(calls.cancel).toHaveBeenCalledTimes(1);
   });
+  it('hides Record expenses until cash is acknowledged and hides both when completed, without a noisy Funding result box on success', async () => {
+    calls.acknowledge.mockResolvedValue(undefined);
+    const released = { ...request, status: 'released' as const, cashRecipientId: 'actor' };
+    const unackData = {
+      ...data,
+      releases: [{ id: 'rel-1', requestId: 'request', amount: 500, scheduledDate: '2026-11-18', status: 'released', recipientId: 'actor', acknowledgedAt: null }],
+    } as unknown as DepartmentBudgetBundle;
+    const view = render(<CashRequestTimeline {...props()} data={unackData} requests={[released]} />);
+    expect(screen.getByRole('button', { name: 'Acknowledge cash' })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Record expenses' })).toBeNull();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Acknowledge cash' }));
+    await waitFor(() => expect(calls.acknowledge).toHaveBeenCalledWith('rel-1'));
+    expect(screen.queryByText('Funding result')).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Refresh funding' })).toBeNull();
+
+    const ackData = {
+      ...data,
+      releases: [{ id: 'rel-1', requestId: 'request', amount: 500, scheduledDate: '2026-11-18', status: 'released', recipientId: 'actor', acknowledgedAt: '2026-11-18T03:00:00Z' }],
+    } as unknown as DepartmentBudgetBundle;
+    view.rerender(<CashRequestTimeline {...props()} data={ackData} requests={[released]} />);
+    expect(screen.queryByRole('button', { name: 'Acknowledge cash' })).toBeNull();
+    expect(screen.getByRole('button', { name: 'Record expenses' })).toBeTruthy();
+
+    view.rerender(<CashRequestTimeline {...props()} data={ackData} requests={[released]} workCompleted />);
+    expect(screen.queryByRole('button', { name: 'Record expenses' })).toBeNull();
+  });
 });

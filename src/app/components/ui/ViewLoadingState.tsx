@@ -1,9 +1,6 @@
-import { useEffect, useState, type CSSProperties } from 'react';
+import type { CSSProperties } from 'react';
 import { EFlowMark } from '../../../components/EFlowMark';
-import {
-  SLOW_CONNECTION_THRESHOLD_MS,
-  useNetworkConnectivity,
-} from '../../shared/networkConnectivity';
+import { useNetworkConnectivity } from '../../shared/networkConnectivity';
 import { SignalBarsIcon } from './SignalBarsIcon';
 import './viewLoadingState.css';
 
@@ -146,24 +143,7 @@ function RoutePreview({ kind }: { kind: SkeletonKind }) {
 /** Lightweight, full-stage loader matching the live eFlow workspace. */
 export function ViewLoadingState() {
   const kind = resolveRouteSkeletonKind();
-  const { status, checking, retry } = useNetworkConnectivity();
-  const [slowElapsed, setSlowElapsed] = useState(false);
-
-  useEffect(() => {
-    if (status === 'offline') return;
-    const timer = window.setTimeout(
-      () => setSlowElapsed(true),
-      SLOW_CONNECTION_THRESHOLD_MS,
-    );
-    return () => window.clearTimeout(timer);
-  }, [status]);
-
-  const effectiveStatus =
-    status === 'offline'
-      ? 'offline'
-      : status === 'slow' || slowElapsed
-        ? 'slow'
-        : 'online';
+  const { status: effectiveStatus, checking, retry } = useNetworkConnectivity();
 
   const offline = effectiveStatus === 'offline';
   const slow = effectiveStatus === 'slow';

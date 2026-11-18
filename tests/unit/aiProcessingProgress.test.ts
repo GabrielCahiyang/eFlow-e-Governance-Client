@@ -30,4 +30,49 @@ describe("real proposal queue progress", () => {
     expect(updates.mock.calls[2][0].progress.history).toHaveLength(2);
     expect(api.fetch.mock.calls.slice(1).every(([path]) => path === "ai/jobs/job")).toBe(true);
   });
+
+  it("retries transient poll failures and resubmits with the same request_id if a job returns 404 after AI restart", async () => {
+    const result = { message: { role: "assistant", content: "Recovered assignment" } };
+    const response = (status: string, jobId = "job-1") =>
+      new Response(
+        JSON.stringify({
+          job_id: jobId,
+          status,
+          position: 1,
+          jobs_ahead: 0,
+          queue_depth: 1,
+          result: status === "completed" ? result : null,
+          error: null,
+        }),
+      );
+    const unavailable = Object.assign(new Error("Tunnel restarting"), {
+      name: "AiServiceUnavailableError",
+    });
+    api.fetch
+      .mockReset()
+      .mockResolvedValueOnce(response("processing", "job-1"))
+      .mockRejectedValueOnce(unavailable)
+      .mockResolvedValueOnce(new Response(JSON.stringify({ error: "Unknown job" }), { status: 404 }))
+      .mockResolvedValueOnce(response("processing", "job-2"))
+      .mockResolvedValueOnce(response("completed", "job-2"));
+
+    const updates = vi.fn();
+    const out = await requestAiChat(
+      { messages: [{ role: "user", content: "Staff task 10" }] },
+      {
+        requestId: "import-staff-10",
+        pollIntervalMs: 0,
+        reconnectBudgetMs: 50,
+        onQueueUpdate: updates,
+      },
+    );
+    expect(out).toEqual(result);
+    const postCalls = api.fetch.mock.calls.filter(([path]) => path === "ai/jobs");
+    expect(postCalls).toHaveLength(2);
+    expect(JSON.parse(postCalls[0][1].body).request_id).toBe("import-staff-10");
+    expect(JSON.parse(postCalls[1][1].body).request_id).toBe("import-staff-10");
+    expect(
+      updates.mock.calls.some(([u]) => u.progress?.stage === "reconnecting"),
+    ).toBe(true);
+  });
 });

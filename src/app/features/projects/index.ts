@@ -1,5 +1,5 @@
 import { createElement } from 'react';
-import { ProjectLocationLoading } from '../../components/workflow/ProjectWorkspaceSkeleton';
+import { ProjectLocationLoading, ProjectViewLoading } from '../../components/workflow/ProjectWorkspaceSkeleton';
 import { lazyFeature } from '../../shared/lazyFeature';
 // Data/selectors must not synchronously pull their consuming workspace back in.
 const projectFallback = createElement(ProjectLocationLoading);
@@ -22,4 +22,4 @@ export type {
   EmptyProjectCleanupOutcome,
 } from "./services/emptyProjectCleanupService";
 export type { ProjectCommandData } from './components/project-command/types';
-export const ProjectActivityHistory = lazyFeature(() => import('./components/project-command/ProjectActivityTab').then(m => ({default:m.ProjectActivityHistory})),undefined,'ProjectActivityHistory');
+export const ProjectActivityHistory = lazyFeature(() => import('./components/project-command/ProjectActivityTab').then(m => ({default:m.ProjectActivityHistory})),undefined,'ProjectActivityHistory',createElement(ProjectViewLoading, { view: 'activity' }));

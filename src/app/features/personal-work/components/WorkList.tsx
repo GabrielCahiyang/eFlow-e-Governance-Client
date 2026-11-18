@@ -10,9 +10,9 @@ import type { WorkRow } from "../types";
 
 function formatUpdatedDate(timestamp?: number) {
   if (!timestamp) return '';
-  return new Date(timestamp).toLocaleDateString('en-GB', {
-    day: 'numeric',
-    month: 'short',
+  return new Date(timestamp).toLocaleDateString('en-US', {
+    month: '2-digit',
+    day: '2-digit',
     year: 'numeric',
   });
 }

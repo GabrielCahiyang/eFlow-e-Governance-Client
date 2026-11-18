@@ -1,5 +1,6 @@
 import {useEffect,useRef,useState} from 'react';
 import {useAuth} from '../../../contexts/AuthContext';
+import { readableUiError } from '../../../shared/userFacingError';
 import {fetchWorkTree,saveWorkTree,WorkTreeUnavailable} from '../services/workTreeService';
 import type {WorkRequest,WorkTreeController,WorkTreeSnapshot} from '../types';
 import {isolateWorkDraftActor} from '../services/workDraftStore';
@@ -27,17 +28,27 @@ export function useWorkTree(rootId:string):WorkTreeController & {fresh:boolean} 
   if(!current())return;refreshQueued.current=false;
   const run=++generation.current;reading.current=run;
   if(!preserve)verified.current=false;
-  setState(previous=>({identity,data:preserve&&previous.identity===identity?previous.data:undefined,error:'',unavailable:preserve&&previous.identity===identity&&previous.unavailable,loading:true,
-   fresh:preserve&&previous.identity===identity&&previous.fresh,pending:pending.current!==undefined}));
+  setState(previous=>({
+   identity,
+   data:preserve&&previous.identity===identity?previous.data:undefined,
+   error:'',
+   unavailable:preserve&&previous.identity===identity&&previous.unavailable,
+   loading:!preserve||previous.identity!==identity||!previous.fresh,
+   fresh:preserve&&previous.identity===identity&&previous.fresh,
+   pending:pending.current!==undefined,
+  }));
   try{const next=await fetchWorkTree(rootId);if(current()&&run===generation.current)accept(next);}
   catch(reason){if(current()&&run===generation.current){
-   const code=(reason as {code?:string})?.code,message=reason instanceof Error?reason.message:'Could not load work.';
-   const denied=['42501','PGRST301','PGRST302','PGRST303'].includes(code||'')||/^(Current (project )?|Nested work |Work |Project )?access denied[.!]?$/i.test(message);
+   const code=(reason as {code?:string})?.code,rawMessage=reason instanceof Error?reason.message:'Could not load work.';
+   const denied=['42501','PGRST301','PGRST302','PGRST303'].includes(code||'')||/^(Current (project )?|Nested work |Work |Project )?access denied[.!]?$/i.test(rawMessage);
+   const message=denied&&!/row.level security|permission denied for/i.test(rawMessage)
+    ? rawMessage
+    : readableUiError(reason,'Could not load team and work details.','read');
    verified.current=false;
    setState(previous=>({...previous,identity,data:denied||reason instanceof WorkTreeUnavailable?undefined:previous.data,
     fresh:false,unavailable:reason instanceof WorkTreeUnavailable,error:reason instanceof WorkTreeUnavailable?'':message}));
   }}
-  finally{if(reading.current===run)reading.current=undefined;if(current()&&run===generation.current)setState(previous=>({...previous,loading:false}));if(current()&&refreshQueued.current&&pending.current===undefined&&reading.current===undefined)void reload(true);}
+  finally{if(reading.current===run)reading.current=undefined;if(current()&&(run===generation.current||reading.current===undefined))setState(previous=>({...previous,loading:false}));if(current()&&refreshQueued.current&&pending.current===undefined&&reading.current===undefined)void reload(true);}
  }
  useEffect(()=>{
   active.current=true;isolateWorkDraftActor(actorId);void reload(false);

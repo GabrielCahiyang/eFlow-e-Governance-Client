@@ -295,10 +295,10 @@ function ProjectFileLibraryContent({ projectId, taskId, readOnly = false }: { pr
                     <ExternalLink size={12} aria-hidden="true" />
                   </button>
                   <p className="r6-file-card__meta">
-                    Uploaded by {file.uploader_name} · {new Date(file.created_at).toLocaleDateString()} · {Math.ceil(file.file_size / 1024)} KB
+                    Uploaded by {file.uploader_name} · {new Date(file.created_at).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })} · {Math.ceil(file.file_size / 1024)} KB
                   </p>
                   <p className="r6-file-card__meta">
-                    Source: this project library{file.link ? ` · Linked ${new Date(file.link.linked_at).toLocaleDateString()}` : ''}
+                    Source: this project library{file.link ? ` · Linked ${new Date(file.link.linked_at).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })}` : ''}
                   </p>
                 </div>
               </div>

@@ -9,11 +9,12 @@ import { useConfirmation } from '../../../components/ui/useConfirmation';
 import { formatManilaInstant } from '../../../shared/calendarDisplay';
 import { financialErrorMessage, financialFailureIsUncertain, financialWriteFeedback } from '../financialReceipts';
 import { approveStaffingEscalation, decideIndependentReview, getIndependentReview, routeIndependentReview, type IndependentReviewContext } from '../services/independentReviewService';
+import { fetchCashReturnClearance } from '../services/workFinancialClearanceService';
 
 type ReviewDecision = 'approved' | 'changes_requested' | 'rejected' | 'approve_escalation';
 
-export function IndependentReviewCard({ id, version, context, error, onChanged, submittedByAccountingRequester }: {
-  id: string; version: number; context?: IndependentReviewContext; error?: string; onChanged: () => Promise<void>;
+export function IndependentReviewCard({ id, version, returnedAmount, context, error, onChanged, submittedByAccountingRequester }: {
+  id: string; version: number; returnedAmount?: number; context?: IndependentReviewContext; error?: string; onChanged: () => Promise<void>;
   submittedByAccountingRequester?: boolean;
 }) {
   const { userProfile } = useAuth();
@@ -75,6 +76,9 @@ export function IndependentReviewCard({ id, version, context, error, onChanged, 
       try {
         if (decision === 'approve_escalation') {
           if (!fresh.headEscalationFingerprint) throw new Error('This escalation is no longer awaiting your approval.');
+          if (fresh.headCanPostSettlement && (returnedAmount ?? 0) > 0 && !(await fetchCashReturnClearance(id)).approved) {
+            throw new Error('The cash return must be acknowledged and independently approved before settlement.');
+          }
           submitted = true;
           await approveStaffingEscalation(id, version, fresh.headEscalationFingerprint, findings, command);
         } else {

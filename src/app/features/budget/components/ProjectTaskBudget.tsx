@@ -12,6 +12,7 @@ import { useReviewedMutation } from '../../../shared/useReviewedMutation';
 import type { Task } from '../../tasks';
 import { useDepartmentBudget } from '../hooks/useDepartmentBudget';
 import { useTaskFundingContext } from '../hooks/useTaskFundingContext';
+import { formatCents, fromCents, parsePesoCents, toCents } from '../selectors/subtaskDistribution';
 import { getCurrentFiscalYear } from '../constants';
 import { removeSubtaskBudgetCap, setSubtaskBudgetCap, SUBTASK_BUDGET_CHANGED_EVENT } from '../services/budgetService';
 import { DirectWorkFunding } from './DirectWorkFunding';
@@ -235,12 +236,16 @@ function SubtaskBudgetModalContent({
   const capRequests = context?.cap
     ? (budget?.requests || []).filter(request => request.allocationId === context.cap?.id)
     : [];
+  const row = context?.subtaskBudgets?.find(item => item.id === subtaskId);
   const capHasActiveRequest = context?.subtaskBudgetBlocked || capRequests.some(request => ACTIVE_CAP_REQUEST_STATES.has(request.status));
   const lines = funding.allocation?.lines || [];
   const canEdit = Boolean(canManage && !funding.loading && funding.allocation?.canAllocate && context?.funded);
   const selectedLine = lines.find(line => line.id === lineId);
   const capLine = context?.cap ? context.lines.find(line => line.id === context.cap?.allocationLineId) : undefined;
+  const floorCents = context?.cap ? Math.max(0, toCents(context.cap.amount) - toCents(context.cap.available)) : 0;
+  const capMinimum = fromCents(Math.max(1, floorCents));
   const capMaximum = selectedLine?.available || 0;
+  const sourceLocked = Boolean(context?.cap && (row?.hasHistory || row?.finished));
   const poolAvailable = lines.reduce((sum, line) => sum + line.available, 0) - (context?.cap?.amount ?? 0);
   const allocationReason = funding.allocation?.reason;
 
@@ -254,7 +259,20 @@ function SubtaskBudgetModalContent({
       setError('Choose a task budget account.');
       return;
     }
-    if (!Number.isFinite(amount) || amount <= 0 || amount > capMaximum) {
+    if (sourceLocked && context?.cap?.allocationLineId && selectedLine.id !== context.cap.allocationLineId) {
+      setError('Keep the same funding account because this subtask already has cash history or finished work.');
+      return;
+    }
+    const parsedCents = parsePesoCents(String(amount || ''));
+    if (parsedCents === null) {
+      setError('Enter an amount greater than zero with up to two decimal places.');
+      return;
+    }
+    if (floorCents > 0 && parsedCents < floorCents) {
+      setError(`Keep at least ${formatCents(floorCents)} to cover recorded spending on this subtask.`);
+      return;
+    }
+    if (parsedCents > toCents(capMaximum)) {
       setError(`Enter a valid amount up to ${peso.format(capMaximum)}.`);
       return;
     }
@@ -355,6 +373,7 @@ function SubtaskBudgetModalContent({
                 Account
                 <select
                   aria-label="Subtask budget account"
+                  disabled={sourceLocked}
                   value={selectedLine ? lineId : ''}
                   onChange={event => {
                     setLineId(event.target.value);
@@ -368,13 +387,18 @@ function SubtaskBudgetModalContent({
                     </option>
                   ))}
                 </select>
-                {selectedLine && <small>{peso.format(capMaximum)} max from this account</small>}
+                {selectedLine && (
+                  <small>
+                    {floorCents > 0 ? `${formatCents(floorCents)} min for recorded spending · ` : ''}
+                    {peso.format(capMaximum)} max from this account
+                  </small>
+                )}
               </label>
               <label>
                 Amount
                 <MoneyInput
                   aria-label="Subtask budget amount"
-                  min="0.01"
+                  min={capMinimum}
                   max={capMaximum}
                   step="0.01"
                   value={amount || ''}

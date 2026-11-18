@@ -495,15 +495,17 @@ function ActorSubtasksWorkspace() {
         canDiscuss
         onChanged={() => {}}
       />
-      <SubtaskWorkDrawer
-        subtask={activeSubtask}
-        origin={subitemOrigin}
-        initialSection="work"
-        readOnly={loading||tasksLoading||!!sourceError||(!subtasks.some(item=>item.id===activeSubtask?.id)&&exactTarget!==JSON.stringify([activeSubtask?.taskId,activeSubtask?.id]))}
-        parentTask={activeSubtask?.parentTask}
-        prerequisite={activeSubtask ? getSubtaskPrerequisite(activeSubtask, subtasks) : null}
-        onClose={() => {exactCurrent.current=undefined;setExactTarget(undefined);setActiveSubtask(null);}}
-      />
+      {activeSubtask && (
+        <SubtaskWorkDrawer
+          subtask={activeSubtask}
+          origin={subitemOrigin}
+          initialSection="work"
+          readOnly={loading||tasksLoading||!!sourceError||(!subtasks.some(item=>item.id===activeSubtask?.id)&&exactTarget!==JSON.stringify([activeSubtask?.taskId,activeSubtask?.id]))}
+          parentTask={activeSubtask?.parentTask}
+          prerequisite={activeSubtask ? getSubtaskPrerequisite(activeSubtask, subtasks) : null}
+          onClose={() => {exactCurrent.current=undefined;setExactTarget(undefined);setActiveSubtask(null);}}
+        />
+      )}
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { BarChart3, FilterX, FolderKanban, UsersRound } from "lucide-react";
+import { DateInput } from "../../../components/ui/DateInput";
 import { useAnalyticsFunding } from "../hooks/useAnalyticsFunding";
 import {
   deliveryRows,
@@ -272,8 +273,7 @@ export function DeliveryAnalytics({
           </label>
           <label>
             Deadline from
-            <input
-              type="date"
+            <DateInput
               value={filters.from}
               max={filters.to || undefined}
               onChange={(e) => update({ from: e.target.value })}
@@ -281,8 +281,7 @@ export function DeliveryAnalytics({
           </label>
           <label>
             Deadline to
-            <input
-              type="date"
+            <DateInput
               min={filters.from || undefined}
               value={filters.to}
               onChange={(e) => update({ to: e.target.value })}

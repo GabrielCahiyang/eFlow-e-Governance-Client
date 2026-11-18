@@ -10,12 +10,18 @@ export class ProjectImportSaveError extends Error {
   constructor(message: string, readonly retrySameBatch: boolean) { super(message); }
 }
 
-export async function generateProjectDraft(projectId: string, sourceText: string, sourceName: string, onQueueUpdate: (update: AiQueueUpdate) => void) {
-  if(readSourceBudget(sourceText))throw new Error('Use Import PDF beside Add people in this project to include its source budget.');
+export async function generateProjectDraft(
+  projectId: string,
+  sourceText: string,
+  sourceName: string,
+  onQueueUpdate: (update: AiQueueUpdate) => void,
+  context: Record<string, unknown> = {},
+) {
+  if(readSourceBudget(sourceText))throw new Error('Use Import PDF in this project to include its source budget.');
   const validation = await controlPanelFetch('proposals/validate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ document_text: sourceText, file_name: sourceName, mode: 'workspace' }) }, { requireAiOnline: true, timeoutMs: 30000 });
   const gate = await validation.json();
   if (!validation.ok || !gate.is_proposal) throw new Error(gate.detail || gate.message || 'Document validation failed.');
-  const response = await requestAiChat({ messages: [{ role: 'user', content: 'Prepare a project workspace draft for human review.' }], workspace_decomposition: { schemaVersion: 1, projectId, sourceText, context: {} } }, { onQueueUpdate });
+  const response = await requestAiChat({ messages: [{ role: 'user', content: 'Prepare a project workspace draft for human review.' }], workspace_decomposition: { schemaVersion: 1, projectId, sourceText, context } }, { onQueueUpdate });
   return parseProjectImportDraft(readAiText(response), sourceText);
 }
 

@@ -74,7 +74,7 @@ export function InvitationTable({
                   )}
                 </td>
                 <td data-label="Invited">
-                  {new Date(item.created_at).toLocaleDateString()}
+                  {new Date(item.created_at).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })}
                 </td>
                 <td data-label="Actions">
                   {canManage && invitationCanManage(item) ? (

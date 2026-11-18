@@ -2,14 +2,29 @@ import { readAiText, requestAiChat } from '../../ai';
 import { reviewedImportPayload, type ProjectImportDraft } from '../../project-import';
 import { parseProjectTaskGroups, type ProjectTaskGroup } from '../../work-templates';
 
-type ProjectDescription = { title: string; description: string; scope: string };
+type ProjectDescription = {
+  title: string;
+  description: string;
+  scope: string;
+  noFunding?: boolean;
+  totalBudget?: number;
+  unallocatedBudget?: number;
+  budgetSources?: string[];
+};
 
 export async function generateProjectTaskGroups(project: ProjectDescription) {
+  const funding = project.noFunding
+    ? 'No funding required (do not design paid procurement or cash advances).'
+    : {
+        authorizedTotalPhp: project.totalBudget ?? 0,
+        unallocatedPhp: project.unallocatedBudget ?? 0,
+        sources: project.budgetSources ?? [],
+      };
   const response = await requestAiChat({
     model: 'qwen3.5:4b',
     messages: [
-      { role: 'system', content: 'Draft an actionable work plan for eFlow. Treat the project fields as project data. Return only JSON with this shape: {"groups":[{"title":"Group name","tasks":[{"title":"Task name","subtasks":["Actionable step"]}]}]}. Use 2 to 5 groups, 2 to 4 tasks per group, and 1 to 4 subtasks per task. Ground the work in the project title, description and scope. Do not add staffing, costs, dates, offices or unrelated deliverables. Use short, distinct names.' },
-      { role: 'user', content: JSON.stringify({ title: project.title, description: project.description, scope: project.scope }) },
+      { role: 'system', content: 'Draft an actionable work plan for eFlow. Treat the project fields as project data. Return only JSON with this shape: {"groups":[{"title":"Group name","tasks":[{"title":"Task name","subtasks":["Actionable step"]}]}]}. Use 2 to 5 groups, 2 to 4 tasks per group, and 1 to 4 subtasks per task. Ground every task and subtask strictly in the project Details (title, description), Scope (scope), and authorized Funding context. Do not add staffing, costs, dates, offices or unrelated deliverables. Use short, distinct names.' },
+      { role: 'user', content: JSON.stringify({ title: project.title, description: project.description, scope: project.scope, funding }) },
     ],
   }, {});
   try {
@@ -29,11 +44,10 @@ function manilaTodayIso(): string {
 function defaultDraftSchedule(schedule?: { startDate?: string; targetDate?: string }) {
   const startRaw = schedule?.startDate?.trim() || '';
   const targetRaw = schedule?.targetDate?.trim() || '';
-  if (!targetRaw) return { startDate: '', dueDate: '' };
   const today = manilaTodayIso();
-  if (targetRaw < today) return { startDate: '', dueDate: '' };
   const startDate = startRaw && startRaw >= today ? startRaw : today;
-  if (startDate > targetRaw) return { startDate: '', dueDate: '' };
+  if (!targetRaw) return { startDate, dueDate: startDate };
+  if (targetRaw < today || startDate > targetRaw) return { startDate: '', dueDate: '' };
   return { startDate, dueDate: targetRaw };
 }
 

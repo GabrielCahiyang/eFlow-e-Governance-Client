@@ -81,7 +81,7 @@ export interface MondayBoardProps {
   ) => void;
   onExecute?: (taskId: string) => void;
   onSubmit?: (taskId: string, submission: TaskSubmissionDraft) => void;
-  onVerify?: (taskId: string, approve: boolean, feedback?: string) => void;
+  onOpenReview?: (taskId: string) => void;
   onCreateTask?: (
     titleOrPayload: string | CreateTaskPayload,
     description?: string,

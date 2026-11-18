@@ -120,10 +120,10 @@ export function deriveProjectsFromTasks(
         overdue > 0 ? (daysLeft < 0 ? Math.abs(daysLeft) : 0) : undefined,
       bpaNode: overdue > 0 ? `${dept} · Overdue Review` : undefined,
       nextMilestone: nearestDl
-        ? `Next deadline · ${nearestDl.toLocaleDateString("en-PH", { month: "short", day: "numeric" })}`
+        ? `Next deadline · ${nearestDl.toLocaleDateString("en-US", { month: "short", day: "numeric" })}`
         : "No deadlines",
       deadline: nearestDl
-        ? nearestDl.toLocaleDateString("en-PH", {
+        ? nearestDl.toLocaleDateString("en-US", {
             year: "numeric",
             month: "short",
             day: "numeric",

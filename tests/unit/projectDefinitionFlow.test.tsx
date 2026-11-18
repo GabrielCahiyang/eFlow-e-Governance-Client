@@ -5,6 +5,7 @@ import {cleanup,fireEvent,render,screen,waitFor} from '@testing-library/react';
 const api=vi.hoisted(()=>({call:vi.fn(),read:vi.fn(),reload:vi.fn(),templates:vi.fn(),data:{} as any}));
 vi.mock('../../src/app/features/project-setup/useProjectFlow',()=>({useProjectFlow:()=>({data:api.data,reload:api.reload,error:''})}));
 vi.mock('../../src/app/features/project-setup/services/projectFlow',()=>({projectFlowCall:api.call,readProjectFlow:api.read,ProjectFlowError:class extends Error{}}));
+vi.mock('../../src/app/contexts/AuthContext',()=>({useAuth:()=>({user:{id:'lead'},userProfile:{id:'lead',role:'head'}})}));
 vi.mock('../../src/app/shared/navigationGuard',()=>({useNavigationBlocker:vi.fn(),requestNavigation:async (action:()=>void)=>{action();return true;}}));
 vi.mock('../../src/app/features/work-templates',()=>({
  listProjectTaskTemplates:api.templates,
@@ -14,12 +15,14 @@ vi.mock('../../src/app/features/work-templates',()=>({
  parseProjectTaskGroups:(groups:any[])=>groups,
 }));
 import {ProjectSetupWizard} from '../../src/app/features/project-setup/components/ProjectSetupWizard';
-import {ProjectSetupPeople} from '../../src/app/features/project-setup/components/ProjectSetupPeople';
 import {ProjectDefinitionPanel} from '../../src/app/features/project-setup/components/ProjectDefinitionPanel';
 import {ProjectFlowError} from '../../src/app/features/project-setup/services/projectFlow';
 import {TaskProjectFunding} from '../../src/app/features/project-setup/components/TaskProjectFunding';
 import {ProjectFundingPanel} from '../../src/app/features/project-setup/components/ProjectFundingPanel';
-const initial=()=>({project:{id:'p',title:'Community support',description:'',scope:'',project_lead_id:null,start_date:null,target_date:null,funding_not_required:false,updated_at:'2026-10-30T00:00:00Z'},ready:false,canAuthorize:true,canAllocate:true,funds:[],sources:[{id:'source',name:'Community services',year:2027,available:1000000}],requests:[],fundingRequests:[],taskFunding:[],liquidations:[],total:0,allocated:0,unallocated:0,released:0,spent:0});
+import {ProjectTaskDraftStep} from '../../src/app/features/project-setup/components/ProjectTaskDraftStep';
+import {getPhilippineCalendarDate} from '../../src/app/shared/calendarDates';
+const currentYear=Number(getPhilippineCalendarDate().slice(0,4));
+const initial=()=>({project:{id:'p',title:'Community support',description:'',scope:'',project_lead_id:null,start_date:null,target_date:null,funding_not_required:false,updated_at:'2026-10-30T00:00:00Z'},ready:false,canAuthorize:true,canAllocate:true,funds:[],sources:[{id:'source',name:'Community services',year:currentYear,available:1000000}],requests:[],fundingRequests:[],taskFunding:[],liquidations:[],total:0,allocated:0,unallocated:0,released:0,spent:0});
 const lead={id:'lead',full_name:'Ari Lead',email:'ari@example.test',role:'member' as const,is_active:true};
 vi.setConfig({testTimeout:15000});
 beforeEach(()=>{localStorage.clear();vi.resetAllMocks();api.data=initial();api.templates.mockResolvedValue([]);api.reload.mockResolvedValue(undefined);api.read.mockImplementation(async()=>api.data);});afterEach(cleanup);
@@ -66,7 +69,7 @@ it('retries an uncertain creation with the original request identity and payload
  expect(props.createDraft.mock.calls[1]).toEqual(props.createDraft.mock.calls[0]);
 });
 it('derives the funding total from source amounts without quarter selection',async()=>{
- api.data.sources.push({id:'source2',name:'Other services',year:2027,available:1000000});api.call.mockResolvedValue({authorized:700000});render(<ProjectFundingPanel data={api.data} reload={api.reload}/>);
+ api.data.sources.push({id:'source2',name:'Other services',year:currentYear,available:1000000});api.call.mockResolvedValue({authorized:700000});render(<ProjectFundingPanel data={api.data} reload={api.reload}/>);
  expect(screen.getByRole('button',{name:'Authorize project funding'})).toBeDisabled();
  fireEvent.change(screen.getByLabelText('Office Budget source'),{target:{value:'source'}});fireEvent.change(screen.getByRole('spinbutton'),{target:{value:'300000'}});
  fireEvent.click(screen.getByRole('button',{name:'Add funding source'}));fireEvent.change(screen.getAllByLabelText('Office Budget source')[1],{target:{value:'source2'}});expect(screen.queryByLabelText('Quarter')).toBeNull();fireEvent.change(screen.getAllByRole('spinbutton')[1],{target:{value:'400000'}});
@@ -79,11 +82,11 @@ it('project lead requests authorization rather than reserving Office Budget dire
 });
 
 it('requires a reason in the funding release dialog and retains its request identity',async()=>{
- api.data.funds=[{id:'fund',name:'Community services',fiscal_year:2027,amount:500,available:500}];
+ api.data.funds=[{id:'fund',name:'Community services',fiscal_year:currentYear,amount:500,available:500}];
  api.call.mockRejectedValueOnce(new Error('Result unavailable')).mockResolvedValueOnce('released');
  render(<ProjectFundingPanel data={api.data} reload={api.reload}/>);
- fireEvent.click(screen.getByRole('button',{name:'Release unused',exact:true}));
- const confirm=screen.getByRole('button',{name:'Release unused funding'});
+ fireEvent.click(screen.getByRole('button',{name:'Return to Office Budget'}));
+ const confirm=screen.getAllByRole('button',{name:'Return to Office Budget'}).at(-1)!;
  expect(confirm).toBeDisabled();
  fireEvent.change(screen.getByLabelText('Reason (required)'),{target:{value:'Close out unspent funding'}});
  fireEvent.click(confirm);
@@ -95,32 +98,32 @@ it('requires a reason in the funding release dialog and retains its request iden
 
 it('lets users skip directly to Review but prevents incomplete setup from finishing',async()=>{
  render(<ProjectSetupWizard recoveryKey="actor-office" createDraft={vi.fn()} profiles={[]} onClose={vi.fn()} onFinish={vi.fn()}/>);
- await screen.findByLabelText('Description *');fireEvent.click(screen.getByRole('button',{name:/05.*Review/}));
+ await screen.findByLabelText('Description *');fireEvent.click(screen.getByRole('button',{name:/04.*Review/}));
  expect(screen.getByText('Ready to build the work plan?')).toBeVisible();
- expect(screen.getByRole('button',{name:/06.*Add people/})).toBeDisabled();
- fireEvent.click(screen.getByRole('button',{name:'Next: Add people'}));
+ expect(screen.queryByRole('button',{name:/Add people/i})).toBeNull();
+ expect(screen.getByRole('button',{name:/05.*Draft tasks/})).toBeDisabled();
+ fireEvent.click(screen.getByRole('button',{name:'Next: Draft tasks'}));
  await waitFor(()=>expect(screen.getByRole('alert').textContent).toContain('title and description'));
  expect(api.call).not.toHaveBeenCalled();
  fireEvent.click(screen.getByRole('button',{name:/02.*Scope/}));expect(screen.getByLabelText('Scope of the project *')).toBeVisible();
 });
 
 it('keeps unsaved funding rows while jumping between sections',async()=>{
- api.data.project={...api.data.project,description:'Deliver support',scope:'Workshop materials',project_lead_id:'lead',start_date:'2027-01-01',target_date:'2027-12-31'};
- localStorage.setItem('actor-office',JSON.stringify({projectId:'p',step:3,creationPending:false,base:api.data.project,values:{title:api.data.project.title,description:api.data.project.description,scope:api.data.project.scope,lead:'lead',start:'2027-01-01',end:'2027-12-31',noFunding:false}}));
+ api.data.project={...api.data.project,description:'Deliver support',scope:'Workshop materials',project_lead_id:'lead',start_date:'',target_date:''};
+ localStorage.setItem('actor-office',JSON.stringify({projectId:'p',step:2,creationPending:false,base:api.data.project,values:{title:api.data.project.title,description:api.data.project.description,scope:api.data.project.scope,lead:'lead',start:'',end:'',noFunding:false}}));
  render(<ProjectSetupWizard recoveryKey="actor-office" createDraft={vi.fn()} profiles={[lead] as any} onClose={vi.fn()} onFinish={vi.fn()}/>);
  fireEvent.click(screen.getByRole('button',{name:'Continue draft'}));
- fireEvent.change(screen.getByLabelText('Fiscal year'),{target:{value:'2027'}});
  fireEvent.change(screen.getByLabelText('Office Budget source'),{target:{value:'source'}});fireEvent.change(screen.getByRole('spinbutton'),{target:{value:'1234'}});
- fireEvent.click(screen.getByRole('button',{name:/02.*Scope/}));fireEvent.click(screen.getByRole('button',{name:/04.*Funding/}));
+ fireEvent.click(screen.getByRole('button',{name:/02.*Scope/}));fireEvent.click(screen.getByRole('button',{name:/03.*Funding/}));
  expect(screen.getByRole('spinbutton')).toHaveValue('1,234');expect(screen.getByLabelText('Office Budget source')).toHaveValue('source');
- fireEvent.click(screen.getByRole('button',{name:/05.*Review/}));fireEvent.click(screen.getByRole('button',{name:'Next: Add people'}));
+ fireEvent.click(screen.getByRole('button',{name:/04.*Review/}));fireEvent.click(screen.getByRole('button',{name:'Next: Draft tasks'}));
  await waitFor(()=>expect(screen.getByRole('alert').textContent).toContain('Save or remove the funding entries'));
  expect(api.call).not.toHaveBeenCalled();
 });
 
-it('prepares Funding automatically and authorizes a valid annual amount inside the wizard',async()=>{
+it('prepares Funding automatically and authorizes a valid current-year amount inside the wizard without a Fiscal year selector',async()=>{
  const createDraft=vi.fn().mockResolvedValue('p');
- api.data.sources.push({id:'outside-year',name:'Outside dates',year:2028,available:1000000});
+ api.data.sources.push({id:'outside-year',name:'Future budget',year:currentYear+1,available:1000000});
  api.call.mockImplementation(async(operation,args)=>{
   if(operation==='save_project_definition'){
    const d=args.p_details;
@@ -129,35 +132,30 @@ it('prepares Funding automatically and authorizes a valid annual amount inside t
   }
   if(operation==='authorize_project_funding'){
    api.data.total=1234.56;
-   api.data.funds.push({id:'fund',name:'Community services',fiscal_year:2027,amount:1234.56,available:1234.56});
+   api.data.funds.push({id:'fund',name:'Community services',fiscal_year:currentYear,amount:1234.56,available:1234.56});
    return {authorized:1234.56};
   }
  });
  render(<ProjectSetupWizard recoveryKey="actor-office" creatorId="lead" createDraft={createDraft} profiles={[lead] as any} onClose={vi.fn()} onFinish={vi.fn()}/>);
- fireEvent.click(screen.getByRole('button',{name:/04.*Funding/}));
- expect(screen.getByText(/Complete Details, Scope/)).toBeVisible();
+ fireEvent.click(screen.getByRole('button',{name:/03.*Funding/}));
+ expect(screen.getByText(/Complete Details and Scope/)).toBeVisible();
  expect(createDraft).not.toHaveBeenCalled();
  fireEvent.click(screen.getByRole('button',{name:/01.*Details/}));
  fireEvent.change(screen.getByLabelText('Project title *'),{target:{value:'Community support'}});
  fireEvent.change(screen.getByLabelText('Description *'),{target:{value:'Deliver support'}});
  fireEvent.click(screen.getByRole('button',{name:'Next'}));
  fireEvent.change(screen.getByLabelText('Scope of the project *'),{target:{value:'Training'}});
+ expect(screen.queryByRole('button',{name:/Dates/})).toBeNull();
  fireEvent.click(screen.getByRole('button',{name:'Next'}));
- expect(screen.queryByLabelText('Project Lead *')).toBeNull();
- expect(screen.getByText('The Office Head creating this project is automatically its Project Lead.')).toBeVisible();
- fireEvent.change(screen.getByLabelText('Project start date *'),{target:{value:'2027-01-01'}});
- fireEvent.change(screen.getByLabelText('Project target date *'),{target:{value:'2027-06-30'}});
- fireEvent.click(screen.getByRole('button',{name:/04.*Funding/}));
  const authorize=await screen.findByRole('button',{name:'Authorize project funding'});
- await waitFor(()=>expect(screen.getByLabelText('Fiscal year')).toBeEnabled());
+ expect(screen.queryByLabelText('Fiscal year')).toBeNull();
+ await waitFor(()=>expect(screen.getByLabelText('Office Budget source')).toBeEnabled());
  expect(createDraft).toHaveBeenCalledExactlyOnceWith('Community support',expect.any(String));
  expect(api.call.mock.calls[0][0]).toBe('save_project_definition');
  expect(screen.queryByRole('button',{name:'Save details and load funding'})).toBeNull();
- expect(screen.queryByRole('option',{name:'FY 2028'})).toBeNull();
- expect(screen.getByLabelText('Office Budget source')).toBeDisabled();
- fireEvent.change(screen.getByLabelText('Fiscal year'),{target:{value:'2027'}});
- expect(screen.getByLabelText('No funding required for this project')).toBeDisabled();
+ expect(screen.queryByRole('option',{name:/Future budget/})).toBeNull();
  fireEvent.change(screen.getByLabelText('Office Budget source'),{target:{value:'source'}});
+ expect(screen.getByLabelText('No funding required for this project')).toBeDisabled();
  fireEvent.change(screen.getByRole('spinbutton'),{target:{value:'1000001'}});
  fireEvent.change(screen.getByLabelText('Reason / approved authority reference'),{target:{value:'Approved programme'}});
  expect(authorize).toBeDisabled();
@@ -168,7 +166,7 @@ it('prepares Funding automatically and authorizes a valid annual amount inside t
  expect(api.call).toHaveBeenCalledWith('authorize_project_funding',{
   p_project:'p',p_lines:[{partitionId:'source',amount:1234.56}],p_reason:'Approved programme',p_key:expect.any(String),
  });
- expect(screen.getByRole('button',{name:/04.*Funding/})).toHaveAttribute('aria-current','step');
+ expect(screen.getByRole('button',{name:/03.*Funding/})).toHaveAttribute('aria-current','step');
  expect(screen.getByLabelText('No funding required for this project')).toBeDisabled();
  fireEvent.click(screen.getByRole('button',{name:'Next'}));
  expect(await screen.findByRole('heading',{name:'Ready to build the work plan?'})).toBeVisible();
@@ -177,8 +175,8 @@ it('prepares Funding automatically and authorizes a valid annual amount inside t
 it('retries an uncertain automatic Funding preparation with the same draft request',async()=>{
  const createDraft=vi.fn().mockRejectedValueOnce(new Error('Failed to fetch')).mockResolvedValueOnce('p');
  const props={recoveryKey:'actor-office',profiles:[lead] as any,createDraft,onClose:vi.fn(),onFinish:vi.fn()};
- const values={title:'Community support',description:'Objectives',scope:'Training',lead:'lead',start:'2027-01-01',end:'2027-06-30',noFunding:false};
- localStorage.setItem(props.recoveryKey,JSON.stringify({values,step:3,projectId:''}));
+ const values={title:'Community support',description:'Objectives',scope:'Training',lead:'lead',start:'',end:'',noFunding:false};
+ localStorage.setItem(props.recoveryKey,JSON.stringify({values,step:2,projectId:''}));
  api.call.mockImplementation(async(_operation,{p_details:d})=>Object.assign(api.data.project,{
   description:d.description,scope:d.scope,project_lead_id:d.lead,start_date:d.start,target_date:d.end,
  }));
@@ -187,18 +185,18 @@ it('retries an uncertain automatic Funding preparation with the same draft reque
  expect(await screen.findByRole('alert')).toHaveTextContent("We couldn't confirm whether the project was created");
  expect(screen.queryByRole('region',{name:'Project budget'})).toBeNull();
  fireEvent.click(screen.getByRole('button',{name:'Retry loading funding sources'}));
- await waitFor(()=>expect(screen.getByLabelText('Fiscal year')).toBeEnabled());
+ await waitFor(()=>expect(screen.getByLabelText('Office Budget source')).toBeEnabled());
  expect(createDraft.mock.calls).toHaveLength(2);
  expect(createDraft.mock.calls[0]).toEqual(createDraft.mock.calls[1]);
- expect(screen.getByRole('button',{name:/04.*Funding/})).toHaveAttribute('aria-current','step');
+ expect(screen.getByRole('button',{name:/03.*Funding/})).toHaveAttribute('aria-current','step');
 });
 
 it('recovers an uncertain wizard authorization and verifies its original funding terms',async()=>{
- Object.assign(api.data.project,{description:'Objectives',scope:'Training',project_lead_id:'lead',start_date:'2027-01-01',target_date:'2027-06-30'});
+ Object.assign(api.data.project,{description:'Objectives',scope:'Training',project_lead_id:'lead',start_date:'',target_date:''});
  const props={wizard:true,data:api.data,reload:api.reload,recoveryKey:'actor-office:funding:p'};
  api.call.mockResolvedValueOnce(null).mockResolvedValueOnce({authorized:1234});
  const first=render(<ProjectFundingPanel {...props}/>);
- fireEvent.change(screen.getByLabelText('Fiscal year'),{target:{value:'2027'}});
+ expect(screen.queryByLabelText('Fiscal year')).toBeNull();
  fireEvent.change(screen.getByLabelText('Office Budget source'),{target:{value:'source'}});
  fireEvent.change(screen.getByRole('spinbutton'),{target:{value:'1234'}});
  fireEvent.change(screen.getByLabelText('Reason / approved authority reference'),{target:{value:'Approved programme'}});
@@ -206,8 +204,7 @@ it('recovers an uncertain wizard authorization and verifies its original funding
  await screen.findByRole('button',{name:'Verify saved funding request'});
  first.unmount();
  render(<ProjectFundingPanel {...props}/>);
- expect(screen.getByLabelText('Fiscal year')).toHaveValue('2027');
- expect(screen.getByLabelText('Fiscal year')).toBeDisabled();
+ expect(screen.getByLabelText('Office Budget source')).toBeDisabled();
  fireEvent.click(screen.getByRole('button',{name:'Verify saved funding request'}));
  expect(await screen.findByText('Project funding authorized.')).toBeVisible();
  expect(api.call.mock.calls[1]).toEqual(api.call.mock.calls[0]);
@@ -231,28 +228,18 @@ it('restores an unconfirmed funding request after reload and retries its origina
  await waitFor(()=>expect(localStorage.getItem(props.recoveryKey)).toBeNull());
 });
 
-it('keeps the Project Lead selected in ProjectSetupPeople and omits duplicate team picker from Step 5 Review',async()=>{
+it('omits Add people from Create project wizard and advances directly from Review to Draft tasks',async()=>{
  const lead={id:'lead',full_name:'Ari Lead',email:'ari@example.test',role:'member',is_active:true};
  const worker={id:'worker',full_name:'Toni Member',email:'toni@example.test',role:'member',is_active:true};
  const props={recoveryKey:'actor-office',profiles:[lead,worker] as any,createDraft:vi.fn(),onClose:vi.fn(),onFinish:vi.fn()};
  const values={title:'Community support',description:'Objectives',scope:'Workshop',lead:'lead',start:'2027-01-01',end:'2027-12-31',noFunding:true};
- localStorage.setItem(props.recoveryKey,JSON.stringify({values,step:4,projectId:'p',base:api.data.project}));
- const wizard=render(<ProjectSetupWizard {...props}/>);
+ localStorage.setItem(props.recoveryKey,JSON.stringify({values,step:3,projectId:'p',base:api.data.project}));
+ render(<ProjectSetupWizard {...props}/>);
  fireEvent.click(screen.getByRole('button',{name:'Continue draft'}));
  expect(screen.getByText('Ready to build the work plan?')).toBeTruthy();
  expect(screen.queryByText('Choose Office members')).toBeNull();
- wizard.unmount();
- const onChange=vi.fn();
- const first=render(<ProjectSetupPeople profiles={[lead,worker] as any} lead="lead" selected={[]} onChange={onChange}/>);
- const leadBox=screen.getByRole('checkbox',{name:'Ari Lead · Project Lead'});
- expect(leadBox).toBeChecked();
- expect(leadBox).toBeDisabled();
- fireEvent.change(screen.getByLabelText('Search Office members'),{target:{value:'Toni'}});
- fireEvent.click(screen.getByRole('checkbox',{name:'Toni Member'}));
- expect(onChange).toHaveBeenCalledWith(['worker']);
- first.unmount();
- render(<ProjectSetupPeople profiles={[lead,worker] as any} lead="lead" selected={['worker']} onChange={onChange}/>);
- expect(screen.getByRole('checkbox',{name:'Toni Member'})).toBeChecked();
+ expect(screen.queryByRole('button',{name:/Add people/i})).toBeNull();
+ expect(screen.getByRole('button',{name:/05.*Draft tasks/})).toBeInTheDocument();
 });
 
 it('freezes an uncertain task allocation and verifies the original request without another deduction',async()=>{
@@ -292,4 +279,57 @@ it('keeps project settings and funding-requirement toggle read-only once the pro
  settingsView.unmount();
  render(<ProjectDefinitionPanel projectId="p" profiles={[lead] as any} section="funding"/>);
  expect(screen.queryByRole('checkbox',{name:'No funding required for this project'})).toBeNull();
+});
+
+it('allows removing individual groups, tasks, and subtasks with X buttons and tooltips in Draft tasks',()=>{
+ render(<ProjectTaskDraftStep
+  projectId="p"
+  project={{title:'Outreach',description:'Community drive',scope:'Two barangays'}}
+  templates={[]}
+  templateError=""
+  initialTemplate={{
+   id:'tpl-1',
+   name:'Outreach',
+   description:'Template',
+   org_id:'o',
+   created_by:'lead',
+   is_archived:false,
+   created_at:'',
+   updated_at:'',
+   groups:[
+    {title:'Planning',color:'#087972',tasks:[
+     {title:'Prepare materials',description:'',priority:'medium',estimatedHours:4,subtasks:['Print flyers','Confirm venue']},
+     {title:'Coordinate leads',description:'',priority:'high',estimatedHours:2,subtasks:[]},
+    ]},
+    {title:'Delivery',color:'#579bfc',tasks:[
+     {title:'Conduct orientation',description:'',priority:'medium',estimatedHours:6,subtasks:[]},
+    ]},
+   ],
+  }}
+  onSaved={vi.fn()}
+  onBusyChange={vi.fn()}
+ />);
+ fireEvent.click(screen.getByRole('button',{name:'Remove subtask Print flyers'}));
+ expect(screen.queryByDisplayValue('Print flyers')).toBeNull();
+ expect(screen.getByDisplayValue('Confirm venue')).toBeInTheDocument();
+ fireEvent.click(screen.getByRole('button',{name:'Remove task Coordinate leads'}));
+ expect(screen.queryByDisplayValue('Coordinate leads')).toBeNull();
+ expect(screen.getByDisplayValue('Prepare materials')).toBeInTheDocument();
+ fireEvent.click(screen.getByRole('button',{name:'Remove group Delivery'}));
+ expect(screen.queryByDisplayValue('Delivery')).toBeNull();
+ expect(screen.getByDisplayValue('Planning')).toBeInTheDocument();
+});
+
+it('omits Add people in Create project with AI and advances directly from Review to Import AI PDF',async()=>{
+ const createDraft=vi.fn().mockResolvedValue('p');
+ api.call.mockImplementation(async(operation,args)=>{
+  if(operation==='save_project_definition'){
+   const d=args.p_details;
+   Object.assign(api.data.project,{title:d.title,description:d.description,scope:d.scope,project_lead_id:d.lead,start_date:d.start,target_date:d.end,funding_not_required:d.noFunding});
+   return api.data.project;
+  }
+ });
+ render(<ProjectSetupWizard importPdf recoveryKey="actor-office" creatorId="lead" createDraft={createDraft} profiles={[lead] as any} onClose={vi.fn()} onFinish={vi.fn()}/>);
+ expect(screen.queryByRole('button',{name:/Add people/})).toBeNull();
+ expect(screen.getByRole('button',{name:/05.*Import AI PDF/})).toBeInTheDocument();
 });

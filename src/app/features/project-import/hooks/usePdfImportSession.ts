@@ -8,16 +8,45 @@ import { reviewedImportPayload } from '../selectors/draftValidation';
 import { cacheImportFile,readImportFile,clearImportFile,pendingPdfImport,checkpointPdfImport,touchPdfImport,publishPdfImport,type PdfImportSession,type PdfSessionState } from '../services/pdfImportSession';
 import type { ProjectImportResult } from '../types';
 import type { AiQueueUpdate } from '../../ai';
+import type { PdfEnrichmentProjectContext } from '../../proposal-import';
 
-export function usePdfImportSession(projectId:string,onImported:(result:ProjectImportResult)=>void){
+export function usePdfImportSession(
+  projectId:string,
+  onImported:(result:ProjectImportResult)=>void,
+  fallbackProjectContext?:PdfEnrichmentProjectContext,
+){
  const [session,setSession]=useState<PdfImportSession|null>(null),[busy,setBusy]=useState(false),[loading,setLoading]=useState(true),[error,setError]=useState(''),[message,setMessage]=useState(''),[result,setResult]=useState<ProjectImportResult|null>(null);
+ const [loadedProjectContext,setLoadedProjectContext]=useState<PdfEnrichmentProjectContext|undefined>(fallbackProjectContext);
  const runner=useRef(crypto.randomUUID()),current=useRef<PdfImportSession|null>(null),inFlight=useRef(false),alive=useRef(true);
  const show=(next:PdfImportSession|null)=>{current.current=next;if(alive.current)setSession(next);};
  const save=async(state:PdfSessionState)=>{if(!current.current)throw new Error('Import session is missing.');const next=await checkpointPdfImport(current.current,runner.current,state);show(next);return next;};
  const event=async(stage:PdfSessionState['stage'],text:string,patch:Partial<PdfSessionState>={})=>{
   const state=current.current!.state;setMessage(text);return save({...state,...patch,stage,events:[...state.events.filter(value=>value!==text),text].slice(-140)});
  };
- useEffect(()=>{alive.current=true;let active=true;setLoading(true);void pendingPdfImport(projectId).then(value=>{if(active)show(value!);}).catch(reason=>{if(active)setError((reason as Error).message);}).finally(()=>{if(active)setLoading(false);});return()=>{active=false;alive.current=false;};},[projectId]);
+ const loadLiveProjectContext=async():Promise<PdfEnrichmentProjectContext|undefined>=>{
+  if(typeof supabase.rpc==='function'){
+   try{
+    const {data}=await supabase.rpc('project_flow_snapshot',{p_project:projectId});
+    const snap=data as {project?:{title?:string;description?:string;scope?:string;funding_not_required?:boolean};unallocated?:number;funds?:Array<{id:string;name:string;fiscal_year:number;available:number}>}|null;
+    if(snap?.project){
+     const ctx:PdfEnrichmentProjectContext={
+      title:snap.project.title||fallbackProjectContext?.title||'',
+      description:snap.project.description||fallbackProjectContext?.description||'',
+      scope:snap.project.scope||fallbackProjectContext?.scope||'',
+      authorizedBudget:{
+       fundingNotRequired:!!snap.project.funding_not_required,
+       totalAvailable:Number(snap.unallocated??0),
+       sources:(snap.funds||[]).map(f=>({id:f.id,name:f.name,fiscalYear:f.fiscal_year,available:Number(f.available??0)})),
+      },
+     };
+     if(alive.current)setLoadedProjectContext(ctx);
+     return ctx;
+    }
+   }catch{/* Keep fallback context when flow snapshot is mocked or offline. */}
+  }
+  return fallbackProjectContext;
+ };
+ useEffect(()=>{alive.current=true;let active=true;setLoading(true);void Promise.all([pendingPdfImport(projectId),loadLiveProjectContext()]).then(([value])=>{if(active)show(value!);}).catch(reason=>{if(active)setError((reason as Error).message);}).finally(()=>{if(active)setLoading(false);});return()=>{active=false;alive.current=false;};},[projectId]);
  const queue=(update:AiQueueUpdate)=>{if(alive.current)setMessage(update.status==='queued'?`Waiting for AI · ${update.jobsAhead} ahead`:update.progress?.message||'AI is preparing this step…');};
  const run=async()=>{
   if(inFlight.current||!current.current)return;
@@ -35,9 +64,16 @@ export function usePdfImportSession(projectId:string,onImported:(result:ProjectI
    }
    if(!current.current.state.draft){
     const state=current.current.state;
-    let draft=await generatePdfProjectDraft(projectId,state.sourceText!,state.sourceName,state.anchor,queue,`${current.current.id}:decompose:${current.current.revision}`,{addBudget:state.addBudget!==false,addSubtasks:state.addSubtasks!==false});
+    const liveContext=state.projectContext||(await loadLiveProjectContext())||loadedProjectContext;
+    const draftOptions:{addBudget:boolean;addSubtasks:boolean;projectContext?:PdfEnrichmentProjectContext}={addBudget:state.addBudget!==false,addSubtasks:state.addSubtasks!==false};
+    if(liveContext)draftOptions.projectContext=liveContext;
+    let draft=await generatePdfProjectDraft(projectId,state.sourceText!,state.sourceName,state.anchor,queue,`${current.current.id}:decompose:${current.current.revision}`,draftOptions);
     if(!state.addOffices)draft={...draft,offices:[],groups:draft.groups.map(group=>({...group,tasks:group.tasks.map(task=>({...task,officeKey:''}))}))};
-    await event('offices',`Found ${draft.groups.length} groups and ${draft.groups.flatMap(group=>group.tasks).length} tasks`,{draft});
+    await event('offices',`Found ${draft.groups.length} groups and ${draft.groups.flatMap(group=>group.tasks).length} tasks`,{
+     draft,
+     ...(liveContext?{projectContext:liveContext}:{}),
+     ...(draft.budgetAllocations?.length?{budgetAllocations:draft.budgetAllocations}:{}),
+    });
    }
    if(current.current.state.addOffices&&!current.current.state.extraction){
     await event('offices','Checking which offices are responsible for the work');
@@ -90,5 +126,5 @@ export function usePdfImportSession(projectId:string,onImported:(result:ProjectI
   try{await save({...state,officesReviewed:true,draft:{...state.draft!,offices:offices.map(office=>({...office,confirmed:true})),groups:state.draft!.groups.map(group=>({...group,tasks:group.tasks.map(task=>({...task,officeKey:keys.has(task.officeKey)?task.officeKey:''}))}))}});void run();}catch(reason){setError((reason as Error).message);}
  };
  const discard=async()=>{if(inFlight.current||!current.current)return;await save({...current.current.state,stage:'discarded',sourceText:undefined,draft:undefined,review:undefined});await clearImportFile(current.current.id).catch(()=>{});current.current=null;setSession(null);setError('');};
- return {session,busy,loading,error,message,result,upload,resume:run,confirmOffices,discard};
+ return {session,busy,loading,error,message,result,projectContext:loadedProjectContext,upload,resume:run,confirmOffices,discard};
 }

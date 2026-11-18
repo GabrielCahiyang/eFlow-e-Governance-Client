@@ -21,7 +21,7 @@ export function BudgetVersionBanner({ data }: { data: DepartmentBudgetBundle }) 
             <span className="budget-version__meta">
               <ShieldCheck size={13} aria-hidden="true" />
               {current
-                ? `${current.actorName} · ${new Date(current.createdAt).toLocaleString()}`
+                ? `${current.actorName} · ${new Date(current.createdAt).toLocaleString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric', hour: 'numeric', minute: '2-digit' })}`
                 : "Locked budget"}
             </span>
           </div>
@@ -49,7 +49,7 @@ export function BudgetVersionBanner({ data }: { data: DepartmentBudgetBundle }) 
                       V{version.version} · {peso.format(version.total)}
                     </strong>
                     <span>
-                      {version.actorName} · {new Date(version.createdAt).toLocaleString()}
+                      {version.actorName} · {new Date(version.createdAt).toLocaleString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric', hour: 'numeric', minute: '2-digit' })}
                     </span>
                   </header>
                   <p>{version.reason}</p>

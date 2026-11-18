@@ -19,7 +19,7 @@ export function HeadWorkspaceDashboard({actorId,name,data,loading,error,onRefres
   const model=useMemo(()=>data?headOverview(data,new Date(),actorId):undefined,[data,actorId]);
   const incomplete=!!data?.issues.length||!!error;
   const trusted=!!data&&!incomplete;
-  const date=new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Manila',weekday:'long',day:'numeric',month:'long'}).format(new Date());
+  const date=new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Manila',weekday:'long',month:'2-digit',day:'2-digit',year:'numeric'}).format(new Date());
   const cards=[
     {label:'Active projects',value:model?.projects.length,detail:'Track delivery across your office',icon:FolderKanban,action:()=>onNavigate('projects','Projects'),tone:'blue'},
     {label:'Open tasks',value:model?.open.length,detail:'Work still to be completed',icon:CheckCircle2,action:()=>onNavigate('tasks','Task Board'),tone:'teal'},

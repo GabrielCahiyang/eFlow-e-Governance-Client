@@ -8,9 +8,9 @@ export interface ConnectivitySnapshot {
   lastCheckedAt: number | null;
 }
 
-export const SLOW_CONNECTION_THRESHOLD_MS = 3500;
-export const SLOW_RTT_MS = 1500;
-export const PROBE_TIMEOUT_MS = 4500;
+export const SLOW_CONNECTION_THRESHOLD_MS = 8000;
+export const SLOW_RTT_MS = 3000;
+export const PROBE_TIMEOUT_MS = 6000;
 export const OFFLINE_RETRY_INTERVAL_MS = 10_000;
 
 interface NetworkInformationLike {
@@ -290,12 +290,17 @@ export async function probeConnectivity(): Promise<ConnectivityStatus> {
       const elapsed = Date.now() - startedAt;
       consecutiveFailures = 0;
       const nextStatus: ConnectivityStatus =
-        elapsed >= SLOW_CONNECTION_THRESHOLD_MS || isNetworkInformationSlow() ? "slow" : "online";
+        elapsed >= SLOW_CONNECTION_THRESHOLD_MS ? "slow" : "online";
       updateSnapshot({ status: nextStatus, checking: false, lastCheckedAt: Date.now() });
       return nextStatus;
     } catch {
-      updateSnapshot({ status: "offline", checking: false, lastCheckedAt: Date.now() });
-      return "offline";
+      consecutiveFailures += 1;
+      const nextStatus: ConnectivityStatus =
+        isNavigatorOffline() || consecutiveFailures >= 2 || snapshot.status === "offline"
+          ? "offline"
+          : snapshot.status;
+      updateSnapshot({ status: nextStatus, checking: false, lastCheckedAt: Date.now() });
+      return nextStatus;
     } finally {
       if (timeoutId !== null && typeof window !== "undefined") {
         window.clearTimeout(timeoutId);
@@ -328,7 +333,12 @@ function handleConnectionChange() {
     return;
   }
   if (snapshot.status !== "offline") {
-    updateSnapshot({ status: isNetworkInformationSlow() ? "slow" : "online" });
+    const nextStatus: ConnectivityStatus =
+      activeSlowRequests.size > 0 || isNetworkInformationSlow() ? "slow" : "online";
+    updateSnapshot({ status: nextStatus });
+    if (nextStatus === "slow" && activeSlowRequests.size === 0 && !import.meta.env?.VITEST) {
+      scheduleRecoveryProbe();
+    }
   }
 }
 
@@ -336,6 +346,9 @@ function handleVisibilityChange() {
   if (typeof document !== "undefined" && document.visibilityState === "hidden") {
     visibilitySleepEpoch += 1;
     activeSlowRequests.clear();
+    if (snapshot.status === "slow") {
+      updateSnapshot({ status: "online" });
+    }
   }
 }
 
@@ -377,7 +390,6 @@ export function installConnectivityMonitor(): void {
     const startSleepEpoch = visibilitySleepEpoch;
     const startedHidden =
       typeof document !== "undefined" && document.visibilityState === "hidden";
-    const startedAt = Date.now();
     const slowTimer =
       monitorSlow && !startedHidden
         ? window.setTimeout(() => {
@@ -397,24 +409,14 @@ export function installConnectivityMonitor(): void {
       if (slowTimer !== null) window.clearTimeout(slowTimer);
       activeSlowRequests.delete(reqToken);
       consecutiveFailures = 0;
-      const elapsed = Date.now() - startedAt;
-      const wasBackgrounded =
-        startedHidden ||
-        visibilitySleepEpoch !== startSleepEpoch ||
-        (typeof document !== "undefined" && document.visibilityState === "hidden");
-      const requestWasSlow =
-        monitorSlow && !wasBackgrounded && elapsed >= SLOW_CONNECTION_THRESHOLD_MS;
 
       const nextStatus: ConnectivityStatus = isNavigatorOffline()
         ? "offline"
-        : activeSlowRequests.size > 0 || requestWasSlow || isNetworkInformationSlow()
+        : activeSlowRequests.size > 0
           ? "slow"
           : "online";
       if (nextStatus === "online") clearRecoveryProbe();
       updateSnapshot({ status: nextStatus, lastCheckedAt: Date.now() });
-      if (requestWasSlow && activeSlowRequests.size === 0 && !import.meta.env?.VITEST) {
-        scheduleRecoveryProbe();
-      }
       return response;
     } catch (error) {
       if (slowTimer !== null) window.clearTimeout(slowTimer);

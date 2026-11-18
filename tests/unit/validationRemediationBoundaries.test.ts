@@ -19,7 +19,7 @@ describe('invalid input stops before any side effect',()=>{
  });
  it.each([NaN,Infinity,0,-1,.0001,1e30])('rejects receipt quantity %s before upload or RPC',async quantity=>{
   const receipt={id:'receipt',vendor:'Shop',receiptNumber:'1',receiptDate:'2000-01-01',description:'Goods',amount:10,file:{name:'receipt.pdf',type:'application/pdf',size:10} as File,items:[{id:'item',allocationLineId:'line',quantity,unit:'kg',particular:'Goods',purpose:'Work',amount:10}]};
-  await expect(submitPettyCashLiquidation({orgId:'office',requestId:'request',spent:10,note:'Purchased',receipts:[receipt]})).rejects.toThrow(/quantity/i);
+  await expect(submitPettyCashLiquidation({orgId:'office',requestId:'request',actor:'recipient',spent:10,note:'Purchased',receipts:[receipt]})).rejects.toThrow(/quantity/i);
   expect(api.storage).not.toHaveBeenCalled();expect(api.rpc).not.toHaveBeenCalled();
  });
  it('rejects a 91-day governance deadline before RPC',async()=>{

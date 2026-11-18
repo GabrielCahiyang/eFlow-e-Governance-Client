@@ -1,4 +1,5 @@
 import { calendarMinDate, getPhilippineCalendarDate, scheduleRangeError, scheduledDateError } from '../../../../shared/calendarDates';
+import { DateInput } from '../../../../components/ui/DateInput';
 import { useEffect, useState } from "react";
 import {
   Avatar,
@@ -262,8 +263,7 @@ export function ProjectPlanTab({
             </Field>
             <div className="grid grid-cols-2 gap-2">
               <Field label="Start date">
-                <input
-                  type="date"
+                <DateInput
                   min={calendarMinDate(project.startDate || '')}
                   value={form.startDate}
                   onChange={(event) =>
@@ -273,8 +273,7 @@ export function ProjectPlanTab({
                 />
               </Field>
               <Field label="Target date">
-                <input
-                  type="date"
+                <DateInput
                   min={form.startDate && form.startDate > calendarMinDate(project.targetDate || '') ? form.startDate : calendarMinDate(project.targetDate || '')}
                   value={form.targetDate}
                   onChange={(event) =>
@@ -310,8 +309,7 @@ export function ProjectPlanTab({
               inputAriaLabel="New activity title"
               placeholder="New activity title…"
             />
-            <input
-              type="date"
+            <DateInput
               min={getPhilippineCalendarDate()} max={project.targetDate || undefined}
               value={newDue}
               onChange={(event) => setNewDue(event.target.value)}
@@ -421,9 +419,8 @@ function MilestoneRow({
         onChange={(event) => setTitle(event.target.value)}
         className="eflow-control"
       />
-      <input
+      <DateInput
         disabled={disabled}
-        type="date"
         min={calendarMinDate(milestone.dueDate || '')} max={projectTarget || undefined}
         value={dueDate}
         onChange={(event) => setDueDate(event.target.value)}

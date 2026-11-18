@@ -1,6 +1,7 @@
 import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import { CalendarDays, CheckCircle2, Plus, Trash2 } from "lucide-react";
 import { MoneyInput } from "../../../components/ui/MoneyInput";
+import { DateInput } from "../../../components/ui/DateInput";
 import type { BudgetScheduledRelease, BudgetSection } from "../types";
 import { accountReleaseSchedule, pendingReleaseAmount } from "../selectors/budgetReleaseSchedule";
 import { peso } from "./budgetUi";
@@ -37,9 +38,8 @@ export function BudgetReleaseScheduleEditor({
         <div className="budget-release-editor__row" key={row.id}>
           <label>
             Release {index + 1} · date
-            <input
+            <DateInput
               aria-label={`Release ${index + 1} date for ${account.name}`}
-              type="date"
               min={year ? `${year}-01-01` : undefined}
               max={year ? `${year}-12-31` : undefined}
               value={row.date}

@@ -17,6 +17,25 @@ const auth = vi.hoisted(() => ({
   allowed: true,
 }));
 const settle = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
+const returnClearance = vi.hoisted(() =>
+  vi.fn(async (id: string) => ({
+    version: 1 as const,
+    liquidationId: id,
+    packageVersion: 2,
+    amount: 1500,
+    received: true,
+    approved: true,
+    receivedBy: "accounting-1",
+    approvedBy: "head-1",
+    reference: "OR-100",
+    canAcknowledge: false,
+    canApprove: false,
+  })),
+);
+vi.mock('../../src/app/features/budget/services/workFinancialClearanceService', async importOriginal => {
+  const original = await importOriginal<typeof import('../../src/app/features/budget/services/workFinancialClearanceService')>();
+  return { ...original, fetchCashReturnClearance: returnClearance };
+});
 vi.mock('../../src/app/features/budget/services/independentReviewService', async importOriginal => {
   const original = await importOriginal<typeof import('../../src/app/features/budget/services/independentReviewService')>();
   return { ...original, getIndependentReview: vi.fn(async (id: string) => ({ liquidationId: id, version: 2, required: false, current: false, canReview: false, canSettle: true, review: null, candidates: [], eligibleSettlers: 1, escalationRequired: false })) };
@@ -46,6 +65,42 @@ describe("Accounting settlement authority", () => {
     auth.id = "accounting-1";
     auth.allowed = true;
     settle.mockClear();
+    returnClearance.mockReset().mockImplementation(async (id: string) => ({
+      version: 1 as const,
+      liquidationId: id,
+      packageVersion: 2,
+      amount: 1500,
+      received: true,
+      approved: true,
+      receivedBy: "accounting-1",
+      approvedBy: "head-1",
+      reference: "OR-100",
+      canAcknowledge: false,
+      canApprove: false,
+    }));
+  });
+  it("blocks settlement when unused cash return has not been acknowledged and approved by the Office Head", async () => {
+    returnClearance.mockResolvedValue({
+      version: 1,
+      liquidationId: "liquidation-2",
+      packageVersion: 2,
+      amount: 1500,
+      received: true,
+      approved: false,
+      receivedBy: "accounting-1",
+      approvedBy: null,
+      reference: "OR-100",
+      canAcknowledge: false,
+      canApprove: false,
+    });
+    const changed = vi.fn().mockResolvedValue(undefined);
+    render(
+      <AccountingSettlementQueue data={bundle(true)} onChanged={changed} />,
+    );
+    await waitFor(() => expect(screen.getByRole("button", { name: /Settle & post/ }).getAttribute("aria-disabled")).not.toBe("true"));
+    fireEvent.click(screen.getByRole("button", { name: /Settle & post/ }));
+    await screen.findByText(/Accounting must acknowledge the cash received and the Office Head must approve the return before settlement/);
+    expect(settle).not.toHaveBeenCalled();
   });
   it("waits for Head authorization before settling a late package", () => {
     render(<AccountingSettlementQueue data={bundle()} onChanged={vi.fn()} />);

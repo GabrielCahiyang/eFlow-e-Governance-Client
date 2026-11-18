@@ -205,7 +205,7 @@ export function AccountingTrailPanel({
                     {entry.description}
                   </p>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    {new Date(entry.createdAt).toLocaleString()} ·{" "}
+                    {new Date(entry.createdAt).toLocaleString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric', hour: 'numeric', minute: '2-digit' })} ·{" "}
                     {entry.actorRole
                       ? entry.actorRole.split("_").join(" ")
                       : "system"}

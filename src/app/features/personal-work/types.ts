@@ -64,6 +64,7 @@ export interface WorkSnapshot {
   workspaces: Workspace[];
   issues: string[];
   unavailable: string[];
+  retrying?: boolean;
   loadedAt: number;
 }
 export interface WorkScope {

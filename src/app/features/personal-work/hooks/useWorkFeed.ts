@@ -11,6 +11,7 @@ import { ACCESS_CHANGED_EVENT } from "../../project-access";
 import { loadWorkFeed } from "../services/workFeedService";
 import type { WorkScope, WorkSnapshot } from "../types";
 import { isQueryAccessDenied } from "../../../shared/queryAccess";
+import { readableUiError } from "../../../shared/userFacingError";
 
 const WORK_FEED_DOMAIN = "work-feed";
 
@@ -48,13 +49,22 @@ export function useWorkFeed(userId: string, scope?: WorkScope) {
   }));
   const generation = useRef(0);
   const inFlight = useRef<number | undefined>(undefined);
+  const autoRetryTimer = useRef<number | undefined>(undefined);
+  const autoRetryCount = useRef(0);
   const scopeRef = useRef(scope);
   scopeRef.current = scope;
   const userIdRef = useRef(userId);
   userIdRef.current = userId;
 
   const executeLoad = useCallback(
-    async (forceRefresh: boolean) => {
+    async (forceRefresh: boolean, isAutoRetry = false) => {
+      if (autoRetryTimer.current !== undefined) {
+        clearTimeout(autoRetryTimer.current);
+        autoRetryTimer.current = undefined;
+      }
+      if (!isAutoRetry) {
+        autoRetryCount.current = 0;
+      }
       const token = ++generation.current;
       const cacheGeneration = getQueryCacheGeneration();
       const current = () => token === generation.current && cacheGeneration === getQueryCacheGeneration();
@@ -83,17 +93,52 @@ export function useWorkFeed(userId: string, scope?: WorkScope) {
         });
         if (current()) {
           setState({ key, data, loading: false, refreshing: false });
+          if (data.retrying && autoRetryCount.current < 3) {
+            autoRetryCount.current += 1;
+            const delay = autoRetryCount.current * 2000;
+            autoRetryTimer.current = window.setTimeout(() => {
+              if (!inFlight.current && isDocumentVisible()) {
+                void executeLoad(true, true);
+              }
+            }, delay);
+          } else if (!data.retrying) {
+            autoRetryCount.current = 0;
+          }
         }
       } catch (error) {
         if (current()) {
           const denied = isQueryAccessDenied(error);
           if (denied) evictQueryDomain(WORK_FEED_DOMAIN, key);
+          const rawMessage = (error as Error).message || "";
+          const isTimeout =
+            !denied &&
+            ((error as { code?: string })?.code === "57014" ||
+              /canceling statement due to statement timeout|statement timeout|upstream request timeout/i.test(rawMessage));
+          if (isTimeout && autoRetryCount.current < 3) {
+            autoRetryCount.current += 1;
+            const delay = autoRetryCount.current * 2000;
+            setState((previous) => ({
+              key,
+              data: previous.key === key ? previous.data : undefined,
+              loading: previous.key !== key || !previous.data,
+              refreshing: Boolean(previous.key === key && previous.data),
+              error: undefined,
+            }));
+            autoRetryTimer.current = window.setTimeout(() => {
+              if (isDocumentVisible()) {
+                void executeLoad(true, true);
+              }
+            }, delay);
+            return;
+          }
           setState(previous => ({
             key,
             data: !denied && previous.key === key ? previous.data : undefined,
             loading: false,
             refreshing: false,
-            error: (error as Error).message,
+            error: isTimeout
+              ? readableUiError(error, "Couldn't load your work right now.", "read")
+              : rawMessage,
           }));
         }
       } finally {
@@ -130,6 +175,10 @@ export function useWorkFeed(userId: string, scope?: WorkScope) {
     return () => {
       ++generation.current;
       clearInterval(timer);
+      if (autoRetryTimer.current !== undefined) {
+        clearTimeout(autoRetryTimer.current);
+        autoRetryTimer.current = undefined;
+      }
       window.removeEventListener("focus", handleResume);
       window.removeEventListener("online", handleResume);
       stopWorkChanges();

@@ -27,6 +27,8 @@ import { fetchDepartmentBudgetBundle } from "../services/budgetService";
 import { useIndependentReviews } from '../hooks/useIndependentReviews';
 import { getIndependentReview, independentReviewAllowsPosting } from '../services/independentReviewService';
 import { IndependentReviewCard } from './IndependentReviewCard';
+import { CashReturnPanel } from './CashReturnPanel';
+import { fetchCashReturnClearance } from '../services/workFinancialClearanceService';
 import {
   financialOutcome,
   recordFinancialOutcome,
@@ -151,6 +153,15 @@ export function AccountingSettlementQueue({
     setError("");
     let submitted = false;
     try {
+      if (
+        approve &&
+        item.returnedAmount > 0 &&
+        !(await fetchCashReturnClearance(id)).approved
+      ) {
+        throw new Error(
+          'Accounting must acknowledge the cash received and the Office Head must approve the return before settlement.',
+        );
+      }
       const review = await getIndependentReview(id);
       if (review.version !== item.version || !independentReviewAllowsPosting(review, userProfile?.id || '')) throw new Error('Current independent leadership review is required before Accounting can settle this package.');
       if (
@@ -353,7 +364,17 @@ export function AccountingSettlementQueue({
                       </Button>
                     </div>
                   </div>
-                  <IndependentReviewCard id={item.id} version={item.version} context={review} error={independent.errors[item.id]} onChanged={async () => { await independent.refresh(); await onChanged(); }}
+                  <CashReturnPanel
+                    liquidationId={item.id}
+                    rootId={request?.taskId}
+                    version={item.version}
+                    amount={item.returnedAmount}
+                    onSaved={async () => {
+                      await independent.refresh();
+                      await onChanged();
+                    }}
+                  />
+                  <IndependentReviewCard id={item.id} version={item.version} returnedAmount={item.returnedAmount} context={review} error={independent.errors[item.id]} onChanged={async () => { await independent.refresh(); await onChanged(); }}
                     submittedByAccountingRequester={Boolean(request?.requesterIsAccountingStaff && item.submittedBy === request.requesterId)} />
                   {ownFunds && review?.eligibleSettlers !== 0 && (
                     <p className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">

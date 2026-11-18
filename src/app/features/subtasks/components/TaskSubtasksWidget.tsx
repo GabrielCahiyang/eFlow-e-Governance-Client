@@ -1,5 +1,6 @@
 import { readableUiError } from '../../../shared/userFacingError';
 import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
+import { DateInput } from "../../../components/ui/DateInput";
 import { getPhilippineCalendarDate, scheduledDateError } from '../../../shared/calendarDates';
 import { supportsNestedWork, isCurrentWorkSnapshot, WorkTree, type WorkNode, type WorkTreeSnapshot, type WorkTreeController } from '../../nested-work';
 import type {TaskInspectorOrigin} from '../../task-inspector';
@@ -456,8 +457,7 @@ function LegacyTaskSubtasksWidget({
           placeholder="Add a subtask for team members…"
           className="h-[32px] min-w-0 basis-full flex-1 rounded-lg border border-neutral-200 bg-white px-2.5 text-[12px] font-normal text-neutral-900 outline-none placeholder:text-neutral-400 focus:border-neutral-400 sm:basis-0"
         />
-        <input
-          type="date"
+        <DateInput
           min={getPhilippineCalendarDate()}
           value={newDueDate}
           max={parentDue}

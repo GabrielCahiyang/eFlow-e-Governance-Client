@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { useOrgs } from "../../../../hooks/useSupabaseData";
 import { Button } from "../../../../components/ui/button";
+import { DateInput } from "../../../../components/ui/DateInput";
 import {
   WorkspaceHeader,
   EmptyWorkspaceState,
@@ -257,16 +258,14 @@ export function ProjectReportsTab({
         </label>
         <label>
           Deadline from
-          <input
-            type="date"
+          <DateInput
             value={filters.from}
             onChange={(e) => change({ from: e.target.value })}
           />
         </label>
         <label>
           Deadline to
-          <input
-            type="date"
+          <DateInput
             value={filters.to}
             onChange={(e) => change({ to: e.target.value })}
           />

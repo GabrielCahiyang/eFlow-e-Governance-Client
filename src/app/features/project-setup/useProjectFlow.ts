@@ -15,7 +15,7 @@ export function useProjectFlow(projectId:string,enabled=true){
   }catch(error){
    if(current.current!==identity||run!==sequence.current)return;
    const denied=error instanceof ProjectFlowError&&['42501','P0002','PGRST116','PGRST301','PGRST302','PGRST303'].includes(error.code||'');
-   const message=denied?'Your access to this project could not be verified.':navigator.onLine?'Could not refresh project details. Retry when the connection is available.':'You’re offline. Reconnect to refresh project details.';
+   const message=denied?"Couldn't verify access to this project.":navigator.onLine?"Couldn't load project details. Please try again.":"You're offline. Check your connection and try again.";
    setState(previous=>({
     identity,error:message,
     data:!denied&&previous.identity===identity?previous.data:undefined,

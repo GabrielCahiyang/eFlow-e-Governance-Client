@@ -34,10 +34,10 @@ export function workDateLabel(
   const day = workDay(value, timezone);
   return day === null
     ? "Date not set"
-    : new Intl.DateTimeFormat("en-GB", {
+    : new Intl.DateTimeFormat("en-US", {
         timeZone: "UTC",
-        day: "numeric",
-        month: "short",
+        month: "2-digit",
+        day: "2-digit",
         year: "numeric",
       }).format(new Date(day * 86400000));
 }

@@ -2,7 +2,8 @@ import { readableUiError } from '../../../shared/userFacingError';
 import { useRef, useState } from "react";
 import { CheckCircle2, Loader2 } from "lucide-react";
 import { Modal } from "../../../components/ui/Modal";
-import { completeProject } from "../services/projectLifecycleService";
+import { completeProject, fetchProjectCompletionReadiness } from "../services/projectLifecycleService";
+import { assertActionActor } from '../../../shared/actionActor';
 import type { Project } from '../services/types';
 import { useProjectCompletionAvailability } from '../hooks/useProjectCompletionAvailability';
 import { useAuth } from '../../../contexts/AuthContext';
@@ -35,7 +36,21 @@ export function ProjectCompleteDialog({ projectId, projectTitle, project, onClos
     if (!checks.enabled || error || inFlight.current) return;
     inFlight.current = true;
     setBusy(true); setError("");
-    try { await completeProject(projectId, note); }
+    try {
+      if (!userProfile?.id) throw new Error('Sign in again before completing this project.');
+      await assertActionActor(userProfile.id);
+      const current = await fetchProjectCompletionReadiness(projectId);
+      if (current.projectId !== projectId || !current.canComplete || current.blockers.length) {
+        throw new Error('Project readiness changed. Review the current requirements.');
+      }
+      await assertActionActor(userProfile.id);
+      try { await completeProject(projectId, note); }
+      catch (error) {
+        await assertActionActor(userProfile.id);
+        const saved = await fetchProjectCompletionReadiness(projectId).catch(() => undefined);
+        if (saved?.projectId !== projectId || saved.status !== 'completed') throw error;
+      }
+    }
     catch (caught) {
       setError(readableUiError(caught, "Project could not be completed.", 'write'));
       void checks.refresh();
@@ -53,7 +68,7 @@ export function ProjectCompleteDialog({ projectId, projectTitle, project, onClos
     </div>
   }>
     <div className="space-y-4">
-      {archiveReview ? <p className="text-sm text-neutral-700">Current closeout checks for <strong>{projectTitle}</strong>.</p> : <p className="text-sm text-neutral-700">Complete <strong>{projectTitle}</strong>? This changes only this project—not other projects in the work plan. Archiving is a separate step.</p>}
+      {archiveReview ? <p className="text-sm text-neutral-700">Current closeout checks for <strong>{projectTitle}</strong>.</p> : <p className="text-sm text-neutral-700">Complete <strong>{projectTitle}</strong>? This changes only this project—not other projects in the work plan. Remaining project funding is retained with this project unless explicitly returned to Office Budget. Archiving is a separate step.</p>}
       <p id="project-completion-reason" role="status" className="flex items-center gap-2 text-sm text-neutral-600">{loading ? <><Loader2 size={15} className="animate-spin" />Checking work, cash settlement, and required approvals…</> : readiness && !checks.error ? `${readiness.blockers.length} completion requirement(s) remain.` : checks.reason}</p>
       {(error || checks.error) && <div role="alert" className="whitespace-pre-line rounded-lg border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700"><p>{error || checks.error}</p><button type="button" disabled={busy || loading} onClick={()=>{setError('');void checks.refresh();}} className="mt-2 underline">Retry checks</button></div>}
       {readiness && <>

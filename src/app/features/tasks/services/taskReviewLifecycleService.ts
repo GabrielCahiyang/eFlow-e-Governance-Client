@@ -1,19 +1,12 @@
-import { attachmentError } from '../../../shared/fileValidation';
 import { supabase } from "../../../../lib/supabase";
 import { MutationRejectedError } from '../../../shared/MutationRejectedError';
 import type {
   TaskActor,
   TaskAssignmentDetails,
   TaskStatus,
-  TaskSubmissionAttachment,
-  TaskSubmissionInput,
   TaskUndoInput,
 } from "../taskTypes";
 import { notifyTaskListeners } from "./taskRealtimeService";
-import {
-  assertLeadershipReviewReady,
-  assertTaskSubtasksReady,
-} from "./leadershipReviewReadinessService";
 import { getReviewDecisionErrorMessage } from "./taskReviewError";
 
 export const updateTaskStatus = async (
@@ -69,79 +62,7 @@ export const startTaskIfTodo = async (taskId: string): Promise<boolean> => {
 
 // â”€â”€â”€ submitTaskForReview â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-export const submitTaskForReview = async (
-  taskId: string,
-  submission: TaskSubmissionInput,
-): Promise<void> => {
-  const fileIssue = attachmentError(submission.attachments || []);
-  if (fileIssue) throw new Error(fileIssue);
-  if (submission.note.length > 5000) throw new Error('Completion note must be 5,000 characters or fewer.');
-  const trimmedNote = submission.note.trim();
-  if (!trimmedNote) throw new Error("Submission note is required.");
-  // Fail before uploading evidence. The database trigger repeats this check as
-  // the final authority so stale or modified clients cannot bypass the rule.
-  await assertTaskSubtasksReady(taskId);
-  await assertLeadershipReviewReady(taskId);
-
-  const attachments = submission.attachments || [];
-
-  // Upload each file to Supabase Storage, get a long-lived signed URL
-  // (60 days â€” comfortably beyond any capstone demo or review cycle).
-  // Also insert a relational row per file into task_attachments so a
-  // fresh signed URL can always be regenerated later from file_path,
-  // even after this one expires.
-  const uploadedPaths: string[] = [];
-  const submissionId = crypto.randomUUID();
-  const uploadedAttachments: TaskSubmissionAttachment[] = [];
-  try {
-    for (const [idx, file] of attachments.entries()) {
-      const rawName =
-        typeof file.name === "string" && file.name.trim().length > 0
-          ? file.name
-          : `attachment-${idx + 1}`;
-      const safePathName = rawName.replace(/[^a-zA-Z0-9._-]/g, "_");
-      const path = `${taskId}/${submissionId}/${Date.now()}-${safePathName}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from("task-attachments")
-        .upload(path, file, { upsert: false, contentType: file.type || undefined });
-      if (uploadError) throw uploadError;
-      uploadedPaths.push(path);
-
-      uploadedAttachments.push({
-        fileName: rawName,
-        filePath: path,
-        fileSize: file.size || 0,
-        mimeType: file.type || "",
-      });
-    }
-
-    // Metadata and lifecycle change commit together in one database command.
-    const { error } = await supabase.rpc("submit_task_for_review", {
-      p_task_id: taskId,
-      p_submission: {
-        id: submissionId,
-        note: trimmedNote,
-        attachments: uploadedAttachments,
-      },
-    });
-    if (error) {
-      if (/Assign an eligible reviewer before submitting/i.test(error.message)) {
-        throw new Error(
-          "No independent reviewer is available because the task lead is also the Office Head or Project Lead. Assign another Task Lead (or an independent Project Lead) before submitting for final review."
-        );
-      }
-      throw new Error(error.message);
-    }
-  } catch (error) {
-    if (uploadedPaths.length > 0) {
-      await supabase.storage.from("task-attachments").remove(uploadedPaths);
-    }
-    throw error;
-  }
-
-  await notifyTaskListeners();
-};
+export { submitTaskForReview } from './taskEvidenceSubmission';
 
 // â”€â”€â”€ verifyTask â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 

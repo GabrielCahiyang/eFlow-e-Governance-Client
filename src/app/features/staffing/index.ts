@@ -1,3 +1,5 @@
+import { createElement } from "react";
+import { DialogSkeleton } from "../../components/ui/SurfaceSkeletons";
 import { lazyFeature } from "../../shared/lazyFeature";
 export const StaffingDialog = lazyFeature(
   () =>
@@ -6,6 +8,7 @@ export const StaffingDialog = lazyFeature(
     })),
   undefined,
   "StaffingDialog",
+  createElement(DialogSkeleton, { label: "Loading staffing…" }),
 );
 
 export { staffingEntryReason } from "./presentation";

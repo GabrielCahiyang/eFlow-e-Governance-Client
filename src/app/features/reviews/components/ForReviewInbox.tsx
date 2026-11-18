@@ -45,6 +45,7 @@ import {
 } from "../../../components/workflow/primitives";
 import { InitialsAvatar, PriorityPill } from "../../../components/workflow/StatusBadges";
 import { TaskReviewPanel } from "./TaskReviewPanel";
+import { fetchDecidedSubmissionIds } from '../services/reviewService';
 import { TaskActivityTimeline } from "../../../components/workflow/TaskActivityTimeline";
 import { getHeadWorkspaceLabel } from "../../../shared/roles";
 import { canOpenBudgetReviewWorkspace } from "../selectors";
@@ -53,7 +54,6 @@ import { SubtaskReviewInbox } from "./SubtaskReviewInbox";
 import { ReviewKindSwitch, type ReviewKind } from "./ReviewKindSwitch";
 import { TaskReviewStandards } from "./TaskReviewStandards";
 import { TaskSubtaskEvidenceSection } from "./TaskSubtaskEvidenceSection";
-import { ReviewDecisionForm } from "./ReviewDecisionForm";
 import { useTaskReviewEvidence } from "../hooks/useTaskReviewEvidence";
 import { WorkPlanReviewInbox } from "./WorkPlanReviewInbox";
 import { GovernanceReviewInbox } from "./GovernanceReviewInbox";
@@ -254,13 +254,24 @@ export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
       ).length;
   }, [accessibleOrgIds, collaboration.drafts, currentOrgId, includeAllAccessibleWork]);
 
+  const [decided, setDecided] = useState<{ actor?: string; ids: Set<string> }>({ ids: new Set() });
+  const candidateIds = useMemo(() => tasks.filter(task => isTaskVisibleInReviewQueue(task, user?.id, userProfile?.role))
+    .flatMap(task => task.latestSubmission?.id ? [task.latestSubmission.id] : []), [tasks, user?.id, userProfile?.role]);
+  useEffect(() => {
+    let active = true;
+    if (user?.id && candidateIds.length) void fetchDecidedSubmissionIds(candidateIds).then(ids => {
+      if (active) setDecided(previous => ({ actor: user.id, ids: new Set([...(previous.actor === user.id ? previous.ids : []), ...ids]) }));
+    }).catch(() => {});
+    return () => { active = false; };
+  }, [candidateIds, user?.id]);
+
   const queue = useMemo(() => {
     let rows = tasks.filter(
       (task) => isTaskVisibleInReviewQueue(
         task,
         user?.id,
         userProfile?.role,
-      ),
+      ) && (!task.latestSubmission?.id || decided.actor !== user?.id || !decided.ids.has(task.latestSubmission.id)),
     );
     if (query.trim()) {
       const q = query.toLowerCase();
@@ -284,6 +295,7 @@ export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
     query,
     sort,
     projects,
+    decided,
   ]);
 
   const reviewCounts = useMemo(() => ({
@@ -528,8 +540,14 @@ export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
                         task={selected}
                         compact
                         canReview={canReviewSelected}
-                        showDecision={false}
-                        onDone={() => { /* realtime removes it from queue */ }}
+                        onOpenFinancialReview={canReviewBudget ? (focus) => {
+                          setCashReviewFocus(focus);
+                          setBudgetFocus(null);
+                          setReviewKind("budget");
+                        } : undefined}
+                        onDecided={id => setDecided(previous => ({
+                          actor: user?.id, ids: new Set([...(previous.actor === user?.id ? previous.ids : []), id]),
+                        }))}
                       />
                     </div>
 
@@ -539,21 +557,6 @@ export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
                       <details className="work-secondary"><summary>View activity</summary><TaskActivityTimeline taskId={selected.id} /></details>
                     </div>
 
-                    {canReviewSelected && (
-                      <div className="rounded-[10px] border border-border bg-card p-5 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
-                        <div className="mb-3">
-                          <div className="text-xs font-bold uppercase tracking-wide text-foreground">Review decision</div>
-                          <div className="mt-0.5 text-xs text-muted-foreground">Approve only after checking the completion standards, subtask execution records, evidence files, and final submission.</div>
-                        </div>
-                        <ReviewDecisionForm taskId={selected.id} onDone={() => { /* realtime removes it from queue */ }}
-                          onOpenFinancialReview={canReviewBudget ? (focus) => {
-                            setCashReviewFocus(focus);
-                            setBudgetFocus(null);
-                            setReviewKind("budget");
-                          } : undefined}
-                        />
-                      </div>
-                    )}
                   </div>
                 ) : (
                   <div className="flex min-h-[320px] h-full items-center justify-center rounded-[10px] border border-border bg-card shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">

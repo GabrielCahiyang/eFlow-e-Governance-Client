@@ -1,4 +1,10 @@
-import { readWorkTable, settledMap, message } from "./workSourceReads";
+import {
+  isTransientWorkSourceError,
+  message,
+  readWorkTable,
+  retryTransientWorkRead,
+  settledMap,
+} from "./workSourceReads";
 export { readWorkTable } from "./workSourceReads";
 import { appendOfficeRows } from "./officeWorkRows";
 import { appendPersonalRows } from "./personalWorkSource";
@@ -43,11 +49,11 @@ export async function loadWorkFeed(
   if (!userId) return out;
   const personalOnly = scope?.workspace.kind === "personal";
   const initial = await Promise.allSettled([
-    personalOnly ? Promise.resolve([]) : readWorkTable("tasks"),
-    personalOnly ? Promise.resolve([]) : readWorkTable("projects"),
-    scope ? Promise.resolve([scope.workspace]) : listWorkspaces(),
-    personalOnly ? Promise.resolve([]) : readWorkTable("subtasks"),
-    personalOnly ? Promise.resolve([]) : fetchOfficeWorkRoots(),
+    personalOnly ? Promise.resolve([]) : retryTransientWorkRead(() => readWorkTable("tasks")),
+    personalOnly ? Promise.resolve([]) : retryTransientWorkRead(() => readWorkTable("projects")),
+    scope ? Promise.resolve([scope.workspace]) : retryTransientWorkRead(() => listWorkspaces()),
+    personalOnly ? Promise.resolve([]) : retryTransientWorkRead(() => readWorkTable("subtasks")),
+    personalOnly ? Promise.resolve([]) : retryTransientWorkRead(() => fetchOfficeWorkRoots()),
   ]);
   if (!personalOnly) rejectUnavailableFeed(scope ? initial.filter((_, index) => index !== 2) : initial);
   const labels = [
@@ -63,12 +69,14 @@ export async function loadWorkFeed(
       out.unavailable.push(
         "Personal workspace aggregation requires the R3 migration.",
       );
+    } else if (isTransientWorkSourceError(result.reason)) {
+      out.retrying = true;
     } else out.issues.push(`${labels[index]}: ${message(result.reason)}`);
     return [];
   });
   out.workspaces = records[2] as Workspace[];
   const selections = await settledMap(out.workspaces, (w) =>
-    selectWorkspace(w.id),
+    retryTransientWorkRead(() => selectWorkspace(w.id)),
   );
   if (personalOnly) rejectUnavailableFeed(selections);
   selections.forEach((result, index) => {
@@ -91,6 +99,7 @@ export async function loadWorkFeed(
           ? "Personal workspace sources require the R3 migration."
           : "Workspace totals use legacy Office sources until R3 is installed.",
       );
+    else if (isTransientWorkSourceError(result.reason)) out.retrying = true;
     else out.issues.push(`${w.name}: ${message(result.reason)}`);
   });
   const projectRecords = records[1] as Record<string, unknown>[];
@@ -144,30 +153,32 @@ export async function loadWorkFeed(
           : task.orgId === scope.workspace.office_id
         : task.orgId === scope.workspace.office_id),
   );
-  const trees = await settledMap(
-    offices.filter(
-      (t) =>
-        !!t.linkedProjectId &&
-        !t.sourceCollaborationDraftId &&
-        !t.proposedOfficeIdentityId,
-    ),
-    async (task) => ({ id: task.id, tree: await fetchWorkTree(task.id) }),
-  );
-  const treeMap = new Map<string, WorkTreeSnapshot>();
-  const denied = new Set<string>();
   const treeTasks = offices.filter(
     (t) =>
       !!t.linkedProjectId &&
       !t.sourceCollaborationDraftId &&
       !t.proposedOfficeIdentityId,
   );
+  const trees = await settledMap(
+    treeTasks,
+    async (task) => ({
+      id: task.id,
+      tree: await retryTransientWorkRead(() => fetchWorkTree(task.id)),
+    }),
+  );
+  const treeMap = new Map<string, WorkTreeSnapshot>();
+  const denied = new Set<string>();
   trees.forEach((r, i) => {
     if (r.status === "fulfilled") treeMap.set(r.value.id, r.value.tree);
     else if (!(r.reason instanceof WorkTreeUnavailable)) {
       denied.add(treeTasks[i].id);
-      out.issues.push(
-        `Work tree · ${treeTasks[i].title}: ${message(r.reason)}`,
-      );
+      if (isTransientWorkSourceError(r.reason)) {
+        out.retrying = true;
+      } else {
+        out.issues.push(
+          `Work tree · ${treeTasks[i].title}: ${message(r.reason)}`,
+        );
+      }
     }
   });
   appendOfficeRows(

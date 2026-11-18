@@ -53,7 +53,7 @@ export function InspectorFiles({ task }: { task: Task; readOnly?: boolean }) {
                     <ExternalLink size={13} aria-hidden="true" />
                   </button>
                 </div>
-                <p className="task-files-item__meta">{file.source} · {file.uploader} · {file.at ? new Date(file.at).toLocaleDateString() : 'Date not recorded'}</p>
+                <p className="task-files-item__meta">{file.source} · {file.uploader} · {file.at ? new Date(file.at).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }) : 'Date not recorded'}</p>
                 <p className="task-files-item__restriction">{file.restriction}</p>
               </li>
             ))}

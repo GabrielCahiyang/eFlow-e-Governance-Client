@@ -25,7 +25,7 @@ it('opens an assigned submission in dialog mode and filters by submission type',
   api.open.mockResolvedValue({ id: 'node', title: 'Purchase supplies', parentTask: { id: 'root' } });
   render(<AssignedSubtaskReviews actor="reviewer"/>);
   expect(screen.getByLabelText('Search reviews')).toBeTruthy();
-  expect(await screen.findByText('Completion is waiting for cash settlement.')).toBeTruthy();
+  expect(await screen.findByText('Work can be accepted now. Required receipts and settlement still block final completion.')).toBeTruthy();
 
   fireEvent.click(screen.getByRole('button', { name: 'Progress updates' }));
   expect(screen.queryByText('Purchase supplies')).toBeNull();

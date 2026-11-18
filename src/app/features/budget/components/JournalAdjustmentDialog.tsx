@@ -1,10 +1,11 @@
 import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import { getPhilippineCalendarDate, historicalDateError } from '../../../shared/calendarDates';
 import { MoneyInput } from '../../../components/ui/MoneyInput';
+import { DateInput } from '../../../components/ui/DateInput';
 import * as m from "motion/react-m";
 import { useEffect, useRef, useState } from "react";
 import { AttentionBox, Button } from "@vibe/core";
-import { CalendarDays, CircleAlert, Plus, X } from "lucide-react";
+import { CircleAlert, Plus, X } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -451,31 +452,26 @@ function Field({
     <label className="text-[10px] text-neutral-600">
       {label}
       <span className="relative mt-1 block min-w-0">
-        {type === "date" && (
-          <CalendarDays
-            aria-hidden="true"
-            size={13}
-            className="pointer-events-none absolute left-2.5 top-1/2 z-10 -translate-y-1/2 text-neutral-500"
+        {type === "date" ? (
+          <DateInput
+            aria-label={label}
+            max={max}
+            maxLength={maxLength}
+            value={value}
+            onChange={(event) => onChange(event.target.value)}
+            className="h-9 w-full min-w-0 rounded-lg border border-neutral-200 px-2.5 text-[10.5px]"
+          />
+        ) : (
+          <input
+            aria-label={label}
+            max={max} maxLength={maxLength}
+            type={type}
+            value={value}
+            onChange={(event) => onChange(event.target.value)}
+            className="h-9 w-full min-w-0 rounded-lg border border-neutral-200 pl-2.5 pr-2.5 text-[10.5px]"
           />
         )}
-        <input
-          aria-label={label}
-          max={max} maxLength={maxLength}
-          type={type}
-          value={value}
-          onClick={type === "date" ? openDatePicker : undefined}
-          onChange={(event) => onChange(event.target.value)}
-          className={`h-9 w-full min-w-0 rounded-lg border border-neutral-200 pr-2.5 text-[10.5px] ${type === "date" ? "cursor-pointer pl-8" : "pl-2.5"}`}
-        />
       </span>
     </label>
   );
-}
-
-function openDatePicker(event: React.MouseEvent<HTMLInputElement>) {
-  try {
-    event.currentTarget.showPicker?.();
-  } catch {
-    // Native date controls still work when a browser does not expose showPicker.
-  }
 }

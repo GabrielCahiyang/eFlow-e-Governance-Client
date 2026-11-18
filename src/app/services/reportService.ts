@@ -83,7 +83,7 @@ export function exportCsv<T>(rows: T[], columns: ReportColumn<T>[], meta: Report
 // ─── PDF preview document ───────────────────────────────────────
 // The same document powers the in-app preview and the legacy print action.
 export function buildReportHtml<T>(rows: T[], columns: ReportColumn<T>[], meta: ReportMeta): string {
-  const generatedAt = new Date().toLocaleString('en-PH', {
+  const generatedAt = new Date().toLocaleString('en-US', {
     timeZone: meta.timezone,
     timeZoneName: 'short',
     year: 'numeric',

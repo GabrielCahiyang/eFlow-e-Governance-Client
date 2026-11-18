@@ -109,7 +109,14 @@ export function LeadingNotificationTarget({ rows, loading, onOpen }: {
   );
   return <>
     {error && <p role="alert">{error}</p>}
-    <SubtaskWorkDrawer subtask={subitem || null} parentTask={subitem?.parentTask}
-      origin={origin} initialSection="work" onClose={() => setSubitem(undefined)} />
+    {subitem && (
+      <SubtaskWorkDrawer
+        subtask={subitem}
+        parentTask={subitem.parentTask}
+        origin={origin}
+        initialSection="work"
+        onClose={() => setSubitem(undefined)}
+      />
+    )}
   </>;
 }

@@ -15,8 +15,15 @@ import { useDepartmentBudget } from "../hooks/useDepartmentBudget";
 import { useTaskFundingContext } from "../hooks/useTaskFundingContext";
 import type { PettyCashRequest } from "../types";
 import { peso } from "./budgetUi";
-import { SubtaskBudgetButton, SubtaskBudgetManager, SubtaskBudgetTotals } from "./SubtaskBudgetManager";
+import {
+  SubtaskBudgetButton,
+  SubtaskBudgetDistributionInline,
+  SubtaskBudgetManager,
+  type SubtaskBudgetDraftTrigger,
+} from "./SubtaskBudgetManager";
 import { CashRequestForm } from "./CashRequestForm";
+import { cashRequestActionKey, type CashRequestAttempt } from '../services/cashRequestRecovery';
+import { usePendingAction } from '../../../shared/usePendingAction';
 import { CashRequestTimeline } from "./CashRequestTimeline";
 import { DirectWorkFunding } from "./DirectWorkFunding";
 import { isOpenDirectFundingWork } from "../selectors/directFundingEligibility";
@@ -82,7 +89,9 @@ export function WorkBudgetCard({
   const [requestOpen, setRequestOpen] = useState(false);
   const [correction, setCorrection] = useState<PettyCashRequest>();
   const [budgetsOpen, setBudgetsOpen] = useState(false);
+  const [budgetDraft, setBudgetDraft] = useState<SubtaskBudgetDraftTrigger>();
   const currentUserId = userProfile?.id || "";
+  const savedRequest = usePendingAction<CashRequestAttempt>(cashRequestActionKey(currentUserId, fundingOffice, task.id, subtask?.id));
   const isTaskLeader = currentUserId === getTaskLeadId(task);
   const isAssignedContributor = Boolean(
     subtask?.assignedToIds.includes(currentUserId),
@@ -90,9 +99,13 @@ export function WorkBudgetCard({
   const context = funding.context;
   const fundingCurrent = !context?.taskLeaderId || context.taskLeaderId === getTaskLeadId(task);
   const canRequestForWork = subtask ? isAssignedContributor || isTaskLeader : isTaskLeader;
+  const requiresSubtaskBudget = Boolean(
+    subtask && context?.funded && context.distribution && !context.cap,
+  );
   const fundingChecking = authorityPending || funding.loading || budget.loading || !fundingCurrent;
   const canRequest = Boolean(
     !readOnly && !fundingChecking && !funding.error && !budget.error && context?.funded &&
+      !requiresSubtaskBudget &&
       budget.summary?.status === "locked" &&
       canRequestForWork,
   );
@@ -146,13 +159,28 @@ export function WorkBudgetCard({
       request.status,
     ),
   );
-  const hasReleasedCash = requests.some(request => request.cashRecipientId === currentUserId &&
+  const workClosed = Boolean(
+    task.archivedAt ||
+    ["completed", "cancelled"].includes(subtask ? subtask.status : task.status),
+  );
+  const hasReleasedCash = !workClosed && requests.some(request => request.cashRecipientId === currentUserId &&
     ['released', 'changes_requested', 'overdue_liquidation'].includes(request.status));
-  const showRequest = canRequest || Boolean(subtask && !readOnly && canRequestForWork && fundingChecking && context?.funded);
+  const hasUnacknowledgedCash = !workClosed && requests.some(request => request.cashRecipientId === currentUserId &&
+    ['released', 'changes_requested', 'overdue_liquidation'].includes(request.status) &&
+    budget.releases.some(release => release.requestId === request.id && release.status === 'released' && !release.acknowledgedAt));
+  const showRequest = !requiresSubtaskBudget && (
+    canRequest || Boolean(subtask && !readOnly && canRequestForWork && fundingChecking && context?.funded)
+  );
   const fundingStep = subtask && !funding.error && !budget.error ? (
     fundingChecking ? 'Checking funding access…'
+      : hasUnacknowledgedCash ? 'Acknowledge receipt of the released cash first before recording expenses.'
       : hasReleasedCash ? 'Use Record expenses on your cash release. Enter the amount spent and attach the receipts.'
       : !context?.funded ? 'Ask the Task Lead about funding for this subtask.'
+      : requiresSubtaskBudget ? (
+        canManageBudgets
+          ? 'Allocate a budget to this subtask before requesting cash.'
+          : 'Ask the task lead to allocate a budget to this subtask before requesting cash.'
+      )
       : !requests.length && canRequest && context.available > 0 ? 'Request the amount you need. The cash recipient can record expenses after the cash is released.'
       : !requests.length && (readOnly || !canRequestForWork) ? 'An assigned contributor or the Task Lead can request cash. The recipient records expenses after release.'
       : !requests.length && budget.summary?.status !== 'locked' ? 'Cash requests open once the Office Budget is locked.'
@@ -169,7 +197,7 @@ export function WorkBudgetCard({
   return (
     <section className="rounded-[12px] border border-[var(--eflow-border)] bg-[var(--eflow-surface)] p-4">
       {!subtask&&!readOnly&&<OfficePettyCashLauncher/>}
-      {!subtask&&authorityPending && <p role="status" className="mb-3 flex items-center gap-2 text-[13px] text-muted-foreground"><Loader2 size={14} className="animate-spin" />Checking current work access. Your draft is kept; controls resume when verified.</p>}
+      {!subtask&&authorityPending && <p role="status" className="mb-3 flex items-center gap-2 text-[13px] text-muted-foreground"><Loader2 size={14} className="animate-spin" />Checking access…</p>}
       {task.linkedProjectId&&!subtask&&<TaskProjectFunding projectId={task.linkedProjectId} taskId={task.id} funded={!!context?.funded} onChanged={refresh}/>}
       {!task.linkedProjectId&&!authorityPending&&(canAuthorizeFunding||!readOnly&&canManage)&&isOpenDirectFundingWork(task)&&!subtask&&!context?.funded&&!funding.loading&&userProfile?.role==="head"&&userProfile.is_active!==false&&userProfile.org_id===orgId&&orgId===fundingOffice&&<DirectWorkFunding key={task.id} data={budget} tasks={[task]} onChanged={refresh} />}
       <header className="flex flex-wrap items-start justify-between gap-3">
@@ -200,16 +228,25 @@ export function WorkBudgetCard({
               </div>
             ) : (
               <div className="mt-1 text-[12px] text-neutral-600">
-                No approved funding for this task
+                {funding.error ? "Funding unavailable right now" : "No approved funding for this task"}
               </div>
             )}
           </div>
         </div>
         <div className="flex shrink-0 flex-wrap justify-end gap-1.5">
           {canManageBudgets && (
-            <SubtaskBudgetButton hasAllocation={!!context?.cap} subtask={!!subtask} onClick={() => setBudgetsOpen(true)} />
+            <SubtaskBudgetButton
+              hasAllocation={!!context?.cap}
+              subtask={!!subtask}
+              onClick={() => {
+                setBudgetDraft(undefined);
+                setBudgetsOpen(true);
+              }}
+            />
           )}
-          {showRequest &&
+          {currentUserId && savedRequest.value && !requestOpen && !correction && context &&
+            <button type="button" className="text-sm underline" onClick={() => setRequestOpen(true)}>Check saved cash request</button>}
+          {!savedRequest.value && showRequest &&
             !requestOpen &&
             !correction &&
             context &&
@@ -226,12 +263,32 @@ export function WorkBudgetCard({
         </div>
       </header>
 
-      {context?.funded && context.distribution && <div className="mt-3">
-        <SubtaskBudgetTotals context={context} subtask={!!subtask} />
-      </div>}
-      {budgetsOpen && context && <SubtaskBudgetManager key={subtask?.id || task.id} context={context}
-        title={subtask?.title || task.title} canManage={canManageBudgets}
-        taskFinished={taskFinished} onChanged={refresh} onClose={() => setBudgetsOpen(false)} />}
+      <SubtaskBudgetDistributionInline
+        context={context ?? { funded: false, taskId: task.id, taskBudget: 0, available: 0, lines: [] }}
+        subtaskId={subtask?.id}
+        canManage={canManageBudgets}
+        taskFinished={taskFinished}
+        onOpenRow={(trigger) => {
+          setBudgetDraft(trigger);
+          setBudgetsOpen(true);
+        }}
+      />
+      {budgetsOpen && context && (
+        <SubtaskBudgetManager
+          key={`${subtask?.id || task.id}:${budgetDraft?.id || "all"}:${budgetDraft?.mode || "list"}`}
+          context={context}
+          title={subtask?.title || task.title}
+          canManage={canManageBudgets}
+          taskFinished={taskFinished}
+          initialDraft={budgetDraft}
+          readLatestContext={funding.readLatest}
+          onChanged={refresh}
+          onClose={() => {
+            setBudgetsOpen(false);
+            setBudgetDraft(undefined);
+          }}
+        />
+      )}
       {fundingStep && <p role={fundingChecking ? 'status' : undefined} className="mt-3 rounded-md bg-muted px-3 py-2 text-[13px] leading-relaxed text-foreground">{fundingStep}</p>}
 
       <details hidden={!context?.funded} className="mt-3 text-[13px]">
@@ -310,11 +367,14 @@ export function WorkBudgetCard({
 
       {(requestOpen || correction) && context && (
         <CashRequestForm
+          key={`${currentUserId}:${fundingOffice}:${task.id}:${subtask?.id ?? ''}:${correction?.id ?? ''}`}
           context={context}
           orgId={fundingOffice}
           taskId={task.id}
           subtaskId={subtask?.id}
           currentUserId={currentUserId}
+          taskStart={task.startDate}
+          taskDue={task.deadline || task.dueDate}
           correction={correction}
           readOnly={!canRequest}
           onCancel={() => {
@@ -322,9 +382,9 @@ export function WorkBudgetCard({
             setCorrection(undefined);
           }}
           onSaved={async () => {
+            await refresh();
             setRequestOpen(false);
             setCorrection(undefined);
-            await refresh();
           }}
         />
       )}
@@ -335,6 +395,7 @@ export function WorkBudgetCard({
         currentUserId={currentUserId}
         orgId={fundingOffice}
         canCorrect={canRequest}
+        workCompleted={workClosed}
         onCorrect={(request) => {
           if (!canRequest) return;
           setCorrection(request);
@@ -345,8 +406,15 @@ export function WorkBudgetCard({
       {subtask&&!readOnly&&<div className="mt-3 border-t border-border pt-3"><OfficePettyCashLauncher/></div>}
 
       {(funding.error || budget.error) && (
-        <div className="mt-2 rounded-lg bg-rose-50 p-2 text-[12px] text-rose-700">
-          {funding.error || budget.error}
+        <div role="alert" className="mt-2 flex items-center justify-between gap-2 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-[12px] text-rose-700">
+          <span>{funding.error || budget.error}</span>
+          <button
+            type="button"
+            onClick={() => void refresh()}
+            className="shrink-0 rounded-md border border-rose-300 bg-white px-2.5 py-1 text-xs font-medium text-rose-800 hover:bg-rose-100"
+          >
+            Retry
+          </button>
         </div>
       )}
     </section>

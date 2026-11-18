@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { supabase } from "../../../../lib/supabase";
+import { subscribeCashRequestChanges } from '../services/cashRequestUpdates';
 import { fetchTaskCashBlockers } from "../services/taskCashClearanceService";
 import type { TaskCashBlocker } from "../types";
 
@@ -28,16 +28,12 @@ export function useTaskCashClearance(taskId: string) {
     const onFocus = () => { void refresh(); };
     window.addEventListener("focus", onFocus);
     const fallback = window.setInterval(() => { if (document.visibilityState !== "hidden") onFocus(); }, 60_000);
-    // Each mounted reviewer owns a fresh channel; never append handlers to an
-    // already-subscribed channel shared with another funding card.
-    const channel = supabase.channel(`task-cash-clearance:${taskId}:${crypto.randomUUID()}`)
-      .on("postgres_changes", { event: "*", schema: "public", table: "petty_cash_requests", filter: `task_id=eq.${taskId}` }, onFocus)
-      .subscribe();
+    const unsubscribe = subscribeCashRequestChanges(taskId, onFocus);
     return () => {
       generation.current += 1;
       window.removeEventListener("focus", onFocus);
       window.clearInterval(fallback);
-      void supabase.removeChannel(channel);
+      unsubscribe();
     };
   }, [refresh, taskId]);
 

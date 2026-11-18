@@ -380,7 +380,7 @@ export function ProposalContextInspector({
                           <div className="flex items-center justify-between text-[11px] text-amber-800 font-medium">
                             <span>{requestingOrg?.name || "Office"}</span>
                             <span>
-                              {new Date(change.createdAt).toLocaleDateString()}
+                              {new Date(change.createdAt).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })}
                             </span>
                           </div>
                           <p className="mt-1.5 text-neutral-800 whitespace-normal">
@@ -447,7 +447,7 @@ export function ProposalContextInspector({
                           Version {rev.revisionNumber}
                         </span>
                         <span className="text-[11px] text-neutral-400">
-                          {new Date(rev.createdAt).toLocaleDateString()}
+                          {new Date(rev.createdAt).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })}
                         </span>
                       </div>
                       <p className="mt-1 text-neutral-600 line-clamp-2">

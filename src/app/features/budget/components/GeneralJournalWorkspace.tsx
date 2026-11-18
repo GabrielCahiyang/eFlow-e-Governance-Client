@@ -1,4 +1,5 @@
 import { EmptyState } from '../../../components/ui/EmptyState';
+import { DateInput } from '../../../components/ui/DateInput';
 import { useEffect, useMemo, useState } from "react";
 import {
   AttentionBox,
@@ -465,22 +466,12 @@ function JournalDateInput({
         size={13}
         className="pointer-events-none absolute left-2.5 top-1/2 z-10 -translate-y-1/2 text-neutral-500"
       />
-      <input
+      <DateInput
         aria-label={ariaLabel}
-        type="date"
         value={value}
-        onClick={openDatePicker}
         onChange={(event) => onChange(event.target.value)}
-        className="h-10 w-full min-w-0 cursor-pointer rounded-lg border border-border bg-card pl-8 pr-2 text-sm text-foreground"
+        className="h-10 w-full min-w-0 cursor-pointer rounded-lg border border-border bg-card px-3 text-sm text-foreground"
       />
     </label>
   );
-}
-
-function openDatePicker(event: React.MouseEvent<HTMLInputElement>) {
-  try {
-    event.currentTarget.showPicker?.();
-  } catch {
-    // Native date controls still work when a browser does not expose showPicker.
-  }
 }

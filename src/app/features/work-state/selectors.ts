@@ -9,3 +9,12 @@ export function approvedWorkProgress(nodes: readonly {id:string;parent_subtask_i
   const approved = leaves.filter(node => node.status === 'completed').length;
   return {approved,total:leaves.length,percent:leaves.length ? Math.round(approved/leaves.length*100) : 0};
 }
+
+export function directWorkProgress(nodes: readonly {parent_subtask_id?: string | null; status: string}[], status: string) {
+  const children = nodes.filter(node => !node.parent_subtask_id);
+  const total = children.length;
+  const approved = children.filter(node => node.status === 'completed').length;
+  const percent = total === 0 ? (status === 'completed' ? 100 : 0)
+    : approved === total ? 100 : Math.min(99, Math.round(approved * 100 / total));
+  return { approved, total, percent };
+}

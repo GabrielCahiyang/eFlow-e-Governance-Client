@@ -9,13 +9,14 @@ const taskOptions = [
   { key: 'assignPeople', label: 'Suggest people', hint: 'Match eligible staff to tasks using skills and workload.' },
 ] as const;
 
-export function ProposalPdfForm({ options, onOptionsChange, onStart, allowDocumentOnly = false, hint, disabled = false }: {
+export function ProposalPdfForm({ options, onOptionsChange, onStart, allowDocumentOnly = false, hint, disabled = false, budgetDisabledReason = '' }: {
   options: ProposalImportOptions;
   onOptionsChange: (options: ProposalImportOptions) => void;
   onStart: (file: File) => void;
   allowDocumentOnly?: boolean;
   hint: string;
   disabled?: boolean;
+  budgetDisabledReason?: string;
 }) {
   const id = useId();
   const [file, setFile] = useState<File | null>(null);
@@ -28,10 +29,13 @@ export function ProposalPdfForm({ options, onOptionsChange, onStart, allowDocume
         <span><strong className="block">Add tasks</strong><small className="block text-neutral-600">Clear this to save the proposal PDF as a draft and add tasks yourself.</small></span>
       </label>}
       <div className="grid gap-1 sm:grid-cols-3">
-        {taskOptions.map(({ key, label, hint }) => <label key={key} className="flex items-start gap-3 p-2">
-          <input type="checkbox" className="mt-1" disabled={!options.addTasks} checked={options.addTasks && options[key]} onChange={event => onOptionsChange({ ...options, [key]: event.target.checked })} />
-          <span><strong className="block">{label}</strong><small className="block text-neutral-600">{hint}</small></span>
-        </label>)}
+        {taskOptions.map(({ key, label, hint }) => {
+          const budgetLocked = key === 'addBudget' && !!budgetDisabledReason;
+          return <label key={key} className="flex items-start gap-3 p-2">
+            <input type="checkbox" className="mt-1" disabled={!options.addTasks || budgetLocked} checked={options.addTasks && !budgetLocked && options[key]} onChange={event => onOptionsChange({ ...options, [key]: event.target.checked })} />
+            <span><strong className="block">{label}</strong><small className="block text-neutral-600">{budgetLocked ? budgetDisabledReason : hint}</small></span>
+          </label>;
+        })}
       </div>
     </fieldset>
     <label

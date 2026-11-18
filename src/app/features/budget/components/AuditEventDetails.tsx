@@ -44,9 +44,9 @@ function formatScalar(key: string, value: unknown): string {
   }
   if (typeof value === "boolean") return value ? "Yes" : "No";
   if (typeof value === "string") {
-    if (/^\d{4}-\d{2}-\d{2}T/.test(value)) return new Date(value).toLocaleString();
+    if (/^\d{4}-\d{2}-\d{2}T/.test(value)) return new Date(value).toLocaleString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric', hour: 'numeric', minute: '2-digit' });
     if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
-      return new Date(`${value}T00:00:00`).toLocaleDateString();
+      return new Date(`${value}T00:00:00`).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
     }
     return value;
   }
@@ -235,7 +235,7 @@ export function AuditEventDetails({
         <Section title="Summary">
           <dl className="divide-y divide-border/70 rounded-[8px] border border-border bg-card">
             <Row label="Recorded">
-              {new Date(entry.createdAt).toLocaleString()}
+              {new Date(entry.createdAt).toLocaleString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric', hour: 'numeric', minute: '2-digit' })}
             </Row>
             <Row label="Performed by">{actor}</Row>
             {typeof entry.amount === "number" && entry.amount > 0 && (

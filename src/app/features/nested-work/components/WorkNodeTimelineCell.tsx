@@ -86,8 +86,8 @@ export function WorkNodeTimelineCell({ node, snapshot, context, controller, pare
   const dueLocked = policyRequired && !policy?.due;
   const validation = editor.dirty ? subtaskTimelineError(editor.draft, { start, end: due, reason: '' }, bounds, started, !policyRequired || !!policy?.planning && !started, !policyRequired || !!policy?.due, editor.draft.reason, today) : undefined;
 
-  const startText = start ? new Date(start + 'T12:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : '';
-  const dueText = due ? new Date(due + 'T12:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : 'Set dates';
+  const startText = start ? new Date(start + 'T12:00:00').toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }) : '';
+  const dueText = due ? new Date(due + 'T12:00:00').toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }) : 'Set dates';
 
   return (
     <>

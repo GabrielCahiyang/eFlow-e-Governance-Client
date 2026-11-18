@@ -44,7 +44,7 @@ export function ProjectOfficePanel({ projectId, projectTitle, projectStatus, pro
     if (!office || pending.current || closed || !head || userProfile?.org_id !== office.office_id || office.invitation_status !== 'awaiting_head') return;
     pending.current = true;
     try {
-      if (!await confirmation.confirm({title:'Confirm Office participation?',description:`${name(office.office_id)} joins ${projectTitle} as ${officeRelationship(office)}. Account roles stay unchanged; its Head chooses its project team.`,actionLabel:'Confirm participation'})) return;
+      if (!await confirmation.confirm({title:'Confirm Office participation?',description:`${name(office.office_id)} joins ${projectTitle} as ${officeRelationship(office)}. Account roles stay unchanged; its members can be assigned directly to tasks.`,actionLabel:'Confirm participation'})) return;
       if (current.current.scope !== scope || current.current.closed || !current.current.state.offices.some(o => o.id === office.id && o.invitation_status === 'awaiting_head')) return;
       setBusy(true); setNotice(''); await confirmProjectOffice(office.id); setNotice('Office participation confirmed.'); await reload();
     } catch(e) { setNotice(projectOfficeError(e, 'Could not confirm this Office yet.')); }

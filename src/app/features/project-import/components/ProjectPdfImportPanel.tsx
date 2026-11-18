@@ -1,48 +1,61 @@
 import { useEffect, useState } from 'react';
 import { FileUp,LoaderCircle,CheckCircle2,Building2,Sparkles,ArrowRight,AlertTriangle,Play,Trash2,ListTodo,Wallet } from 'lucide-react';
 import { Modal,ModalButton } from '../../../components/ui/Modal';
+import { DateInput } from '../../../components/ui/DateInput';
 import { getPhilippineCalendarDate,scheduledDateError } from '../../../shared/calendarDates';
 import { useNavigationBlocker } from '../../../shared/navigationGuard';
-import { ProposalPdfForm, type ProposalImportOptions } from '../../proposal-import';
+import { ProposalPdfForm, type PdfEnrichmentProjectContext, type ProposalImportOptions } from '../../proposal-import';
 import { usePdfImportSession } from '../hooks/usePdfImportSession';
 import { PdfOfficeReview } from './PdfOfficeReview';
 import type { ProjectImportResult } from '../types';
 import '../projectPdfImport.css';
 
-export function ProjectPdfImportPanel({projectId,projectTitle,startDate,onClose,onImported,onOffices,embedded=false,onBusyChange}:{projectId:string;projectTitle:string;startDate?:string;onClose?:()=>void;onImported?:(result:ProjectImportResult)=>void;onOffices?:()=>void;embedded?:boolean;onBusyChange?:(busy:boolean)=>void}){
+export function ProjectPdfImportPanel({projectId,projectTitle,startDate,projectContext,projectFunding,onClose,onImported,onOffices,embedded=false,onBusyChange}:{projectId:string;projectTitle:string;startDate?:string;projectContext?:{title?:string;description?:string;scope?:string};projectFunding?:{fundingNotRequired:boolean;total:number;unallocated:number;funds:Array<{id:string;name:string;fiscal_year:number;amount:number;available:number}>};onClose?:()=>void;onImported?:(result:ProjectImportResult)=>void;onOffices?:()=>void;embedded?:boolean;onBusyChange?:(busy:boolean)=>void}){
  const today=getPhilippineCalendarDate();
  const [anchor,setAnchor]=useState(startDate&&startDate>=today?startDate:today),[addOffices,setAddOffices]=useState(false),[autoAssign,setAutoAssign]=useState(true),[localError,setLocalError]=useState('');
  const [addBudget,setAddBudget]=useState(true),[addSubtasks,setAddSubtasks]=useState(true);
- const flow=usePdfImportSession(projectId,result=>onImported?.(result)),state=flow.session?.state;
+ const enrichmentContext:PdfEnrichmentProjectContext|undefined=projectContext||projectFunding?{
+  title:projectContext?.title??projectTitle,
+  description:projectContext?.description??'',
+  scope:projectContext?.scope??'',
+  ...(projectFunding?{authorizedBudget:{fundingNotRequired:projectFunding.fundingNotRequired,totalAvailable:projectFunding.unallocated,sources:projectFunding.funds.map(f=>({id:f.id,name:f.name,fiscalYear:f.fiscal_year,available:f.available}))}}:{}),
+ }:undefined;
+ const flow=usePdfImportSession(projectId,result=>onImported?.(result),enrichmentContext),state=flow.session?.state;
+ const activeFunding=flow.projectContext?.authorizedBudget??enrichmentContext?.authorizedBudget;
+ const budgetForbidden=!!activeFunding&&(activeFunding.fundingNotRequired||activeFunding.totalAvailable<=0);
+ const effectiveAddBudget=budgetForbidden?false:addBudget;
+ const budgetDisabledReason=activeFunding?.fundingNotRequired?'Disabled: Head selected No funding required in Step 03 Funding.':budgetForbidden?'Disabled: no unallocated project funding left in Step 03 Funding.':'';
  const review=state?.stage==='review_offices'&&!state.officesReviewed;
  useEffect(()=>{onBusyChange?.(flow.busy);},[flow.busy,onBusyChange]);
  useNavigationBlocker({label:'PDF import is processing',dirty:false,pending:flow.busy,pendingCheck:()=>flow.busy,onDiscard:()=>{}});
  const close=()=>{if(!flow.busy)onClose?.();};
- const upload=(file:File)=>{const issue=scheduledDateError(anchor,{label:'Schedule start'});if(issue){setLocalError(issue);return;}setLocalError('');void flow.upload(file,anchor,addOffices,autoAssign,{addBudget,addSubtasks});};
- const schedule = <label>Schedule starts<input type="date" aria-label="PDF schedule starts" min={today} value={anchor} onChange={event=>setAnchor(event.target.value)}/><small>“Month 1” starts on this date.</small></label>;
+ const upload=(file:File)=>{const issue=scheduledDateError(anchor,{label:'Schedule start'});if(issue){setLocalError(issue);return;}setLocalError('');void flow.upload(file,anchor,addOffices,autoAssign,{addBudget:effectiveAddBudget,addSubtasks});};
+ const schedule = <label>Schedule starts<DateInput aria-label="PDF schedule starts" min={today} value={anchor} onChange={event=>setAnchor(event.target.value)}/><small>“Month 1” starts on this date; the project timeline adjusts automatically to fit all tasks and subtasks.</small></label>;
  const changeOptions = (options:ProposalImportOptions)=>{
-  setAddBudget(options.addBudget);
+  setAddBudget(budgetForbidden?false:options.addBudget);
   setAddSubtasks(options.addSubtasks);
   setAutoAssign(options.assignPeople);
  };
  const content = <section className={embedded?'project-pdf-import pf-task-draft':'project-pdf-import'} aria-label="Import PDF into project" aria-busy={flow.busy}>
-   {embedded&&<header><h2>Import AI PDF</h2><p>Use a proposal PDF to build the task table for {projectTitle}.</p></header>}
+   {embedded&&<header><h2>Import AI PDF</h2><p>Use a proposal PDF to build the task table for {projectTitle}, grounded in Details, Scope, and Head-authorized Funding.</p></header>}
+   {!state&&!flow.result&&activeFunding&&<p className="pf-starter-hint" role="note">{activeFunding.fundingNotRequired?'Project funding is set to No funding required — AI will not allocate task budgets.':`Head-authorized project funding ceiling: ₱${activeFunding.totalAvailable.toLocaleString('en-US',{minimumFractionDigits:2})} available. AI works strictly within this budget.`}</p>}
    {flow.loading?<p role="status"><LoaderCircle className="project-pdf-import__spin" size={20}/>Checking saved imports…</p>:!state&&!flow.result?embedded?<div className="space-y-4">
     <div className="project-pdf-import__controls">{schedule}</div>
     <ProposalPdfForm
-     options={{addTasks:true,addBudget,addSubtasks,assignPeople:autoAssign}}
+     options={{addTasks:true,addBudget:effectiveAddBudget,addSubtasks,assignPeople:autoAssign}}
      onOptionsChange={changeOptions}
      onStart={upload}
      disabled={flow.busy||!anchor}
+     budgetDisabledReason={budgetDisabledReason}
      hint="Tasks are added to this project. You can review them in the Main table."
     />
    </div>:<>
     <div className="pdf-import-intro"><span><FileUp size={24}/></span><div><h3>From PDF to work plan</h3><p>Import the source groups and tasks. Choose the extra details to include.</p></div></div>
     <div className="project-pdf-import__controls">{schedule}
      <label className="project-pdf-import__upload"><FileUp size={24}/><span><strong>Choose PDF</strong><small>Up to 20 MB</small></span><input aria-label="Import project PDF" type="file" accept=".pdf,application/pdf" disabled={flow.busy||!anchor} onChange={event=>{const file=event.target.files?.[0];event.target.value='';if(file)upload(file);}}/></label></div>
-    <div className="pdf-import-options"><label><input type="checkbox" checked={autoAssign} onChange={event=>setAutoAssign(event.target.checked)}/><Sparkles size={19}/><span><strong>Choose people during import</strong><small>eFlow uses skills and workload to choose people where it can. Check who was selected in Add people.</small></span></label>
+    <div className="pdf-import-options"><label><input type="checkbox" checked={autoAssign} onChange={event=>setAutoAssign(event.target.checked)}/><Sparkles size={19}/><span><strong>Choose people during import</strong><small>eFlow uses skills and workload to assign eligible office members to imported tasks where it can.</small></span></label>
      <label><input type="checkbox" checked={addSubtasks} onChange={event=>setAddSubtasks(event.target.checked)}/><ListTodo size={19}/><span><strong>Add subtasks</strong><small>Include source steps and practical preparation.</small></span></label>
-     <label><input type="checkbox" checked={addBudget} onChange={event=>setAddBudget(event.target.checked)}/><Wallet size={19}/><span><strong>Add task budgets</strong><small>Use the amounts in the PDF as estimates for review.</small></span></label>
+     <label><input type="checkbox" disabled={budgetForbidden} checked={effectiveAddBudget} onChange={event=>setAddBudget(event.target.checked)}/><Wallet size={19}/><span><strong>Add task budgets</strong><small>{budgetDisabledReason||'Work strictly within the Head-authorized project budget.'}</small></span></label>
      <label><input type="checkbox" checked={addOffices} onChange={event=>setAddOffices(event.target.checked)}/><Building2 size={19}/><span><strong>Add offices found in the PDF</strong><small>Check their names here. Invite representatives or employees yourself afterward.</small></span></label></div>
    </>:null}
    {state&&!flow.result&&<>

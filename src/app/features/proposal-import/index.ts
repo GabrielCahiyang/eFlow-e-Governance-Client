@@ -5,7 +5,13 @@ export { readSourceBudget } from './services/sourceBudget';
 export { applySourceBudgetAssignments } from './services/sourceBudget';
 export type { SourceBudget } from './services/sourceBudget';
 export { extractPartSections, extractExplicitSubtasks, generateTemplateSubtasks } from './services/decomposition/textAnalysis';
-export { enrichPdfSourceTasks } from './services/decomposition/pdfSourceEnrichment';
+export { enrichPdfSourceTasks, enrichPdfSourceTasksWithMetadata } from './services/decomposition/pdfSourceEnrichment';
+export type {
+  AuthorizedProjectBudgetContext,
+  AuthorizedProjectFundingSource,
+  PdfBudgetAllocationProposal,
+  PdfEnrichmentProjectContext,
+} from './services/decomposition/pdfSourceEnrichment';
 export type {
   ProposalImportOptions,
   ProposalDecompositionBudgetLine,

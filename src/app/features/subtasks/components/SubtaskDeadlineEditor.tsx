@@ -4,6 +4,7 @@ import { AlertTriangle, CalendarClock, Save } from "lucide-react";
 import type { Task } from "../../../services/taskService";
 import { setSubtaskDueDate, type Subtask } from "../../../services/subtaskService";
 import { useToast } from "../../../components/ui/Toast";
+import { DateInput } from "../../../components/ui/DateInput";
 import { formatDate } from "../../../components/workflow/primitives";
 import { getSubtaskDeadlineState, parentTaskDueDate } from "../selectors/deadlines";
 
@@ -69,8 +70,7 @@ export function SubtaskDeadlineEditor({
         <div className="mt-3 border-t border-current/10 pt-3">
           <label className="text-[9.5px] font-medium">Change deadline</label>
           <div className="mt-1 flex gap-2">
-            <input
-              type="date"
+            <DateInput
               value={dueDate}
               max={parentDue}
               onChange={(event) => setDueDate(event.target.value)}

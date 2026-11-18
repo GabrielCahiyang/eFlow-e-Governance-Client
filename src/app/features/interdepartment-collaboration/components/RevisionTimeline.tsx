@@ -114,7 +114,7 @@ export function RevisionTimeline({
                       </span>
                       <span>·</span>
                       <time>
-                        {new Date(revision.createdAt).toLocaleString([], {
+                        {new Date(revision.createdAt).toLocaleString('en-US', {
                           month: "short",
                           day: "numeric",
                           year: "numeric",

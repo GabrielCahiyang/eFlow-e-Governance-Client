@@ -25,7 +25,7 @@ export function SubitemStartPanel({ taskId, subtaskId, blockedReason, pending, r
     inFlight.current = true;
     setError('');
     try {
-      const accepted = await confirm({title: 'Start work?', description: 'Start this subtask now? Its current access, planned start and prerequisites will be checked again.', actionLabel: 'Start work'});
+      const accepted = await confirm({title: 'Start work?', description: 'Start this subtask now? Its current access and prerequisites will be checked again.', actionLabel: 'Start work'});
       if (!accepted) return;
       if (current.current.pending || current.current.blockedReason) throw new Error(current.current.blockedReason || 'Work is refreshing. Check again before starting.');
       setBusy(true);

@@ -1,4 +1,11 @@
-import { enrichPdfSourceTasks, extractPartSections, readSourceBudget, type ProposalImportOptions } from '../../proposal-import';
+import {
+  enrichPdfSourceTasksWithMetadata,
+  extractPartSections,
+  readSourceBudget,
+  type PdfBudgetAllocationProposal,
+  type PdfEnrichmentProjectContext,
+  type ProposalImportOptions,
+} from '../../proposal-import';
 import type { AiQueueUpdate } from '../../ai';
 import { isCalendarDate } from "../../../shared/calendarDates";
 import { generateProjectDraft } from "./projectImportService";
@@ -34,6 +41,43 @@ export function sourceMonthDates(schedule: string, anchor: string) {
   };
 }
 
+function fitTaskBudgetsToAuthorizedSources(
+  proposals: PdfBudgetAllocationProposal[],
+  authorizedBudget?: PdfEnrichmentProjectContext['authorizedBudget'],
+): PdfBudgetAllocationProposal[] {
+  if (!authorizedBudget || authorizedBudget.fundingNotRequired || authorizedBudget.totalAvailable <= 0) {
+    return [];
+  }
+  const sourceRemaining = new Map<string, number>(
+    authorizedBudget.sources.map((source) => [source.id, Math.max(0, Number(source.available) || 0)]),
+  );
+  let totalRemaining = Math.max(0, Number(authorizedBudget.totalAvailable) || 0);
+  const fitted: PdfBudgetAllocationProposal[] = [];
+
+  for (const proposal of proposals) {
+    if (totalRemaining <= 0) break;
+    const nextLines: PdfBudgetAllocationProposal['lines'] = [];
+    for (const line of proposal.lines || []) {
+      if (totalRemaining <= 0) break;
+      const availableForSource = sourceRemaining.get(line.sourceId) ?? 0;
+      const requested = Math.round((Number(line.amount) || 0) * 100) / 100;
+      const capped = Math.round(Math.min(requested, availableForSource, totalRemaining) * 100) / 100;
+      if (capped <= 0) continue;
+      sourceRemaining.set(line.sourceId, Math.round((availableForSource - capped) * 100) / 100);
+      totalRemaining = Math.round((totalRemaining - capped) * 100) / 100;
+      nextLines.push({
+        sourceId: line.sourceId,
+        amount: capped,
+        ...(line.particular ? { particular: line.particular } : {}),
+      });
+    }
+    if (nextLines.length) {
+      fitted.push({ key: proposal.key, lines: nextLines });
+    }
+  }
+  return fitted;
+}
+
 export async function generatePdfProjectDraft(
   projectId: string,
   source: string,
@@ -41,29 +85,62 @@ export async function generatePdfProjectDraft(
   anchor: string,
   onQueueUpdate: (update: AiQueueUpdate) => void,
   requestId?: string,
-  options: Pick<ProposalImportOptions, "addBudget" | "addSubtasks"> = { addBudget: true, addSubtasks: true },
+  options: Pick<ProposalImportOptions, "addBudget" | "addSubtasks"> & {
+    projectContext?: PdfEnrichmentProjectContext;
+  } = { addBudget: true, addSubtasks: true },
 ): Promise<ProjectImportDraft> {
+  const authorizedBudget = options.projectContext?.authorizedBudget;
+  const blockedByNoFunding = !!authorizedBudget?.fundingNotRequired;
+  const blockedByEmptyFunding =
+    !!authorizedBudget && !authorizedBudget.fundingNotRequired && authorizedBudget.totalAvailable <= 0;
+  const effectiveAddBudget = options.addBudget && !blockedByNoFunding && !blockedByEmptyFunding;
   const parts = extractPartSections(source);
   if (!parts?.every((part) => part.sourceActions?.length)) {
-    if (options.addBudget && readSourceBudget(source))
+    if (effectiveAddBudget && readSourceBudget(source))
       throw new Error(
         "The budget was read, but this PDF’s numbered work table could not be read safely. Use a text-based proposal with a clear work table.",
       );
-    const draft = await generateProjectDraft(projectId, source, name, onQueueUpdate);
+    const draft = await generateProjectDraft(
+      projectId,
+      source,
+      name,
+      onQueueUpdate,
+      options.projectContext ? { ...options.projectContext } : undefined,
+    );
     return {
       ...draft,
       groups: draft.groups.map(group => ({ ...group, tasks: group.tasks.map(task => ({
         ...task,
         ...(options.addSubtasks ? {} : { subitems: [] }),
-        ...(options.addBudget ? {} : { budgetDecision: "missing" as const, budgetLines: [] }),
+        ...(effectiveAddBudget ? {} : { budgetDecision: "missing" as const, budgetLines: [] }),
       })) })),
     };
   }
   const actions = parts.flatMap((part) => part.sourceActions!);
   if (actions.length > 100 || parts.length > 30)
     throw new Error("Import up to 30 groups and 100 tasks at a time.");
-  const budget = options.addBudget ? readSourceBudget(source) : null;
-  const canonical = await enrichPdfSourceTasks(actions, budget, onQueueUpdate, requestId, options.addSubtasks);
+  const budget = effectiveAddBudget ? readSourceBudget(source) : null;
+  const { tasks: canonical, budgetAllocations } = await enrichPdfSourceTasksWithMetadata(
+    actions,
+    budget,
+    onQueueUpdate,
+    requestId,
+    options.addSubtasks,
+    options.projectContext,
+  );
+  const fittedAllocations = effectiveAddBudget
+    ? fitTaskBudgetsToAuthorizedSources(budgetAllocations, authorizedBudget)
+    : [];
+  const warnings: string[] = [];
+  if (blockedByNoFunding) {
+    warnings.push("This project does not require funding, so AI PDF import skipped task budget amounts.");
+  } else if (blockedByEmptyFunding) {
+    warnings.push("No remaining Head-authorized project funding is available, so AI PDF import skipped task budget amounts.");
+  } else if (budget) {
+    warnings.push(
+      "Budget amounts match the PDF. Shared-cost placements are estimates and can be adjusted in the table.",
+    );
+  }
   let index = 0;
   const draft: ProjectImportDraft = {
     schemaVersion: 1,
@@ -75,12 +152,9 @@ export async function generatePdfProjectDraft(
       targetDate: "",
     },
     offices: [],
-    warnings: budget
-      ? [
-          "Budget amounts match the PDF. Shared-cost placements are estimates and can be adjusted in the table.",
-        ]
-      : [],
+    warnings,
     sourceBudgetTotal: budget?.total,
+    ...(fittedAllocations.length ? { budgetAllocations: fittedAllocations } : {}),
     groups: parts.map((part, partIndex) => ({
       key: `part-${partIndex + 1}`,
       title: part.title,
@@ -101,8 +175,8 @@ export async function generatePdfProjectDraft(
           subitems: (task.subtasks || []).map(title => ({ title, dueDate: '' })),
           sourceQuote: action.title,
           included: true,
-          budgetDecision: task.budgetDecision || "missing",
-          budgetLines: task.budgetLines || [],
+          budgetDecision: effectiveAddBudget ? (task.budgetDecision || "missing") : "missing",
+          budgetLines: effectiveAddBudget ? (task.budgetLines || []) : [],
         };
       }),
     })),

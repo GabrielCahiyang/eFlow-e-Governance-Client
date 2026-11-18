@@ -1,31 +1,10 @@
-import { useEffect, useState } from "react";
 import { EFlowMark } from "../../../components/EFlowMark";
 import { SignalBarsIcon } from "../../components/ui/SignalBarsIcon";
-import {
-  SLOW_CONNECTION_THRESHOLD_MS,
-  useNetworkConnectivity,
-} from "../../shared/networkConnectivity";
+import { useNetworkConnectivity } from "../../shared/networkConnectivity";
 import "./loadingScreen.css";
 
 export function LoadingScreen() {
-  const { status, checking, retry } = useNetworkConnectivity();
-  const [slowElapsed, setSlowElapsed] = useState(false);
-
-  useEffect(() => {
-    if (status === "offline") return;
-    const timer = window.setTimeout(
-      () => setSlowElapsed(true),
-      SLOW_CONNECTION_THRESHOLD_MS,
-    );
-    return () => window.clearTimeout(timer);
-  }, [status]);
-
-  const effectiveStatus =
-    status === "offline"
-      ? "offline"
-      : status === "slow" || slowElapsed
-        ? "slow"
-        : "online";
+  const { status: effectiveStatus, checking, retry } = useNetworkConnectivity();
 
   const offline = effectiveStatus === "offline";
   const slow = effectiveStatus === "slow";

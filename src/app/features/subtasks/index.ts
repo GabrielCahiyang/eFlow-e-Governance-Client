@@ -1,3 +1,5 @@
+import { createElement } from "react";
+import { InspectorSkeleton } from "../../components/ui/SurfaceSkeletons";
 import { lazyFeature } from "../../shared/lazyFeature";
 export * from "../../services/subtaskService";
 export const SubtasksWorkspace = lazyFeature(
@@ -10,14 +12,20 @@ export const SubtasksWorkspace = lazyFeature(
 );
 export { TaskSubtasksWidget } from "./components/TaskSubtasksWidget";
 export { SubitemInspector, type SubitemInspectorProps } from "./components/SubitemInspector";
+export { SubitemLeadReview } from "./components/SubitemLeadReview";
 export type { SubtaskWorkDrawerProps } from "./components/SubtaskWorkDrawer";
 export const SubtaskWorkDrawer = lazyFeature(
   () =>
     import("./components/SubtaskWorkDrawer").then((module) => ({
       default: module.SubtaskWorkDrawer,
     })),
-  undefined,
+  (props) => Boolean(props.subtask),
   "SubtaskWorkDrawer",
+  (props) =>
+    createElement(InspectorSkeleton, {
+      presentation: props.presentation,
+      label: "Loading subtask details…",
+    }),
 );
 export { SubtaskDeadlineEditor } from "./components/SubtaskDeadlineEditor";
 export { SubtaskProgressHistory } from "./components/SubtaskProgressHistory";

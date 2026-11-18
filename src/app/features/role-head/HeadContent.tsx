@@ -1,4 +1,6 @@
 import { Settings } from "@carbon/icons-react";
+import { useState } from 'react';
+import { Modal } from '../../components/ui/Modal';
 import {
   HeadTaskBoardView,
   useHeadTaskBoard,
@@ -6,13 +8,12 @@ import {
 import { SubtasksWorkspace } from "../subtasks";
 import { HeadProjectsWorkspace } from "../projects";
 import { HeadReportsWorkspace } from "../reports";
-import { ForReviewInbox } from "../reviews";
+import { ForReviewInbox, TaskReviewPanel, canUserReviewTask } from "../reviews";
 import {
   assignTask,
   createTask,
   deleteTask,
   updateTask,
-  verifyTask,
 } from "../../services/taskService";
 import { HeadDashboard } from "../../components/Head/HeadDashboard";
 import { AnnouncementCenter } from "../../components/workflow/AnnouncementCenter";
@@ -37,9 +38,11 @@ export function HeadTaskBoard() {
     notes,
     userProfile,
   } = useHeadTaskBoard();
-  const workspaceLabel = getHeadWorkspaceLabel(userProfile?.role);
+  const { user } = useAuth();
+  const [reviewId, setReviewId] = useState<string>();
+  const reviewTask = deptTasks.find(task => task.id === reviewId);
 
-  return (
+  return (<>
     <HeadTaskBoardView
       loading={isLoading}
       tasks={deptTasks}
@@ -52,16 +55,15 @@ export function HeadTaskBoard() {
       currentUserName={userProfile?.fullName || userProfile?.email || ""}
       onCreateTask={createTask}
       onAssign={assignTask}
-      onVerify={(taskId, approve, feedback) =>
-        verifyTask(taskId, approve, feedback, {
-          id: userProfile?.uid,
-          name: userProfile?.fullName || userProfile?.email || workspaceLabel,
-        })
-      }
+      onOpenReview={setReviewId}
       onUpdateTask={updateTask}
       onDeleteTask={deleteTask}
     />
-  );
+    {reviewTask && <Modal isOpen title="Review task submission" onClose={() => setReviewId(undefined)}>
+      <TaskReviewPanel task={reviewTask} canReview={canUserReviewTask(reviewTask, user?.id, userProfile?.role)}
+        onDecided={() => setReviewId(undefined)} />
+    </Modal>}
+  </>);
 }
 
 function HeadAnnouncementCenter() {

@@ -1,4 +1,5 @@
 import { EmptyState } from '../../../../components/ui/EmptyState';
+import { DateInput } from '../../../../components/ui/DateInput';
 import { getPhilippineCalendarDate, historicalDateError } from '../../../../shared/calendarDates';
 import { attachmentError, EVIDENCE_ACCEPT } from '../../../../shared/fileValidation';
 import { useExplicitDraft } from "../../../../shared/useExplicitDraft";
@@ -184,7 +185,7 @@ export function GovernanceRecordPanel({
                       (item) => item.id === signoff.organizationId,
                     )?.name
                   }{" "}
-                  · {new Date(signoff.createdAt).toLocaleString()}
+                  · {new Date(signoff.createdAt).toLocaleString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric', hour: 'numeric', minute: '2-digit' })}
                 </div>
                 {signoff.reason && (
                   <div className="mt-1 text-[9px] text-neutral-600">
@@ -211,9 +212,9 @@ export function GovernanceRecordPanel({
               placeholder="Resolution number"
               className="h-9 rounded-lg border border-primary/25 bg-white px-3 text-[10px] outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
             />
-            <input
+            <DateInput
               aria-label="Meeting date"
-              type="date" max={getPhilippineCalendarDate()}
+              max={getPhilippineCalendarDate()}
               value={meetingDate}
               onChange={(event) => setMeetingDate(event.target.value)}
               className="h-9 rounded-lg border border-primary/25 bg-white px-3 text-[10px] outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"

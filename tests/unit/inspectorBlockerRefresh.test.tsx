@@ -4,7 +4,7 @@ import { afterEach, expect, it, vi } from 'vitest';
 const api=vi.hoisted(()=>({confirm:undefined as any,fail:undefined as any,form:{} as any,stop:vi.fn()}));
 vi.mock('../../src/app/contexts/AuthContext',()=>({useAuth:()=>({user:{id:'lead'}})}));
 vi.mock('../../src/app/services/taskDiscussionService',()=>({subscribeToProgressUpdates:(_:string,confirm:any,fail:any)=>{api.confirm=confirm;api.fail=fail;return api.stop;},submitProgressUpdate:vi.fn()}));
-vi.mock('../../src/app/features/tasks',()=>({submitTaskForReview:vi.fn()}));
+vi.mock('../../src/app/features/tasks',async()=>({...await import('../../src/app/features/tasks/selectors/submissionReadiness'),submitTaskForReview:vi.fn()}));
 vi.mock('../../src/app/features/work-state',async()=>({...await import('../../src/app/features/work-state/selectors'),WorkExecutionForm:(props:any)=>{api.form=props;return <p>{props.initialBlocker}</p>;}}));
 import { InspectorExecution } from '../../src/app/features/task-inspector/components/InspectorExecution';
 import type { Task } from '../../src/app/features/tasks';
@@ -27,6 +27,6 @@ it('does not claim a clear blocker after an initial failure or carry it into ano
 });
 it('blocks the Start affordance for a contributor even when they can post progress',()=>{
  render(<InspectorExecution {...props} task={{...props.task,status:'todo'}} pendingDependencies={1}/>);
- expect(api.form.readOnly).toBe(true);expect(api.form.canSubmit).toBe(false);
+ expect(screen.queryByRole('button',{name:'Start work'})).toBeNull();
  expect(screen.getByText(/Starting work and final submission both wait/)).toBeTruthy();
 });

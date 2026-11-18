@@ -1,5 +1,6 @@
 """Authenticated, owner-scoped proxy to the loopback AI API."""
 
+from datetime import datetime, timezone
 import logging
 from typing import Any
 
@@ -81,7 +82,7 @@ def checked_chat_payload(payload: ChatRequest, user: AuthenticatedUser) -> dict:
         return body
     if user.role != "head" or not user.org_id:
         raise HTTPException(status_code=403, detail="Only an active Office Head can decompose project work.")
-    project = supabase_admin.table("projects").select("id,org_id,title,description,start_date,target_date,status").eq("id", str(request.projectId)).maybe_single().execute().data
+    project = supabase_admin.table("projects").select("id,org_id,title,description,scope,start_date,target_date,funding_not_required,status").eq("id", str(request.projectId)).maybe_single().execute().data
     if not project or str(project["org_id"]) != user.org_id or project["status"] in ("completed", "archived"):
         raise HTTPException(status_code=403, detail="Choose an open project belonging to your Office.")
     groups = supabase_admin.table("project_groups").select("id,title").eq("project_id", str(request.projectId)).order("position").execute().data or []
@@ -96,8 +97,12 @@ def checked_chat_payload(payload: ChatRequest, user: AuthenticatedUser) -> dict:
             responsibilities.extend(office for office in proposals if isinstance(office, dict))
     # Actual project state replaces caller-supplied context. No PDS or personnel
     # records are sent to the model and no service-role writes occur here.
+    caller_ctx = request.context if isinstance(request.context, dict) else {}
     body["workspace_decomposition"]["context"] = {
         "title": project["title"], "description": project.get("description", ""),
+        "scope": project.get("scope", ""),
+        "fundingNotRequired": bool(project.get("funding_not_required")),
+        **({"scheduleStart": caller_ctx["scheduleStart"]} if isinstance(caller_ctx.get("scheduleStart"), str) else {}),
         "startDate": project.get("start_date"), "targetDate": project.get("target_date"),
         "groups": groups, "existingTasks": tasks, "knownOffices": offices, "officeResponsibilities": responsibilities,
     }
@@ -155,6 +160,21 @@ async def _proxy(
 _STATUS_KEYS = ("ai_endpoint", "ai_endpoint_status", "ai_endpoint_heartbeat")
 
 
+async def _is_local_ai_healthy() -> bool:
+    """Check whether the local AI host (:8321) is reachable on this machine."""
+    try:
+        async with httpx.AsyncClient(
+            timeout=httpx.Timeout(2.0, connect=1.5),
+        ) as client:
+            resp = await client.get(f"{settings.internal_ai_base_url}/health")
+            if resp.status_code != 200:
+                return False
+            payload = resp.json()
+            return isinstance(payload, dict) and payload.get("status") == "ok"
+    except Exception:
+        return False
+
+
 async def _read_system_config(keys: tuple[str, ...]) -> dict[str, str | None]:
     """Read system_config rows using the service role key (bypasses RLS)."""
     service_headers = {
@@ -178,18 +198,35 @@ async def _read_system_config(keys: tuple[str, ...]) -> dict[str, str | None]:
     return {row["key"]: row.get("value") for row in rows if isinstance(row, dict)}
 
 
+@router.get("/local-health")
+async def ai_local_health() -> dict[str, bool]:
+    return {"local_ai": await _is_local_ai_healthy()}
+
+
 @router.get("/status")
-async def ai_status() -> dict[str, str | None]:
+async def ai_status() -> dict[str, Any]:
     """Return AI endpoint configuration for the browser without relying on the
     browser's Supabase session. Reads system_config via the server-side service
     role key so RLS does not apply. The tunnel URL is already public config —
     the RLS policy allows any authenticated Supabase user to read it, so
     exposing it here without a session check is equivalent."""
-    config = await _read_system_config(_STATUS_KEYS)
+    local_ai = await _is_local_ai_healthy()
+    try:
+        config = await _read_system_config(_STATUS_KEYS)
+    except HTTPException:
+        if local_ai:
+            return {
+                "ai_endpoint": "/controlpanelEflow/api",
+                "ai_endpoint_status": "online",
+                "ai_endpoint_heartbeat": datetime.now(timezone.utc).isoformat(),
+                "local_ai": True,
+            }
+        raise
     return {
         "ai_endpoint": config.get("ai_endpoint"),
         "ai_endpoint_status": config.get("ai_endpoint_status"),
         "ai_endpoint_heartbeat": config.get("ai_endpoint_heartbeat"),
+        "local_ai": local_ai,
     }
 
 

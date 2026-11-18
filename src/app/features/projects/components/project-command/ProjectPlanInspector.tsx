@@ -1,4 +1,5 @@
 import { EmptyStateIllustration } from '../../../../components/ui/EmptyStateIllustration';
+import { DateInput } from '../../../../components/ui/DateInput';
 import { calendarMinDate, getPhilippineCalendarDate, scheduleRangeError, scheduledDateError } from '../../../../shared/calendarDates';
 import { useEffect, useRef, useState } from "react";
 import {
@@ -205,8 +206,7 @@ export function ProjectPlanInspector({
                     placeholder="e.g. Environmental Impact Assessment..."
                   />
                   <div className="flex items-center gap-2">
-                    <input
-                      type="date"
+                    <DateInput
                       min={getPhilippineCalendarDate()} max={project.targetDate || undefined}
                       value={newDue}
                       onChange={(event) => setNewDue(event.target.value)}
@@ -440,8 +440,7 @@ export function ProjectPlanInspector({
 
                 <div className="grid grid-cols-2 gap-2.5">
                   <Field label="Start Date">
-                    <input
-                      type="date"
+                    <DateInput
                       min={calendarMinDate(project.startDate || '')}
                       value={form.startDate}
                       onChange={(event) =>
@@ -451,8 +450,7 @@ export function ProjectPlanInspector({
                     />
                   </Field>
                   <Field label="Target Date">
-                    <input
-                      type="date"
+                    <DateInput
                       min={form.startDate && form.startDate > calendarMinDate(project.targetDate || '') ? form.startDate : calendarMinDate(project.targetDate || '')}
                       value={form.targetDate}
                       onChange={(event) =>
@@ -615,9 +613,8 @@ function ActivityInspectorCard({
 
           <div className="grid grid-cols-2 gap-2">
             <Field label="Target Date">
-              <input
+              <DateInput
                 disabled={disabled}
-                type="date"
                 min={calendarMinDate(milestone.dueDate || '')} max={projectTarget || undefined}
                 value={dueDate}
                 onChange={(event) => setDueDate(event.target.value)}

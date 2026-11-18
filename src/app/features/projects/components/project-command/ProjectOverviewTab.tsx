@@ -37,13 +37,13 @@ export function ProjectOverviewTab({data,profiles,onOpenTask}: {data:ProjectComm
    </section>
   </div><aside>
    <section className="r4-overview-section" aria-label="Responsible people"><header><h3>Responsible people</h3></header><PeopleAvatarStack people={people}/><dl className="r4-overview-details">
-    <dt>Project lead</dt><dd>{owner?.full_name||'Unassigned'}</dd><dt>Start date</dt><dd>{formatDate(data.project.startDate)}</dd><dt>Target date</dt><dd>{formatDate(data.project.targetDate)}</dd><dt>Last activity</dt><dd>{data.metrics.lastActivityAt?new Date(data.metrics.lastActivityAt).toLocaleDateString():'No activity recorded'}</dd>
+    <dt>Project lead</dt><dd>{owner?.full_name||'Unassigned'}</dd><dt>Start date</dt><dd>{formatDate(data.project.startDate)}</dd><dt>Target date</dt><dd>{formatDate(data.project.targetDate)}</dd><dt>Last activity</dt><dd>{data.metrics.lastActivityAt?new Date(data.metrics.lastActivityAt).toLocaleDateString('en-US',{timeZone:'Asia/Manila',month:'2-digit',day:'2-digit',year:'numeric'}):'No activity recorded'}</dd>
    </dl></section>
    <section className="r4-overview-section" aria-label="Needs attention"><header><h3>Needs attention</h3><span>{data.attention.length}</span></header>
     {data.attention.length ? <ul>{data.attention.slice(0,5).map(item=><li key={item.id}>{item.taskId?<button type="button" onClick={()=>onOpenTask(item.taskId!)}><strong>{item.title}</strong><span>{item.detail}</span></button>:<><strong>{item.title}</strong><span>{item.detail}</span></>}</li>)}</ul>:<EmptyState illustration="complete" size="compact" title="No attention items in the loaded project work."/>}
    </section>
    <section className="r4-overview-section" aria-label="Recent activity"><header><h3>Recent activity</h3></header>
-    {data.activity.length?<ul>{data.activity.slice(0,4).map(item=><li key={item.id}><strong>{item.actorName&&item.actorName!=='System'?`${item.actorName} · `:''}{item.title}</strong><span>{item.detail} · {new Date(item.occurredAt).toLocaleString()}</span></li>)}</ul>:<EmptyState illustration="files" size="compact" title="No recent activity recorded."/>}
+    {data.activity.length?<ul>{data.activity.slice(0,4).map(item=><li key={item.id}><strong>{item.actorName&&item.actorName!=='System'?`${item.actorName} · `:''}{item.title}</strong><span>{item.detail} · {new Date(item.occurredAt).toLocaleString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric', hour: 'numeric', minute: '2-digit' })}</span></li>)}</ul>:<EmptyState illustration="files" size="compact" title="No recent activity recorded."/>}
    </section>
   </aside></div>
  </div>;

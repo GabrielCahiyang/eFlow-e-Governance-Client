@@ -4,6 +4,17 @@ import type { ReviewAttachment, ReviewSubmission } from "../types";
 const timestamp = (value: unknown): number | undefined =>
   typeof value === "string" && value ? new Date(value).getTime() : undefined;
 
+export async function fetchDecidedSubmissionIds(ids: string[]): Promise<Set<string>> {
+  const decided = new Set<string>();
+  for (let offset = 0; offset < ids.length; offset += 50) {
+    const { data, error } = await supabase.from('task_submissions').select('id')
+      .in('id', ids.slice(offset, offset + 50)).in('status', ['approved', 'changes_requested']);
+    if (error) throw new Error(error.message);
+    for (const row of data ?? []) decided.add(row.id);
+  }
+  return decided;
+}
+
 export async function fetchTaskSubmissions(
   taskId: string,
 ): Promise<ReviewSubmission[]> {

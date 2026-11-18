@@ -27,6 +27,7 @@ export function TaskManagementMenu({
   onReopen,
   onStart,
   onSubmit,
+  onReview,
   onApprove,
   onReject,
   menuPlacement = "bottom",
@@ -40,6 +41,7 @@ export function TaskManagementMenu({
   onReopen?: (task: Task) => void;
   onStart?: (task: Task) => void;
   onSubmit?: (task: Task) => void;
+  onReview?: (task: Task) => void;
   onApprove?: (task: Task) => void;
   onReject?: (task: Task) => void;
   menuPlacement?: "top" | "bottom";
@@ -63,6 +65,7 @@ export function TaskManagementMenu({
   add("start", "Start task", <Play size={14} />, onStart);
   add("submit", "Submit for review", <Send size={14} />, onSubmit);
   if (task.status === "for_review") {
+    add("review", "Review submission", <span aria-hidden="true">✓</span>, onReview);
     add("approve", "Approve", <span aria-hidden="true">✓</span>, onApprove);
     add(
       "reject",

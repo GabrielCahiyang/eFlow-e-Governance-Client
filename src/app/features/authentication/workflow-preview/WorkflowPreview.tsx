@@ -1,13 +1,20 @@
-import { useState } from "react";
+import { createElement, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { Building2, GitBranch, Play } from "lucide-react";
+import { DialogSkeleton } from "../../../components/ui/SurfaceSkeletons";
 import { lazyFeature } from "../../../shared/lazyFeature";
 import { WORKFLOW_GUIDES } from "./workflowGuides";
 import type { WorkflowKind } from "./types";
 import styles from "./WorkflowPreview.module.scss";
 
-const WorkflowPreviewPanel = lazyFeature(() =>
-  import("./WorkflowPreviewPanel").then((module) => ({ default: module.WorkflowPreviewPanel })),
+const WorkflowPreviewPanel = lazyFeature(
+  () =>
+    import("./WorkflowPreviewPanel").then((module) => ({
+      default: module.WorkflowPreviewPanel,
+    })),
+  undefined,
+  undefined,
+  createElement(DialogSkeleton, { label: "Loading workflow preview…" }),
 );
 
 function FlowButton({ kind }: { kind: WorkflowKind }) {

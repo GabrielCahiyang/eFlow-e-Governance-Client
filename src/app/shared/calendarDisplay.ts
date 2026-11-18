@@ -1,10 +1,10 @@
 import { isCalendarDate } from './calendarDates';
 
-const dateFormat = new Intl.DateTimeFormat('en-PH', {
-  timeZone: 'Asia/Manila', year: 'numeric', month: 'short', day: 'numeric',
+const dateFormat = new Intl.DateTimeFormat('en-US', {
+  timeZone: 'Asia/Manila', month: '2-digit', day: '2-digit', year: 'numeric',
 });
-const instantFormat = new Intl.DateTimeFormat('en-PH', {
-  timeZone: 'Asia/Manila', year: 'numeric', month: 'short', day: 'numeric',
+const instantFormat = new Intl.DateTimeFormat('en-US', {
+  timeZone: 'Asia/Manila', month: '2-digit', day: '2-digit', year: 'numeric',
   hour: 'numeric', minute: '2-digit',
 });
 

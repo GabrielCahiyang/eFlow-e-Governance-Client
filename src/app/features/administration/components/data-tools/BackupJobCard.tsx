@@ -67,7 +67,7 @@ export function BackupJobCard({
             )}
           </div>
           <p className="mt-0.5 text-[10.5px] text-neutral-500">
-            {job.phase} · started {new Date(job.created_at).toLocaleString("en-PH")}
+            {job.phase} · started {new Date(job.created_at).toLocaleString("en-US")}
           </p>
           {active && (
             <div className="mt-3">
@@ -87,7 +87,7 @@ export function BackupJobCard({
               <Metric label="Tables" value={job.table_count} />
               <Metric label="Rows" value={job.row_count.toLocaleString()} />
               <Metric label="Archive" value={formatBytes(job.archive_size)} />
-              <Metric label="Expires" value={job.expires_at ? new Date(job.expires_at).toLocaleString("en-PH", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "—"} />
+              <Metric label="Expires" value={job.expires_at ? new Date(job.expires_at).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "—"} />
             </div>
           )}
           {completed && job.archive_sha256 && (

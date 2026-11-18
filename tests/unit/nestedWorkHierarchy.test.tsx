@@ -209,4 +209,16 @@ describe('public shared work controller',()=>{
   await expect(hook.result.current.save(request)).rejects.toThrow('Verify current work access');expect(api.save).not.toHaveBeenCalled();
   await act(async()=>hook.result.current.reload());expect(hook.result.current.data).toBe(verified);expect(hook.result.current.authorityFresh).toBe(true);
  });
+ it('keeps Add subtask enabled during quiet background refreshes instead of graying out on focus/polling',async()=>{
+  const data=tree([]);data.root.capabilities!.create_child=allow;
+  const second=deferred<WorkTreeSnapshot>();
+  api.load.mockResolvedValueOnce(data).mockReturnValueOnce(second.promise);
+  render(<WorkTree rootId="root"/>);
+  const add=await screen.findByRole('button',{name:'Add subtask'}) as HTMLButtonElement;
+  expect(add.disabled).toBe(false);
+  fireEvent(window,new Event('focus'));
+  expect(add.disabled).toBe(false);
+  await act(async()=>{second.resolve(data);});
+  expect(add.disabled).toBe(false);
+ });
 });

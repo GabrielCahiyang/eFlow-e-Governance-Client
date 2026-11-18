@@ -34,7 +34,7 @@ export function CalendarBoardView({
             const taskContent = <span className="break-words text-left text-[12px] font-semibold leading-snug text-neutral-900">{task.title}</span>;
             return (
               <li key={task.id} className="grid gap-2 px-4 py-3.5 sm:grid-cols-[126px_minmax(0,1fr)_auto] sm:items-center sm:px-5">
-                <time dateTime={date.toISOString()} className="text-[12px] font-medium text-neutral-700">{date.toLocaleDateString("en-PH", { weekday: "short", month: "short", day: "numeric", year: "numeric" })}</time>
+                <time dateTime={date.toISOString()} className="text-[12px] font-medium text-neutral-700">{date.toLocaleDateString("en-US", { weekday: "short", month: "2-digit", day: "2-digit", year: "numeric" })}</time>
                 {onOpenTaskEditor ? <button type="button" onClick={() => onOpenTaskEditor(task)} className="min-w-0 text-left hover:text-violet-700">{taskContent}</button> : taskContent}
                 <div className="flex flex-wrap items-center gap-1.5 text-[10px] sm:justify-end">
                   <span className={`rounded-full border px-2 py-0.5 ${status.color}`}>{status.label}</span>

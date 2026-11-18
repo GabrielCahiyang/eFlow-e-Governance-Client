@@ -1,4 +1,4 @@
-import {WorkActivity,WorkRootOwner,supportsNestedWork,useWorkTree,type WorkTreeController} from '../../nested-work';
+import {WorkActivity,WorkRootOwner,isTaskSubtaskPlanningBlocked,supportsNestedWork,useWorkTree,type WorkTreeController} from '../../nested-work';
 import { isAppointedOfficeHead } from '../../../shared/officeAuthority';
 import { pendingTaskDependencies, taskStartBlocker } from '../../tasks';
 import { StaffingDialog, staffingEntryReason } from '../../staffing';
@@ -17,12 +17,13 @@ import { type Task } from "../../tasks";
 import { useAuth } from "../../../contexts/AuthContext";
 import { ProjectStatusBadge } from "../../../components/workflow/StatusBadges";
 import { relativeDays } from "../../../components/workflow/primitives";
+import { WorkFinancialClearancePanel } from '../../budget';
 import { TaskActivityTimeline } from "../../tasks";
 import { TaskDiscussion } from "../../tasks";
 import { TaskReviewPanel, canUserReviewTask } from "../../reviews";
 import { useTasks } from "../../../hooks/useFirebaseData";
 import { useProfiles, useProjectsData } from "../../../hooks/useSupabaseData";
-import { isTaskLead } from "../../tasks";
+import { isTaskLead, TaskEvidenceRecovery } from "../../tasks";
 import { resolveSubtaskManagementCapability, resolveTaskDetailCapabilities } from "../../tasks";
 import { TaskTeamEditorDialog } from "../../tasks";
 import { useTaskSubtasks,SubitemInspector } from "../../subtasks";
@@ -99,7 +100,15 @@ function TaskInspectorContent({
   const rejected = task.status === "changes_requested";
   const currentUserIsLead = Boolean(user?.id && isTaskLead(task, user.id));
   const isOwnerOrLead = !!user?.id && task.assigneeId === user.id;
-  const canManageSubtasks = resolveSubtaskManagementCapability(readOnly || proposedOffice, currentUserIsLead);
+  const subtaskPlanningBlocked = isTaskSubtaskPlanningBlocked({
+    isOfficeProject: Boolean(task.linkedProjectId) && !proposedOffice,
+    projectStatus: operationalProject?.status ?? controller?.data?.root.project_status,
+    projectLeadId: operationalProject?.projectLeadId,
+    taskLeadId: task.assigneeId || task.recommendationLeadId || null,
+    actorId: user?.id || null,
+    actorRole: userProfile?.role || null,
+  });
+  const canManageSubtasks = resolveSubtaskManagementCapability(readOnly || proposedOffice || subtaskPlanningBlocked, currentUserIsLead);
   // Fiscal authority belongs to the appointed Office Head, independently of
   // task execution and project contributor selection.
   const canAuthorizeFunding = !readOnly && !executionBlocked && !task.archivedAt &&
@@ -123,7 +132,8 @@ function TaskInspectorContent({
   const tab = selectedTab;
   const reviewAvailable = effectiveCanReview && task.status === 'for_review' && canUserReviewTask(task, user?.id, userProfile?.role);
   const canExecuteWork = Boolean(capabilities.canPostProgress || canStart || canResume || canSubmit);
-  const completedSubtaskCount = taskSubtasks.filter(s => s.status === 'completed').length;
+  const directSubtasks = taskSubtasks.filter(s => !s.parentSubtaskId);
+  const completedSubtaskCount = directSubtasks.filter(s => s.status === 'completed').length;
   const overviewTeamSlot = supportsNestedWork(task) ? (
     <section aria-label="Task Lead and contributors">
       <WorkRootOwner rootId={task.id} controller={controller} readOnly={readOnly || proposedOffice || lifecycle.busy} layout="inline" />
@@ -167,7 +177,7 @@ function TaskInspectorContent({
                 authorityPending={!!controller&&(!controller.authorityFresh||controller.refreshPending||controller.pending)}
                 fundingTask={controller?.data?{...task,assigneeId:controller.data.root.lead||undefined,recommendationLeadId:undefined}:undefined}
                 budgetReadOnly={readOnly||!!task.archivedAt||executionBlocked||!!controller&&controller.data?.people.find(person=>person.id===user?.id)?.eligible!==true}
-                subtaskSummary={{ total: taskSubtasks.length, completed: completedSubtaskCount }}
+                subtaskSummary={{ total: directSubtasks.length, completed: completedSubtaskCount }}
                 onOpenWork={() => void requestNavigation(() => setTab('work'))}
                 teamSlot={overviewTeamSlot}
               />
@@ -176,6 +186,15 @@ function TaskInspectorContent({
 
           {tab === 'work' && (
             <div className="task-page__stack">
+              {user?.id && typeof TaskEvidenceRecovery === 'function' &&
+                <TaskEvidenceRecovery key={`${user.id}:${task.id}`} task={task.id} actor={user.id} verifyOnly={readOnly || executionBlocked} onSaved={onChanged} />}
+              {typeof WorkFinancialClearancePanel === 'function' && (
+                <WorkFinancialClearancePanel
+                  root={task.id}
+                  readOnly={readOnly || executionBlocked}
+                  onSaved={() => { onChanged?.(); }}
+                />
+              )}
               {reviewAvailable ? (
                 <section aria-label="Submission review" className="task-page__review">
                   <TaskReviewPanel task={task} canReview showDecision onDone={() => { onChanged?.(); }} />
@@ -183,6 +202,7 @@ function TaskInspectorContent({
               ) : canExecuteWork || isProjectOnHold || dependencyCount > 0 ? (
                 <section aria-label="Update task work" className="task-page__card">
                   <InspectorExecution
+                    hideClearancePanel
                     isProjectOnHold={isProjectOnHold}
                     pendingDependencies={dependencyCount}
                     startBlockedReason={startBlockedReason}
@@ -202,8 +222,8 @@ function TaskInspectorContent({
               ) : (
                 <div className="task-page__compact-status" role="status">
                   <strong>
-                    {taskSubtasks.length > 0
-                      ? `${completedSubtaskCount} of ${taskSubtasks.length} step${taskSubtasks.length === 1 ? '' : 's'} complete`
+                    {directSubtasks.length > 0
+                      ? `${completedSubtaskCount} of ${directSubtasks.length} step${directSubtasks.length === 1 ? '' : 's'} complete`
                       : `Status: ${task.status.replace('_', ' ')}`}
                   </strong>
                   <span>Assigned team handles execution updates.</span>
@@ -231,6 +251,7 @@ function TaskInspectorContent({
                   canManageSubtasks={canManageSubtasks}
                   currentUserIsLead={currentUserIsLead}
                   readOnly={readOnly || proposedOffice || lifecycle.busy}
+                  subtaskReadOnly={readOnly || proposedOffice || lifecycle.busy || subtaskPlanningBlocked}
                   onManage={() => setTeamEditorOpen(true)}
                   staffingReason={staffingReason}
                   onRecommend={() => setStaffingOpen(true)}

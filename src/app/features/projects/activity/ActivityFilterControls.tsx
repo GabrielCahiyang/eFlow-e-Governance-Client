@@ -1,4 +1,5 @@
 import { Button } from "../../../components/ui/button";
+import { DateInput } from "../../../components/ui/DateInput";
 import { DEFAULT_ACTIVITY_FILTERS, type ActivityFilters } from "./types";
 export function ActivityFilterControls({
   filters,
@@ -42,8 +43,7 @@ export function ActivityFilterControls({
       </label>
       <label>
         From
-        <input
-          type="date"
+        <DateInput
           className="eflow-control"
           max={filters.to || undefined}
           value={filters.from}
@@ -52,8 +52,7 @@ export function ActivityFilterControls({
       </label>
       <label>
         To
-        <input
-          type="date"
+        <DateInput
           className="eflow-control"
           min={filters.from || undefined}
           value={filters.to}

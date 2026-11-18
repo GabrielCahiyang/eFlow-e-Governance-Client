@@ -190,7 +190,7 @@ export function MondayBoard({
   onAssign,
   onExecute,
   onSubmit,
-  onVerify,
+  onOpenReview,
   onUpdateTask,
   onDeleteTask,
 }: MondayBoardProps) {
@@ -304,7 +304,7 @@ export function MondayBoard({
     onAssign,
     onExecute,
     onSubmit,
-    onVerify,
+    onOpenReview,
     onUpdateTask,
     onDeleteTask,
   });
@@ -814,7 +814,7 @@ export function MondayBoard({
                     employeeNotes={employeeNotes}
                     onAssign={onAssign}
                     onUpdateTask={onUpdateTask}
-                    onVerify={onVerify}
+                    onOpenReview={onOpenReview}
                     onExecute={onExecute}
                     onSubmitRequest={openSubmitModal}
                     onOpenTaskEditor={
@@ -840,7 +840,7 @@ export function MondayBoard({
                     tasks={boardTasks}
                     employees={deptEmployees}
                     role={role}
-                    onVerify={onVerify}
+                    onOpenReview={onOpenReview}
                     onExecute={onExecute}
                     onSubmitRequest={openSubmitModal}
                     onOpenTaskEditor={
@@ -882,7 +882,7 @@ export function MondayBoard({
                     tasks={boardTasks}
                     employees={deptEmployees}
                     role={role}
-                    onVerify={onVerify}
+                    onOpenReview={onOpenReview}
                     onExecute={onExecute}
                     onSubmitRequest={openSubmitModal}
                     onOpenTaskEditor={
@@ -935,7 +935,7 @@ export function MondayBoard({
                     employeeNotes={employeeNotes}
                     onAssign={onAssign}
                     onUpdateTask={onUpdateTask}
-                    onVerify={onVerify}
+                    onOpenReview={onOpenReview}
                     onExecute={onExecute}
                     onSubmitRequest={openSubmitModal}
                     onOpenTaskEditor={

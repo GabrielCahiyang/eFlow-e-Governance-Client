@@ -21,12 +21,13 @@ export function TaskCashClearancePanel({ blockers, loading, error, serverBlocked
         <div>
           <h3 className="flex items-center gap-1.5 text-xs font-semibold text-neutral-900"><AlertCircle size={14} /> Cash clearance</h3>
           <p aria-live="polite" className="mt-1 text-xs text-neutral-600">
-            {loading ? "Checking task and subtask cash…" : blockerCount
-              ? `${blockerCount} open cash request${blockerCount === 1 ? " is" : "s are"} holding up task approval.`
-              : error ? "Cash clearance could not be checked. This does not mean the task is financially cleared."
-                : serverBlocked ? "The last approval attempt reported unresolved cash, but no open requests are visible now. Retry approval to recheck; if it is still blocked, ask the Head to check this task's funding records."
-                  : blockers.length ? "Task approval can proceed. Accounting settlement is still required for project closeout."
-                    : "No open cash requests found. Final clearance is checked again when approving."}
+            {loading ? "Checking task and subtask cash…" : error
+              ? "Cash clearance could not be checked. This does not mean the task is financially cleared."
+              : serverBlocked
+                ? "The last approval attempt reported unresolved cash, but no open requests are visible now. Retry approval to recheck; if it is still blocked, ask the Head to check this task's funding records."
+                : blockers.length
+                  ? "Accepting the work unlocks required receipts. Outstanding cash still blocks final completion."
+                  : "No open cash requests found. Final clearance is checked again when approving."}
           </p>
         </div>
         {error && <button type="button" onClick={onRefresh} disabled={loading} className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-neutral-200 bg-white px-2 py-1 text-xs text-neutral-700 disabled:opacity-50">
@@ -35,7 +36,7 @@ export function TaskCashClearancePanel({ blockers, loading, error, serverBlocked
       </div>
       {error && <p role="alert" className="mt-2 text-xs text-rose-700">{error} You can retry the check or ask the Head to inspect the funding record. Approval still uses the database's settlement checks.</p>}
       {blockers.length > 0 && <>
-        {blockerCount > 0 && <p className="mt-2 text-xs text-amber-900">Resolve the blocking requests below before approving. You can still request changes to the work.</p>}
+        {blockerCount > 0 && <p className="mt-2 text-xs text-amber-900">Work acceptance can proceed now so the cash recipient can upload required receipts. Open cash requests must still be settled before the lead can finalize task completion.</p>}
         <ul className="mt-3 space-y-3">
           {blockers.map((blocker) => {
             const { request, liquidation, settlement } = blocker;
@@ -64,7 +65,7 @@ export function TaskCashClearancePanel({ blockers, loading, error, serverBlocked
                 <div><dt className="inline font-semibold">Next step: </dt><dd className="inline">{!blocksApproval ? "You can approve the task. An eligible Accounting Officer must settle the cash before project closeout." : staffingBlocked ? "Resolve the Accounting staffing hold before approving this task." : blocker.nextStep}</dd></div>
                 <div><dt className="inline font-semibold">Where: </dt><dd className="inline">{independentReview ? "Reviews → Budget → Independent financial reviews" : blocker.location} → {number}</dd></div>
               </dl>
-              {(request.releasedAmount || 0) > 0 && <p className="mt-2 text-neutral-600">Released: {peso.format(request.releasedAmount || 0)}{request.liquidationDueAt ? ` · Receipts due ${new Date(request.liquidationDueAt).toLocaleDateString()}` : ""}</p>}
+              {(request.releasedAmount || 0) > 0 && <p className="mt-2 text-neutral-600">Released: {peso.format(request.releasedAmount || 0)}{request.liquidationDueAt ? ` · Receipts due ${new Date(request.liquidationDueAt).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })}` : ""}</p>}
               {liquidation && <p className="mt-1 text-neutral-600">Receipt package #{liquidation.version}: {peso.format(liquidation.declaredSpent)} declared spent · {peso.format(liquidation.returnedAmount)} declared return</p>}
               {feedback && <p className="mt-2 rounded bg-amber-50 p-2 text-amber-900">Reviewer feedback: {feedback}</p>}
               {onOpenFinancialReview && canOpenCashBlockerReview(blocker, currentUserId, role) && <button

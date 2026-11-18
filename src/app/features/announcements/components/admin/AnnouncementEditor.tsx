@@ -2,6 +2,7 @@ import { useReviewedMutation } from "../../../../shared/useReviewedMutation";
 import { useExplicitDraft } from "../../../../shared/useExplicitDraft";
 import {announcementExpiryError} from '../../../../shared/expiryDates';
 import {calendarMinDate,getPhilippineCalendarDate} from '../../../../shared/calendarDates';
+import { DateInput } from "../../../../components/ui/DateInput";
 import { requestNavigation } from "../../../../shared/navigationGuard";
 import { FeedbackState } from "../../../../components/ui/FeedbackState";
 import { useAuth } from "../../../../contexts/AuthContext";
@@ -376,8 +377,7 @@ export function AnnouncementEditor({
                 <label className="text-[12px] font-medium text-neutral-700 mb-1.5 block">
                   Expiration Date (Optional)
                 </label>
-                <input
-                  type="date"
+                <DateInput
                   aria-label="Expiration date"
                   aria-invalid={!!expiryError}
                   aria-describedby="announcement-expiry-help"

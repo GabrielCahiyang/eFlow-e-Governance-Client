@@ -239,7 +239,7 @@ export function LockedBudgetControls({
               <span>→ {peso.format(item.adjustedAmount)}</span>
               <span className="text-neutral-500">{item.reason}</span>
               <span className="text-neutral-400">
-                {new Date(item.createdAt).toLocaleString()}
+                {new Date(item.createdAt).toLocaleString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric', hour: 'numeric', minute: '2-digit' })}
               </span>
             </div>
           ))}

@@ -1,4 +1,5 @@
 import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
+import { DateInput } from "../../../components/ui/DateInput";
 import {
   TaskDepartmentLabel,
   deadlineInputParts,
@@ -166,7 +167,7 @@ export function DraftTaskRow({
             </div>
             <div className="flex items-center gap-2 flex-wrap">
               <div>
-                <input
+                <DateInput
                   aria-label="Task deadline"
                   aria-describedby={
                     deadlineError
@@ -175,7 +176,6 @@ export function DraftTaskRow({
                   }
                   aria-invalid={Boolean(deadlineError)}
                   data-testid="manual-task-deadline"
-                  type="date"
                   value={deadlineParts.date}
                   onChange={(e) =>
                     onUpdate(dt.key, {

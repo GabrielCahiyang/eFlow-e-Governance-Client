@@ -6,7 +6,7 @@ vi.mock('../../src/app/features/project-access',()=>({fetchAccess:()=>Promise.re
 vi.mock('../../src/app/features/project-invitations',()=>({ProjectInvitations:()=>null}));
 vi.mock('../../src/app/contexts/AuthContext',()=>({useAuth:()=>({user:{id:calls.actor}})}));
 vi.mock('../../src/app/features/project-members/services/memberService',()=>({fetchMembers:calls.load,saveMemberTerms:calls.save}));
-vi.mock('../../src/app/features/project-offices',()=>({useProjectOfficeContext:()=>({members:calls.members,refresh:calls.refresh}),ProjectPeoplePage:({projectTitle,onClose}:{projectTitle:string;onClose:()=>void})=><section aria-label="Add people to project"><p>Direct picker: {projectTitle}</p><button onClick={onClose}>Back to project</button></section>}));
+vi.mock('../../src/app/features/project-offices',()=>({useProjectOfficeContext:()=>({members:calls.members,refresh:calls.refresh})}));
 import {ProjectMembers} from '../../src/app/features/project-members/components/ProjectMembers';
 import {MemberTermsEditor} from '../../src/app/features/project-members/components/MemberTermsEditor';
 import type {SelectedMember} from '../../src/app/features/project-members';
@@ -20,7 +20,7 @@ it('lists selected project membership, effective Viewer access and nested respon
  expect(within(screen.getByRole('table',{name:'Selected project members'})).queryByText('Selected person')).toBeNull();
  expect(screen.getByText('1 of 2 members')).toBeTruthy();
  fireEvent.change(search,{target:{value:''}});
- fireEvent.click(screen.getAllByRole('button',{name:'Root / Nested work · Subtask Lead'})[0]);expect(open).toHaveBeenCalledWith('root');fireEvent.click(screen.getByRole('button',{name:'+ Add people · Planning Office'}));expect(screen.getByText('Direct picker: Planning Office')).toBeTruthy();expect(screen.queryByRole('dialog')).toBeNull();fireEvent.click(screen.getByRole('button',{name:'Back to project'}));await screen.findByText('Selected person');
+ fireEvent.click(screen.getAllByRole('button',{name:'Root / Nested work · Subtask Lead'})[0]);expect(open).toHaveBeenCalledWith('root');expect(screen.queryByRole('button',{name:/Add people/i})).toBeNull();
 });
 it('gives empty Office guidance and keeps closed project membership read-only',async()=>{
  render(<ProjectMembers projectId="project" projectStatus="archived" profiles={[]} tasks={[]} onOpenTask={vi.fn()}/>);await screen.findByText('Selected person');expect(screen.getByText(/No onboarded eligible staff/)).toBeTruthy();expect(screen.queryByRole('button',{name:/Add people|Edit access terms/})).toBeNull();

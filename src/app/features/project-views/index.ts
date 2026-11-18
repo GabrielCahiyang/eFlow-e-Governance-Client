@@ -1,13 +1,16 @@
 import { createElement } from "react";
+import { DialogSkeleton } from "../../components/ui/SurfaceSkeletons";
 import { ProjectViewLoading } from "../../components/workflow/ProjectWorkspaceSkeleton";
 import { lazyFeature } from "../../shared/lazyFeature";
 export { ProjectViewFilters } from "./components/ProjectViewFilters";
-export const TaskDatesDialog = lazyFeature(() =>
-  import("./components/TaskDatesDialog").then((module) => ({
-    default: module.TaskDatesDialog,
-  })),
+export const TaskDatesDialog = lazyFeature(
+  () =>
+    import("./components/TaskDatesDialog").then((module) => ({
+      default: module.TaskDatesDialog,
+    })),
   undefined,
   "TaskDatesDialog",
+  createElement(DialogSkeleton, { label: "Loading task dates…" }),
 );
 export const ProjectGanttView = lazyFeature(() =>
   import("./components/ProjectGanttView").then((module) => ({

@@ -65,7 +65,8 @@ export function ProjectDefinitionPanel({projectId,profiles,profilesLoading,organ
   if(busy||!editable)return;
   if(!draft.title.trim()||!draft.description.trim()){setError('Enter the project title and description before saving.');return;}
   if(!draft.scope.trim()){setError('Define the project scope before saving.');return;}
-  if(!draft.lead||!draft.start||!draft.end||draft.end<draft.start){setError('Enter valid project start and target dates.');return;}
+  if(!draft.lead){setError('Select a Project Lead before saving.');return;}
+  if(draft.start&&draft.end&&draft.end<draft.start){setError('Project target date must be on or after its start date.');return;}
   if(!navigator.onLine){setError('Reconnect before saving project settings.');return;}
   setBusy(true);setError('');setNotice('');
   try{
@@ -113,11 +114,11 @@ export function ProjectDefinitionPanel({projectId,profiles,profilesLoading,organ
 
  return <div className="space-y-5">{section!=='funding'&&(data.ready?<form className="pf-panel pf-settings-form" aria-label="Project definition" onSubmit={e=>{void saveInline(e);}}>
   <header>
-   <div><h2><ClipboardList size={21}/>Project settings</h2><p>{editable?'Update project details, scope, and schedule.':closed?'Completed and archived project settings are read-only.':!planning?'Project settings are read-only once planning ends.':'Only the appointed lead Office Head can edit project settings.'}</p></div>
+   <div><h2><ClipboardList size={21}/>Project settings</h2><p>{editable?'Update project details and scope. The project timeline syncs automatically from tasks and subtasks.':closed?'Completed and archived project settings are read-only.':!planning?'Project settings are read-only once planning ends.':'Only the appointed lead Office Head can edit project settings.'}</p></div>
   </header>
   <ProjectSetupFields step={0} draft={draft} update={update} profiles={profiles} disabled={!editable||busy} settings/>
   <ProjectSetupFields step={1} draft={draft} update={update} profiles={profiles} disabled={!editable||busy} settings/>
-  <ProjectSetupFields step={2} draft={draft} update={update} profiles={profiles} disabled={!editable||busy} settings/>
+  <dl className="pf-definition-summary"><div><dt>Timeline</dt><dd>{project.start_date&&project.target_date?`${project.start_date} → ${project.target_date}`:'Set automatically from tasks and subtasks'}</dd></div></dl>
   {error&&<FlowError error={error}/>}
   {notice&&<p role="status" className="pf-success">{notice}</p>}
   {editable&&<div className="pf-actions">
@@ -125,13 +126,13 @@ export function ProjectDefinitionPanel({projectId,profiles,profilesLoading,organ
    <button type="button" disabled={!dirty||busy} onClick={()=>{if(baseDraft)setDraft({...baseDraft,lead:flow.data?.canAuthorize&&user?.id?user.id:baseDraft.lead});setError('');setNotice('');}}><RotateCcw size={15}/>Discard changes</button>
    <span role="status" className="text-xs text-muted-foreground">{dirty?'Unsaved changes':'All changes saved'}</span>
   </div>}
- </form>:<section className="pf-panel" aria-label="Project definition"><header><div><h2><ClipboardList size={21}/>Project details</h2><p>Complete each section in the setup dialog before adding work or people.</p></div>{planning&&!closed&&<button className="pf-primary" onClick={()=>launch(0)}>Continue project setup<ArrowRight size={16}/></button>}</header><dl className="pf-definition-summary"><div><dt>Project</dt><dd>{project.title}</dd></div><div><dt>Project lead</dt><dd>{profiles.find(person=>person.id===project.project_lead_id)?.full_name||'Not selected'}</dd></div><div><dt>Timeline</dt><dd>{project.start_date&&project.target_date?`${project.start_date} → ${project.target_date}`:'Not set'}</dd></div><div><dt>Scope</dt><dd>{project.scope||'Not defined'}</dd></div></dl></section>)}
+ </form>:<section className="pf-panel" aria-label="Project definition"><header><div><h2><ClipboardList size={21}/>Project details</h2><p>Complete each section in the setup dialog before adding work or people.</p></div>{planning&&!closed&&<button className="pf-primary" onClick={()=>launch(0)}>Continue project setup<ArrowRight size={16}/></button>}</header><dl className="pf-definition-summary"><div><dt>Project</dt><dd>{project.title}</dd></div><div><dt>Project lead</dt><dd>{profiles.find(person=>person.id===project.project_lead_id)?.full_name||'Not selected'}</dd></div><div><dt>Timeline</dt><dd>{project.start_date&&project.target_date?`${project.start_date} → ${project.target_date}`:'Set automatically from tasks and subtasks'}</dd></div><div><dt>Scope</dt><dd>{project.scope||'Not defined'}</dd></div></dl></section>)}
  {section!=='details'&&(section==='funding'?<>
   {planning&&!closed&&data.canAuthorize&&data.total===0&&data.fundingRequests.length===0&&<section className="pf-panel" aria-label="Funding requirement">
    <label className="pf-checkbox"><input type="checkbox" checked={project.funding_not_required} disabled={fundingModeBusy} onChange={e=>{void toggleNoFunding(e.target.checked);}}/>No funding required for this project</label>
    {error&&<FlowError error={error}/>}
   </section>}
   <ProjectFundingPanel data={data} reload={flow.reload} allowFundingEntry={planning||!project.funding_not_required} recoveryKey={projectId?`budget:${projectId}`:''}/>
- </>:<><ProjectFundingPanel data={data} reload={flow.reload} allowFundingEntry={false}/>{planning&&!closed&&data.canAllocate&&<div className="pf-actions"><button className="pf-primary" onClick={()=>launch(3)}><Wallet size={16}/>Manage project funding</button></div>}</>)}
+ </>:<><ProjectFundingPanel data={data} reload={flow.reload} allowFundingEntry={false}/>{planning&&!closed&&data.canAllocate&&<div className="pf-actions"><button className="pf-primary" onClick={()=>launch(2)}><Wallet size={16}/>Manage project funding</button></div>}</>)}
  {open&&<ProjectSetupWizard projectId={projectId} creatorId={data.canAuthorize?user?.id:undefined} profiles={profiles} profilesLoading={profilesLoading} organizations={organizations} tasks={tasks} governed={governed} initialStep={initialStep} onClose={()=>{setOpen(false);void flow.reload();}} onFinish={()=>{setOpen(false);void flow.reload();onReady?.();}}/>}</div>;
 }

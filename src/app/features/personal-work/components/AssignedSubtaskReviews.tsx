@@ -16,7 +16,7 @@ function formatRelativeTime(value: string) {
   if (hrs < 24) return `${hrs}h ago`;
   const days = Math.floor(hrs / 24);
   if (days < 7) return `${days}d ago`;
-  return new Date(time).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  return new Date(time).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
 }
 import { SubtaskWorkDrawer } from '../../subtasks';
 import type { TaskInspectorOrigin } from '../../task-inspector';
@@ -187,7 +187,7 @@ export function AssignedSubtaskReviews({
                 </p>
                 {row.cash_blocked && (
                   <div className="r10-review-card__alert">
-                    <AttentionBox type="warning" text="Completion is waiting for cash settlement." />
+                    <AttentionBox type="warning" text="Work can be accepted now. Required receipts and settlement still block final completion." />
                   </div>
                 )}
               </div>

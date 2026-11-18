@@ -3,7 +3,7 @@ import type { Organization, UserProfile } from "../../../types";
 import type { CollaborationApproval, CollaborationParticipant } from "../types";
 import { departmentApprovalRows } from "../selectors/departmentApprovalRows";
 
-const date = (value?: number) => value ? new Date(value).toLocaleString("en-PH", { timeZone: "Asia/Manila", dateStyle: "medium", timeStyle: "short" }) : "—";
+const date = (value?: number) => value ? new Date(value).toLocaleString("en-US", { timeZone: "Asia/Manila", dateStyle: "medium", timeStyle: "short" }) : "—";
 
 export function DepartmentApprovalMatrix({ participants, approvals, currentRevisionId, organizations, profiles = [] }: {
   participants: CollaborationParticipant[]; approvals: CollaborationApproval[]; currentRevisionId?: string;

@@ -1,6 +1,5 @@
 import { readableUiError } from '../../../shared/userFacingError';
 import {DeadlineBadge} from '../../../components/ui/DeadlineBadge';
-import {useProjectFlow} from '../../project-setup';
 import { useEffect, useRef, useState } from 'react';
 import { Calendar } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '../../../components/ui/popover';
@@ -15,16 +14,14 @@ export function TimelineCell({ task, disabled, save }: { task: Task; disabled: b
   const trigger = useRef<HTMLButtonElement>(null);
   const focusAfterSave = useRef(false);
   const editor = usePlanningEditor(() => timelineDraft(task), 'Task timeline: ' + task.title, { closeOnSuccess: true });
-  const flow=useProjectFlow(task.linkedProjectId||'',editor.open);
   const [editState,setEditState]=useState<TaskDetailEditState|null>(null),[policyError,setPolicyError]=useState(''),[policyLoading,setPolicyLoading]=useState(false),[changeReason,setChangeReason]=useState('');
   useEffect(()=>{if(!editor.open)return;let active=true;setEditState(null);setPolicyError('');setChangeReason('');setPolicyLoading(true);void fetchTaskDetailEditState(task.id).then(value=>{if(active)setEditState(value);}).catch(reason=>{if(active)setPolicyError(readableUiError(reason, "Task editing access could not be verified.", 'write'));}).finally(()=>{if(active)setPolicyLoading(false);});return()=>{active=false;};},[editor.open,task.id]);
   const policyReady=!policyLoading&&!policyError&&!!editState,canPlan=policyReady&&!!editState?.details&&!!editState.planning,canChangeDue=policyReady&&!!editState?.details&&!!editState.due;
-  const projectStart=flow.data?.project.start_date||'',projectEnd=flow.data?.project.target_date||'';
-  const minimumStart=projectStart>todayDate()?projectStart:todayDate();
+  const minimumStart=todayDate();
   const due = task.deadline || task.dueDate || '', date = timelineDraft(task).end;
-  const validation = editor.dirty ? (projectStart&&editor.draft.start&&editor.draft.start<projectStart||projectEnd&&editor.draft.end&&editor.draft.end>projectEnd?'Task dates must stay within the project timeline.':timelineError(task,editor.draft)) : undefined;
-  const text = date ? new Date(date + 'T12:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : due || 'Set dates';
-  const startText=task.startDate ? new Date(task.startDate.slice(0,10)+'T12:00:00').toLocaleDateString(undefined,{month:'short',day:'numeric'}) : '';
+  const validation = editor.dirty ? timelineError(task, editor.draft) : undefined;
+  const text = date ? new Date(date + 'T12:00:00').toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }) : due || 'Set dates';
+  const startText=task.startDate ? new Date(task.startDate.slice(0,10)+'T12:00:00').toLocaleDateString('en-US',{month:'2-digit',day:'2-digit',year:'numeric'}) : '';
   return <Popover open={editor.open} onOpenChange={editor.onOpenChange}>
     <PopoverTrigger asChild><button ref={trigger} className="pt-date" disabled={disabled} title={`${task.startDate ? task.startDate+' → ' : ''}${date||due}`} aria-label={'Edit dates for ' + task.title}><Calendar size={14}/><span className="pt-date-label"><span>{startText ? startText+' → ' : ''}{text}</span>{date&&<DeadlineBadge value={date} status={task.status} showDate={false}/>}
 </span></button></PopoverTrigger>
@@ -41,11 +38,11 @@ export function TimelineCell({ task, disabled, save }: { task: Task; disabled: b
         else await save(timelinePatch(task,draft));
         focusAfterSave.current = true;
       }, 'Dates saved.'); }}>
-        <strong>Task timeline</strong><p>Task dates must fit within the project timeline.</p>
+        <strong>Task timeline</strong><p>Updating task dates automatically updates the project timeline.</p>
         {policyLoading&&<p role="status">Checking current task editing access…</p>}{policyError&&<p role="alert">{policyError} Editing is unavailable until access can be verified.</p>}{editState?.started&&<p role="status">Work has started. Planned start and structure are locked. Due-date changes require supervising authority and a reason.</p>}
         {editor.notice && <p role="status">{editor.notice}</p>}
-        <FormField label="Start date"><TextInput type="date" min={minimumStart} max={editor.draft.end||projectEnd||undefined} value={editor.draft.start} disabled={disabled || editor.pending || !canPlan} onChange={event => editor.setDraft({ ...editor.draft, start: event.target.value })}/></FormField>
-        <FormField label="Due date" error={validation || (editor.error ? editor.error + ' Retry with Save dates.' : undefined)}><TextInput type="date" min={editor.draft.start > minimumStart ? editor.draft.start : minimumStart} max={projectEnd||undefined} value={editor.draft.end} disabled={disabled || editor.pending || !canChangeDue} onChange={event => editor.setDraft({ ...editor.draft, end: event.target.value })}/></FormField>
+        <FormField label="Start date"><TextInput type="date" min={minimumStart} max={editor.draft.end||undefined} value={editor.draft.start} disabled={disabled || editor.pending || !canPlan} onChange={event => editor.setDraft({ ...editor.draft, start: event.target.value })}/></FormField>
+        <FormField label="Due date" error={validation || (editor.error ? editor.error + ' Retry with Save dates.' : undefined)}><TextInput type="date" min={editor.draft.start > minimumStart ? editor.draft.start : minimumStart} value={editor.draft.end} disabled={disabled || editor.pending || !canChangeDue} onChange={event => editor.setDraft({ ...editor.draft, end: event.target.value })}/></FormField>
         {editState?.started&&canChangeDue&&<FormField label="Reason for due-date change"><TextInput value={changeReason} maxLength={1000} disabled={disabled||editor.pending} onChange={event=>setChangeReason(event.target.value)}/></FormField>}
         <Button type="submit" pending={editor.pending} disabled={disabled || !policyReady || !editor.dirty || !!validation}>Save dates</Button>
       </form>

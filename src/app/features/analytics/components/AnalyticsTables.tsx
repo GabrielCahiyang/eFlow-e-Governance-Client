@@ -16,7 +16,7 @@ const labels: Record<string, string> = {
 };
 const date = (at?: number) =>
   at
-    ? new Date(at).toLocaleDateString("en-PH", {
+    ? new Date(at).toLocaleDateString("en-US", {
         month: "short",
         day: "numeric",
         year: "numeric",

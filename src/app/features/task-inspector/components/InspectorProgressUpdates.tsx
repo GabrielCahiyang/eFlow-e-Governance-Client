@@ -30,7 +30,7 @@ export function InspectorProgressUpdates({ taskId }: { taskId: string }) {
             <span className={update.blocker ? 'task-update-step-badge task-update-step-badge--stuck' : 'task-update-step-badge task-update-step-badge--in_progress'}>
               {update.blocker ? 'Stuck' : 'Work update'}
             </span>
-            <time className="task-updates-feed__time">{new Date(update.createdAt).toLocaleString()}</time>
+            <time className="task-updates-feed__time">{new Date(update.createdAt).toLocaleString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric', hour: 'numeric', minute: '2-digit' })}</time>
           </header>
           {update.note ? <p className="task-updates-feed__note">{update.note}</p> : null}
           {update.blocker ? <p className="task-updates-feed__blocker">Blocker: {update.blocker}</p> : null}

@@ -1,8 +1,14 @@
 import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import {useId,useState} from 'react';
-import {X} from 'lucide-react';
+import {Plus,Search,Users,X} from 'lucide-react';
 import {deduplicateWorkPersonIds,displayedWorkContributorIds,eligibleWorkPeople,resolveWorkPersonName} from '../selectors/people';
 import type {WorkActionAvailability,WorkPerson} from '../types';
+
+function initials(name:string):string {
+ const parts=name.trim().split(/\s+/).filter(Boolean);
+ if(!parts.length)return '?';
+ return parts.slice(0,2).map(part=>part[0]?.toUpperCase()||'').join('');
+}
 
 export interface WorkContributorsFieldProps {
  leadId:string|null;
@@ -22,22 +28,45 @@ export function WorkContributorsField({leadId,contributorIds,people,contributorC
  const matches=available.filter(person=>resolveWorkPersonName(people,person.id).toLocaleLowerCase().includes(query.trim().toLocaleLowerCase()));
  const disabled=busy||contributorCapability?.allowed!==true||contributorCapability.reason_code!==null;
  const reason=!leadId&&contributorCapability?.reason_code==='lifecycle_blocked'?'Choose a lead first.':contributorCapability?.disabledReason||'Refresh this task to edit its team.';
- return <fieldset className="r7-work r7-people" disabled={disabled}>
-  <legend>Contributors ({contributors.length})</legend>
-  <p>Optional. The appointed Lead can work independently.</p>
-  {contributors.length?<ul className="r7-chips r7-contributor-chips" aria-label="Selected contributors">{contributors.map(personId=><li key={personId}><span>
-   {resolveWorkPersonName(people,personId)} <WorkspaceTooltip content={`Remove contributor ${resolveWorkPersonName(people,personId)}`}><button type="button" disabled={disabled} aria-label={`Remove contributor ${resolveWorkPersonName(people,personId)}`} onClick={()=>{
-    if(!disabled)onChange(deduplicateWorkPersonIds(contributorIds).filter(selected=>selected!==personId));
-   }}><X size={14} aria-hidden="true"/></button></WorkspaceTooltip>
-  </span></li>)}</ul>:<p>No contributors</p>}
-  <label htmlFor={id}>Find people</label>
-  <input id={id} type="search" placeholder="Search by name" value={query} disabled={disabled} aria-describedby={disabled?`${id}-reason`:undefined} onChange={event=>setQuery(event.target.value)}/>
-  <div className="r7-people-list" aria-label="Available project contributors">
-   {matches.map(person=><button key={person.id} type="button" disabled={disabled} aria-label={`Add contributor ${resolveWorkPersonName(people,person.id)}`} onClick={()=>{
-    if(!disabled&&eligibleWorkPeople(people).some(current=>current.id===person.id))onChange(deduplicateWorkPersonIds([...contributorIds,person.id]));
-   }}>Add {resolveWorkPersonName(people,person.id)}</button>)}
+ return <fieldset className="nw-staffing-card" disabled={disabled}>
+  <div className="nw-staffing-card__head">
+   <legend><Users size={15} aria-hidden="true"/>Contributors <span className="nw-staffing-count">{contributors.length}</span></legend>
+   <span className="nw-staffing-sub">Optional · Lead can work independently</span>
   </div>
-  {!matches.length&&<p className="r7-help">{available.length?'No matching project people.':'No additional eligible project people are available.'}</p>}
-  {disabled&&<p id={`${id}-reason`} className="r7-help">{busy?busyReason||'Saving…':reason}</p>}
+  {contributors.length
+   ? <ul className="nw-staffing-chips" aria-label="Selected contributors">{contributors.map(personId=>{
+     const personName=resolveWorkPersonName(people,personId);
+     return <li key={personId}><span>
+      <span className="nw-staffing-avatar nw-staffing-avatar--sm">{initials(personName)}</span>
+      <span className="nw-staffing-chip-name">{personName}</span>
+      <WorkspaceTooltip content={`Remove contributor ${personName}`}><button type="button" disabled={disabled} aria-label={`Remove contributor ${personName}`} onClick={()=>{
+       if(!disabled)onChange(deduplicateWorkPersonIds(contributorIds).filter(selected=>selected!==personId));
+      }}><X size={13} aria-hidden="true"/></button></WorkspaceTooltip>
+     </span></li>;
+    })}</ul>
+   : <p className="nw-staffing-empty-chips">No contributors selected yet.</p>}
+  <div className="nw-staffing-search-block">
+   <label className="nw-staffing-label" htmlFor={id}>Find people</label>
+   <div className="nw-staffing-search-wrap">
+    <Search size={15} className="nw-staffing-search-icon" aria-hidden="true"/>
+    <input id={id} className="nw-staffing-search" type="search" placeholder="Search office members by name" value={query} disabled={disabled} aria-describedby={disabled?`${id}-reason`:undefined} onChange={event=>setQuery(event.target.value)}/>
+   </div>
+  </div>
+  <div className="nw-staffing-people-grid" aria-label="Available project contributors">
+   {matches.map(person=>{
+    const personName=resolveWorkPersonName(people,person.id);
+    return <button key={person.id} type="button" className="nw-staffing-person-btn" disabled={disabled} aria-label={`Add contributor ${personName}`} onClick={()=>{
+     if(!disabled&&eligibleWorkPeople(people).some(current=>current.id===person.id))onChange(deduplicateWorkPersonIds([...contributorIds,person.id]));
+    }}>
+     <span className="nw-staffing-person-info">
+      <span className="nw-staffing-avatar">{initials(personName)}</span>
+      <span>{personName}</span>
+     </span>
+     <span className="nw-staffing-add-pill"><Plus size={13} aria-hidden="true"/>Add</span>
+    </button>;
+   })}
+  </div>
+  {!matches.length&&<p className="nw-staffing-hint">{available.length?'No matching office members.':'All available eligible office members are already on this task.'}</p>}
+  {disabled&&<p id={`${id}-reason`} className="nw-staffing-hint nw-staffing-hint--lock">{busy?busyReason||'Saving…':reason}</p>}
  </fieldset>;
 }

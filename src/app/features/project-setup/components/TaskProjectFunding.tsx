@@ -52,7 +52,12 @@ export function TaskProjectFunding({
   return()=>onActionState(null);
  },[onActionState,formVisible,submitLabel,busy]);
 
- if(!data)return <FlowError error={flow.error}/>;
+ if(!data)return flow.error ? (
+  <div role="alert" className="mb-3 flex items-center justify-between gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+   <span>{flow.error}</span>
+   <button type="button" className="shrink-0 rounded-md border border-amber-300 bg-white px-2.5 py-1 text-xs font-medium text-amber-900 hover:bg-amber-100" onClick={()=>void flow.reload()}>Retry</button>
+  </div>
+ ) : null;
  if(data.project.funding_not_required)return <p>Funding not required</p>;
  if((funded&&!data.canExtendTaskFunding)||!data.canAllocate||['completed','archived'].includes(data.project.status))return null;
  if(exhaustedInModal){

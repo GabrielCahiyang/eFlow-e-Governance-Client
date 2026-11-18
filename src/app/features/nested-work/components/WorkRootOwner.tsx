@@ -27,8 +27,8 @@ function WorkRootOwnerContent({rootId,fallback,readOnly=false,tree,layout='defau
  const {user}=useAuth();
  const [open,setOpen]=useState(false),[saved,setSaved]=useState('');
  if(tree.unavailable)return <>{fallback}</>;
- if(tree.loading&&!tree.data)return <div className="r7-work r7-root-owner" role="status">Loading project people…</div>;
- const data=tree.data;if(!data)return tree.error?<div className="r7-work r7-root-owner" role="alert">{tree.error}<button type="button" onClick={()=>void tree.reload()}>Retry project people</button></div>:null;
+ if(tree.loading&&!tree.data)return <div className="r7-work r7-root-owner" role="status">Loading team…</div>;
+ const data=tree.data;if(!data)return tree.error?<div className="r7-work r7-root-owner flex items-center justify-between gap-2 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-800" role="alert"><span>{tree.error}</span><button type="button" className="shrink-0 rounded-md border border-rose-300 bg-white px-2.5 py-1 text-xs font-medium text-rose-800 hover:bg-rose-100" onClick={()=>void tree.reload()}>Retry</button></div>:null;
  const context={actorId:user?.id||null,rootId,projectId:data.root.project,officeId:data.root.office,kind:data.root.kind,revision:data.revision,readOnly};
  const contributorAccess=selectRootWorkCapability(data,'manage_contributors',context),appointmentAccess=selectRootWorkCapability(data,'appoint_lead',context);
  const canStaff=contributorAccess.allowed||appointmentAccess.allowed;
@@ -45,7 +45,7 @@ function WorkRootOwnerContent({rootId,fallback,readOnly=false,tree,layout='defau
     srSummary={<><span>{leadName}</span><span>{teamNames.length>0?`+${teamNames.length} · ${teamNames.join(', ')}`:'Lead only'}</span></>}
    />
    : <WorkPeopleSummary leadId={data.root.lead} contributorIds={data.root.people} people={data.people} compact/>}
-  {tree.error&&<p role="alert">{tree.error}<button type="button" onClick={()=>void tree.reload()}>Retry project people</button></p>}
+  {tree.error&&<p className="flex items-center justify-between gap-2 rounded-lg border border-rose-200 bg-rose-50 px-2.5 py-1.5 text-xs text-rose-800" role="alert"><span>{tree.error}</span><button type="button" className="shrink-0 rounded-md border border-rose-300 bg-white px-2 py-0.5 text-xs font-medium text-rose-800 hover:bg-rose-100" onClick={()=>void tree.reload()}>Retry</button></p>}
   {tree.refreshPending&&<span role="status" className={layout!=='default'?'sr-only':'r7-help'}>Checking current access…</span>}
   {contributorAccess.reason_code==='active_staffing_locked'&&(layout==='table'
    ? <WorkspacePopover

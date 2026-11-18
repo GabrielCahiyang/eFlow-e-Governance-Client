@@ -1,4 +1,5 @@
 // @vitest-environment jsdom
+import type { ReactNode } from 'react';
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Task } from '../../src/app/features/tasks';
@@ -12,7 +13,16 @@ const mocks = vi.hoisted(() => ({
 vi.mock('../../src/app/contexts/AuthContext', () => ({ useAuth: () => ({ user: { id: 'viewer' }, userProfile: { id: 'viewer', role: 'head', org_id: 'office' } }) }));
 vi.mock('../../src/app/features/subtasks', async () => {
   const { parentTaskDueDate } = await import('../../src/app/features/subtasks/selectors/deadlines');
-  return { createSubtask: mocks.create, updateSubtask: mocks.update, parentTaskDueDate };
+  return {
+    createSubtask: mocks.create,
+    updateSubtask: mocks.update,
+    parentTaskDueDate,
+    TaskSubtasksWidget: ({ canManage, readOnly, fallback }: { canManage?: boolean; readOnly?: boolean; fallback?: ReactNode }) => (
+      <div data-testid="task-subtasks-widget" data-can-manage={String(Boolean(canManage))} data-readonly={String(Boolean(readOnly))}>
+        {fallback}
+      </div>
+    ),
+  };
 });
 vi.mock('../../src/app/features/tasks', async () => {
   const { getTaskLeadId, getTaskTeamMemberIds } = await import('../../src/app/features/tasks/selectors/teamMembership');
@@ -20,11 +30,15 @@ vi.mock('../../src/app/features/tasks', async () => {
   return { getTaskLeadId, getTaskTeamMemberIds, isTaskLead, assignTask: vi.fn(), updateTaskStatus: vi.fn(), TASK_STATUS_LABELS: { todo: 'To Do', in_progress: 'In Progress', for_review: 'For Review', completed: 'Completed', cancelled: 'Cancelled' } };
 });
 vi.mock('../../src/app/features/project-offices', () => ({ useProjectOfficeContext: () => mocks.officeState, canHandoverTask: () => false, projectOfficePeople: () => [], setResponsibleOffice: vi.fn(), moveProjectOfficeTask: vi.fn() }));
+vi.mock('../../src/app/features/nested-work/hooks/useWorkTree', () => ({
+  useWorkTree: () => ({ data: undefined, error: '', unavailable: true, loading: false, authorityFresh: false, pending: false, fresh: false, reload: vi.fn(), mutate: vi.fn() }),
+}));
 vi.mock('../../src/app/features/project-table/services/workspaceService', () => ({ patchWorkspaceTask: vi.fn() }));
 vi.mock('../../src/app/features/project-table/components/PlanningCells', () => ({ TimelineCell: () => null, DependencyCell: () => null, NumberCell: () => null }));
 vi.mock('../../src/app/features/staffing', () => ({ StaffingDialog: () => null }));
 
 import { ProjectTaskRow } from '../../src/app/features/project-table/components/ProjectTaskRow';
+import { isTaskSubtaskPlanningBlocked, isProjectLeadSubtaskPlanningBlocked } from '../../src/app/features/nested-work';
 
 const task: Task = { id: 'task', title: 'Prepare assessment', orgId: 'office', assigneeId: 'viewer', status: 'todo', deadline: '2026-10-12', createdAt: 1, updatedAt: 1 };
 const subtask = (patch: Partial<Subtask> = {}): Subtask => ({ id: 'subitem', taskId: task.id, title: 'Gather evidence', status: 'todo', isCompleted: false, percentComplete: 0, assignedToIds: ['lead'], position: 3, isStandalone: false, source: 'manual', createdAt: 1, updatedAt: 1, ...patch });
@@ -188,4 +202,77 @@ describe('NW6.4 Main Table hierarchy accessibility',()=>{
   let mobile=false;let notify=()=>{};const media={get matches(){return mobile;},addEventListener:(_type:string,callback:()=>void)=>{notify=callback;},removeEventListener:vi.fn()};const original=window.matchMedia;window.matchMedia=vi.fn(()=>media as unknown as MediaQueryList);
   try{const data=hierarchySnapshot();const props={snapshot:data,readOnly:true,executionBlocked:true,authorityFresh:true,collapsedIds:new Set(['node-0']),onCollapsedIdsChange:vi.fn(),onOpenNode:vi.fn(),onRequestAction:vi.fn()};const view=render(<WorkHierarchy {...props}/>);expect(screen.getByRole('table',{name:'Subtask hierarchy'})).toBeTruthy();mobile=true;act(()=>notify());view.rerender(<WorkHierarchy {...props}/>);expect(screen.queryByRole('table',{name:'Subtask hierarchy'})).toBeNull();expect(screen.getByRole('list',{name:'Subtask hierarchy'})).toBeTruthy();expect(screen.getByRole('button',{name:'Expand children of Work 1'}).getAttribute('aria-expanded')).toBe('false');expect(screen.queryByRole('button',{name:'Work 8',exact:true})).toBeNull();}finally{window.matchMedia=original;}
  });
+});
+
+describe('Active project subtask planning lock in Main Table', () => {
+  it('blocks Project Lead / Office Head who is not the Task Lead once active, hiding empty subtask input while keeping existing subtasks read-only', async () => {
+    const emptyView = render(
+      <table><tbody>
+        <ProjectTaskRow
+          task={{ ...task, linkedProjectId: 'project', assigneeId: 'lead' }}
+          tasks={[]} groups={[]} profiles={profiles} orgs={[]} columns={[]} editable
+          userId="viewer" projectStatus="active" projectLeadId="viewer"
+          subtasks={[]} onOpen={mocks.open} onOpenSubitem={mocks.openSubitem}
+          refreshSubitems={mocks.refresh} reorderable={false} onMove={vi.fn()} run={async fn => { await fn(); }}
+        />
+      </tbody></table>,
+    );
+    expect(screen.queryByRole('button', { name: 'Subtasks for Prepare assessment' })).toBeNull();
+    expect(screen.queryByRole('textbox', { name: 'Add subtask to Prepare assessment' })).toBeNull();
+    fireEvent.keyDown(screen.getByRole('button', { name: 'Actions for Prepare assessment' }), { key: 'Enter' });
+    expect(await screen.findByRole('menuitem', { name: 'Task details, evidence & review' })).toBeTruthy();
+    expect(screen.queryByRole('menuitem', { name: 'Add subtask' })).toBeNull();
+    emptyView.unmount();
+
+    render(
+      <table><tbody>
+        <ProjectTaskRow
+          task={{ ...task, linkedProjectId: 'project', assigneeId: 'lead' }}
+          tasks={[]} groups={[]} profiles={profiles} orgs={[]} columns={[]} editable
+          userId="viewer" projectStatus="active" projectLeadId="viewer"
+          subtasks={[subtask()]} onOpen={mocks.open} onOpenSubitem={mocks.openSubitem}
+          refreshSubitems={mocks.refresh} reorderable={false} onMove={vi.fn()} run={async fn => { await fn(); }}
+        />
+      </tbody></table>,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Subtasks for Prepare assessment' }));
+    const widget = screen.getByTestId('task-subtasks-widget');
+    expect(widget.getAttribute('data-readonly')).toBe('true');
+    expect(widget.getAttribute('data-can-manage')).toBe('false');
+    expect(screen.queryByRole('textbox', { name: 'Add subtask to Prepare assessment' })).toBeNull();
+    const openSubtask = screen.getByRole('button', { name: 'Open subtask Gather evidence' });
+    expect(openSubtask).toBeTruthy();
+    fireEvent.click(openSubtask);
+    expect(mocks.openSubitem).toHaveBeenCalledWith(expect.objectContaining({ id: 'subitem' }), true);
+  });
+
+  it('keeps subtasks writable for the appointed Task Lead even when the project is active', async () => {
+    render(
+      <table><tbody>
+        <ProjectTaskRow
+          task={{ ...task, linkedProjectId: 'project', assigneeId: 'viewer' }}
+          tasks={[]} groups={[]} profiles={profiles} orgs={[]} columns={[]} editable
+          userId="viewer" projectStatus="active" projectLeadId="viewer"
+          subtasks={[]} onOpen={mocks.open} onOpenSubitem={mocks.openSubitem}
+          refreshSubitems={mocks.refresh} reorderable={false} onMove={vi.fn()} run={async fn => { await fn(); }}
+        />
+      </tbody></table>,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Subtasks for Prepare assessment' }));
+    const widget = screen.getByTestId('task-subtasks-widget');
+    expect(widget.getAttribute('data-readonly')).toBe('false');
+    expect(widget.getAttribute('data-can-manage')).toBe('true');
+    expect(screen.getByRole('textbox', { name: 'Add subtask to Prepare assessment' })).toBeTruthy();
+    fireEvent.keyDown(screen.getByRole('button', { name: 'Actions for Prepare assessment' }), { key: 'Enter' });
+    expect(await screen.findByRole('menuitem', { name: 'Add subtask', exact: true })).toBeTruthy();
+  });
+
+  it('evaluates isTaskSubtaskPlanningBlocked and isProjectLeadSubtaskPlanningBlocked accurately across states and roles', () => {
+    expect(isTaskSubtaskPlanningBlocked({ isOfficeProject: true, projectStatus: 'planning', projectLeadId: 'pl', taskLeadId: 'tl', actorId: 'pl', actorRole: 'member' })).toBe(false);
+    expect(isTaskSubtaskPlanningBlocked({ isOfficeProject: true, projectStatus: 'active', projectLeadId: 'pl', taskLeadId: 'tl', actorId: 'pl', actorRole: 'member' })).toBe(true);
+    expect(isTaskSubtaskPlanningBlocked({ isOfficeProject: true, projectStatus: 'active', projectLeadId: 'pl', taskLeadId: 'tl', actorId: 'head', actorRole: 'head' })).toBe(true);
+    expect(isTaskSubtaskPlanningBlocked({ isOfficeProject: true, projectStatus: 'active', projectLeadId: 'pl', taskLeadId: 'pl', actorId: 'pl', actorRole: 'head' })).toBe(false);
+    expect(isProjectLeadSubtaskPlanningBlocked({ root: { kind: 'office', lead: 'tl', project_status: 'active', project_lead_id: 'pl' } }, 'pl', { actorRole: 'member' })).toBe(true);
+    expect(isProjectLeadSubtaskPlanningBlocked({ root: { kind: 'personal', lead: 'tl', project_status: 'active', project_lead_id: 'pl' } }, 'pl', { actorRole: 'head' })).toBe(false);
+  });
 });

@@ -6,6 +6,7 @@ import type { IndependentReviewContext } from '../services/independentReviewServ
 import type { PettyCashLiquidation, PettyCashRequest } from '../types';
 import { financialErrorMessage } from '../financialReceipts';
 import { IndependentReviewCard } from './IndependentReviewCard';
+import { CashReturnPanel } from './CashReturnPanel';
 import { peso } from './budgetUi';
 
 export function IndependentReviewPackageCard({ item, request, context, onChanged }: {
@@ -21,7 +22,8 @@ export function IndependentReviewPackageCard({ item, request, context, onChanged
     <div className="my-2 flex flex-wrap gap-2">{item.receipts.map(receipt => <Button key={receipt.id} variant="outline" onClick={async () => { try { window.open(await createReceiptSignedUrl(receipt.filePath), '_blank', 'noopener,noreferrer'); } catch (caught) { setError(financialErrorMessage(caught)); } }}>Receipt {receipt.receiptNumber || receipt.fileName} · {peso.format(receipt.amount)}</Button>)}</div>
     {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
     {item.refundReceiptNumber && <p className="text-sm">Refund OR {item.refundReceiptNumber}</p>}
-    <IndependentReviewCard id={item.id} version={item.version} context={context} onChanged={onChanged}
+    <CashReturnPanel liquidationId={item.id} rootId={request?.taskId} version={item.version} amount={item.returnedAmount} onSaved={onChanged} />
+    <IndependentReviewCard id={item.id} version={item.version} returnedAmount={item.returnedAmount} context={context} onChanged={onChanged}
       submittedByAccountingRequester={Boolean(request?.requesterIsAccountingStaff && item.submittedBy === request.requesterId)} />
   </article>;
 }

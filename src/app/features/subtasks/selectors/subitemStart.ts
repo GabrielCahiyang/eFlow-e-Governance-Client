@@ -14,10 +14,7 @@ export function subitemStartBlocker(
   if (node.lead_id !== actorId) return 'The appointed subtask lead must start this work before the team can post updates.';
   if (tree.root.project_status && tree.root.project_status !== 'active') return 'The project must be active before this subtask can start.';
   if (tree.root.status !== 'in_progress') return 'Start the parent task before starting this subtask.';
-  if (!node.start_date) return 'Set a planned start date before starting this subtask.';
-  const today = tree.root.scheduling?.today;
-  if (!today) return 'Reload the subtask to check its scheduled start.';
-  if (node.start_date > today) return `You can start this subtask on or after ${node.start_date}.`;
+  // Start is date-neutral: the planned start date is informational only.
   const parent = tree.nodes.find(item => item.id === node.parent_subtask_id);
   if (parent?.status === 'todo' && !parent.started_at) return 'Start the parent subtask first.';
   if (node.dependency_ids == null && prerequisiteTitle) return `Complete “${prerequisiteTitle}” first.`;

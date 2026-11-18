@@ -3,7 +3,7 @@ import {act,cleanup,fireEvent,render,screen,within} from '@testing-library/react
 import {afterEach,describe,expect,it,vi} from 'vitest';
 import {requestNavigation} from '../../src/app/shared/navigationGuard';
 const api=vi.hoisted(()=>({update:vi.fn(),fetch:vi.fn()}));
-vi.mock('../../src/app/features/tasks',()=>({updateTaskStatus:api.update,fetchTaskById:api.fetch,ProgressUpdateForm:()=>null}));
+vi.mock('../../src/app/features/tasks',()=>({updateTaskStatus:api.update,checkTaskExecution:api.fetch,ProgressUpdateForm:()=>null}));
 vi.mock('../../src/app/features/reviews',()=>({SubmitForReviewForm:()=>null}));
 vi.mock('../../src/app/contexts/AuthContext',()=>({useAuth:()=>({user:{id:'lead'},userProfile:{full_name:'Recorded Lead'}})}));
 import {useInspectorLifecycle} from '../../src/app/features/task-inspector/hooks/useInspectorLifecycle';
@@ -12,7 +12,7 @@ afterEach(()=>{cleanup();vi.clearAllMocks();});
 describe('NW7.3 retained start/resume lifecycle',()=>{
  for(const status of ['todo','changes_requested'] as const)it('keeps '+status+' pending protection, denial recovery and saved refresh',async()=>{
   const changed=vi.fn(),close=vi.fn(),navigation=vi.fn();let reject!:(reason:Error)=>void;
-  api.fetch.mockResolvedValue({status,updated_at:new Date(1).toISOString()});
+  api.fetch.mockResolvedValue({status,org_id:null,linked_project_id:null,updated_at:new Date(1).toISOString()});
   api.update.mockImplementationOnce(()=>new Promise((_resolve,no)=>{reject=no;})).mockResolvedValueOnce(undefined);
   const task={id:'root',title:'Assessment',status,createdAt:1,updatedAt:1} as Task;
   function Probe(){const lifecycle=useInspectorLifecycle(task,changed,close);return <>

@@ -23,6 +23,7 @@ describe('readable errors at UI boundaries', () => {
     expect(readableUiError(reason, 'Could not load projects.', 'read')).toContain('reload this view');
     expect(readableUiError(reason, save)).toContain("couldn't confirm the result");
     expect(readableUiError(reason, save)).toContain('current record before trying again');
+    expect(readableUiError(new Error('upstream request timeout'), 'Could not load projects.', 'read')).not.toContain('upstream request timeout');
   });
   it('does not mistake a programming TypeError for a lost internet connection', () => {
     expect(readableUiError(new TypeError("Cannot read properties of undefined (reading 'id')"), save)).toBe(save);

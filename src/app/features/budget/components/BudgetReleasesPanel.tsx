@@ -230,7 +230,7 @@ export function BudgetReleasesPanel({
                 </div>
                 {release.releasedAt && (
                   <div className="mt-1 text-xs text-muted-foreground">
-                    Released {new Date(release.releasedAt).toLocaleString()}
+                    Released {new Date(release.releasedAt).toLocaleString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric', hour: 'numeric', minute: '2-digit' })}
                   </div>
                 )}
               </div>
@@ -329,7 +329,7 @@ export function BudgetReleasesPanel({
                 <div className="text-xs text-muted-foreground">
                   <Clock3 size={13} aria-hidden="true" className="mr-1 inline" />
                   {settled ? "Settlement posted" : request.liquidationDueAt
-                    ? `Due ${new Date(request.liquidationDueAt).toLocaleDateString()}`
+                    ? `Due ${new Date(request.liquidationDueAt).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })}`
                     : "Awaiting full release"}
                 </div>
                 <div className="text-right">

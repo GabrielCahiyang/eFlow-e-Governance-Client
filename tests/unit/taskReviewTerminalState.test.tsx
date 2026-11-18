@@ -10,7 +10,7 @@ vi.mock('../../src/app/features/reviews/components/ReviewDecisionForm',()=>({Rev
 import {TaskReviewPanel} from '../../src/app/features/reviews/components/TaskReviewPanel';
 import type {Task} from '../../src/app/features/tasks';
 const task=(status:Task['status'])=>({id:'task',status,reviewerId:'head',latestSubmission:{id:'attempt',submitterId:'worker'}} as Task);
-beforeEach(()=>{api.actor='worker';api.role='member';api.attachments.mockResolvedValue([]);api.submissions.mockResolvedValue([]);});
+beforeEach(()=>{api.actor='worker';api.role='member';api.attachments.mockResolvedValue([]);api.submissions.mockResolvedValue([{id:'attempt',taskId:'task',submitterId:'worker',status:'pending'}]);});
 afterEach(cleanup);
 describe('terminal review presentation',()=>{
  it.each(['completed','changes_requested'] as const)('preserves %s evidence without claiming a decision is still needed',async status=>{
@@ -19,6 +19,13 @@ describe('terminal review presentation',()=>{
  });
  it('explains the independent decision only while the submitter is awaiting review',async()=>{
   render(<TaskReviewPanel task={task('for_review')}/>);await screen.findByText('Recorded evidence');expect(screen.getByText(/another assigned reviewer must decide/)).toBeTruthy();
+ });
+ it('shows acceptance without review actions while cash is outstanding',async()=>{
+  api.actor='head';api.role='head';
+  api.submissions.mockResolvedValue([{id:'attempt',taskId:'task',submitterId:'worker',status:'approved'}]);
+  render(<TaskReviewPanel canReview task={task('for_review')}/>);
+  await screen.findByText(/Work accepted/);
+  expect(screen.queryByRole('button',{name:'Record decision'})).toBeNull();
  });
  it('keeps authorized Head decisions on pending work and locks completed history',async()=>{
   api.actor='head';api.role='head';const view=render(<TaskReviewPanel canReview task={task('for_review')}/>);await screen.findByRole('button',{name:'Record decision'});

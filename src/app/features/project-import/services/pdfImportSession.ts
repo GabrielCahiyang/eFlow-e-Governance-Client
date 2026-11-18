@@ -10,6 +10,8 @@ export interface PdfSessionState {
  stage:'reading'|'preparing'|'offices'|'review_offices'|'staffing'|'ready'|'saving'|'failed'|'discarded';
  sourceName:string; sourceText?:string; anchor:string; addOffices:boolean;autoAssign:boolean;
  addBudget?:boolean; addSubtasks?:boolean;
+ projectContext?:{title?:string;description?:string;scope?:string;authorizedBudget?:{fundingNotRequired:boolean;totalAvailable:number;sources:Array<{id:string;name:string;fiscalYear:number;available:number}>}};
+ budgetAllocations?:Array<{key:string;lines:Array<{sourceId:string;amount:number;particular?:string}>}>;
  draft?:ProjectImportDraft; extraction?:OfficeExtraction; officesReviewed?:boolean;
  staffingIndex?:number;assignments:Array<{key:string;lead:string;people:string[];hours:number}>;
  events:string[];review?:ReturnType<typeof reviewedImportPayload>;

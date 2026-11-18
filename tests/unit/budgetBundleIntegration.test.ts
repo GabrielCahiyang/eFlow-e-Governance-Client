@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+vi.mock('../../src/app/shared/actionActor',()=>({assertActionActor:vi.fn()}));
 
 type Row = Record<string, unknown>;
 const api = vi.hoisted(() => ({
@@ -110,7 +111,7 @@ describe("merged financial bundle", () => {
     api.upload.mockResolvedValue({ error: null });
     api.rpc.mockResolvedValue({ data: null, error: { code: "PGRST202", message: "Missing function" } });
     await expect(submitPettyCashLiquidation({
-      orgId: "office", requestId: "request", spent: 3.5, note: "Workshop", idempotencyKey: "command",
+      orgId: "office", requestId: "request", actor:'recipient', spent: 3.5, note: "Workshop", idempotencyKey: "command",
       receipts: [{ id: "receipt", vendor: "Store", receiptNumber: "R1", receiptDate: "2026-10-09", description: "", amount: 3.5, file: new File(["receipt"], "receipt.pdf"), items: [{ id: "item", allocationLineId: "source", quantity: 3, unit: "pcs", particular: "Pens", purpose: "Workshop", amount: 3.5 }] }],
     })).rejects.toThrow("itemized liquidation function is unavailable");
     expect(api.rpc).toHaveBeenCalledTimes(1);
