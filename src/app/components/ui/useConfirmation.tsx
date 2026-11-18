@@ -110,7 +110,9 @@ export function useConfirmation() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="eflow-confirmation-body eflow-scroll-region">
-            {options?.impact}
+            {options?.impact && (
+              <div className="eflow-confirmation-impact">{options.impact}</div>
+            )}
             {Boolean(options?.blockers?.length) && (
               <FeedbackState
                 tone="warning"

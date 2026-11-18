@@ -20,6 +20,9 @@ it('requires supervising due permission and a bounded reason without losing titl
  expect(workEditorDefinitionError(tree,baseline,{...fields,due:'2026-11-25'})).toContain('reason');
  expect(workEditorDefinitionError(tree,baseline,{...fields,due:'2026-11-25',note:'x'.repeat(1001)})).toContain('1,000');
  expect(workEditorDefinitionError(tree,baseline,{...fields,due:'2026-11-25',note:'Approved reschedule'})).toBe('');
+ node.detail_edit!.started=false;node.detail_edit!.planning=true;
+ expect(workEditorDefinitionError(tree,baseline,{...fields,start:'2026-11-17'})).toContain('reason');
+ expect(workEditorDefinitionError(tree,baseline,{...fields,start:'2026-11-17',note:'Adjusted start window'})).toBe('');
  node.detail_edit!.details=false;
  expect(workEditorDefinitionError(tree,baseline,{...fields,title:'Correction'})).toContain('read-only');
 });

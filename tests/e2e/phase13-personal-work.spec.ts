@@ -25,6 +25,16 @@ for(const role of ['head','member','accounting_staff'] as const) test(`${role} d
  await page.goto(role==='head'?'/tasks?page=Task%20Board':'/tasks?page=My%20Tasks');await expect(page.getByRole('heading',{name:role==='head'?'Board':'My Tasks',exact:true})).toBeVisible();
  expect(records.tasks).toHaveLength(3);
 });
+test('Member Subtasks opens without More work tools', async ({ page }) => {
+  test.setTimeout(90_000);
+  await projectWorkspaceFixture(page, 'member', false, { landingOnly: true });
+  await page.getByRole('navigation', { name: 'Global navigation' }).getByRole('button', { name: 'My Work', exact: true }).click();
+  const rail = page.getByRole('region', { name: 'My Work content' });
+  await rail.getByRole('button', { name: 'Subtasks', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Subtasks', exact: true, level: 1 })).toBeVisible();
+  await expect(page.getByText('More work tools', { exact: true })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: /^(My Subtasks|Subtask workflow)$/, includeHidden: true })).toHaveCount(0);
+});
 test('mobile personal inspector retains dirty discussion and returns focus',async({page},info)=>{
  await projectWorkspaceFixture(page,'member',false,{landingOnly:true});await page.setViewportSize({width:390,height:844});await personal(page,'My Work');
  const origin=page.locator('[data-personal-task]').filter({hasText:title});await origin.click();const inspector=page.getByRole('region',{name:'Task details: '+title});await inspector.getByRole('tab',{name:'Updates',exact:true}).click();

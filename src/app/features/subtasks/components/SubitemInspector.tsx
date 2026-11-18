@@ -7,7 +7,7 @@ import {DeadlineBadge} from '../../../components/ui/DeadlineBadge';
 import {workDateLabel} from '../../../shared/workCalendar';
 import {requestNavigation} from '../../../shared/navigationGuard';
 import type {Task} from '../../tasks';
-import {fetchWorkTree,isCurrentWorkSnapshot,useWorkTree,WorkActivity,WorkTreeEditor,type WorkTreeController} from '../../nested-work';
+import {fetchWorkTree,isAssignedSubtaskParticipant,isCurrentWorkSnapshot,useWorkTree,WorkActivity,WorkTreeEditor,type WorkTreeController} from '../../nested-work';
 import type {TaskInspectorOrigin} from '../../task-inspector';
 import type {Subtask} from '../../../services/subtaskService';
 import {useSubitemInspectorData} from '../hooks/useSubitemInspectorData';
@@ -93,10 +93,11 @@ function SubitemInspectorContent(props:SubitemInspectorProps&{controller:WorkTre
    if(reason)throw new Error(reason);
   }}
   pending={data.pending} onStarted={reload}/>:undefined;
- const usesLeadReview=tree.root.kind==='office'&&!!tree.root.scheduling;
+ const usesLeadReview=tree.root.kind==='office';
  const actorId=context!.actorId;
  const leadsStep=actorId===node.lead_id;
  const leadsTask=actorId===tree.root.lead;
+ const assignedParticipant=isAssignedSubtaskParticipant(node,actorId);
  const unfinishedChild=tree.nodes.some(child=>child.parent_subtask_id===itemId&&child.status!=='completed');
  const reviewBlocked=dependencyBlockedReason||undefined;
  const recheckCompletion=async()=>{
@@ -107,7 +108,7 @@ function SubitemInspectorContent(props:SubitemInspectorProps&{controller:WorkTre
  const leadReview=usesLeadReview&&!waitingToStart&&actorId?<SubitemLeadReview key={itemId}
   root={tree.root.id} node={itemId} actor={actorId} status={current.status} initialBlocker={data.data.progressUpdates[0]?.blocker||''} readOnly={scopeReadOnly||startPaused} pending={data.pending}
   blocked={reviewBlocked} completionBlocked={unfinishedChild?'Complete the child subtasks first.':undefined}
-  reviewerName={tree.people.find(person=>person.id===tree.root.lead)?.name} onChanged={reload}/>:undefined;
+  reviewerName={leadsStep?tree.people.find(person=>person.id===tree.root.lead)?.name:undefined} onChanged={reload}/>:undefined;
  return <InspectorSurface presentation={surfacePresentation} open onClose={close} ariaLabel={`Subtask: ${node.title}`} returnFocus={origin.returnFocus} onReturnFocus={origin.restoreFocus}>
   <SubitemContext dialog={isDialog} stuck={!!data.data.progressUpdates[0]?.blocker} node={node} tree={tree} rootTitle={props.rootTask.title} onOpenItem={openItem} onClose={close}/>
   <nav
@@ -144,9 +145,11 @@ function SubitemInspectorContent(props:SubitemInspectorProps&{controller:WorkTre
     })}
   </nav>
   <div className={isDialog ? 'task-dialog__body subitem-page-body' : 'task-page__body subitem-page-body'}>
-   <div hidden={section!=='work'} className="subitem-work-layout"><SubitemWorkflow dependencyBlockedReason={dependencyBlockedReason} recheckCompletion={recheckCompletion} recheckProgress={()=>verifySubtaskProgressAccess(tree,itemId,context!)} task={fundingTask} subtask={current} prerequisite={prerequisite} capabilities={capabilities} pending={data.pending} saving={data.saving} submissions={data.data.submissions} progressUpdates={data.data.progressUpdates} onSaved={reload} schedule={schedule} onReview={()=>reviewNode(itemId)} startPanel={startPanel}
+   <div hidden={section!=='work'} className="subitem-work-layout">
+   {tree.root.kind==='office'&&!assignedParticipant&&<p role="status" className="work-state-muted">Work updates belong to this subtask’s assigned Lead and contributors.</p>}
+   <SubitemWorkflow dependencyBlockedReason={dependencyBlockedReason} recheckCompletion={recheckCompletion} recheckProgress={()=>verifySubtaskProgressAccess(tree,itemId,context!)} task={fundingTask} subtask={current} prerequisite={prerequisite} capabilities={capabilities} pending={data.pending} saving={data.saving} submissions={data.data.submissions} progressUpdates={data.data.progressUpdates} onSaved={reload} schedule={schedule} onReview={()=>reviewNode(itemId)} startPanel={startPanel}
     clearanceReadOnly={scopeReadOnly||startPaused||tree.root.project_status==='on_hold'}
-    leadReview={leadReview} directUpdates={!usesLeadReview||leadsStep||leadsTask} directCompletion={!usesLeadReview||leadsStep&&leadsTask}/>
+    leadReview={leadReview} directUpdates={(!usesLeadReview||leadsStep)&&(tree.root.kind!=='office'||assignedParticipant)} directCompletion={!usesLeadReview||leadsStep&&leadsTask}/>
    {tree.nodes.some(child=>child.parent_subtask_id===itemId)&&<section className="subitem-child-work" aria-label="Child subtasks"><SubitemChildWork itemId={itemId} controller={props.controller} readOnly={scopeReadOnly} executionBlocked={!!props.executionBlocked} onOpenItem={openItem} onReviewItem={reviewNode}/></section>}</div>
    {section==='activity'&&<section aria-label="Subtask activity"><WorkActivity roots={[props.rootTask.id]} focusedNode={{rootId:props.rootTask.id,nodeId:itemId}} snapshot={data.tree}/></section>}
   </div>

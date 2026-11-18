@@ -15,7 +15,7 @@
 .pt-planning-form [role=status] { color:var(--eflow-positive-text); }
 .pt-planning-form .pt-dependency-options label { display:flex; align-items:center; gap:10px; min-height:36px; white-space:normal; line-height:1.5; }
 .pt-planning-form .pt-dependency-options input { flex-shrink:0; }
-.pt-small-dialog>.pt-planning-form { padding:24px; overflow-y:auto; }
+.pt-small-dialog>.pt-planning-form { flex:1 1 auto; min-height:0; padding:24px; overflow-y:auto; }
 .pt-small-dialog.pt-create-work-dialog { padding:0!important; gap:0!important; }
 .pt-planning-actions { display:flex; justify-content:flex-end; gap:10px; }
 .pt-inline-create__error button { margin-left:8px; padding:6px 10px; border:1px solid var(--eflow-border); border-radius:var(--eflow-radius-sm); background:var(--eflow-surface); color:var(--eflow-primary); }

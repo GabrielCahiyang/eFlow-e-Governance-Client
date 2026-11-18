@@ -26,6 +26,16 @@ afterEach(()=>{cleanup();Object.defineProperty(window,'matchMedia',{configurable
 if(!globalThis.ResizeObserver)globalThis.ResizeObserver=class {observe(){}unobserve(){}disconnect(){}};
 async function openMenu(name:string){fireEvent.keyDown(screen.getByRole('button',{name}),{key:'Enter'});return screen.findByRole('menu');}
 
+it.each([true,false])('retains Edit for each lead and reserves Office Delete for the Task Lead: %s',async isTaskLead=>{
+ const data=tree([node('Editable',null,{status:'todo',percent_complete:0,capabilities:{edit_details:allow,delete:allow}})]);
+ data.root.lead=isTaskLead?'actor':'task-lead';
+ const owner=props(data);render(<WorkHierarchy {...owner}/>);
+ const menu=await openMenu('Actions for Editable');
+ expect(within(menu).getByRole('menuitem',{name:'Edit subtask'})).toBeTruthy();
+ expect(!!within(menu).queryByRole('menuitem',{name:'Delete subtask'})).toBe(isTaskLead);
+ expect(owner.onRequestAction).not.toHaveBeenCalled();
+});
+
 describe('one supplied work hierarchy composition',()=>{
  it('renders an empty Main Table surface and inline root create through the existing capability action',()=>{
   const data=tree([]);data.root.capabilities!.create_child=allow;const initial=props(data);render(<WorkHierarchy {...initial} presentation="project-table"/>);

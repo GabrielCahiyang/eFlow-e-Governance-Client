@@ -6,6 +6,16 @@ export function canCreateSubtaskPrerequisites(tree:WorkTreeSnapshot) {
     node.status==='todo'&&!node.started_at&&!node.percent_complete&&node.can_edit_dependencies===false);
 }
 
+/** Display legacy sequence prerequisites without rewriting their stored format. */
+export function displayedSubtaskPrerequisiteIds(tree:WorkTreeSnapshot,node:WorkNode|undefined):string[] {
+  if(!node)return [];
+  if(Array.isArray(node.dependency_ids))return [...node.dependency_ids];
+  if(node.dependency_ids!==null||node.is_standalone)return [];
+  return tree.nodes.filter(sibling=>sibling.id!==node.id&&sibling.task_id===node.task_id&&
+    sibling.parent_subtask_id===node.parent_subtask_id&&!sibling.is_standalone&&sibling.sibling_order<node.sibling_order)
+    .sort((a,b)=>a.sibling_order-b.sibling_order||a.id.localeCompare(b.id)).map(sibling=>sibling.id);
+}
+
 export function subtaskPrerequisiteChoices(tree: WorkTreeSnapshot, parentId: string, nodeId: string, previous: string[] = []) {
   return tree.nodes.filter(node => node.task_id === tree.root.id && (node.parent_subtask_id || '') === parentId &&
     node.id !== nodeId && (String(node.status) !== 'cancelled' || previous.includes(node.id)));

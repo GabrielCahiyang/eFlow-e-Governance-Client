@@ -1,5 +1,5 @@
 .eflow-app-shell__body { gap: 8px; padding: 8px; }
-.eflow-app-shell__desktop-navigation { display: flex; flex: 0 0 324px; min-width: 0; min-height: 0; }
+.eflow-app-shell__desktop-navigation { display: flex; flex: 0 0 324px; min-width: 0; min-height: 0; position: relative; }
 .eflow-productivity-sidebar { display: flex; min-height: 0; min-width: 0; width: 100%; overflow: hidden; border: 1px solid var(--eflow-border); border-radius: var(--eflow-radius-dialog); background: var(--eflow-surface); }
 .eflow-global-navigation { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 84px; flex: 0 0 84px; min-height: 0; padding: 12px 4px; overflow-y: auto; border-right: 1px solid var(--eflow-border); }
 .eflow-global-navigation__brand { width: 28px; height: 28px; margin: 0 0 12px; }

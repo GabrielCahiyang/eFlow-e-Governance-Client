@@ -62,7 +62,7 @@ export function TaskCashClearancePanel({ blockers, loading, error, serverBlocked
               </p>}
               <dl className="mt-3 space-y-1.5 text-neutral-700">
                 <div><dt className="inline font-semibold">Waiting on: </dt><dd className="inline">{staffingBlocked ? "An eligible independent Accounting Officer" : blocker.owner}</dd></div>
-                <div><dt className="inline font-semibold">Next step: </dt><dd className="inline">{!blocksApproval ? "You can approve the task. An eligible Accounting Officer must settle the cash before project closeout." : staffingBlocked ? "Resolve the Accounting staffing hold before approving this task." : blocker.nextStep}</dd></div>
+                <div><dt className="inline font-semibold">Next step: </dt><dd className="inline">{!blocksApproval ? "You can approve the work now. An eligible Accounting Officer must settle the cash before final completion." : staffingBlocked ? "You can approve the work now. Resolve the Accounting staffing hold and settle the cash before final completion." : blocker.nextStep}</dd></div>
                 <div><dt className="inline font-semibold">Where: </dt><dd className="inline">{independentReview ? "Reviews → Budget → Independent financial reviews" : blocker.location} → {number}</dd></div>
               </dl>
               {(request.releasedAmount || 0) > 0 && <p className="mt-2 text-neutral-600">Released: {peso.format(request.releasedAmount || 0)}{request.liquidationDueAt ? ` · Receipts due ${new Date(request.liquidationDueAt).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })}` : ""}</p>}

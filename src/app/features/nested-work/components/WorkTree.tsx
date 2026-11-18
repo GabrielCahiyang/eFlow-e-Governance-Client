@@ -1,4 +1,5 @@
 import {useEffect,useLayoutEffect,useRef,useState,type ReactNode} from 'react';
+import {Modal} from '../../../components/ui/Modal';
 import {useAuth} from '../../../contexts/AuthContext';
 import {useWorkTree} from '../hooks/useWorkTree';
 import {WorkTreeEditor,type WorkEdit} from './WorkTreeEditor';
@@ -148,7 +149,7 @@ function WorkTreeContent({rootId,branchParentId,branchActions=false,presentation
    <WorkHierarchy heading={heading} presentation={presentation} snapshot={data} readOnly={readOnly} executionBlocked={executionBlocked} authorityFresh={tree.authorityFresh&&!tree.refreshPending&&!tree.pending&&!edit} focusedNodeId={focusedNodeId} branchParentId={branchParentId} branchActions={branchActions} officeReviewAvailable={!!onReviewOfficeNode} controller={{...tree,save}} parentTask={parentTask} parentTitle={parentTitle} parentStartDate={parentStartDate} onCreateInline={onCreateInline} onRenameNode={onRenameNode}
     collapsedIds={collapsedIds} onCollapsedIdsChange={next=>{void requestNavigation(()=>setCollapsedIds(next));}} onOpenNode={openNode} onRequestAction={action}/>
    {opened&&data.nodes.some(node=>node.id===opened)&&<WorkNodeReadSummary node={data.nodes.find(node=>node.id===opened)!} snapshot={data} onClose={()=>setOpened(undefined)}/>}
-   {activity&&<aside aria-label="Task work activity"><h4>Task work activity</h4><p>Work changes for this task and its subtasks.</p><WorkActivity roots={[rootId]}/><button type="button" onClick={()=>setActivity(false)}>Close activity</button></aside>}
+   {activity&&<Modal isOpen title="Task work activity" description="Work changes for this task and its subtasks." width="max-w-2xl" bodyClassName="r7-work" footer={<div className="r7-work nw-create-footer"><div className="r7-actions"><button type="button" onClick={()=>setActivity(false)}>Close activity</button></div></div>} onClose={()=>setActivity(false)}><aside aria-label="Task work activity"><WorkActivity roots={[rootId]}/></aside></Modal>}
    {edit&&<WorkTreeEditor key={`${edit.command}:${edit.node?.id||edit.itemId}:${edit.parent}`} data={data} edit={edit} save={save} reload={tree.reload} readOnly={readOnly||executionBlocked&&['progress','submit'].includes(edit.command)} refreshPending={tree.refreshPending||tree.pending||!tree.authorityFresh} onDone={finish} onCancel={()=>{finish();void tree.reload();}}/>}
   </>}
  </section>;

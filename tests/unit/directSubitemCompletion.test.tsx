@@ -66,11 +66,18 @@ it('rejects a new completion after current authority is revoked, before any uplo
  await expect(completeSubitem(attempt,async()=>{throw new Error('Access changed');})).rejects.toThrow('Access changed');
  expect(api.upload).not.toHaveBeenCalled();expect(api.rpc).not.toHaveBeenCalled();
 });
-it('rechecks after a confirmed SQL rejection before retrying the same terms',async()=>{
+it('rechecks after a confirmed SQL rejection before retrying the same terms, while preserving receipt recovery after connection errors',async()=>{
  const attempt=subitemCompletionAttempt('step','',[]),recheck=vi.fn().mockResolvedValue(undefined);
  api.rpc.mockResolvedValueOnce({error:{code:'23514',message:'Prerequisite incomplete'}}).mockResolvedValueOnce({data:{id:'step',status:'completed'}});
  await expect(completeSubitem(attempt,recheck)).rejects.toThrow('Prerequisite');await completeSubitem(attempt,recheck);
  expect(recheck).toHaveBeenCalledTimes(2);expect(api.rpc.mock.calls[0]).toEqual(api.rpc.mock.calls[1]);
+
+ const lostAttempt=subitemCompletionAttempt('step','',[]),lostRecheck=vi.fn().mockResolvedValue(undefined);
+ api.rpc.mockResolvedValueOnce({error:{code:'08006',message:'Connection failure'}}).mockResolvedValueOnce({data:{id:'step',status:'completed'}});
+ await expect(completeSubitem(lostAttempt,lostRecheck)).rejects.toThrow('Connection failure');
+ lostRecheck.mockRejectedValue(new Error('Already completed'));
+ await completeSubitem(lostAttempt,lostRecheck);
+ expect(lostRecheck).toHaveBeenCalledTimes(1);
 });
 it('applies newly confirmed blockers and clearing while preserving an edited local blocker',()=>{
  const props={completionMode:'direct' as const,status:'in_progress',onSave:vi.fn(),onSubmit:vi.fn()};

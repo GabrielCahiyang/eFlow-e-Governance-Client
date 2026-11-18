@@ -73,9 +73,9 @@ it('lets the subtask lead submit a completion note and shows the pending review'
   api.submit.mockResolvedValue(submission);
   render(<SubitemLeadReview {...base} actor="cheryl" reviewerName="Crisostomo Ibarra"/>);
   expect(await screen.findByText(/Crisostomo Ibarra/)).toBeTruthy();
-  fireEvent.click(screen.getByRole('button', { name: 'Submit for Task Lead review' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Submit for Lead review' }));
   fireEvent.change(screen.getByLabelText('Work note'), { target: { value: 'Supplies delivered' } });
-  fireEvent.click(screen.getByRole('button', { name: 'Submit for Task Lead review' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Submit for Lead review' }));
   await screen.findByText(/Awaiting Lead review/);
   expect(api.submit).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ root: 'task', node: 'subtask', kind: 'completion', note: 'Supplies delivered' }));
 });
@@ -96,8 +96,8 @@ it('keeps self and unassigned review decisions unavailable and resubmits against
  render(<SubitemLeadReview {...base} actor="cheryl"/>);
  await screen.findByText('Completion · Changes requested');
  expect(screen.queryByRole('button',{name:'Approve work'})).toBeNull();
- fireEvent.click(screen.getByRole('button',{name:'Submit for Task Lead review'}));
+ fireEvent.click(screen.getByRole('button',{name:'Submit for Lead review'}));
  fireEvent.change(screen.getByLabelText('Work note'),{target:{value:'Delivery confirmation added'}});
- fireEvent.click(screen.getByRole('button',{name:'Submit for Task Lead review'}));
+ fireEvent.click(screen.getByRole('button',{name:'Submit for Lead review'}));
  await waitFor(()=>expect(api.submit).toHaveBeenCalledWith(expect.objectContaining({supersedes:'proposal',note:'Delivery confirmation added'})));
 });

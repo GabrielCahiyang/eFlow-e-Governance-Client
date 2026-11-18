@@ -16,7 +16,7 @@ export function useWorkImpactConfirmation(rootId:string){
    if(preview.allowed&&!preview.requires_date_confirmation&&!options.alwaysConfirm)return preview.fingerprint;
   }
   const details=typeof options.details==='function'?options.details(preview):options.details;
-  const accepted=await confirmation.confirm({...options,blockers:workImpactBlockers(preview),impact:<>{options.showSummary!==false&&<WorkImpactSummary impact={preview}/>} {details}</>});
+  const accepted=await confirmation.confirm({...options,blockers:workImpactBlockers(preview),impact:<>{options.showSummary!==false&&<WorkImpactSummary impact={preview} showBlockers={false}/>} {details}</>});
   if(accepted&&options.isCurrent&&!options.isCurrent())throw new Error('Work or authority changed during confirmation. Review current work again.');
   return accepted&&preview.allowed?preview.fingerprint:null;
  }

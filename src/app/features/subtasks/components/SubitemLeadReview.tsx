@@ -148,8 +148,8 @@ function ReviewForm({ root, node, actor, kind, reviewerName, supersedes, disable
       setError(readableUiError(reason, "Could not submit work for review.", 'write'));
     } finally { guard.pendingRef.current = false; setBusy(false); }
   }
-  const label = kind === 'completion' ? 'Submit for Task Lead review' : 'Send update for Lead review';
-  if (!open) return <><p>{blocked || (kind === 'completion' ? `When this step is finished, send it to ${reviewerName || 'the Task Lead'} for approval.` : 'Send your progress and evidence to your lead for review.')}</p>
+  const label = kind === 'completion' ? 'Submit for Lead review' : 'Send update for Lead review';
+  if (!open) return <><p>{blocked || (kind === 'completion' ? `When this step is finished, send it to ${reviewerName || 'the assigned Lead'} for approval.` : 'Send your progress and evidence to your lead for review.')}</p>
     <button className="rounded-md bg-primary px-3 py-2 text-sm text-primary-foreground disabled:opacity-50" type="button" disabled={disabled} onClick={() => setOpen(true)}>{label}</button></>;
   return <form className="space-y-3" onSubmit={event => { event.preventDefault(); void submit(); }}>
     <label className="block">Work note<textarea required maxLength={3000} rows={4} className="block w-full rounded-md border bg-background p-2"

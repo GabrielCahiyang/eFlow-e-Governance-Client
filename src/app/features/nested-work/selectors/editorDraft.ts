@@ -104,12 +104,14 @@ export function workEditorDefinitionError(data:WorkTreeSnapshot,baseline:WorkEdi
  const policy=selectStartedEditPolicy(data,baseline.nodeId);
  if(!policy)return 'Editing permissions could not be verified. Refresh this work.';
  if(!policy.details)return 'These work details are read-only. Use the existing review or reopen action.';
- const planningChanged=(fields.start||'')!==(baseline.fields.start||'')||fields.standalone!==baseline.fields.standalone;
+ const startChanged=(fields.start||'')!==(baseline.fields.start||'');
+ const planningChanged=startChanged||fields.standalone!==baseline.fields.standalone;
  if(planningChanged&&!policy.planning)return 'Start date, prerequisites and structure cannot change after work has started.';
  const dueChanged=fields.due!==baseline.fields.due;
+ const scheduleChanged=dueChanged||startChanged;
  if(dueChanged&&!policy.due)return 'Only the supervising Lead or authorized Office Head can reschedule this work.';
- if(dueChanged&&!fields.note.trim())return 'Enter a reason for changing the due date.';
- if(dueChanged&&fields.note.trim().length>1000)return 'Keep the schedule change reason within 1,000 characters.';
+ if(scheduleChanged&&!fields.note.trim())return dueChanged?'Enter a reason for changing the due date.':'Enter a reason for the schedule change.';
+ if(scheduleChanged&&fields.note.trim().length>1000)return 'Keep the schedule change reason within 1,000 characters.';
  return '';
 }
 export function sameWorkEditorScope(baseline:WorkEditorBaseline,context:WorkCapabilityContext):boolean {

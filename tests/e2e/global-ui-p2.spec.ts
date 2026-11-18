@@ -33,20 +33,18 @@ test('P2 filters stay visible as chips and retain URL, reload, history and old b
   await openFilters(page); await expect(page.getByRole('checkbox', { name: /Recently completed/ })).toHaveCount(0);
 });
 
-test('P2 has one destination host and contextual tools across expanded, collapsed and mobile layouts', async ({ page }) => {
+test('P2 member destinations work without More work tools across expanded, collapsed and mobile layouts', async ({ page }) => {
   await projectWorkspaceFixture(page, 'member', false, { landingOnly: true, leading: true });
   await page.goto('/my-work');
   await expect(page.locator('.r10-destination-host')).toBeHidden();
   const rail = page.getByRole('navigation', { name: 'My Work destinations' });
-  await expect(rail.getByRole('button')).toHaveCount(4);
-  await rail.getByText('More work tools', { exact: true }).click();
-  for (const name of ['Task workspace', 'Deadline calendar', 'Performance', 'Work Report']) await expect(rail.getByRole('button', { name, exact: true })).toBeVisible();
-  for (const name of ['Open Inbox', 'Office task board', 'Task history details', 'Subtask workflow', 'Lead workspace']) await expect(rail.getByRole('button', { name, exact: true })).toHaveCount(0);
+  await expect(page.getByText('More work tools', { exact: true })).toHaveCount(0);
   await rail.getByRole('button', { name: 'Subtasks', exact: true }).click();
-  await expect(rail.getByRole('button', { name: 'Subtask workflow', exact: true })).toBeVisible();
-  await expect(rail.getByRole('button', { name: 'Task workspace', exact: true })).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: 'Subtasks', exact: true, level: 1 })).toBeVisible();
+  await expect(page.getByText('More work tools', { exact: true })).toHaveCount(0);
   await page.getByRole('button', { name: 'Collapse my work sidebar', exact: true }).click();
   await expect(page.locator('.r10-destination-host')).toBeVisible();
+  await expect(page.getByText('More work tools', { exact: true })).toHaveCount(0);
   await page.getByRole('navigation', { name: 'My Work destinations' }).getByRole('button', { name: 'History', exact: true }).click();
   await expect(page.getByRole('button', { name: 'History', exact: true })).toHaveAttribute('aria-current', 'page');
   await page.setViewportSize({ width: 390, height: 900 });
@@ -54,6 +52,7 @@ test('P2 has one destination host and contextual tools across expanded, collapse
   await page.getByRole('navigation', { name: 'Mobile primary navigation' }).getByRole('button', { name: 'More', exact: true }).click();
   await expect(page.locator('.r10-destination-host')).toBeHidden();
   await expect(page.getByRole('dialog', { name: 'Navigation', exact: true }).getByRole('button', { name: 'History', exact: true })).toBeVisible();
+  await expect(page.getByText('More work tools', { exact: true })).toHaveCount(0);
   await page.keyboard.press('Escape'); await expect(page.locator('.r10-destination-host')).toBeVisible();
 });
 

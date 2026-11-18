@@ -3,8 +3,8 @@
   align-items:center;
   justify-content:center;
   gap:7px;
-  min-height:38px;
-  padding:8px 12px;
+  min-height:36px;
+  padding:7px 14px;
   border:1px solid var(--eflow-border);
   border-radius:8px;
   background:var(--eflow-subtle);

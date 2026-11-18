@@ -33,7 +33,11 @@ export async function completeSubitem(attempt:SubitemCompletionAttempt,recheck?:
  for(let index=attempt.attachments.length;index<attempt.files.length;index++)attempt.attachments.push(await uploadSubtaskWorkFile(attempt.subtaskId,attempt.id,attempt.files[index]));
  attempt.sent=true;
  const response=await supabase.rpc('complete_subitem',{p_subtask_id:attempt.subtaskId,p_completion:{id:attempt.id,note:attempt.note,attachments:attempt.attachments}});
- if(response.error){if(/^[0-9A-Z]{5}$/.test(response.error.code||''))attempt.sent=false;throw new Error(response.error.message);}
+ if(response.error){
+  const code=response.error.code||'';
+  if(/^(22|23)/.test(code)||['42501','40001','P0001','40P01','55P03','PGRST202'].includes(code))attempt.sent=false;
+  throw new Error(response.error.message);
+ }
  const clearance=response.data?.status==='completed'||!attempt.rootId?undefined:await fetchWorkFinancialClearance(attempt.rootId,attempt.subtaskId);
  if(response.data?.id!==attempt.subtaskId||(response.data?.status!=='completed'&&!clearance?.workAccepted))throw new Error('Completion was not verified. Retry the same completion.');
  return response.data;

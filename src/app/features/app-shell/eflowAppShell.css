@@ -6,7 +6,15 @@
   font-family: var(--font-family);
   height: 100dvh;
   min-height: 0;
+  position: relative;
   overflow: hidden;
+  overflow: clip;
+}
+
+html:has(.eflow-app-shell),
+body:has(.eflow-app-shell) {
+  overflow: hidden;
+  overflow: clip;
 }
 
 .eflow-topbar {
@@ -245,6 +253,7 @@
   flex: 1 1 auto;
   min-height: 0;
   min-width: 0;
+  position: relative;
   overflow: auto;
   overscroll-behavior-y: contain;
   border: 1px solid
@@ -346,9 +355,9 @@
   background: var(--primary-background-color, var(--eflow-surface));
   display: flex;
   flex: 0 0 auto;
-  gap: 4px;
-  min-height: 40px;
-  padding-left: 8px;
+  gap: 6px;
+  min-height: 0;
+  padding: 0 4px 8px 12px;
 }
 
 .eflow-task-board__view-tabs-actions > button {

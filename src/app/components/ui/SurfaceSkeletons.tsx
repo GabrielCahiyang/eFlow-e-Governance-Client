@@ -49,7 +49,12 @@ function StatusShell({
   children: ReactNode;
 }) {
   return (
-    <div role="status" aria-busy="true" aria-label={label} className={className}>
+    <div
+      role="status"
+      aria-busy="true"
+      aria-label={label}
+      className={className.includes('fixed') ? className : `relative ${className}`}
+    >
       <span className="sr-only">{label}</span>
       {children}
     </div>
@@ -169,7 +174,7 @@ export function InlineCellSkeleton({
       role="status"
       aria-busy="true"
       aria-label={label}
-      className="inline-block h-6 w-24 animate-pulse rounded-md bg-muted align-middle"
+      className="relative inline-block h-6 w-24 animate-pulse rounded-md bg-muted align-middle"
     >
       <span className="sr-only">{label}</span>
     </span>

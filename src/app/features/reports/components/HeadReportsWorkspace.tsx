@@ -414,23 +414,23 @@ export function HeadReportsWorkspace({ embedded = false }: { embedded?: boolean 
                     />
                   </div>
                   {period === "custom" && (
-                    <div className="flex items-center gap-2 text-[12px] text-muted-foreground">
-                      <label className="flex items-center gap-1.5">
-                        From{" "}
+                    <div className="flex flex-wrap items-center gap-2 text-[12px] text-muted-foreground">
+                      <label className="flex items-center gap-1.5 [&_.eflow-date-input-wrap]:w-[132px]">
+                        <span>From</span>
                         <DateInput
                           max={toDate || getPhilippineCalendarDate()}
                           value={fromDate}
                           onChange={(event) => { const day = event.target.value; if (day > getPhilippineCalendarDate()) return; setFromDate(day); if (toDate && day > toDate) setToDate(day); }}
-                          className="h-[32px] rounded-lg border border-border bg-card px-2 text-[12px] text-foreground"
+                          className="h-[34px] rounded-lg border border-border bg-card pl-2.5 text-[12px] text-foreground"
                         />
                       </label>
-                      <label className="flex items-center gap-1.5">
-                        To{" "}
+                      <label className="flex items-center gap-1.5 [&_.eflow-date-input-wrap]:w-[132px]">
+                        <span>To</span>
                         <DateInput
                           min={fromDate || undefined} max={getPhilippineCalendarDate()}
                           value={toDate}
                           onChange={(event) => { const day = event.target.value; if (day > getPhilippineCalendarDate()) return; setToDate(day); if (day && fromDate > day) setFromDate(day); }}
-                          className="h-[32px] rounded-lg border border-border bg-card px-2 text-[12px] text-foreground"
+                          className="h-[34px] rounded-lg border border-border bg-card pl-2.5 text-[12px] text-foreground"
                         />
                       </label>
                     </div>

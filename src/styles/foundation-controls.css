@@ -33,10 +33,13 @@
 [data-overlay-layer=confirmation] { --eflow-layer-popover: var(--eflow-layer-confirmation-picker); }
 .eflow-inspector { color: var(--eflow-text); background: var(--eflow-surface); border-color: var(--eflow-border); box-shadow: var(--eflow-shadow-dialog); }
 .eflow-confirmation-body { min-width: 0; max-height: 60dvh; overflow: auto; }
+.eflow-confirmation-impact { margin-bottom: var(--eflow-space-3); padding: var(--eflow-space-3); border: 1px solid var(--eflow-border); border-radius: var(--eflow-radius-control); background: var(--eflow-subtle); font-size: var(--eflow-text-sm); line-height: 1.5; color: var(--eflow-text); }
+.eflow-confirmation-impact p { margin: 0; }
+.eflow-confirmation-impact p + p { margin-top: 6px; }
 .eflow-confirmation-body ul { list-style: disc; padding-left: var(--eflow-space-5); margin-block: var(--eflow-space-3); }
 .eflow-confirmation-blockers { color: var(--eflow-negative-text); background: var(--eflow-negative-bg); padding: var(--eflow-space-3); border-radius: var(--eflow-radius-control); }
 .eflow-vibe-modal-layout { display: flex; flex-direction: column; flex: 1 1 auto; min-width: 0; min-height: 0; width: 100%; overflow: hidden; }
-.eflow-vibe-modal-content { flex: 1 1 auto; min-width: 0; min-height: 0; width: 100%; overflow-y: auto; overscroll-behavior: contain; overflow-wrap: break-word; word-break: normal; padding-bottom: 16px; }
+.eflow-vibe-modal-content { flex: 1 1 auto; min-width: 0; min-height: 0; width: 100%; overflow: visible; overscroll-behavior: auto; overflow-wrap: break-word; word-break: normal; padding-bottom: 16px; }
 .eflow-vibe-modal-header [id$="_desc"] { width: 100%; min-width: 0; align-items: flex-start; }
 .eflow-vibe-modal-header [id$="_desc"] > span { display: block; max-width: 100%; min-width: 0; white-space: normal; overflow: visible; overflow-wrap: anywhere; -webkit-line-clamp: unset; }
 .eflow-responsive-modal { min-width: 0; color: var(--eflow-text); }

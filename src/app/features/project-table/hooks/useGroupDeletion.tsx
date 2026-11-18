@@ -24,7 +24,16 @@ export function useGroupDeletion(group: ProjectGroup, refresh: () => Promise<voi
     const description = taskCount
       ? `Remove this group and its ${taskCount} unstarted task${taskCount === 1 ? '' : 's'} from the project table? Their subtasks will be removed with them. Previous history is kept.`
       : 'This empty group will be removed from the project table. No tasks or task history will be deleted.';
-    if (!await confirm({ title: `Delete ${group.title}?`, description, danger: true, actionLabel: 'Delete group', impact: <p>Group: {group.title} · {taskCount} task{taskCount === 1 ? '' : 's'} · {subitemCount} subtask{subitemCount === 1 ? '' : 's'}</p> })) return;
+    if (!await confirm({ title: `Delete ${group.title}?`, description, danger: true, actionLabel: 'Delete group', impact: (
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <span className="font-semibold text-[var(--eflow-text)]">Group: {group.title}</span>
+        <span className="sr-only">{taskCount} task{taskCount === 1 ? '' : 's'} · {subitemCount} subtask{subitemCount === 1 ? '' : 's'}</span>
+        <span aria-hidden="true" className="flex flex-wrap items-center gap-1.5 text-[12px]">
+          <span className="rounded-full border border-[var(--eflow-border)] bg-[var(--eflow-surface)] px-2.5 py-0.5 font-medium">{taskCount} task{taskCount === 1 ? '' : 's'}</span>
+          <span className="rounded-full border border-[var(--eflow-border)] bg-[var(--eflow-surface)] px-2.5 py-0.5 font-medium">{subitemCount} subtask{subitemCount === 1 ? '' : 's'}</span>
+        </span>
+      </div>
+    ) })) return;
     if (pending.current) return;
     pending.current = true; setBusy(true); setError('');
     try {

@@ -16,6 +16,45 @@ const unavailable={allowed:false,reason_code:'capability_unavailable',disabledRe
 beforeEach(()=>{vi.resetAllMocks();api.session.mockResolvedValue(session());});
 
 describe('current per-action capability adapter',()=>{
+ it.each(['subtask-lead','ancestor-lead','contributor','head'])('denies Office deletion to %s even with a broader server grant',async actor=>{
+  api.session.mockResolvedValue(session(actor));
+  const response=tree();response.root.lead='task-lead';response.nodes[0].lead_id='subtask-lead';response.nodes[0].assigned_to_ids=['contributor'];
+  const data=await loaded(response),current=context({actorId:actor});
+  expect(selectNodeWorkCapability(data,'branch','delete',current)).toMatchObject({allowed:false,reason_code:'branch_denied'});
+  if(actor==='subtask-lead')expect(selectNodeWorkCapability(data,'branch','edit_details',current).allowed).toBe(true);
+ });
+ it('retains Task Lead editing and deletion without requiring subtask execution membership',async()=>{
+  const response=tree();response.nodes[0].lead_id='subtask-lead';response.nodes[0].assigned_to_ids=['worker'];
+  const data=await loaded(response);
+  expect(selectNodeWorkCapability(data,'branch','edit_details',context()).allowed).toBe(true);
+  expect(selectNodeWorkCapability(data,'branch','delete',context()).allowed).toBe(true);
+  expect(selectNodeWorkCapability(data,'branch','execute',context()).allowed).toBe(false);
+ });
+ it.each([{status:'in_progress' as const},{started_at:'2026-11-19T00:00:00Z'},{percent_complete:1}])('denies Task Lead deletion of started Office work: %j',async patch=>{
+  const response=tree();Object.assign(response.nodes[0],patch);
+  const data=await loaded(response);
+  expect(selectNodeWorkCapability(data,'branch','delete',context())).toMatchObject({allowed:false,reason_code:'lifecycle_blocked'});
+  expect(selectNodeWorkCapability(data,'branch','edit_details',context()).allowed).toBe(true);
+ });
+ it('preserves Personal branch deletion without requiring root leadership',async()=>{
+  const response=tree();Object.assign(response.root,{kind:'personal',office:null,lead:'personal-root-lead'});
+  const data=await loaded(response);
+  expect(selectNodeWorkCapability(data,'branch','delete',context({kind:'personal',officeId:null})).allowed).toBe(true);
+ });
+ it('denies execution and direct submission for an unassigned Task Lead without removing management access',async()=>{
+  const response=tree();response.nodes[0].lead_id='subtask-lead';response.nodes[0].assigned_to_ids=['worker'];
+  const data=await loaded(response);
+  for(const action of ['execute','submit'] as const)expect(selectNodeWorkCapability(data,'branch',action,context())).toMatchObject({allowed:false,reason_code:'branch_denied'});
+  expect(selectNodeWorkCapability(data,'branch','edit_details',context()).allowed).toBe(true);
+  expect(selectNodeWorkCapability(data,'branch','manage_contributors',context()).allowed).toBe(true);
+ });
+ it.each(['lead','contributor'])('requires explicit subtask %s participation and still respects server denials',async role=>{
+  const response=tree();response.nodes[0].lead_id=role==='lead'?'lead':'other';response.nodes[0].assigned_to_ids=role==='contributor'?['lead']:[];
+  const data=await loaded(response);
+  expect(selectNodeWorkCapability(data,'branch','execute',context()).allowed).toBe(true);
+  data.nodes[0].capabilities!.execute=deny('lifecycle_blocked');
+  expect(selectNodeWorkCapability(data,'branch','execute',context()).reason_code).toBe('lifecycle_blocked');
+ });
  it('keeps own appointment denied despite own Lead management and legacy flags',async()=>{
   const data=await loaded();expect(selectNodeWorkCapability(data,'branch','manage_contributors',context()).allowed).toBe(true);
   expect(selectNodeWorkCapability(data,'branch','appoint_lead',context())).toEqual({allowed:false,reason_code:'appointment_denied',disabledReason:'You do not have permission to appoint this Lead.'});

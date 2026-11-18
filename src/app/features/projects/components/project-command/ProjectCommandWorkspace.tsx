@@ -20,6 +20,7 @@ import { collectProjectParticipantIds, hasAssignedSubtaskWork } from "../../sele
 import { ProjectHeader } from "./ProjectHeader";
 import { ProjectParticipants } from "./ProjectParticipants";
 import { ProjectUtilities, type ProjectLifecycleActions } from "./ProjectUtilities";
+import { ProjectFlowGateNotice } from "./ProjectFlowGateNotice";
 import { ProjectOverviewTab } from "./ProjectOverviewTab";
 import { ProjectWorkTab } from "./ProjectWorkTab";
 import { ProjectPlanInspector } from "./ProjectPlanInspector";
@@ -78,7 +79,9 @@ export function ProjectCommandWorkspace({
   lifecycleActions = {}, favoriteContextId = "unassigned", authorizedProjectIds = [],
 }: ProjectCommandWorkspaceProps) {
   const flow=useProjectFlow(project.id);
-  const setupReady=(!flow.error||!!flow.data)&&projectWorkAvailable(project.status,flow.data?.ready===true);
+  const flowLoading=Boolean(flow.loading)&&!flow.data&&!flow.error;
+  const flowDenied=Boolean(flow.denied||flow.error==="Couldn't verify access to this project.");
+  const setupReady=!flowDenied&&projectWorkAvailable(project.status,flow.data?.ready===true);
   const { tasks, loading: tasksLoading } = useTasks();
   const { profiles, loading: profilesLoading } = useProfiles();
   const { userProfile } = useAuth();
@@ -181,9 +184,18 @@ export function ProjectCommandWorkspace({
       {['tasks', 'gantt', 'board', 'calendar'].includes(activeTabId) && <ProjectViewFilters value={filters} onChange={setFilters} profiles={profiles.filter(p => projectTasks.some(t => t.assigneeId === p.id) || p.org_id === project.orgId)} offices={orgs.filter(o => projectTasks.some(t => t.orgId === o.id) || o.id === project.orgId)} count={visibleTasks.length}/>}
 
 
-      {!setupReady&&activeTabId!=='settings'&&activeTabId!=='activity'&&<section className="pf-panel"><h2>Finish project setup first</h2><p>Define the project details, project lead, dates and funding before adding tasks, subtasks or people.</p>{flow.error&&<div role="alert" className="pf-error">{flow.error}</div>}<button className="pf-primary" onClick={()=>selectTab('settings')}>Open project details and funding</button></section>}
+      <ProjectFlowGateNotice
+        activeTabId={activeTabId}
+        setupReady={setupReady}
+        flowLoading={flowLoading}
+        flowDenied={flowDenied}
+        hasFlowData={Boolean(flow.data)}
+        flowError={flow.error}
+        onRetry={flow.reload}
+        onOpenSettings={() => selectTab('settings')}
+      />
       {/* Main Workspace Canvas Body */}
-      {activeTabId === 'activity' ? <ProjectActivityTab data={data} auditTrail /> : data.loading ? (
+      {activeTabId === 'activity' ? <ProjectActivityTab data={data} auditTrail /> : (!setupReady && !['settings', 'budget'].includes(activeTabId)) ? null : data.loading ? (
         <ProjectViewLoading view={activeTabId} />
       ) : data.error && !data.hasLoadedFacts ? (
         <div

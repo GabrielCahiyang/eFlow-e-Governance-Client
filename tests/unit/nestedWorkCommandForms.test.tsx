@@ -38,9 +38,43 @@ function open(command:WorkEdit['command'],patch:Partial<WorkEdit>={}){
  const props={data,edit:{command,node:['create','order'].includes(command)?undefined:data.nodes[0],...patch},save:(request:WorkRequest)=>saveWorkTree('root',request),onDone:vi.fn(),onCancel:vi.fn()};
  return {props,view:render(<WorkTreeEditor {...props}/>)};
 }
-const save=()=>fireEvent.click(screen.getByRole('button',{name:/^(Add subtask|Save subtask|Review deletion|Move subtask|Save sequence|Post update|Submit for review|Save review)$/}));
+const save=()=>fireEvent.click(screen.getByRole('button',{name:/^(Add subtask|Save subtask|Delete subtask|Move subtask|Save sequence|Post update|Submit for review|Save review)$/}));
 async function accept(name='Confirm changes'){fireEvent.click(await screen.findByRole('button',{name,exact:true}));}
 describe('NW5.5 lightweight forms and authoritative confirmation',()=>{
+ it('displays inherited sequence prerequisites and preserves legacy storage for a title-only edit',async()=>{
+  data.supportsSubtaskDependencies=true;
+  Object.assign(data.nodes[0],{dependency_ids:null,can_edit_dependencies:true,sibling_order:2});
+  Object.assign(data.nodes[2],{dependency_ids:[],sibling_order:0});
+  Object.assign(data.nodes[3],{dependency_ids:[],sibling_order:1});
+  open('edit');
+  expect(screen.queryByLabelText('Work order')).toBeNull();
+  for(const name of [/^Destination/,/^Sibling/])expect((screen.getByRole('checkbox',{name}) as HTMLInputElement).checked).toBe(true);
+  fireEvent.change(screen.getByLabelText('Subtask title'),{target:{value:'Corrected title'}});save();
+  await waitFor(()=>expect(writes()).toHaveLength(1));
+  expect(writes()[0][1].p_payload).not.toHaveProperty('dependency_ids');
+  expect(writes()[0][1].p_payload.standalone).toBe(false);
+  expect(data.nodes[0].dependency_ids).toBeNull();
+ });
+ it('clears inherited prerequisites only when the user explicitly clears the selection',async()=>{
+  data.supportsSubtaskDependencies=true;
+  Object.assign(data.nodes[0],{dependency_ids:null,can_edit_dependencies:true});
+  Object.assign(data.nodes[2],{dependency_ids:[],sibling_order:-1});
+  open('edit');
+  const selected=screen.getByRole('checkbox',{name:/^Destination/}) as HTMLInputElement;
+  expect(selected.checked).toBe(true);expect(writes()).toHaveLength(0);
+  fireEvent.click(selected);save();
+  await waitFor(()=>expect(writes()).toHaveLength(1));
+  expect(writes()[0][1].p_payload).toMatchObject({dependency_ids:[],standalone:false});
+ });
+ it.each([null,[],['destination']])('keeps the Office picker read-only when prerequisite authority is denied (%j)',dependency_ids=>{
+  data.supportsSubtaskDependencies=true;
+  Object.assign(data.nodes[0],{dependency_ids,can_edit_dependencies:false});
+  open('edit');
+  expect(screen.queryByLabelText('Work order')).toBeNull();
+  expect((screen.getByRole('group',{name:'Prerequisite subtasks'}) as HTMLFieldSetElement).disabled).toBe(true);
+  expect(screen.getByText('Prerequisites are read-only in this view.')).toBeTruthy();
+  expect(writes()).toHaveLength(0);
+ });
  it('requires both dates for new subtasks and sends the selected pair',async()=>{
   data.root.scheduleBounds={projectStart:'2026-11-30',projectDue:'2026-12-31',taskStart:'2026-12-01',taskDue:'2026-12-20'};
   open('create');
@@ -115,8 +149,8 @@ describe('NW5.5 lightweight forms and authoritative confirmation',()=>{
   Object.assign(data.nodes[0],{dependency_ids:null,can_edit_dependencies:true});
   Object.assign(data.nodes[2],{dependency_ids:['source']});
   open('edit');
-  expect((screen.getByLabelText('Work order') as HTMLSelectElement).value).toBe('sequence');
-  fireEvent.change(screen.getByLabelText('Work order'),{target:{value:'explicit'}});
+  expect(screen.queryByLabelText('Work order')).toBeNull();
+  expect(screen.getByRole('group',{name:'Prerequisite subtasks'})).toBeTruthy();
   const destination=screen.getByRole('checkbox',{name:/^Destination/});
   fireEvent.click(destination);save();
   await screen.findByText(/Dependencies cannot form a cycle/);
@@ -139,17 +173,17 @@ describe('NW5.5 lightweight forms and authoritative confirmation',()=>{
   previewPatch={requires_date_confirmation:undefined,date_impact:undefined};open('edit');fireEvent.change(screen.getByLabelText('Subtask due date'),{target:{value:'2026-12-02'}});fireEvent.change(screen.getByLabelText('Reason for due date change'),{target:{value:'Approved schedule correction'}});save();await screen.findByText(/Date impact confirmation is not installed/);expect(writes()).toHaveLength(0);
  });
  it('does not skip mode confirmation when a combined date is routine',async()=>{
-  open('edit');fireEvent.change(screen.getByLabelText('Subtask due date'),{target:{value:'2026-12-02'}});fireEvent.change(screen.getByLabelText('Reason for due date change'),{target:{value:'Approved schedule correction'}});fireEvent.change(screen.getByLabelText('Work order'),{target:{value:'independent'}});save();await screen.findByRole('alertdialog');expect(writes()).toHaveLength(0);await accept();await waitFor(()=>expect(writes()).toHaveLength(1));expect(writes()[0][0]).toBe('nw_work_command');
+  data.root.kind='personal';data.root.office=null;rememberWorkCapabilityContext(data,'actor');open('edit');fireEvent.change(screen.getByLabelText('Subtask due date'),{target:{value:'2026-12-02'}});fireEvent.change(screen.getByLabelText('Work order'),{target:{value:'independent'}});save();await screen.findByRole('alertdialog');expect(writes()).toHaveLength(0);await accept();await waitFor(()=>expect(writes()).toHaveLength(1));expect(writes()[0][0]).toBe('nw_work_command');
  });
  it('never downgrades a routine date after hidden history invalidates the checked write',async()=>{
   api.rpc.mockImplementation(async(name,args)=>name==='r7_work_tree'?{data,error:null}:name==='nw_work_impact'?{data:nestedWorkImpactFixture(data,{revision:args.p_revision,command:args.p_command,payload:args.p_payload}),error:null}:{data:null,error:{code:'40001',message:'Work impact changed; review affected work'}});
   open('edit');fireEvent.change(screen.getByLabelText('Subtask due date'),{target:{value:'2026-12-02'}});fireEvent.change(screen.getByLabelText('Reason for due date change'),{target:{value:'Approved schedule correction'}});save();await screen.findByText(/Work impact changed; review affected work/);expect(writes()).toHaveLength(1);expect(writes()[0][0]).toBe('nw_work_command');expect(previews()).toHaveLength(1);
  });
- it('keeps execution mode and optional eligible Lead & contributors visible in create dialog',async()=>{
-  open('create');expect(screen.getByLabelText('Work order')).toBeTruthy();expect(screen.getByRole('option',{name:'In sequence'})).toBeTruthy();expect(screen.getByRole('option',{name:'Can start out of order'})).toBeTruthy();
+ it('keeps unsupported Office prerequisites read-only and optional eligible Lead & contributors visible',async()=>{
+  open('create');expect(screen.queryByLabelText('Work order')).toBeNull();expect((screen.getByRole('group',{name:'Prerequisite subtasks'}) as HTMLFieldSetElement).disabled).toBe(true);
   expect(screen.getByText('Subtask Lead and contributors')).toBeTruthy();
-  expect(screen.queryByRole('option',{name:'Expired'})).toBeNull();fireEvent.change(screen.getByLabelText('Subtask title'),{target:{value:'Created'}});fireEvent.change(screen.getByLabelText('Work order'),{target:{value:'independent'}});save();
-  await waitFor(()=>expect(writes()).toHaveLength(1));expect(writes()[0][0]).toBe('r7_work_command');expect(writes()[0][1].p_payload).toMatchObject({title:'Created',standalone:true,lead:null,people:[]});expect(previews()).toHaveLength(0);
+  expect(screen.queryByRole('option',{name:'Expired'})).toBeNull();fireEvent.change(screen.getByLabelText('Subtask title'),{target:{value:'Created'}});save();
+  await waitFor(()=>expect(writes()).toHaveLength(1));expect(writes()[0][0]).toBe('r7_work_command');expect(writes()[0][1].p_payload).toMatchObject({title:'Created',standalone:false,lead:null,people:[]});expect(previews()).toHaveLength(0);
  });
  it('hides assignment controls for the Active Project Lead, explains the lock, and creates an unassigned step',async()=>{
   data.root.subtask_staffing_locked=true;
@@ -173,9 +207,9 @@ describe('NW5.5 lightweight forms and authoritative confirmation',()=>{
  it('preserves an existing empty date during a title-only rename',async()=>{
   data.root.kind='personal';data.root.office=null;data.nodes[0].due_date=null;rememberWorkCapabilityContext(data,'actor');open('edit');expect((screen.getByLabelText('Subtask due date') as HTMLInputElement).value).toBe('');fireEvent.change(screen.getByLabelText('Subtask title'),{target:{value:'Renamed'}});save();await waitFor(()=>expect(writes()).toHaveLength(1));expect(writes()[0][1].p_payload.due).toBeNull();expect(previews()).toHaveLength(0);
  });
- it('shows only authorized safe destinations as readable paths and confirms exact move terms',async()=>{
-  open('move');const select=screen.getByLabelText('Destination parent');expect(within(select).queryByRole('option',{name:'Other branch'})).toBeNull();expect(within(select).queryByRole('option',{name:'Source / Child'})).toBeNull();expect(within(select).getByRole('option',{name:'This task'})).toBeTruthy();
-  fireEvent.change(select,{target:{value:'destination'}});save();const dialog=await screen.findByRole('alertdialog');expect(writes()).toHaveLength(0);expect(dialog.textContent).toContain('subtasks in this selection');await accept();
+ it('shows only authorized safe destinations as readable paths and confirms exact move terms in a single modal',async()=>{
+  open('move');const modal=screen.getByRole('dialog',{name:/Move Source/});const select=within(modal).getByLabelText('Destination parent');expect(within(select).queryByRole('option',{name:'Other branch'})).toBeNull();expect(within(select).queryByRole('option',{name:'Source / Child'})).toBeNull();expect(within(select).getByRole('option',{name:'This task'})).toBeTruthy();
+  fireEvent.change(select,{target:{value:'destination'}});save();await within(modal).findByText(/subtasks in this selection/);expect(screen.queryByRole('alertdialog')).toBeNull();expect(writes()).toHaveLength(0);await accept();
   await waitFor(()=>expect(writes()).toHaveLength(1));expect(writes()[0]).toEqual(['nw_work_command',expect.objectContaining({p_command:'move',p_revision:7,p_payload:{id:'source',parent:'destination'},p_impact_fingerprint:'synthetic-checked-impact'})]);
   expect(previews()[0][1].p_payload).toEqual(writes()[0][1].p_payload);
  });
@@ -184,33 +218,33 @@ describe('NW5.5 lightweight forms and authoritative confirmation',()=>{
   fireEvent.click(screen.getByRole('button',{name:'Move down Source'}));save();await accept();await waitFor(()=>expect(writes()).toHaveLength(1));expect(writes()[0][1].p_payload.order).toEqual(['destination','source','sibling','denied']);expect(writes()[0][1].p_payload.parent).toBeNull();
  });
  it('requires a checked review of changed execution mode with sequential consequences',async()=>{
-  open('edit');fireEvent.change(screen.getByLabelText('Work order'),{target:{value:'independent'}});save();const dialog=await screen.findByRole('alertdialog');expect(dialog.textContent).toContain('In sequence → Can start out of order');expect(writes()).toHaveLength(0);await accept();await waitFor(()=>expect(writes()).toHaveLength(1));expect(writes()[0][0]).toBe('nw_work_command');
+  data.root.kind='personal';data.root.office=null;rememberWorkCapabilityContext(data,'actor');open('edit');fireEvent.change(screen.getByLabelText('Work order'),{target:{value:'independent'}});save();const dialog=await screen.findByRole('alertdialog');expect(dialog.textContent).toContain('In sequence → Can start out of order');expect(writes()).toHaveLength(0);await accept();await waitFor(()=>expect(writes()).toHaveLength(1));expect(writes()[0][0]).toBe('nw_work_command');
  });
- it('uses server subtree counts and danger confirmation for deletion',async()=>{
-  previewPatch={selected_count:8,descendant_count:7};open('delete');fireEvent.click(screen.getByRole('button',{name:'Review deletion'}));const dialog=await screen.findByRole('alertdialog');expect(dialog.textContent).toContain('8 subtasks in this selection; 7 are child subtasks');expect(writes()).toHaveLength(0);await accept('Delete subtask');await waitFor(()=>expect(writes()).toHaveLength(1));expect(writes()[0][1]).toMatchObject({p_command:'delete',p_payload:{id:'source'},p_impact_fingerprint:'synthetic-checked-impact'});
+ it('uses server subtree counts and danger confirmation for deletion in a single modal without nested dialogs',async()=>{
+  previewPatch={selected_count:8,descendant_count:7};open('delete');const modal=screen.getByRole('dialog',{name:/Delete Source\?/});await within(modal).findByText(/8 subtasks in this selection; 7 are child subtasks/);expect(screen.queryByRole('alertdialog')).toBeNull();expect(writes()).toHaveLength(0);fireEvent.click(within(modal).getByRole('button',{name:'Delete subtask'}));await waitFor(()=>expect(writes()).toHaveLength(1));expect(writes()[0][1]).toMatchObject({p_command:'delete',p_payload:{id:'source'},p_impact_fingerprint:'synthetic-checked-impact'});
  });
  it('cancels impact review without sending a command or losing the draft',async()=>{
-  open('edit');fireEvent.change(screen.getByLabelText('Work order'),{target:{value:'independent'}});save();const dialog=await screen.findByRole('alertdialog');fireEvent.click(within(dialog).getByRole('button',{name:'Cancel',exact:true}));await waitFor(()=>expect(screen.queryByRole('alertdialog')).toBeNull());expect(writes()).toHaveLength(0);expect((screen.getByLabelText('Work order') as HTMLSelectElement).value).toBe('independent');
+  data.root.kind='personal';data.root.office=null;rememberWorkCapabilityContext(data,'actor');open('edit');fireEvent.change(screen.getByLabelText('Work order'),{target:{value:'independent'}});save();const dialog=await screen.findByRole('alertdialog');fireEvent.click(within(dialog).getByRole('button',{name:'Cancel',exact:true}));await waitFor(()=>expect(screen.queryByRole('alertdialog')).toBeNull());expect(writes()).toHaveLength(0);expect((screen.getByLabelText('Work order') as HTMLSelectElement).value).toBe('independent');
  });
  it('shows denied preview blockers without permitting deletion',async()=>{
-  previewPatch={allowed:false,blocker_codes:['history_blocked'],selected_count:2,descendant_count:1};open('delete');fireEvent.click(screen.getByRole('button',{name:'Review deletion'}));const dialog=await screen.findByRole('alertdialog');expect((within(dialog).getByRole('button',{name:'Delete subtask'}) as HTMLButtonElement).disabled).toBe(true);expect(dialog.textContent).toContain('financial commitments');fireEvent.click(within(dialog).getByRole('button',{name:'Cancel',exact:true}));expect(writes()).toHaveLength(0);
+  previewPatch={allowed:false,blocker_codes:['history_blocked'],selected_count:2,descendant_count:1};open('delete');const modal=screen.getByRole('dialog',{name:/Delete Source\?/});await within(modal).findByText(/financial commitments/);expect(screen.queryByRole('alertdialog')).toBeNull();expect((within(modal).getByRole('button',{name:'Delete subtask'}) as HTMLButtonElement).disabled).toBe(true);fireEvent.click(within(modal).getByRole('button',{name:'Cancel changes',exact:true}));expect(writes()).toHaveLength(0);
  });
  it.each(['PGRST202','42501'])('never falls back when preview fails with %s',async code=>{
-  api.rpc.mockImplementation(async()=>({data:null,error:{code,message:'Preview unavailable'}}));open('move');save();await screen.findByText(code==='PGRST202'?/Work impact confirmation is not installed/:/Preview unavailable/);expect(writes()).toHaveLength(0);expect(screen.queryByRole('alertdialog')).toBeNull();
+  api.rpc.mockImplementation(async()=>({data:null,error:{code,message:'Preview unavailable'}}));open('move');save();await screen.findByText(code==='PGRST202'?/Work impact confirmation is not installed/:/Preview unavailable/);expect(writes()).toHaveLength(0);expect(screen.queryByRole('button',{name:'Confirm changes'})).toBeNull();
  });
  it('rejects an already stale preview before displaying a confirm action',async()=>{
-  previewPatch={current_revision:8};open('move');save();await screen.findByText(/Work changed. Reload/);expect(writes()).toHaveLength(0);expect(screen.queryByRole('alertdialog')).toBeNull();
+  previewPatch={current_revision:8};open('move');save();await screen.findByText(/Work changed. Reload/);expect(writes()).toHaveLength(0);expect(screen.queryByRole('button',{name:'Confirm changes'})).toBeNull();
  });
  it('blocks a revoked scope during an open confirmation',async()=>{
-  const {props,view}=open('move');save();await screen.findByRole('alertdialog');const revoked=tree();revoked.nodes[0].capabilities!.move={allowed:false,reason_code:'branch_denied'};rememberWorkCapabilityContext(revoked,'actor');view.rerender(<WorkTreeEditor {...props} data={revoked}/>);await accept();await screen.findByText(/changed during confirmation/);expect(writes()).toHaveLength(0);
+  const {props,view}=open('move');save();await screen.findByRole('button',{name:'Confirm changes'});const revoked=tree();revoked.nodes[0].capabilities!.move={allowed:false,reason_code:'branch_denied'};rememberWorkCapabilityContext(revoked,'actor');view.rerender(<WorkTreeEditor {...props} data={revoked}/>);await accept();await screen.findByText(/changed during confirmation/);expect(writes()).toHaveLength(0);
  });
  it('does not display a late preview after actor change',async()=>{
   let resolve!:(result:unknown)=>void;api.rpc.mockImplementationOnce(()=>new Promise(yes=>{resolve=yes;}));const {props,view}=open('move');save();await waitFor(()=>expect(previews()).toHaveLength(1));api.actor='other';view.rerender(<WorkTreeEditor {...props}/>);
-  await act(async()=>resolve({data:nestedWorkImpactFixture(data,{revision:7,command:'move',payload:{id:'source',parent:null}}),error:null}));expect(screen.queryByRole('alertdialog')).toBeNull();expect(writes()).toHaveLength(0);
+  await act(async()=>resolve({data:nestedWorkImpactFixture(data,{revision:7,command:'move',payload:{id:'source',parent:null}}),error:null}));expect(screen.queryByRole('button',{name:'Confirm changes'})).toBeNull();expect(writes()).toHaveLength(0);
  });
  it('retries a lost checked result with identical terms without another preview or confirmation',async()=>{
   lost=true;const {props,view}=open('move');save();await accept();await screen.findByText(/Committed response lost/);expect(writes()).toHaveLength(1);const refreshed={...data,revision:8};rememberWorkCapabilityContext(refreshed,'actor');view.rerender(<WorkTreeEditor {...props} data={refreshed}/>);
-  fireEvent.click(screen.getByRole('button',{name:'Retry saved request'}));await waitFor(()=>expect(writes()).toHaveLength(2));expect(writes()[1]).toEqual(writes()[0]);expect(previews()).toHaveLength(1);expect(screen.queryByRole('alertdialog')).toBeNull();
+  fireEvent.click(screen.getByRole('button',{name:'Retry saved request'}));await waitFor(()=>expect(writes()).toHaveLength(2));expect(writes()[1]).toEqual(writes()[0]);expect(previews()).toHaveLength(1);expect(screen.queryByRole('button',{name:'Confirm changes'})).toBeNull();
  });
  it('automatically verifies a lost save response without writing again',async()=>{
   const reload=vi.fn().mockResolvedValue(undefined);
@@ -232,7 +266,7 @@ describe('NW5.5 lightweight forms and authoritative confirmation',()=>{
   expect(screen.queryByRole('button',{name:'Retry saved request'})).toBeNull();
  });
  it('never downgrades an accepted confirmation after checked RPC denial',async()=>{
-  open('move');save();await screen.findByRole('alertdialog');api.rpc.mockResolvedValue({data:null,error:{code:'23514',message:'History changed after preview'}});await accept();await screen.findByText(/History changed after preview/);expect(writes()).toHaveLength(1);expect(writes()[0][0]).toBe('nw_work_command');
+  open('move');save();await screen.findByRole('button',{name:'Confirm changes'});api.rpc.mockResolvedValue({data:null,error:{code:'23514',message:'History changed after preview'}});await accept();await screen.findByText(/History changed after preview/);expect(writes()).toHaveLength(1);expect(writes()[0][0]).toBe('nw_work_command');
  });
  it('reviews contributor removal separately and preserves the checked request on uncertain retry',async()=>{
   data.nodes=[];rememberWorkCapabilityContext(data,'actor');let count=0;const savePeople=vi.fn().mockImplementation(async request=>{if(count++===0)throw new Error('Lost people receipt');return data;});

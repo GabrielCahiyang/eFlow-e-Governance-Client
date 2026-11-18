@@ -155,4 +155,23 @@ describe('R3 scoped navigation, drafts and personal review',()=>{
   await waitFor(()=>expect(view.result.current.snapshot?.workspace.id).toBe('office'));
   expect(view.result.current.workspaces).toEqual([office]);
  });
+ it('preserves the loaded workspace snapshot across transient refresh failures while clearing on access denial',async()=>{
+  window.history.replaceState({},'','/projects?workspace=office');
+  const initialSnapshot={workspace:office,projects:[{id:'p-1',title:'OutReach',status:'active',kind:'office' as const,home_workspace_id:'office'}]};
+  api.list.mockResolvedValue([office]);
+  api.select.mockResolvedValue(initialSnapshot);
+  const view=renderHook(()=>useWorkspaceState('owner','office',true));
+  await waitFor(()=>expect(view.result.current.snapshot?.workspace.id).toBe('office'));
+
+  api.list.mockRejectedValueOnce(new Error('Failed to fetch'));
+  await act(async()=>view.result.current.refresh());
+  expect(view.result.current.snapshot?.projects.map(p=>p.id)).toEqual(['p-1']);
+  expect(view.result.current.workspaces).toEqual([office]);
+  expect(view.result.current.error).toBeTruthy();
+
+  api.list.mockRejectedValueOnce(Object.assign(new Error('Permission denied'),{status:403,code:'42501'}));
+  await act(async()=>view.result.current.refresh());
+  expect(view.result.current.snapshot).toBeUndefined();
+  expect(view.result.current.workspaces).toEqual([]);
+ });
 });

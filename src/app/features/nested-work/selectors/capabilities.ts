@@ -1,4 +1,5 @@
 import type {NodeWorkAction,RootWorkAction,WorkActionAvailability,WorkCapabilityContext,WorkCapabilityReasonCode,WorkTreeSnapshot} from '../types';
+import {isAssignedSubtaskParticipant} from './participation';
 
 const reasons:Record<WorkCapabilityReasonCode|'capability_unavailable',string>={
  access_unavailable:'Your current access to this work could not be verified. Reload the work.',
@@ -116,6 +117,11 @@ export function selectNodeWorkCapability(snapshot:WorkTreeSnapshot|undefined,nod
  const matches=snapshot!.nodes.filter(node=>node&&typeof node==='object'&&!Array.isArray(node)&&node.id===nodeId);
  if(matches.length!==1||matches[0].task_id!==context.rootId)return deny('capability_unavailable');
  const result=actionEntry(matches[0].capabilities,action);
+ if(result.allowed&&snapshot!.root.kind==='office'&&action==='delete'){
+  if(snapshot!.root.lead!==context.actorId)return deny('branch_denied');
+  if(matches[0].status!=='todo'||!!matches[0].started_at||matches[0].percent_complete!==0)return deny('lifecycle_blocked');
+ }
+ if(result.allowed&&snapshot!.root.kind==='office'&&(action==='execute'||action==='submit')&&!isAssignedSubtaskParticipant(matches[0],context.actorId))return deny('branch_denied');
  if(result.allowed&&context.executionBlocked&&(action==='execute'||action==='submit'))return deny('project_on_hold');
  return result;
 }

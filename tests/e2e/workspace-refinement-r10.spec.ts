@@ -206,16 +206,7 @@ test("R10 cross-workspace feed retains four destinations, filters, context, hist
   await destinations
     .getByRole("button", { name: "Assigned work", exact: true })
     .click();
-  await page.getByText('More work tools',{exact:true}).filter({visible:true}).click();
-  for (const tool of [
-    "Deadline calendar",
-    "Performance",
-    "Work Report",
-    "Task workspace",
-  ])
-    await expect(
-      page.getByRole("button", { name: tool, exact: true }),
-    ).toBeVisible();
+  await expect(page.getByText('More work tools', { exact: true })).toHaveCount(0);
 });
 
 test("R10 nested inspectors open the selected branch, protect drafts and restore focus at 320px dark", async ({
@@ -426,12 +417,15 @@ test("R10 Admin Home keeps the administrative landing and acquires no operationa
   ).toHaveCount(0);
 });
 
-test('R10 retained Office tools return from a personal workspace to the canonical Office',async({page})=>{
- const records=await workFixture(page);await page.goto(`/my-work?workspace=${records.personalId}`);
- await expect(page.getByRole('heading',{name:'My Work',exact:true,level:1})).toBeVisible();
- await page.getByText('More work tools',{exact:true}).filter({visible:true}).click();await page.getByRole('button',{name:'Deadline calendar',exact:true}).click();
- await expect(page.getByRole('heading',{name:'Deadlines',exact:true,level:1})).toBeVisible();
- expect(new URL(page.url()).searchParams.get('workspace')).toBe(records.org);
+test('R10 member can find Deadlines through Office navigation', async ({ page }) => {
+  const records = await personalWorkspaceFixture(page, { seed: true });
+  await page.goto(`/projects?workspace=${records.org}`);
+  await page.getByRole('button', { name: 'Find pages and projects', exact: true }).click();
+  const search = page.getByRole('dialog', { name: 'Find pages and projects', exact: true });
+  await search.getByLabel('Search navigation and projects').fill('Deadlines');
+  await search.getByRole('button', { name: 'Deadlines My Work', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Deadlines', exact: true, level: 1 })).toBeVisible();
+  expect(new URL(page.url()).searchParams.get('workspace')).toBe(records.org);
 });
 
 test('NW9.2 Lead-only depth-eight Office work is searchable and executes by canonical ID without root or cash authority',async({page})=>{

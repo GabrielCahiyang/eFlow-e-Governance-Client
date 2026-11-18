@@ -37,19 +37,20 @@ describe('P1 record and retained-tool handoffs', () => {
     const confirm = vi.fn().mockResolvedValueOnce(false).mockResolvedValueOnce(true);
     uninstall = installNavigationConfirmation(confirm);
     render(<WorkHost />);
-    fireEvent.click(screen.getByText('More work tools'));
-    fireEvent.click(screen.getByRole('button', { name: 'Deadline calendar' }));
+    expect(screen.queryByText('More work tools')).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'History', exact: true }));
     await waitFor(() => expect(confirm).toHaveBeenCalledTimes(1));
     expect(window.location.pathname).toBe('/my-work');
-    fireEvent.click(screen.getByRole('button', { name: 'Deadline calendar' }));
-    await waitFor(() => expect(window.location.pathname).toBe('/deadlines'));
+    expect(new URLSearchParams(window.location.search).get('page')).toBe('Assigned work');
+    fireEvent.click(screen.getByRole('button', { name: 'History', exact: true }));
+    await waitFor(() => expect(new URLSearchParams(window.location.search).get('page')).toBe('History'));
     expect(confirm).toHaveBeenCalledTimes(2);
   });
   it('blocks a pending My Work handoff without asking to discard', async () => {
     window.history.replaceState({}, '', '/my-work?page=Assigned+work');
     const confirm = vi.fn().mockResolvedValue(true); uninstall = installNavigationConfirmation(confirm);
-    render(<WorkHost pending />); fireEvent.click(screen.getByText('More work tools')); fireEvent.click(screen.getByRole('button', { name: 'Deadline calendar' }));
-    await Promise.resolve(); expect(window.location.pathname).toBe('/my-work'); expect(confirm).not.toHaveBeenCalled();
+    render(<WorkHost pending />); fireEvent.click(screen.getByRole('button', { name: 'History', exact: true }));
+    await Promise.resolve(); expect(new URLSearchParams(window.location.search).get('page')).toBe('Assigned work'); expect(confirm).not.toHaveBeenCalled();
   });
   it('does not change account selection or URL until the dirty handoff is accepted', async () => {
     window.history.replaceState({}, '', '/users?page=All+Users');

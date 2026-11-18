@@ -4,7 +4,7 @@
 .eflow-workspace-header h1 { font-size: 22px; font-weight: 600; margin: 0; }
 .eflow-workspace-header p, .eflow-empty-workspace p { font-size: 13px; color: var(--workspace-muted); margin-top: 6px; }
 .eflow-workspace-actions { display: flex; gap: 8px; align-items: center; }
-.eflow-workspace-tabs { display: flex; gap: 8px; overflow-x: auto; border-bottom: 1px solid var(--workspace-border); padding: 0 16px; }
+.eflow-workspace-tabs { display: flex; gap: 8px; overflow-x: auto; overflow-y: hidden; border-bottom: 1px solid var(--workspace-border); padding: 0 16px; }
 .eflow-workspace-tab { white-space: nowrap; min-height: 40px; padding: 8px 12px; border-bottom: 2px solid transparent; color: var(--workspace-muted); font-size: 13px; transition: color 150ms, background 150ms; }
 .eflow-workspace-tab[data-state=active] { color: var(--workspace-primary); border-bottom-color: var(--workspace-primary); }
 .eflow-workspace-tab:hover, .eflow-inline-text:hover { background: var(--workspace-hover); }

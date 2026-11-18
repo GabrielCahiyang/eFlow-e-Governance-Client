@@ -13,7 +13,7 @@ function submitBlockedReason(tree:WorkTreeSnapshot,itemId:string,context:WorkCap
   const submit=selectNodeWorkCapability(tree,itemId,'submit',context);
   if(submit.allowed)return null;
   switch(submit.reason_code){
-   case 'branch_denied':return 'Only this step’s lead or the task lead can mark it complete. Ask the task lead to appoint you as lead of this step.';
+   case 'branch_denied':return 'Only this subtask’s assigned team can submit work. Ask the Task Lead to review its assignments.';
    case 'lifecycle_blocked':return 'This step can’t be completed yet. Finish its prerequisite and child steps first, and make sure the task is still open.';
    case 'access_unavailable':return 'Your access to this work could not be verified. Reload the page.';
    case 'read_only':return 'This work is read-only right now.';

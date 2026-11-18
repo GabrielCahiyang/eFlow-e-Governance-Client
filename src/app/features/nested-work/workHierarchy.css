@@ -7,7 +7,7 @@
 .nw-work-approved{padding:5px 9px;border:1px solid var(--eflow-border,#d8e2df);border-radius:6px;font-size:12px;color:var(--eflow-text-muted,#61777c);background:var(--eflow-surface,#fff)}
 .nw-hierarchy .nw-hierarchy-control.nw-hierarchy-control--primary{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:10px 16px;border-color:var(--eflow-primary,#087b77);background:var(--eflow-primary,#087b77);color:var(--eflow-on-primary,#fff);font-size:13px;font-weight:550;white-space:nowrap}
 .task-page__subitems .nw-hierarchy-surface{border:1px solid var(--eflow-border,#d8e2df);border-radius:12px;background:var(--eflow-surface,#fff);overflow:hidden;min-width:0}
-.nw-hierarchy-table-scroll { overflow-x: auto; }
+.nw-hierarchy-table-scroll { overflow-x: auto; overflow-y: hidden; }
 .nw-hierarchy-table { width: 100%; border-collapse: collapse; text-align: left; }
 .nw-hierarchy-table th, .nw-hierarchy-table td { padding: var(--eflow-table-compact-y) var(--eflow-space-3); border-bottom: 1px solid var(--eflow-border); vertical-align: top; }
 .nw-hierarchy-table th { color: var(--eflow-text-secondary); }

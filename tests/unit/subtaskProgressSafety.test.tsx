@@ -27,6 +27,17 @@ describe('fresh direct subtask progress access',()=>{
   await expect(verifySubtaskProgressAccess(tree(),'step',context)).resolves.toBeUndefined();
   expect(api.load).toHaveBeenCalledWith('task');
  });
+ it('rejects an unassigned parent Task Lead even when the server advertises execute',async()=>{
+  const baseline=tree();rememberWorkCapabilityContext(baseline,'task-lead');
+  const fresh=tree();rememberWorkCapabilityContext(fresh,'task-lead');api.load.mockResolvedValue(fresh);
+  await expect(verifySubtaskProgressAccess(baseline,'step',{...context,actorId:'task-lead'})).rejects.toThrow('access or revision changed');
+  expect(api.save).not.toHaveBeenCalled();
+ });
+ it('allows a parent Task Lead explicitly assigned as a contributor when the server grants execution',async()=>{
+  const baseline=tree();baseline.nodes[0].assigned_to_ids.push('task-lead');rememberWorkCapabilityContext(baseline,'task-lead');
+  api.load.mockResolvedValue(baseline);
+  await expect(verifySubtaskProgressAccess(baseline,'step',{...context,actorId:'task-lead'})).resolves.toBeUndefined();
+ });
  it.each(['revision','office','project','actor','permission','participation','hold','missing'])('rejects changed %s before a write',async change=>{
   const baseline=tree(),fresh=tree();
   if(change==='revision')fresh.revision++;

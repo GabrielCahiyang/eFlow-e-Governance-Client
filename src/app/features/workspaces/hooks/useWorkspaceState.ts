@@ -1,6 +1,7 @@
 import {ACCESS_CHANGED_EVENT} from '../../project-access';
 import { PROJECTS_BROADCAST_EVENT, type Project } from '../../projects';
 import { isDocumentVisible } from '../../../shared/queryCache';
+import { isQueryAccessDenied } from '../../../shared/queryAccess';
 import { isNetworkError, isServerUnavailableError, userFacingError } from '../../../shared/userFacingError';
 import { probeConnectivity } from '../../../shared/networkConnectivity';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -41,7 +42,18 @@ export function useWorkspaceState(userId: string, officeId: string, enabled: boo
       if (isNetworkError(error) || isServerUnavailableError(error)) {
         void probeConnectivity();
       }
-      setState({key:scopeKey,workspaces:[],loading:false,error:userFacingError(error,'Could not load workspaces.'),unavailable:error instanceof WorkspaceApiUnavailable});
+      const denied = isQueryAccessDenied(error);
+      setState(previous => {
+        const keepSnapshot = !denied && previous.key === scopeKey && Boolean(previous.snapshot);
+        return {
+          key: scopeKey,
+          workspaces: keepSnapshot ? previous.workspaces : [],
+          snapshot: keepSnapshot ? previous.snapshot : undefined,
+          loading: false,
+          error: userFacingError(error, 'Could not load workspaces.'),
+          unavailable: error instanceof WorkspaceApiUnavailable,
+        };
+      });
     }
   },[enabled,userId,requested,officeId,officeOnly,scopeKey]);
   useEffect(()=>{

@@ -6,12 +6,11 @@ describe('P2 restrained personal tool reachability', () => {
     const items = buildShellNavigation({ role: 'member', can: () => true, hasLeadingWork: true });
     expect(getPersonalWorkTools(items, 'Assigned work').map(tool => tool.section)).toEqual(['tasks', 'deadlines', 'performance', 'reports']);
     expect(getPersonalWorkTools(items, 'Leading').map(tool => tool.section)).toEqual(['deadlines','performance','reports']);
-    for (const [destination, section] of [['Subtasks','subtasks'], ['History','history']]) {
-      const tools = getPersonalWorkTools(items, destination);
-      expect(tools).toHaveLength(4);
-      expect(tools.some(tool => tool.section === section)).toBe(true);
-      expect(tools.some(tool => tool.section === 'inbox' || tool.section === 'personal_work')).toBe(false);
-    }
+    expect(getPersonalWorkTools(items, 'History').map(tool => tool.section)).toEqual(['deadlines', 'history', 'performance', 'reports']);
+  });
+  it('omits the duplicate subtask workspace from the Subtasks destination', () => {
+    const items = buildShellNavigation({ role: 'member', can: () => true, hasLeadingWork: true });
+    expect(getPersonalWorkTools(items, 'Subtasks').map(tool => tool.section)).toEqual(['deadlines', 'performance', 'reports']);
   });
   it('keeps Head Office tools at their existing destinations and honors current grants and appointments', () => {
     const head = buildShellNavigation({ role: 'head', can: () => true, hasLeadingWork: true });

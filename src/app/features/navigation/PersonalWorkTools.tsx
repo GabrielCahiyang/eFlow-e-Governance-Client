@@ -4,10 +4,10 @@ import type { ShellNavigationItem } from './presentationNavigation';
 import './personalWorkTools.css';
 
 const workflowSections: Record<string, string> = {
-  'Assigned work': 'tasks', Subtasks: 'subtasks', History: 'history',
+  'Assigned work': 'tasks', History: 'history',
 };
 const toolLabels: Record<string, string> = {
-  tasks: 'Task workspace', subtasks: 'Subtask workflow',
+  tasks: 'Task workspace',
   deadlines: 'Deadline calendar', history: 'Task history details', performance: 'Performance', reports: 'Work Report',
 };
 
@@ -19,11 +19,12 @@ export function getPersonalWorkTools(items: ShellNavigationItem[], destination: 
     .flatMap(item => item.pages.slice(0, 1).map(page => ({ section: item.id, page: page.label, label: toolLabels[item.id] || item.label })));
 }
 
-export function PersonalWorkTools({ items, destination, activeSection = 'personal_work', onSelect, renderIcon }: {
-  items: ShellNavigationItem[]; destination: string; activeSection?: string;
+export function PersonalWorkTools({ role, items, destination, activeSection = 'personal_work', onSelect, renderIcon }: {
+  role: string; items: ShellNavigationItem[]; destination: string; activeSection?: string;
   onSelect: (section: string, page: string) => void;
   renderIcon?: (section: string, page: string) => ReactNode;
 }) {
+  if (role === 'member' || role === 'accounting_staff') return null;
   const tools = getPersonalWorkTools(items, destination, activeSection);
   if (!tools.length) return null;
   return <details className="eflow-personal-tools">

@@ -211,7 +211,7 @@ function PersonalWorkContent({
           </button>
         ))}
       </nav>
-      {role !== 'accounting_staff' && <PersonalWorkTools items={navigationItems} destination={destination} onSelect={navigate} />}
+      <PersonalWorkTools role={role} items={navigationItems} destination={destination} onSelect={navigate} />
       </div>
       {destination === 'Reviews' ? <AssignedSubtaskReviews key={userId} actor={userId} refreshSignal={reviewRefreshTick} onLoadingChange={setReviewsLoading}/> : <>
       <WorkFilters

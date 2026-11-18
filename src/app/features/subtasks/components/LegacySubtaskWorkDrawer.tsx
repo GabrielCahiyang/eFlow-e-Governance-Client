@@ -19,6 +19,8 @@ import { SubtaskReviewerBadge } from "./SubtaskReviewerBadge";
 import { useSubtaskReviewerDirectory } from "../hooks/useSubtaskReviewerDirectory";
 import { WorkBudgetCard } from "../../budget";
 import { InspectorPanel } from "../../../shared/motion";
+import {useAuth} from '../../../contexts/AuthContext';
+import {isAssignedSubtaskParticipant} from '../../nested-work';
 
 const statusMeta = {
   todo: { label: "To do", tone: "bg-neutral-100 text-neutral-700" },
@@ -77,7 +79,9 @@ export function SubtaskWorkDrawerView({current,parentTask,prerequisite,readOnly,
  submissions:SubtaskSubmission[];progressUpdates:SubtaskProgressUpdate[];reload:()=>Promise<void>;close:()=>void;
  context?:import('react').ReactNode;childWork?:import('react').ReactNode;origin?:import('../../task-inspector').TaskInspectorOrigin;authorityPending?:boolean;workflow?:import('react').ReactNode;
 }) {
+  const {user}=useAuth();
   if (!current) return <InspectorPanel open onClose={close} ariaLabel="Subtask unavailable" className="w-full sm:w-[460px]" layer={60}><div className="p-4 space-y-3"><h2 className="font-semibold">Subtask unavailable</h2><p role="status">This subtask was removed or is no longer accessible. Return to your current assigned work.</p><button type="button" onClick={close} className="rounded-md border px-3 py-2">Close subtask detail</button></div></InspectorPanel>;
+  const assignedParticipant=isAssignedSubtaskParticipant({lead_id:current.leadId||null,assigned_to_ids:current.assignedToIds},user?.id);
 
   const status = statusMeta[current.status] || statusMeta.todo;
   const due = parentTask ? relativeDays(parentTask.deadline || parentTask.dueDate) : undefined;
@@ -168,13 +172,16 @@ export function SubtaskWorkDrawerView({current,parentTask,prerequisite,readOnly,
             />
           )}
 
-          {readOnly ? (
+          {readOnly || !assignedParticipant ? (
             <div className="flex gap-2 rounded-xl border border-blue-200 bg-blue-50 p-3 text-[11.5px] text-blue-800">
               <Eye size={14} className="mt-0.5 shrink-0" />
-              <span><strong className="font-semibold">Team Leader view.</strong> Progress is read-only here; the assigned member owns these updates.</span>
+              <span>Work updates belong to this subtask’s assigned Lead and contributors.</span>
             </div>
           ) : (
-            <SubtaskProgressForm subtask={current} prerequisite={prerequisite} onSaved={reload} />
+            <SubtaskProgressForm subtask={current} prerequisite={prerequisite} onSaved={reload} recheckProgress={async()=>{
+              const fresh=await fetchSubtask(current.id);
+              if(!fresh||fresh.taskId!==current.taskId||!isAssignedSubtaskParticipant({lead_id:fresh.leadId||null,assigned_to_ids:fresh.assignedToIds},user?.id))throw new Error('This subtask assignment changed. Reopen it before posting an update.');
+            }}/>
           )}
           </fieldset>
           <SubtaskProgressHistory updates={progressUpdates} />

@@ -7,11 +7,15 @@ import type {WorkNode,WorkTreeController,WorkTreeSnapshot} from '../../src/app/f
 import {rememberWorkCapabilityContext} from '../../src/app/features/nested-work/selectors/capabilities';
 import {installNavigationConfirmation} from '../../src/app/shared/navigationGuard';
 import {WorkFinancialClearancePanel} from '../../src/app/features/budget/components/WorkFinancialClearancePanel';
-const api=vi.hoisted(()=>({actor:'actor',read:vi.fn(),tree:vi.fn(),save:vi.fn(),legacyRead:vi.fn(),progress:vi.fn(),impact:vi.fn(),start:vi.fn(),clearance:vi.fn(),finalize:vi.fn()}));
+const api=vi.hoisted(()=>({actor:'actor',read:vi.fn(),tree:vi.fn(),save:vi.fn(),legacyRead:vi.fn(),progress:vi.fn(),impact:vi.fn(),start:vi.fn(),clearance:vi.fn(),finalize:vi.fn(),review:vi.fn(),propose:vi.fn()}));
 vi.mock('../../src/app/contexts/AuthContext',()=>({useAuth:()=>({user:{id:api.actor}})}));
 vi.mock('../../src/app/features/nested-work/services/workTreeService',()=>({fetchWorkTree:api.tree,saveWorkTree:api.save,fetchWorkImpact:api.impact,fetchWorkEvents:vi.fn(),WorkTreeUnavailable:class extends Error{}}));
 vi.mock('../../src/app/features/subtasks/services/subtaskWorkflowService',()=>({fetchSubitemInspectorRecord:api.read,fetchSubtask:api.legacyRead,fetchSubtaskProgressUpdates:vi.fn().mockResolvedValue([]),fetchSubtaskSubmissions:vi.fn().mockResolvedValue([]),saveSubtaskProgress:api.progress,saveSubtaskWorkUpdate:api.progress,submitSubtaskForReview:vi.fn(),startScheduledSubtask:api.start}));
 vi.mock('../../src/app/features/subtasks/hooks/useSubtaskReviewerDirectory',()=>({useSubtaskReviewerDirectory:()=>({reviewersById:{},loading:false})}));
+vi.mock('../../src/app/features/subtasks/services/subitemLeadReview',async importOriginal=>({
+ ...await importOriginal<typeof import('../../src/app/features/subtasks/services/subitemLeadReview')>(),
+ fetchSubitemLeadReview:api.review,proposeSubitemWork:api.propose,
+}));
 vi.mock('../../src/app/features/budget',()=>({
  WorkBudgetCard:()=> <div>Existing budget composition</div>,
  get WorkFinancialClearancePanel(){return WorkFinancialClearancePanel;},
@@ -25,6 +29,7 @@ vi.mock('../../src/app/features/budget/services/workFinancialClearanceService',a
 vi.mock('../../src/app/features/subtasks/components/SubtaskDeadlineEditor',()=>({SubtaskDeadlineEditor:()=>null}));
 import {SubitemInspector} from '../../src/app/features/subtasks/components/SubitemInspector';
 import {SubtaskWorkDrawer} from '../../src/app/features/subtasks/components/SubtaskWorkDrawer';
+import {SubtaskWorkDrawerView} from '../../src/app/features/subtasks/components/LegacySubtaskWorkDrawer';
 const task:Task={id:'root',title:'Root work',orgId:'office',linkedProjectId:'project',teamMemberIds:['root-lead'],teamMemberNames:['Root Lead'],status:'todo',createdAt:1,updatedAt:1};
 const allow={allowed:true,reason_code:null} as const;
 const node=(id:string,parent:string|null,depth:number):WorkNode=>({id,task_id:'root',parent_subtask_id:parent,lead_id:'deep-lead',title:`Level ${depth}`,assigned_to_ids:['deep-worker'],depth,sibling_order:0,due_date:'2026-12-15',is_standalone:true,status:'todo',percent_complete:43,can_manage:false,can_appoint:false,can_order:false,can_work:true,can_review:false,capabilities:{execute:allow,create_child:allow,order_children:allow}});
@@ -45,9 +50,68 @@ function acceptedSubtaskController(){
  return controller(data);
 }
 let uninstall:(()=>void)|undefined;
-beforeEach(()=>{vi.clearAllMocks();api.actor='actor';api.read.mockImplementation(async(_root,id)=>record(id));api.tree.mockImplementation(async()=>tree());api.legacyRead.mockImplementation(async(id)=>record(id).subtask);api.clearance.mockImplementation(async(root,id)=>clearance(root,id));sessionStorage.clear();});
+beforeEach(()=>{vi.clearAllMocks();api.actor='actor';api.read.mockImplementation(async(_root,id)=>record(id));api.tree.mockImplementation(async()=>tree());api.legacyRead.mockImplementation(async(id)=>record(id).subtask);api.clearance.mockImplementation(async(root,id)=>clearance(root,id));api.review.mockResolvedValue({canProposeProgress:false,canProposeCompletion:false,items:[]});sessionStorage.clear();});
 afterEach(()=>{cleanup();uninstall?.();uninstall=undefined;});
 describe('NW8.1 canonical Subtask Inspector',()=>{
+ it('keeps the legacy execution form restricted to the subtask team as well',()=>{
+  api.actor='root-lead';
+  const current={...record('legacy').subtask,status:'in_progress' as const,leadId:'deep-lead',assignedToIds:['deep-worker']};
+  const props={current,parentTask:task,readOnly:false,canManageDeadline:true,reviewersById:{},reviewerLoading:false,submissions:[],progressUpdates:[],reload:vi.fn(),close:vi.fn()};
+  const view=render(<SubtaskWorkDrawerView {...props}/>);
+  expect(screen.queryByLabelText('Work update')).toBeNull();
+  expect(screen.getByText('Work updates belong to this subtask’s assigned Lead and contributors.')).toBeTruthy();
+  api.actor='deep-lead';view.rerender(<SubtaskWorkDrawerView {...props}/>);
+  expect(screen.getByLabelText('Work update')).toBeTruthy();
+ });
+ it('does not show execution controls to an unassigned Task Lead even with legacy server execute permission',async()=>{
+  api.actor='root-lead';
+  const data=tree([{...node('n1',null,1),status:'in_progress',started_at:'2026-11-18T00:00:00Z',capabilities:{execute:allow,submit:allow}}]);
+  data.root.status='in_progress';
+  render(<SubitemInspector onClose={()=>{}} rootTask={{...task,status:'in_progress'}} itemId="n1" controller={controller(data)}/>);
+  await screen.findByRole('heading',{name:'Level 1'});
+  expect(screen.queryByLabelText('Work update')).toBeNull();
+  expect(screen.getByText('Work updates belong to this subtask’s assigned Lead and contributors.')).toBeTruthy();
+  expect(screen.queryByRole('button',{name:'Save update'})).toBeNull();
+  expect(screen.queryByRole('button',{name:'Mark complete'})).toBeNull();
+  expect(screen.getByText('Existing budget composition')).toBeTruthy();
+  expect(api.progress).not.toHaveBeenCalled();
+ });
+ it.each([true,false])('routes an assigned Task Lead contributor through review (scheduling metadata: %s)',async(scheduled)=>{
+  api.actor='root-lead';
+  const data=tree([{...node('n1',null,1),status:'in_progress',started_at:'2026-11-18T00:00:00Z',assigned_to_ids:['root-lead'],capabilities:{execute:allow,submit:allow}}]);
+  data.root.status='in_progress';
+  if(scheduled)data.root.scheduling={version:1,today:'2026-11-19'};
+  api.review.mockResolvedValue({canProposeProgress:true,canProposeCompletion:true,items:[]});
+  api.propose.mockResolvedValue({id:'proposal',author_id:'root-lead',reviewer_id:'independent-lead',kind:'progress',state:'pending',terms:{note:'Contributor update'}});
+  render(<SubitemInspector onClose={()=>{}} rootTask={{...task,status:'in_progress'}} itemId="n1" controller={controller(data)}/>);
+  await screen.findByRole('heading',{name:'Level 1'});
+  fireEvent.click(await screen.findByRole('button',{name:'Propose a progress update'}));
+  expect(screen.queryByRole('region',{name:'Execute subtask'})).toBeNull();
+  expect(screen.queryByRole('button',{name:'Mark complete'})).toBeNull();
+  fireEvent.change(screen.getByLabelText('Work update'),{target:{value:'Contributor update'}});
+  fireEvent.click(screen.getByRole('button',{name:'Save update'}));
+  await waitFor(()=>expect(api.propose).toHaveBeenCalledWith(expect.objectContaining({actor:'root-lead',node:'n1',kind:'progress',note:'Contributor update'})));
+  expect(api.progress).not.toHaveBeenCalled();
+ });
+ it('does not give an assigned Task Lead a direct fallback when no independent reviewer is available',async()=>{
+  api.actor='root-lead';
+  const data=tree([{...node('n1',null,1),status:'in_progress',assigned_to_ids:['root-lead'],capabilities:{execute:allow,submit:allow}}]);
+  data.root.status='in_progress';
+  render(<SubitemInspector onClose={()=>{}} rootTask={{...task,status:'in_progress'}} itemId="n1" controller={controller(data)}/>);
+  await screen.findByRole('heading',{name:'Level 1'});
+  await waitFor(()=>expect(api.review).toHaveBeenCalledWith('root','n1'));
+  expect(screen.queryByLabelText('Work update')).toBeNull();
+  expect(screen.queryByRole('button',{name:'Mark complete'})).toBeNull();
+  expect(api.progress).not.toHaveBeenCalled();
+ });
+ it('retains direct updates when the Task Lead is also the appointed Subtask Lead',async()=>{
+  api.actor='root-lead';
+  const data=tree([{...node('n1',null,1),lead_id:'root-lead',status:'in_progress',started_at:'2026-11-18T00:00:00Z',capabilities:{execute:allow,submit:allow}}]);
+  data.root.status='in_progress';data.root.scheduling={version:1,today:'2026-11-19'};
+  render(<SubitemInspector onClose={()=>{}} rootTask={{...task,status:'in_progress'}} itemId="n1" controller={controller(data)}/>);
+  expect(await screen.findByLabelText('Work update')).toBeTruthy();
+  expect(screen.getByRole('option',{name:'Mark complete'})).toBeTruthy();
+ });
  it('finalizes accepted and settled work when execution and submission are disabled',async()=>{
   api.actor='deep-lead';
   const c=acceptedSubtaskController();
@@ -204,6 +268,7 @@ describe('NW8.1 canonical Subtask Inspector',()=>{
   view.rerender(<SubitemInspector onClose={()=>{}} rootTask={task} itemId="removed" controller={c}/>);await waitFor(()=>expect(screen.getByRole('alert').textContent).toContain('unavailable'));expect(api.read).not.toHaveBeenCalledWith('root','removed');
  });
  it('guards parent navigation and close while preserving failed progress drafts',async()=>{
+  api.actor='deep-lead';
   const close=vi.fn(),confirm=vi.fn().mockResolvedValue(false);uninstall=installNavigationConfirmation(confirm);api.progress.mockRejectedValue(new Error('Write denied'));
   render(<SubitemInspector onClose={close} rootTask={task} itemId="n8" controller={controller()}/>);await screen.findByRole('heading',{name:'Level 8'});
   fireEvent.change(screen.getByLabelText('Work update'),{target:{value:'Keep this note'}});fireEvent.click(screen.getByRole('button',{name:'Start work'}));await screen.findByRole('alert');
@@ -211,6 +276,7 @@ describe('NW8.1 canonical Subtask Inspector',()=>{
   fireEvent.click(screen.getByRole('button',{name:'Back to work'}));await waitFor(()=>expect(confirm).toHaveBeenCalledTimes(2));expect(close).not.toHaveBeenCalled();expect((screen.getByLabelText('Work update') as HTMLTextAreaElement).value).toBe('Keep this note');
  });
  it('keeps the progress draft mounted but disabled during an authority refresh',async()=>{
+  api.actor='deep-lead';
   const c=controller(),view=render(<SubitemInspector onClose={()=>{}} rootTask={task} itemId="n8" controller={c}/>);await screen.findByRole('heading',{name:'Level 8'});fireEvent.change(screen.getByLabelText('Work update'),{target:{value:'Retained'}});
   view.rerender(<SubitemInspector onClose={()=>{}} rootTask={task} itemId="n8" controller={{...c,refreshPending:true}}/>);expect(screen.getByLabelText('Work update').matches(':disabled')).toBe(true);
   view.rerender(<SubitemInspector onClose={()=>{}} rootTask={task} itemId="n8" controller={c}/>);expect((screen.getByLabelText('Work update') as HTMLTextAreaElement).value).toBe('Retained');
