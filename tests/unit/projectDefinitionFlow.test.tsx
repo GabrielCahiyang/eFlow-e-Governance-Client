@@ -322,11 +322,11 @@ it('allows removing individual groups, tasks, and subtasks with X buttons and to
    updated_at:'',
    groups:[
     {title:'Planning',color:'#087972',tasks:[
-     {title:'Prepare materials',description:'',priority:'medium',estimatedHours:4,subtasks:['Print flyers','Confirm venue']},
-     {title:'Coordinate leads',description:'',priority:'high',estimatedHours:2,subtasks:[]},
+     {title:'Prepare materials',description:'',priority:'medium',subtasks:['Print flyers','Confirm venue']},
+     {title:'Coordinate leads',description:'',priority:'high',subtasks:[]},
     ]},
     {title:'Delivery',color:'#579bfc',tasks:[
-     {title:'Conduct orientation',description:'',priority:'medium',estimatedHours:6,subtasks:[]},
+     {title:'Conduct orientation',description:'',priority:'medium',subtasks:[]},
     ]},
    ],
   }}

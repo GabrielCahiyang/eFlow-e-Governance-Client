@@ -5,7 +5,7 @@ import type { Task } from "../../src/app/features/tasks";
 import type { TeamWorkflowFacts } from "../../src/app/features/team-management";
 
 const employee = (id: string, name = id): Employee => ({ id, name, jobTitle: "Member", jobDescription: "", currentWorkload: 0, departmentName: "LEDIPO" });
-const task = (id: string, overrides: Partial<Task> = {}): Task => ({ id, title: id, status: "completed", priority: "medium", estimatedHours: 8, dueDate: "2026-08-31", createdAt: Date.parse("2026-08-01T00:00:00+08:00"), updatedAt: Date.parse("2026-08-05T00:00:00+08:00"), ...overrides });
+const task = (id: string, overrides: Partial<Task> = {}): Task => ({ id, title: id, status: "completed", priority: "medium", dueDate: "2026-08-31", createdAt: Date.parse("2026-08-01T00:00:00+08:00"), updatedAt: Date.parse("2026-08-05T00:00:00+08:00"), ...overrides });
 const emptyFacts = (): TeamWorkflowFacts => ({ subtasks: [], progress: [], submissions: [], statusHistory: [], evidence: [] });
 const period = getManilaMonthPeriod(new Date("2026-08-19T12:00:00+08:00"));
 

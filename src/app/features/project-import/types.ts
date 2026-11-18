@@ -5,7 +5,7 @@ export interface ProposedOffice {
 export interface ImportSubitem { title: string; dueDate: string }
 export interface ImportTask {
   key: string; title: string; description: string; priority: 'low' | 'medium' | 'high';
-  estimatedHours: number; startDate: string; dueDate: string; officeKey: string;
+  startDate: string; dueDate: string; officeKey: string;
   dependencies: string[]; subitems: ImportSubitem[]; sourceQuote: string;
   included: boolean; advisory?: Record<string, unknown>;
   budgetDecision?: 'funded'|'missing'|'no_cost'; budgetLines?: ProposalDecompositionBudgetLine[];

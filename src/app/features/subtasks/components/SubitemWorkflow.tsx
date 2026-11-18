@@ -10,10 +10,10 @@ import {SubtaskSubmissionHistory} from './SubtaskSubmissionHistory';
 import type {SubtaskProgressUpdate,SubtaskSubmission} from '../types';
 import type {selectSubitemInspectorCapabilities} from '../selectors/inspectorCapabilities';
 
-export function SubitemWorkflow({task,subtask,prerequisite,capabilities,clearanceReadOnly,pending,saving,submissions,progressUpdates,onSaved,currentReviewerName,schedule,startPanel,leadReview,directUpdates=true,directCompletion=true,dependencyBlockedReason,recheckCompletion}:{
+export function SubitemWorkflow({task,subtask,prerequisite,capabilities,clearanceReadOnly,pending,saving,submissions,progressUpdates,onSaved,currentReviewerName,schedule,startPanel,leadReview,directUpdates=true,directCompletion=true,dependencyBlockedReason,recheckCompletion,recheckProgress}:{
  task:Task;subtask:Subtask;prerequisite:Subtask|null;capabilities:ReturnType<typeof selectSubitemInspectorCapabilities>;clearanceReadOnly:boolean;pending:boolean;saving?:boolean;
  submissions:SubtaskSubmission[];progressUpdates:SubtaskProgressUpdate[];onSaved:()=>Promise<void>;onReview:()=>void;
- currentReviewerName?:string;schedule?:ReactNode;startPanel?:ReactNode;leadReview?:ReactNode;directUpdates?:boolean;directCompletion?:boolean;dependencyBlockedReason?:string|null;recheckCompletion?:()=>Promise<void>;
+ currentReviewerName?:string;schedule?:ReactNode;startPanel?:ReactNode;leadReview?:ReactNode;directUpdates?:boolean;directCompletion?:boolean;dependencyBlockedReason?:string|null;recheckCompletion?:()=>Promise<void>;recheckProgress?:()=>Promise<void>;
 }){
  const showExecution=Boolean(startPanel||directUpdates);
  return <>
@@ -21,7 +21,7 @@ export function SubitemWorkflow({task,subtask,prerequisite,capabilities,clearanc
   {typeof WorkFinancialClearancePanel==='function'&&Boolean(task.linkedProjectId||task.orgId)&&<WorkFinancialClearancePanel root={task.id} node={subtask.id} readOnly={pending||clearanceReadOnly} onSaved={onSaved}/>}
   {leadReview}
   {showExecution&&<section aria-label="Execute subtask" className="space-y-2">
-   {startPanel??<SubtaskProgressForm dependencyBlockedReason={dependencyBlockedReason} recheckCompletion={recheckCompletion} subtask={subtask} prerequisite={prerequisite} readOnly={!capabilities.execute} disabled={pending} showCompletion={directCompletion} canSubmit={capabilities.submit&&!pending} submitBlockedReason={capabilities.submit?(pending?(saving?'An update is being saved.':'Refreshing subtask access. Try again in a moment.'):null):capabilities.submitBlockedReason} onSaved={onSaved} initialBlocker={progressUpdates[0]?.blocker||''}/>}
+   {startPanel??<SubtaskProgressForm key={subtask.id} dependencyBlockedReason={dependencyBlockedReason} recheckCompletion={recheckCompletion} recheckProgress={recheckProgress} subtask={subtask} prerequisite={prerequisite} readOnly={!capabilities.execute} disabled={pending} showCompletion={directCompletion} canSubmit={capabilities.submit&&!pending} submitBlockedReason={capabilities.submit?(pending?(saving?'An update is being saved.':'Refreshing subtask access. Try again in a moment.'):null):capabilities.submitBlockedReason} onSaved={onSaved} initialBlocker={progressUpdates[0]?.blocker||''}/>}
   </section>}
   {progressUpdates.length>0&&<details className="work-secondary"><summary>Updates · {progressUpdates.length}</summary><SubtaskProgressHistory updates={progressUpdates}/></details>}
   {submissions.length>0&&<details className="work-secondary" open={subtask.status==='changes_requested'}><summary>Earlier evidence and feedback · {submissions.length}</summary><SubtaskSubmissionHistory submissions={submissions} currentReviewerName={currentReviewerName}/></details>}

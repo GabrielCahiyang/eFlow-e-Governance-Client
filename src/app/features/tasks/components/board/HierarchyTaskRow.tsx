@@ -17,11 +17,10 @@ interface HierarchyTaskRowProps {
   onOpenTaskEditor?: (task: Task) => void;
   onDeleteTaskRequest?: (task: Task) => void;
   onArchiveTaskRequest?: (task: Task) => void;
-  onCancelTaskRequest?: (task: Task) => void;
   onUndoRequest?: (task: Task) => void;
 }
 
-export function HierarchyTaskRow({ task, employeeById, role, currentUserId, onOpenReview, onExecute, onSubmitRequest, onOpenTaskEditor, onDeleteTaskRequest, onArchiveTaskRequest, onCancelTaskRequest, onUndoRequest }: HierarchyTaskRowProps) {
+export function HierarchyTaskRow({ task, employeeById, role, currentUserId, onOpenReview, onExecute, onSubmitRequest, onOpenTaskEditor, onDeleteTaskRequest, onArchiveTaskRequest, onUndoRequest }: HierarchyTaskRowProps) {
   const pm =
                                     priorityMeta[task.priority || "medium"] ||
                                     priorityMeta.medium;
@@ -157,7 +156,6 @@ export function HierarchyTaskRow({ task, employeeById, role, currentUserId, onOp
                                               task={task}
                                               onEdit={onOpenTaskEditor}
                                               onArchive={onArchiveTaskRequest}
-                                              onCancel={onCancelTaskRequest}
                                               onDelete={onDeleteTaskRequest}
                                               onReopen={onUndoRequest}
                                             />

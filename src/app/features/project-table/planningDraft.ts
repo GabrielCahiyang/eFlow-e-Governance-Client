@@ -32,8 +32,8 @@ export function timelinePatch(task: Task, draft: TimelineDraft, now = new Date()
   if (error) throw new Error(error);
   return { start_date: draft.start || null, deadline: draft.end };
 }
-export function numericPatch(field: 'estimated_hours' | 'budget_impact', draft: string): WorkspaceTaskPatch {
-  const next = Number(draft), max = field === 'estimated_hours' ? 100000 : 1e12;
+export function numericPatch(field: 'budget_impact', draft: string): WorkspaceTaskPatch {
+  const next = Number(draft), max = 1e12;
   if (!Number.isFinite(next) || next < 0 || next > max) throw new Error('Enter an amount from 0 to ' + max.toLocaleString() + '.');
   return { [field]: next };
 }

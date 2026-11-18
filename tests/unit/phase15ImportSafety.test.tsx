@@ -7,7 +7,7 @@ vi.mock('../../src/app/features/project-import/services/projectImportService',()
 vi.mock('../../src/app/features/project-import/services/documentService',()=>({readProjectDocument:calls.read}));
 import { useProjectImport } from '../../src/app/features/project-import/hooks/useProjectImport';
 import { projectImportSummary } from '../../src/app/features/project-import/selectors/reviewSummary';
-const draft:ProjectImportDraft={schemaVersion:1,project:{title:'Source',description:'',objectives:'',startDate:'',targetDate:''},offices:[],warnings:[],groups:[{key:'g',title:'Work',color:'#579bfc',existingGroupId:'',tasks:[{key:'t',title:'Assess',description:'',priority:'medium',estimatedHours:8,startDate:'',dueDate:'',officeKey:'',dependencies:[],subitems:[{title:'Collect',dueDate:''}],sourceQuote:'',included:true}]}]};
+const draft:ProjectImportDraft={schemaVersion:1,project:{title:'Source',description:'',objectives:'',startDate:'',targetDate:''},offices:[],warnings:[],groups:[{key:'g',title:'Work',color:'#579bfc',existingGroupId:'',tasks:[{key:'t',title:'Assess',description:'',priority:'medium',startDate:'',dueDate:'',officeKey:'',dependencies:[],subitems:[{title:'Collect',dueDate:''}],sourceQuote:'',included:true}]}]};
 beforeEach(()=>{vi.clearAllMocks();calls.generate.mockResolvedValue(draft);calls.save.mockResolvedValue({taskCount:1,subitemCount:1,groupCount:1});});afterEach(cleanup);
 describe('Phase 15 import concurrency and receipts',()=>{
  it('counts included work without making proposed Offices operational',()=>{expect(projectImportSummary({...draft,offices:[{key:'o',name:'Proposed',evidence:'Source',officeId:'',confirmed:false}]})).toMatchObject({tasks:1,groups:1,subitems:1,proposedOffices:['Proposed'],unconfirmedOffices:1});});

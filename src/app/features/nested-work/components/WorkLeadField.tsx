@@ -1,6 +1,6 @@
-import {useId} from 'react';
-import {ChevronDown, UserCheck} from 'lucide-react';
-import {deduplicateWorkPersonIds,eligibleWorkPeople,resolveWorkPersonName} from '../selectors/people';
+import {useId,useState} from 'react';
+import {ChevronDown,Search,UserCheck} from 'lucide-react';
+import {deduplicateWorkPersonIds,eligibleWorkPeople,groupWorkAssignmentPeople,resolveWorkPersonName,type WorkPeoplePriority} from '../selectors/people';
 import type {WorkActionAvailability,WorkPerson} from '../types';
 
 function initials(name:string):string {
@@ -14,6 +14,7 @@ export interface WorkLeadFieldProps {
  /** Keep original workers here (even if they include Lead); display excludes Lead. */
  contributorIds:readonly string[];
  people:readonly WorkPerson[];
+ priority?:WorkPeoplePriority;
  /** Fresh appoint_lead result from the NW2 adapter for this root/node. */
  appointmentCapability:WorkActionAvailability|undefined;
  busy:boolean;
@@ -21,8 +22,10 @@ export interface WorkLeadFieldProps {
  onChange:(leadId:string,retainedContributorIds:string[])=>void;
 }
 
-export function WorkLeadField({leadId,contributorIds,people,appointmentCapability,busy,busyReason,onChange}:WorkLeadFieldProps) {
- const id=useId(),eligible=eligibleWorkPeople(people);
+export function WorkLeadField({leadId,contributorIds,people,priority,appointmentCapability,busy,busyReason,onChange}:WorkLeadFieldProps) {
+ const id=useId(),[query,setQuery]=useState(''),eligible=eligibleWorkPeople(people);
+ const groups=groupWorkAssignmentPeople(people,priority,query);
+ const currentFiltered=!!leadId&&!groups.some(group=>group.people.some(person=>person.id===leadId));
  const disabled=busy||appointmentCapability?.allowed!==true||appointmentCapability.reason_code!==null;
  const reason=appointmentCapability?.disabledReason||'Lead appointment availability could not be verified. Reload the work.';
  const historical=!!leadId&&!eligible.some(person=>person.id===leadId);
@@ -34,19 +37,29 @@ export function WorkLeadField({leadId,contributorIds,people,appointmentCapabilit
     ? <span className="nw-staffing-badge nw-staffing-badge--active"><span className="nw-staffing-avatar">{initials(currentName)}</span>{currentName}</span>
     : <span className="nw-staffing-badge nw-staffing-badge--warn">Needs reassignment</span>}
   </div>
+  {priority&&<div className="nw-staffing-search-block">
+   <label className="nw-staffing-label" htmlFor={`${id}-search`}>Find a lead</label>
+   <div className="nw-staffing-search-wrap"><Search size={15} className="nw-staffing-search-icon" aria-hidden="true"/>
+    <input id={`${id}-search`} className="nw-staffing-search" type="search" placeholder="Search eligible members by name" value={query} disabled={disabled} onChange={event=>setQuery(event.target.value)}/>
+   </div>
+  </div>}
   <label className="nw-staffing-label" htmlFor={id}>Appointed Lead</label>
   <div className="nw-staffing-select-wrap">
    <select id={id} className="nw-staffing-select" value={leadId||''} disabled={disabled} aria-describedby={disabled?`${id}-reason`:undefined} onChange={event=>{
     const next=event.target.value;
     if(!disabled&&next!==leadId&&eligible.some(person=>person.id===next))onChange(next,deduplicateWorkPersonIds(contributorIds));
    }}>
-    <option value="" disabled>Choose project person</option>
+    <option value="" disabled>Choose eligible member</option>
     {historical&&<option value={leadId!} disabled>{resolveWorkPersonName(people,leadId!)} · Previously assigned</option>}
-    {eligible.map(person=><option key={person.id} value={person.id}>{resolveWorkPersonName(people,person.id)}</option>)}
+    {!historical&&currentFiltered&&<option value={leadId!}>{currentName}</option>}
+    {groups.filter(group=>group.people.length>0).map(group=>priority
+     ?<optgroup key={group.label} label={group.label}>{group.people.map(person=><option key={person.id} value={person.id}>{resolveWorkPersonName(people,person.id)}</option>)}</optgroup>
+     :group.people.map(person=><option key={person.id} value={person.id}>{resolveWorkPersonName(people,person.id)}</option>))}
    </select>
    <ChevronDown size={16} className="nw-staffing-select-icon" aria-hidden="true"/>
   </div>
   {disabled&&<p id={`${id}-reason`} className="nw-staffing-hint">{busy?busyReason||'Saving…':reason}</p>}
   {!eligible.length&&<p className="nw-staffing-hint">No eligible Office members are available to assign.</p>}
+  {!!eligible.length&&!groups.some(group=>group.people.length>0)&&<p className="nw-staffing-hint">No matching eligible members.</p>}
  </fieldset>;
 }

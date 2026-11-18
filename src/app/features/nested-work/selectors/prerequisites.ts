@@ -1,6 +1,11 @@
 import type { WorkNode, WorkTreeSnapshot } from '../types';
 import { readNodeDetailEditState } from './detailEditing';
 
+export function canCreateSubtaskPrerequisites(tree:WorkTreeSnapshot) {
+  return tree.root.kind==='office'&&tree.supportsSubtaskDependencies===true&&!tree.nodes.some(node=>
+    node.status==='todo'&&!node.started_at&&!node.percent_complete&&node.can_edit_dependencies===false);
+}
+
 export function subtaskPrerequisiteChoices(tree: WorkTreeSnapshot, parentId: string, nodeId: string, previous: string[] = []) {
   return tree.nodes.filter(node => node.task_id === tree.root.id && (node.parent_subtask_id || '') === parentId &&
     node.id !== nodeId && (String(node.status) !== 'cancelled' || previous.includes(node.id)));

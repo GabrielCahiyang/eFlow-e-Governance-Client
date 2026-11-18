@@ -302,7 +302,7 @@ describe("OCEDSIPP actual PDF layout and source budget", () => {
     expect(chat.mock.calls[0][0].pdf_table_enrichment.costs).toHaveLength(16);
     expect(t).toHaveLength(10);
     expect(t[0].title).toBe("Kick Off Meeting");
-    expect(t[0].estimatedHours).toBe(8);
+    expect(t[0]).not.toHaveProperty('estimatedHours');
     expect(t[0].subtasks).toEqual(expect.arrayContaining(["Technical Presentations", "Prepare presentation"]));
     expect(t[0].subtasks).not.toContain("Document Review and Gap Analysis");
     expect(t[0].description).toContain("• Open Forums");

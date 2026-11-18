@@ -14,7 +14,6 @@ def staffing_context(task_id: UUID, auto_assign: bool = False, user=Depends(requ
 class DraftStaffingRequest(BaseModel):
     title: str = Field(min_length=1, max_length=300)
     description: str = Field(default='', max_length=10000)
-    estimatedHours: float = Field(default=0, ge=0, le=10000)
     plannedAssignments: list[dict] = Field(default_factory=list, max_length=100)
 
 @router.post('/project/{project_id}/context')

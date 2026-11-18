@@ -1,7 +1,5 @@
-import { notifyTaskListeners } from "../../services/taskRealtimeService";
 import { useRef } from "react";
 import type { Task } from "../../taskTypes";
-import { cancelTask } from "../../services/taskLifecycleService";
 import { archiveTask, unarchiveTask } from "../../services/taskArchiveService";
 import { offerEmptyProjectCleanup } from "../../../projects";
 import { useReviewedMutation } from "../../../../shared/useReviewedMutation";
@@ -67,29 +65,6 @@ export function useTaskLifecycleActions({
         }),
     });
   };
-  const cancel = async (task: Task) => {
-    let reason = "";
-    await safety.run({
-      key: `${task.id}:cancel:${task.updatedAt}`,
-      validate: () => validate(task),
-      confirmation: {
-        title: "Cancel task?",
-        description: `Record why “${task.title}” is being cancelled. The server checks your authority and the current workflow.`,
-        actionLabel: "Cancel task",
-        danger: true,
-        reason: {
-          label: "Cancellation reason",
-          onAccept: (value) => {
-            reason = value;
-          },
-        },
-      },
-      operation: () => cancelTask(task.id, reason),
-      success: `Task “${task.title}” cancelled.`,
-      refresh: notifyTaskListeners,
-      onSaved: () => onDeleted(task),
-    });
-  };
   const archive = async (task: Task) => {
     const archived = !task.archivedAt;
     await safety.run({
@@ -105,5 +80,5 @@ export function useTaskLifecycleActions({
       success: `Task “${task.title}” ${archived ? "archived" : "restored"}.`,
     });
   };
-  return { ...safety, remove, cancel, archive };
+  return { ...safety, remove, archive };
 }

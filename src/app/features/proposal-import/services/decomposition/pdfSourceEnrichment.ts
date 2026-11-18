@@ -7,7 +7,6 @@ import { extractExplicitSubtasks, generateTemplateSubtasks, inferSkillsFromText,
 interface Suggestion {
   key: string;
   priority: 'low' | 'medium' | 'high';
-  estimatedHours: number;
   subtasks?: string[];
 }
 export interface AuthorizedProjectFundingSource {
@@ -75,15 +74,14 @@ export async function enrichPdfSourceTasksWithMetadata(
   const suggestions = new Map<string, Suggestion>();
   for (const item of payload.tasks) {
     if (!item || !sourceKeys.has(item.key) || suggestions.has(item.key) ||
-      !['low', 'medium', 'high'].includes(item.priority) ||
-      !Number.isFinite(item.estimatedHours) || item.estimatedHours < 0 || item.estimatedHours > 10000) {
-      throw new Error('The AI returned invalid task priorities or effort. Try again.');
+      !['low', 'medium', 'high'].includes(item.priority)) {
+      throw new Error('The AI returned invalid task priorities. Try again.');
     }
     suggestions.set(item.key, item);
   }
 
   const tasks = sourceTasks.map((action): EnrichedSourceTask => {
-    const { priority, estimatedHours, subtasks: aiSubtasks } = suggestions.get(action.key)!;
+    const { priority, subtasks: aiSubtasks } = suggestions.get(action.key)!;
     const shared = action.methodologyScope === 'phase';
     const sourceSteps = shared ? [] : extractExplicitSubtasks(action.methodology);
     const cleanedAiSubtasks = Array.isArray(aiSubtasks)
@@ -96,7 +94,6 @@ export async function enrichPdfSourceTasksWithMetadata(
       title: action.title,
       description: `${action.title}\n\nMethodology${shared ? ' (shared group methods)' : ''}:\n${action.methodology.map(method => `• ${method}`).join('\n')}\n\nSchedule: ${action.schedule}`,
       priority,
-      estimatedHours,
       requiredSkills: inferSkillsFromText([action.title, ...(!shared ? action.methodology : [])].join(' ')),
       subtasks: addSubtasks ? mergeSuggestedSubtasks(sourceSteps, fallbackSubtasks) : undefined,
       budgetDecision: 'missing',

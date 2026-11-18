@@ -357,7 +357,7 @@ export function DeliveryAnalytics({
                   id: p.id,
                   label: p.name,
                   value: p.active,
-                  secondary: `${p.overdue} overdue · ${p.contributing} contributing · ${p.estimatedHours}h lead estimate`,
+                  secondary: `${p.overdue} overdue · ${p.contributing} contributing`,
                 }))}
               onSelect={(id) => {
                 showTasks({ person: id, status: "" });

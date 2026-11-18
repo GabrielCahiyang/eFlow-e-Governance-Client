@@ -9,7 +9,7 @@ vi.mock('../../src/app/features/project-import/services/pdfOffices',()=>({extrac
 vi.mock('../../src/app/features/staffing',()=>({prepareImportAssignment:api.assign}));
 vi.mock('../../src/lib/supabase',()=>({supabase:{from:(table:string)=>({select:()=>({eq:()=>({single:()=>Promise.resolve({data:table==='projects'?{org_id:'org'}:{name:'LEDIPO',slug:'ledipo'},error:null})})})})}}));
 import {usePdfImportSession} from '../../src/app/features/project-import/hooks/usePdfImportSession';
-const task=(key:string)=>({key,title:key,description:'Source work',priority:'medium',estimatedHours:4,startDate:'2099-10-21',dueDate:'2099-11-20',officeKey:'o1',dependencies:[],subitems:[],sourceQuote:key,included:true});
+const task=(key:string)=>({key,title:key,description:'Source work',priority:'medium',startDate:'2099-10-21',dueDate:'2099-11-20',officeKey:'o1',dependencies:[],subitems:[],sourceQuote:key,included:true});
 const draft=()=>({schemaVersion:1,project:{title:'',description:'',objectives:'',startDate:'',targetDate:''},offices:[{key:'o1',name:'Agriculture Office',evidence:'Source office quote',officeId:'',confirmed:false}],warnings:[],groups:[{key:'g1',title:'Planning',color:'#087f8c',existingGroupId:'',tasks:[task('t1'),task('t2')]}]});
 beforeEach(()=>{vi.clearAllMocks();api.revision=0;api.pending.mockResolvedValue(null);api.save.mockImplementation(async(session,runner,state)=>({...session,runner,state:structuredClone(state),revision:++api.revision}));api.touch.mockResolvedValue(undefined);api.generate.mockResolvedValue(draft());api.assign.mockResolvedValue({lead:'person',people:['person']});api.extract.mockResolvedValue({offices:draft().offices,taskOffices:{t2:'o1'},clarification:[]});api.publish.mockResolvedValue({taskCount:2,groupCount:1,subitemCount:0,taskIds:{},groupIds:[]});});
 afterEach(cleanup);
@@ -34,7 +34,7 @@ describe('saved PDF workflow',()=>{
   await act(async()=>{await hook.result.current.upload(new File(['pdf'],'proposal.pdf'),'2099-10-21',false,true);});
   await waitFor(()=>expect(hook.result.current.error).toBe('Connection interrupted'));
   const saved=api.publish.mock.calls[0][0];expect(saved.state.review.offices).toEqual([]);expect(saved.state.review.groups[0].tasks.every((item:any)=>item.officeKey==='')).toBe(true);
-  expect(api.assign).toHaveBeenCalledTimes(2);expect(api.assign.mock.calls[1][2]).toEqual([{lead:'person',hours:4}]);
+  expect(api.assign).toHaveBeenCalledTimes(2);expect(api.assign.mock.calls[1][2]).toEqual([{lead:'person'}]);
   await act(async()=>{await hook.result.current.resume();});
   expect(api.generate).toHaveBeenCalledOnce();expect(api.assign).toHaveBeenCalledTimes(2);expect(api.publish.mock.calls[1][0].id).toBe(saved.id);expect(done).toHaveBeenCalledOnce();
  });

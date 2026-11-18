@@ -1,7 +1,7 @@
 import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import {useId,useState} from 'react';
 import {Plus,Search,Users,X} from 'lucide-react';
-import {deduplicateWorkPersonIds,displayedWorkContributorIds,eligibleWorkPeople,resolveWorkPersonName} from '../selectors/people';
+import {deduplicateWorkPersonIds,displayedWorkContributorIds,eligibleWorkPeople,groupWorkAssignmentPeople,resolveWorkPersonName,type WorkPeoplePriority} from '../selectors/people';
 import type {WorkActionAvailability,WorkPerson} from '../types';
 
 function initials(name:string):string {
@@ -14,6 +14,7 @@ export interface WorkContributorsFieldProps {
  leadId:string|null;
  contributorIds:readonly string[];
  people:readonly WorkPerson[];
+ priority?:WorkPeoplePriority;
  /** Fresh manage_contributors result from the NW2 adapter for this root/node. */
  contributorCapability:WorkActionAvailability|undefined;
  busy:boolean;
@@ -21,14 +22,14 @@ export interface WorkContributorsFieldProps {
  onChange:(contributorIds:string[])=>void;
 }
 
-export function WorkContributorsField({leadId,contributorIds,people,contributorCapability,busy,busyReason,onChange}:WorkContributorsFieldProps) {
+export function WorkContributorsField({leadId,contributorIds,people,priority,contributorCapability,busy,busyReason,onChange}:WorkContributorsFieldProps) {
  const id=useId(),[query,setQuery]=useState('');
  const contributors=displayedWorkContributorIds(leadId,contributorIds);
  const available=eligibleWorkPeople(people).filter(person=>person.id!==leadId&&!contributors.includes(person.id));
- const matches=available.filter(person=>resolveWorkPersonName(people,person.id).toLocaleLowerCase().includes(query.trim().toLocaleLowerCase()));
+ const groups=groupWorkAssignmentPeople(available,priority,query).filter(group=>group.people.length>0);
  const disabled=busy||contributorCapability?.allowed!==true||contributorCapability.reason_code!==null;
  const reason=!leadId&&contributorCapability?.reason_code==='lifecycle_blocked'?'Choose a lead first.':contributorCapability?.disabledReason||'Refresh this task to edit its team.';
- return <fieldset className="nw-staffing-card" disabled={disabled}>
+ return <fieldset className="nw-staffing-card" aria-label={`Contributors (${contributors.length})`} disabled={disabled}>
   <div className="nw-staffing-card__head">
    <legend><Users size={15} aria-hidden="true"/>Contributors <span className="nw-staffing-count">{contributors.length}</span></legend>
    <span className="nw-staffing-sub">Optional · Lead can work independently</span>
@@ -49,11 +50,13 @@ export function WorkContributorsField({leadId,contributorIds,people,contributorC
    <label className="nw-staffing-label" htmlFor={id}>Find people</label>
    <div className="nw-staffing-search-wrap">
     <Search size={15} className="nw-staffing-search-icon" aria-hidden="true"/>
-    <input id={id} className="nw-staffing-search" type="search" placeholder="Search office members by name" value={query} disabled={disabled} aria-describedby={disabled?`${id}-reason`:undefined} onChange={event=>setQuery(event.target.value)}/>
+    <input id={id} className="nw-staffing-search" type="search" placeholder="Search eligible members by name" value={query} disabled={disabled} aria-describedby={disabled?`${id}-reason`:undefined} onChange={event=>setQuery(event.target.value)}/>
    </div>
   </div>
-  <div className="nw-staffing-people-grid" aria-label="Available project contributors">
-   {matches.map(person=>{
+  <div className="nw-staffing-available" aria-label="Available project contributors">
+   {groups.map(group=><div key={group.label} role={priority?'group':undefined} aria-label={priority?group.label:undefined}>
+    {priority&&<h4 className="nw-staffing-group-label">{group.label}</h4>}
+    <div className="nw-staffing-people-grid">{group.people.map(person=>{
     const personName=resolveWorkPersonName(people,person.id);
     return <button key={person.id} type="button" className="nw-staffing-person-btn" disabled={disabled} aria-label={`Add contributor ${personName}`} onClick={()=>{
      if(!disabled&&eligibleWorkPeople(people).some(current=>current.id===person.id))onChange(deduplicateWorkPersonIds([...contributorIds,person.id]));
@@ -64,9 +67,9 @@ export function WorkContributorsField({leadId,contributorIds,people,contributorC
      </span>
      <span className="nw-staffing-add-pill"><Plus size={13} aria-hidden="true"/>Add</span>
     </button>;
-   })}
+   })}</div></div>)}
   </div>
-  {!matches.length&&<p className="nw-staffing-hint">{available.length?'No matching office members.':'All available eligible office members are already on this task.'}</p>}
+  {!groups.length&&<p className="nw-staffing-hint">{available.length?'No matching eligible members.':priority?'All available eligible members are already on this subtask.':'All available eligible office members are already on this task.'}</p>}
   {disabled&&<p id={`${id}-reason`} className="nw-staffing-hint nw-staffing-hint--lock">{busy?busyReason||'Saving…':reason}</p>}
  </fieldset>;
 }

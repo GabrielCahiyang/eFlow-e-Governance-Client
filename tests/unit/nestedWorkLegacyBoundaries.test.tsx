@@ -31,31 +31,31 @@ function tree():WorkTreeSnapshot{
 beforeEach(()=>{vi.clearAllMocks();api.actor='lead';api.load.mockImplementation(async()=>tree());api.rpc.mockResolvedValue({data:{version:1,task_id:'root',node_id:null,updated_at:'now',started:false,details:true,due:true,planning:true},error:null});api.legacyRead.mockImplementation((_id,callback)=>{callback([]);return()=>{};});});afterEach(cleanup);
 describe('NW9.7 proven compatibility entrances',()=>{
  it('routes the actual board editor through canonical depth-eight work and item IDs',async()=>{
-  render(<TaskEditorModal open task={task} draft={buildTaskEditorDraft(task)} onChange={vi.fn()} onClose={vi.fn()} onSave={vi.fn()} onDelete={vi.fn()} onCancelTask={vi.fn()} onOpenTeamEditor={vi.fn()} saving={false} error="" employees={[]} availableTasks={[]} employeeById={{}}/>);
+  render(<TaskEditorModal open task={task} draft={buildTaskEditorDraft(task)} onChange={vi.fn()} onClose={vi.fn()} onSave={vi.fn()} onDelete={vi.fn()} onOpenTeamEditor={vi.fn()} saving={false} error="" employees={[]} availableTasks={[]} employeeById={{}}/>);
   fireEvent.click(await screen.findByRole('button',{name:'Level 8',exact:true}));expect(screen.getByRole('dialog',{name:'Canonical item inspector'}).textContent).toContain('node-7');expect(api.open).toHaveBeenLastCalledWith(expect.objectContaining({rootTask:task,itemId:'node-7',initialSection:'work',readOnly:false}));
   expect(api.legacyRead).not.toHaveBeenCalled();expect(api.create).not.toHaveBeenCalled();
  });
  it('passes the editor saving lock through to canonical controls',async()=>{
-  const props={open:true,task,draft:buildTaskEditorDraft(task),onChange:vi.fn(),onClose:vi.fn(),onSave:vi.fn(),onDelete:vi.fn(),onCancelTask:vi.fn(),onOpenTeamEditor:vi.fn(),saving:false,error:'',employees:[],availableTasks:[],employeeById:{}};
-  const view=render(<TaskEditorModal {...props}/>);await screen.findByRole('button',{name:'Task work actions'});view.rerender(<TaskEditorModal {...props} saving/>);expect(screen.queryByRole('button',{name:'Task work actions'})).toBeNull();expect(api.save).not.toHaveBeenCalled();
+  const props={open:true,task,draft:buildTaskEditorDraft(task),onChange:vi.fn(),onClose:vi.fn(),onSave:vi.fn(),onDelete:vi.fn(),onOpenTeamEditor:vi.fn(),saving:false,error:'',employees:[],availableTasks:[],employeeById:{}};
+  const view=render(<TaskEditorModal {...props}/>);await screen.findByRole('button',{name:'Add subtask',exact:true});view.rerender(<TaskEditorModal {...props} saving/>);expect(screen.queryByRole('button',{name:'Add subtask',exact:true})).toBeNull();expect(api.save).not.toHaveBeenCalled();
  });
  it('shares one board controller across hierarchy and canonical detail',async()=>{
-  render(<TaskEditorModal open task={task} draft={buildTaskEditorDraft(task)} onChange={vi.fn()} onClose={vi.fn()} onSave={vi.fn()} onDelete={vi.fn()} onCancelTask={vi.fn()} onOpenTeamEditor={vi.fn()} saving={false} error="" employees={[]} availableTasks={[]} employeeById={{}}/>);
+  render(<TaskEditorModal open task={task} draft={buildTaskEditorDraft(task)} onChange={vi.fn()} onClose={vi.fn()} onSave={vi.fn()} onDelete={vi.fn()} onOpenTeamEditor={vi.fn()} saving={false} error="" employees={[]} availableTasks={[]} employeeById={{}}/>);
   fireEvent.click(await screen.findByRole('button',{name:'Level 8',exact:true}));expect(api.load).toHaveBeenCalledOnce();expect(api.open).toHaveBeenLastCalledWith(expect.objectContaining({controller:expect.objectContaining({rootId:'root',actorId:'lead',authorityFresh:true})}));
  });
  it('uses canonical project root people instead of the old metadata team picker',async()=>{
-  const onOpenTeamEditor=vi.fn();render(<TaskEditorModal open task={task} draft={buildTaskEditorDraft(task)} onChange={vi.fn()} onClose={vi.fn()} onSave={vi.fn()} onDelete={vi.fn()} onCancelTask={vi.fn()} onOpenTeamEditor={onOpenTeamEditor} saving={false} error="" employees={[]} availableTasks={[]} employeeById={{}}/>);
+  const onOpenTeamEditor=vi.fn();render(<TaskEditorModal open task={task} draft={buildTaskEditorDraft(task)} onChange={vi.fn()} onClose={vi.fn()} onSave={vi.fn()} onDelete={vi.fn()} onOpenTeamEditor={onOpenTeamEditor} saving={false} error="" employees={[]} availableTasks={[]} employeeById={{}}/>);
   await screen.findByRole('button',{name:'Choose task lead and contributors'});expect(screen.queryByRole('button',{name:'Edit Team'})).toBeNull();expect(onOpenTeamEditor).not.toHaveBeenCalled();expect(api.load).toHaveBeenCalledOnce();
  });
  it('hands the metadata save a checked missing scope only after the current root read proves it',async()=>{
-  api.load.mockRejectedValue(new WorkTreeUnavailable('Missing'));const onSave=vi.fn();render(<TaskEditorModal open task={task} draft={buildTaskEditorDraft(task)} onChange={vi.fn()} onClose={vi.fn()} onSave={onSave} onDelete={vi.fn()} onCancelTask={vi.fn()} onOpenTeamEditor={vi.fn()} saving={false} error="" employees={[]} availableTasks={[]} employeeById={{}}/>);
+  api.load.mockRejectedValue(new WorkTreeUnavailable('Missing'));const onSave=vi.fn();render(<TaskEditorModal open task={task} draft={buildTaskEditorDraft(task)} onChange={vi.fn()} onClose={vi.fn()} onSave={onSave} onDelete={vi.fn()} onOpenTeamEditor={vi.fn()} saving={false} error="" employees={[]} availableTasks={[]} employeeById={{}}/>);
   await screen.findByRole('button',{name:'Edit Team'});fireEvent.click(screen.getByRole('button',{name:'Save changes',exact:true}));expect(onSave).toHaveBeenCalledExactlyOnceWith({rootId:'root',actorId:'lead',code:'PGRST202'});
  });
  it('places the started Task notice before fields and keeps only permitted detail corrections editable',async()=>{
   api.rpc.mockResolvedValue({data:{version:1,task_id:'root',node_id:null,updated_at:'now',started:true,details:true,due:true,planning:false},error:null});
-  render(<TaskEditorModal open task={task} draft={buildTaskEditorDraft(task)} onChange={vi.fn()} onClose={vi.fn()} onSave={vi.fn()} onDelete={vi.fn()} onCancelTask={vi.fn()} onOpenTeamEditor={vi.fn()} saving={false} error="" employees={[]} availableTasks={[]} employeeById={{}}/>);
-  const notice=await screen.findByText(/Work has started\. Title and priority corrections/),title=screen.getByLabelText('Task title'),description=screen.getByLabelText('Task description');
-  expect(notice.compareDocumentPosition(title)&Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();expect((title as HTMLInputElement).disabled).toBe(false);expect((description as HTMLTextAreaElement).disabled).toBe(true);expect((screen.getByLabelText('Due-date change reason') as HTMLInputElement).disabled).toBe(false);
+  render(<TaskEditorModal open task={task} draft={buildTaskEditorDraft(task)} onChange={vi.fn()} onClose={vi.fn()} onSave={vi.fn()} onDelete={vi.fn()} onOpenTeamEditor={vi.fn()} saving={false} error="" employees={[]} availableTasks={[]} employeeById={{}}/>);
+  const notice=await screen.findByText(/Work is already in progress\. Start date and prerequisites/),title=screen.getByLabelText('Task title'),description=screen.getByLabelText('Task description');
+  expect(notice.compareDocumentPosition(title)&Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();expect((title as HTMLInputElement).disabled).toBe(false);expect((description as HTMLTextAreaElement).disabled).toBe(true);expect(screen.queryByLabelText('Due-date change reason')).toBeNull();
  });
  it('hands a proven missing installation to the legacy detail while preserving prerequisite/readOnly/deadline callbacks',async()=>{
   api.load.mockRejectedValue(new WorkTreeUnavailable('Missing'));const prerequisite={id:'prior',taskId:'root'} as any,onClose=vi.fn();
@@ -78,7 +78,7 @@ describe('NW9.7 proven compatibility entrances',()=>{
  });
  it('rejects supplied actor/root mismatch before rendering a legacy fallback',()=>{
   const controller={rootId:'root',actorId:'other-actor',data:tree(),loading:false,error:'',unavailable:false,authorityFresh:true,refreshPending:false,pending:false,reload:vi.fn(),save:api.save};
-  render(<TaskSubtasksWidget taskId="root" parentTask={task} controller={controller} canManage/>);expect(screen.getByRole('alert').textContent).toContain('current actor or task scope');expect(api.legacyRead).not.toHaveBeenCalled();expect(api.load).not.toHaveBeenCalled();
+  render(<TaskSubtasksWidget taskId="root" parentTask={task} controller={controller} canManage/>);expect(screen.getByRole('alert').textContent).toContain("couldn't confirm access");expect(api.legacyRead).not.toHaveBeenCalled();expect(api.load).not.toHaveBeenCalled();
  });
  it('keeps excluded Main Table readOnly and callbacks without enabling inline writes',()=>{
   const onOpen=vi.fn(),onOpenTask=vi.fn();render(<table><tbody><SubitemRows task={{...task,sourceCollaborationDraftId:'governed'}} subtasks={[{id:'flat',taskId:'root',title:'Legacy child',status:'todo',assignedToIds:[],position:0,percentComplete:0} as any]} columns={5} profiles={[]} canAdd readOnly unavailableReason="Locked" onOpen={onOpen} onOpenTask={onOpenTask} refresh={vi.fn()}/></tbody></table>);

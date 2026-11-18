@@ -13,7 +13,7 @@ import type {WorkTreeSnapshot} from '../../src/app/features/nested-work';
 import {installNavigationConfirmation} from '../../src/app/shared/navigationGuard';
 import {nestedWorkImpactFixture} from '../fixtures/nestedWorkImpact';
 const task={id:'t',title:'Assess',linkedProjectId:'p',orgId:'o',teamMemberIds:[]} as unknown as Task;
-const person={id:'m',name:'Maria',skills:['Planning'],training:[],education:[],experience:[],specializations:[],certifications:[],experience_summary:'',activeTasks:2,remainingHours:8,unknownEffortTasks:1};
+const person={id:'m',name:'Maria',skills:['Planning'],training:[],education:[],experience:[],specializations:[],certifications:[],experience_summary:'',activeTasks:2};
 const allow={allowed:true,reason_code:null} as const;
 function tree():WorkTreeSnapshot{return {root:{id:'t',project:'p',office:'o',kind:'office',lead:null,people:['worker'],open:true,due:null,capabilities:{appoint_lead:allow,manage_contributors:allow}},revision:7,can_manage:true,can_transfer:true,nodes:[],people:[{id:'m',name:'Maria',eligible:true},{id:'worker',name:'Existing worker',eligible:true}],leaf_total:0,leaf_completed:0};}
 let current:WorkTreeSnapshot;
@@ -21,7 +21,7 @@ const writes=()=>api.rpc.mock.calls.filter(([name])=>name==='nw_work_command');
 beforeEach(()=>{
  sessionStorage.clear();
  vi.clearAllMocks();current=tree();api.session.mockResolvedValue({data:{session:{user:{id:'head'},access_token:'synthetic'}},error:null});
- api.context.mockResolvedValue({task:{id:'t',title:'Assess'},candidates:[person],excludedUnconfirmed:1});api.recommend.mockResolvedValue([{userId:'m',evidence:['Planning'],activeTasks:2,remainingHours:8,unknownEffortTasks:1}]);
+ api.context.mockResolvedValue({task:{id:'t',title:'Assess'},candidates:[person],excludedUnconfirmed:1});api.recommend.mockResolvedValue([{userId:'m',evidence:['Planning'],activeTasks:2}]);
  api.rpc.mockImplementation(async(name,args)=>({data:name==='nw_work_impact'?nestedWorkImpactFixture(current,{revision:args.p_revision,command:args.p_command,payload:args.p_payload}):name==='r7_work_tree'?current:{...current,revision:8,root:{...current.root,lead:'m',people:['worker','m']}},error:null}));
 });afterEach(cleanup);
 async function enter(onAssigned?:()=>void|Promise<void>){

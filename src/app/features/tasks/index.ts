@@ -8,11 +8,8 @@ export * from "./services/taskService";
 export * from "./selectors";
 export {
   calculateDeadlineWorkload,
-  taskDurationHours,
   workingHoursBetween,
   workloadDeadline,
-  HOURS_PER_TASK_DAY,
-  taskEstimateError,
 } from "./selectors/deadlineWorkload";
 export type {
   DeadlineWorkload,
@@ -60,7 +57,6 @@ export {
   resolveTaskDetailCapabilities,
   resolveSubtaskManagementCapability,
 } from "./components/taskDetailAccess";
-export { cancelTask } from "./services/taskLifecycleService";
 export { TaskStatusLabel } from "./presentation/TaskStatusLabel";
 export { getTaskStatusPresentation } from "./presentation/taskStatusPresentation";
 export type {

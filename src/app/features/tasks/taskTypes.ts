@@ -76,7 +76,6 @@ export interface Task extends TaskHierarchy {
   cancelledBy?: string;
   burnoutWarning?: boolean;
   barangay?: string;
-  estimatedHours?: number;
   budgetImpact?: number;
   subtaskCount?: number;
   subtaskCompletedCount?: number;
@@ -165,7 +164,6 @@ export interface CreateTaskPayload {
   dependencyIds?: string[];
   burnoutWarning?: boolean;
   barangay?: string;
-  estimatedHours?: number;
   budgetImpact?: number;
   proposalId?: string;
   proposalTitle?: string;
@@ -187,7 +185,6 @@ export interface CreateTaskPayload {
 }
 
 export interface UpdateTaskPayload {
-  estimatedHours?: number;
   title?: string;
   description?: string;
   deadline?: string;

@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { ArrowRight, Building2, Calendar, CalendarDays, Clock3, Layers, ListChecks } from 'lucide-react';
+import { ArrowRight, Building2, Calendar, CalendarDays, Layers, ListChecks } from 'lucide-react';
 import { TaskDepartmentLabel, type Task } from '../../tasks';
 import { formatDate } from '../../../components/workflow/primitives';
 import { WorkBudgetCard } from '../../budget';
@@ -144,13 +144,6 @@ export function InspectorSummary({
                 label="Schedule"
                 value={scheduleText}
               />
-              {task.estimatedHours != null && (
-                <InspectorField
-                  icon={<Clock3 size={14} aria-hidden="true" />}
-                  label="Estimated effort"
-                  value={`${task.estimatedHours} hour${task.estimatedHours === 1 ? '' : 's'}`}
-                />
-              )}
               {task.programTitle && (
                 <InspectorField
                   icon={<Layers size={14} aria-hidden="true" />}

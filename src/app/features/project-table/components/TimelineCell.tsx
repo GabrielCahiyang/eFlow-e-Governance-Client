@@ -39,17 +39,17 @@ export function TimelineCell({ task, disabled, projectStartDate, projectTargetDa
     }}>
       <form noValidate className="pt-planning-form" onSubmit={event => { event.preventDefault(); if (!disabled&&policyReady) void editor.submit(async draft => {
         if(validation)throw new Error(validation);
-        const changedDue=draft.end!==(task.deadline||task.dueDate||'');
+        const changedDue=draft.end!==timelineDraft(task).end;
         if(editState?.started){if(draft.start!==(task.startDate||''))throw new Error('Start dates and planning definitions are locked after work starts.');if(changedDue&&!canChangeDue)throw new Error('Only the supervising Lead or authorized Office Head can reschedule this task.');if(changedDue&&(!changeReason.trim()||changeReason.trim().length>1000))throw new Error('Enter a due-date change reason (1–1,000 characters).');if(changedDue)await save({deadline:draft.end,change_reason:changeReason.trim()});}
         else await save(timelinePatch(task,draft,undefined,projectBounds));
         focusAfterSave.current = true;
       }, 'Dates saved.'); }}>
         <strong>Task timeline</strong><p>Updating task dates automatically updates the project timeline.</p>
-        {policyLoading&&<p role="status">Checking current task editing access…</p>}{policyError&&<p role="alert">{policyError} Editing is unavailable until access can be verified.</p>}{editState?.started&&<p role="status">Work has started. Planned start and structure are locked. Due-date changes require supervising authority and a reason.</p>}
+        {policyLoading&&<p role="status">Checking current task editing access…</p>}{policyError&&<p role="alert">{policyError} Editing is unavailable until access can be verified.</p>}{editState?.started&&<p role="status">Work is already in progress. Start date and prerequisites cannot be changed. Due-date changes require supervising authority and a reason.</p>}
         {editor.notice && <p role="status">{editor.notice}</p>}
         <FormField label="Start date"><TextInput type="date" min={minimumStart} max={maxStart} value={editor.draft.start} disabled={disabled || editor.pending || !canPlan} onChange={event => editor.setDraft({ ...editor.draft, start: event.target.value })}/></FormField>
         <FormField label="Due date" error={validation || (editor.error ? editor.error + ' Retry with Save dates.' : undefined)}><TextInput type="date" min={minEnd} max={projectEnd || undefined} value={editor.draft.end} disabled={disabled || editor.pending || !canChangeDue} onChange={event => editor.setDraft({ ...editor.draft, end: event.target.value })}/></FormField>
-        {editState?.started&&canChangeDue&&<FormField label="Reason for due-date change"><TextInput value={changeReason} maxLength={1000} disabled={disabled||editor.pending} onChange={event=>setChangeReason(event.target.value)}/></FormField>}
+        {editState?.started&&canChangeDue&&editor.draft.end!==timelineDraft(task).end&&<FormField label="Reason for due-date change"><TextInput value={changeReason} maxLength={1000} required disabled={disabled||editor.pending} onChange={event=>setChangeReason(event.target.value)}/></FormField>}
         <Button type="submit" pending={editor.pending} disabled={disabled || !policyReady || !editor.dirty || !!validation}>Save dates</Button>
       </form>
     </PopoverContent>

@@ -1,5 +1,7 @@
 # Web workflow parity implementation — 16 November 2026
 
+> **18 November 2026 status:** The dependency-date integration block recorded below is historical. SELECT-only inspection confirmed that the live Task and Subtask guards now omit the old cross-item date comparisons. See [current alignment and verification](web-mobile-dependency-blocker-alignment-2026-11-18.md). The original receipts below are preserved.
+
 Local Web implementation of `eFlow-Web-Workflow-UX-Dependency-Linking-Handoff-2026-11-16.zip`. The archive was extracted to `handoff-review-2026-11-16/`, outside migration discovery. README, contributor, started-editing, visibility and dependency-review handoffs were read. AGENTS.md and Git state were inspected before editing.
 
 ## Implemented behavior

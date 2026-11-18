@@ -190,7 +190,7 @@ describe('controlled contributor field',()=>{
  it.each([{ids:[]},{ids:['lead']}])('shows zero distinct contributors for $ids',({ids})=>{
   render(<WorkContributorsField {...contributorProps} contributorIds={ids}/>);
   expect(screen.getByRole('group',{name:'Contributors (0)'})).toBeTruthy();
-  expect(screen.getByText('No contributors')).toBeTruthy();
+  expect(screen.getByText('No contributors selected yet.')).toBeTruthy();
  });
  it.each([denied,undefined])('blocks changes when contributor permission is unavailable',contributorCapability=>{
   const onChange=vi.fn();

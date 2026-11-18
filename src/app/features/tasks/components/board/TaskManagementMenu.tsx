@@ -7,7 +7,6 @@ import {
   Send,
   Trash2,
   UserRoundCog,
-  XCircle,
 } from "lucide-react";
 import type { ReactNode } from "react";
 import {
@@ -22,7 +21,6 @@ export function TaskManagementMenu({
   onEdit,
   onEditTeam,
   onArchive,
-  onCancel,
   onDelete,
   onReopen,
   onStart,
@@ -36,7 +34,6 @@ export function TaskManagementMenu({
   onEdit?: (task: Task) => void;
   onEditTeam?: (task: Task) => void;
   onArchive?: (task: Task) => void;
-  onCancel?: (task: Task) => void;
   onDelete?: (task: Task) => void;
   onReopen?: (task: Task) => void;
   onStart?: (task: Task) => void;
@@ -80,11 +77,6 @@ export function TaskManagementMenu({
   add("team", "Edit team and lead", <UserRoundCog size={13} />, onEditTeam);
   if (task.status === "completed")
     add("reopen", "Reopen task", <RotateCcw size={13} />, onReopen);
-  if (
-    !task.archivedAt &&
-    !["completed", "cancelled", "for_review"].includes(task.status)
-  )
-    add("cancel", "Cancel task", <XCircle size={13} />, onCancel);
   add(
     "archive",
     task.archivedAt ? "Restore from archive" : "Archive task",

@@ -168,7 +168,6 @@ export async function generatePdfProjectDraft(
           title: task.title,
           description: task.description,
           priority: task.priority,
-          estimatedHours: task.estimatedHours,
           ...sourceMonthDates(action.schedule, anchor),
           officeKey: "",
           dependencies: [],

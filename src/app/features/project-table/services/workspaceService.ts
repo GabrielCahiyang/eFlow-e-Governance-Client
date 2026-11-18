@@ -14,7 +14,6 @@ async function validateTaskPatch(taskId:string,patch:WorkspaceTaskPatch){
  if(!policy.details)throw new Error('Task details are read-only for your current authority or workflow state.');
  const planningChanged=(patch.start_date!==undefined&&(patch.start_date||'')!==(current.start_date||''))||
   (patch.dependency_ids!==undefined&&(current.dependency_ids==null||JSON.stringify(patch.dependency_ids)!==JSON.stringify(current.dependency_ids)))||
-  (patch.estimated_hours!==undefined&&patch.estimated_hours!==Number(current.estimated_hours||0))||
   (patch.budget_impact!==undefined&&patch.budget_impact!==Number(current.budget_impact||0))||
   (patch.group_id!==undefined&&patch.group_id!==current.group_id)||(patch.workspace_position!==undefined&&patch.workspace_position!==current.workspace_position);
  if(planningChanged&&(!policy.planning||policy.started))throw new Error('Planning fields are read-only after work has started. Your current changes were kept.');

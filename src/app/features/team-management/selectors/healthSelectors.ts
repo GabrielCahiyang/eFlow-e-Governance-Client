@@ -9,7 +9,7 @@ export type WorkloadConcentrationStatus =
   | "idle"
   | "overloaded"
   | "concentrated"
-  | "unestimated"
+  | "active_work"
   | "elevated"
   | "balanced";
 
@@ -22,7 +22,7 @@ export interface WorkloadConcentrationSummary {
   idleCount: number;
   overloadedCount: number;
   elevatedCount: number;
-  unestimatedCount: number;
+  activeWorkCount: number;
   minSignal: number;
   maxSignal: number;
   spread: number;
@@ -43,7 +43,7 @@ export function analyzeWorkloadConcentration(members: TeamMemberMetrics[]): Work
       idleCount: 0,
       overloadedCount: 0,
       elevatedCount: 0,
-      unestimatedCount: 0,
+      activeWorkCount: 0,
       minSignal: 0,
       maxSignal: 0,
       spread: 0,
@@ -54,7 +54,7 @@ export function analyzeWorkloadConcentration(members: TeamMemberMetrics[]): Work
   const idleMembers = members.filter(isMemberIdle);
   const overloaded = members.filter((member) => member.workloadSignal >= TEAM_WORKLOAD_HIGH_THRESHOLD);
   const elevated = members.filter((member) => member.workloadSignal >= TEAM_WORKLOAD_ELEVATED_THRESHOLD);
-  const unestimated = members.filter((member) => member.workload?.level === "unknown");
+  const activeWork = members.filter((member) => member.workload?.level === "unknown");
   const signals = members.map((member) => member.workloadSignal);
   const minSignal = Math.min(...signals);
   const maxSignal = Math.max(...signals);
@@ -65,7 +65,7 @@ export function analyzeWorkloadConcentration(members: TeamMemberMetrics[]): Work
     idleCount: idleMembers.length,
     overloadedCount: overloaded.length,
     elevatedCount: elevated.length,
-    unestimatedCount: unestimated.length,
+    activeWorkCount: activeWork.length,
     minSignal,
     maxSignal,
     spread,
@@ -95,13 +95,13 @@ export function analyzeWorkloadConcentration(members: TeamMemberMetrics[]): Work
   }
 
   if (members.length === 1) {
-    if (unestimated.length > 0) {
+    if (activeWork.length > 0) {
       return {
         ...base,
-        status: "unestimated",
+        status: "active_work",
         tone: "amber",
-        badge: "Needs estimates",
-        message: `Task estimates or deadlines are missing for ${members[0].employeeName} (shown as ${maxSignal}).`,
+        badge: "Active work",
+        message: `${members[0].employeeName} has active work. Review task counts and deadlines before assigning more.`,
       };
     }
     if (elevated.length > 0) {
@@ -122,8 +122,8 @@ export function analyzeWorkloadConcentration(members: TeamMemberMetrics[]): Work
     };
   }
 
-  const estimateNote = unestimated.length > 0
-    ? ` ${unestimated.length} ${unestimated.length === 1 ? "member has" : "members have"} unestimated tasks (shown as 55).`
+  const activeNote = activeWork.length > 0
+    ? ` ${activeWork.length} ${activeWork.length === 1 ? "member has" : "members have"} active tasks.`
     : "";
 
   // Concentration occurs when load spread is wide, elevated members coexist with idle members, or <= half the team holds all work.
@@ -141,7 +141,7 @@ export function analyzeWorkloadConcentration(members: TeamMemberMetrics[]): Work
       status: "concentrated",
       tone: "amber",
       badge: "Concentrated",
-      message: `Workload is concentrated on ${loadedMembers.length} of ${members.length} members (${minSignal}–${maxSignal} signal); ${detail}${estimateNote}`,
+      message: `Workload is concentrated on ${loadedMembers.length} of ${members.length} members (${minSignal}–${maxSignal} signal); ${detail}${activeNote}`,
     };
   }
 
@@ -151,17 +151,17 @@ export function analyzeWorkloadConcentration(members: TeamMemberMetrics[]): Work
       status: "concentrated",
       tone: "amber",
       badge: "Uneven",
-      message: `${loadedMembers.length} of ${members.length} members hold active work (${minSignal}–${maxSignal} signal); ${idleMembers.length} ${idleMembers.length === 1 ? "member has" : "members have"} no active load.${estimateNote}`,
+      message: `${loadedMembers.length} of ${members.length} members hold active work (${minSignal}–${maxSignal} signal); ${idleMembers.length} ${idleMembers.length === 1 ? "member has" : "members have"} no active load.${activeNote}`,
     };
   }
 
-  if (unestimated.length > 0) {
+  if (activeWork.length > 0) {
     return {
       ...base,
-      status: "unestimated",
+      status: "active_work",
       tone: "amber",
-      badge: "Needs estimates",
-      message: `Workload estimates are missing for ${unestimated.length} of ${members.length} members (shown as 55). Add task estimates and deadlines to measure true balance.`,
+      badge: "Active work",
+      message: `${activeWork.length} of ${members.length} members have active tasks. Review assignments and deadlines to assess capacity.`,
     };
   }
 

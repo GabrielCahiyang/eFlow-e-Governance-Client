@@ -95,7 +95,6 @@ export interface MondayBoardProps {
 }
 
 export interface TaskEditorDraft {
-  estimatedHours?: number;
   title: string;
   description: string;
   deadline: string;
@@ -340,7 +339,6 @@ export const buildTaskEditorDraft = (task: Task): TaskEditorDraft => {
     ? deadlineInputParts(rawDeadline).date || rawDeadline.slice(0, 10)
     : rawDeadline;
   return {
-    estimatedHours: task.estimatedHours,
     title: task.title || "",
     description: task.description || "",
     deadline: normalizedDeadline,

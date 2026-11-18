@@ -30,4 +30,9 @@ describe('Task detail edit policy',()=>{
   await saveStartedTaskDetails(task,{deadline:'2026-11-21'},'Approved reschedule');
   expect(api.rpc).toHaveBeenLastCalledWith('edit_selected_project_task',{p_task_id:'task-1',p_patch:{deadline:'2026-11-21',change_reason:'Approved reschedule'}});
  });
+ it('does not request a schedule reason or due permission for the same calendar date stored as a timestamp',async()=>{
+  api.rpc.mockImplementation(async(name:string)=>({data:name==='work_detail_edit_state'?state({due:false}):null,error:null}));
+  await saveStartedTaskDetails({...task,deadline:'2026-11-19T20:00:00Z'},{title:'Corrected',deadline:'2026-11-20'});
+  expect(api.rpc).toHaveBeenLastCalledWith('edit_selected_project_task',{p_task_id:'task-1',p_patch:{title:'Corrected'}});
+ });
 });

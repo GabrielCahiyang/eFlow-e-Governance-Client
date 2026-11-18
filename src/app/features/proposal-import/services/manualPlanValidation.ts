@@ -1,6 +1,6 @@
 import type { DraftTask } from "../components/draftModel";
 import { getProposalBudgetReadiness } from "../../budget";
-import { isValidCalendarDeadline, taskEstimateError } from "../../tasks";
+import { isValidCalendarDeadline } from "../../tasks";
 import { scheduledDateError } from '../../../shared/calendarDates';
 
 export interface ManualPlanValidationIssue {
@@ -54,8 +54,6 @@ export function validateManualPlanDraft({
     } else if (!isValidCalendarDeadline(task.deadline.trim())) {
       issues.push({ id: `${task.key}-deadline-format`, message: "Enter a valid calendar due date." });
     }
-    const durationError = taskEstimateError(task.estimatedHours);
-    if (durationError) issues.push({ id: `${task.key}-duration`, message: durationError });
   });
 
   const budgetReadiness = getProposalBudgetReadiness(enabledTasks);

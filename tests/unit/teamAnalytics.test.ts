@@ -126,13 +126,10 @@ describe("team analytics", () => {
       workloadSignal: signal,
       workload: {
         level,
-        label: level === "unknown" ? "Estimate needed" : "Light",
+        label: level === "unknown" ? "Active work" : "Light",
         pressurePercent: signal,
         signal,
-        remainingHours: activeTasks * 8,
-        capacityHours: 40,
-        dueHours: activeTasks * 8,
-        missingEstimates: level === "unknown" ? 1 : 0,
+        activeTasks,
         missingDeadlines: 0,
         overdue: 0,
         explanation: "",
@@ -165,7 +162,7 @@ describe("team analytics", () => {
     expect(concentrated.badge).toBe("Concentrated");
     expect(concentrated.message).toContain("2 of 5 members");
     expect(concentrated.message).toContain("3 members have no active load");
-    expect(concentrated.message).toContain("unestimated tasks");
+    expect(concentrated.message).toContain("active tasks");
 
     // Everyone at 0 -> idle, NOT balanced
     const idle = analyzeWorkloadConcentration([

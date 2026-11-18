@@ -25,12 +25,7 @@ function formatMemberLoadMeta(member: TeamMemberMetrics): string {
   const parts: string[] = [];
   if (member.activeTasks > 0) parts.push(`${member.activeTasks} ${member.activeTasks === 1 ? "task" : "tasks"}`);
   if (member.activeSubtasks > 0) parts.push(`${member.activeSubtasks} ${member.activeSubtasks === 1 ? "subtask" : "subtasks"}`);
-  if (member.workload?.level === "unknown") {
-    parts.push("Est. needed");
-  } else if (member.workload && member.workload.remainingHours > 0) {
-    const hours = Math.round(member.workload.remainingHours * 10) / 10;
-    parts.push(`${hours}h`);
-  }
+  if (member.workload?.overdue) parts.push(`${member.workload.overdue} overdue`);
   return parts.join(" · ") || `${member.workloadSignal} signal`;
 }
 

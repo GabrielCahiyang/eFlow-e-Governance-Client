@@ -18,8 +18,9 @@ import {reparentChoices} from '../selectors/tree';
 import type {WorkRequest,WorkTreeSnapshot} from '../types';
 import type {WorkEdit} from '../types/editor';
 import {readNodeDetailEditState} from '../selectors/detailEditing';
-import {canEditSubtaskPrerequisites,subtaskPrerequisiteChoices} from '../selectors/prerequisites';
+import {canCreateSubtaskPrerequisites,canEditSubtaskPrerequisites,subtaskPrerequisiteChoices} from '../selectors/prerequisites';
 import {PrerequisiteField} from '../../../components/ui/workspace/PrerequisiteField';
+import {workAssignmentPriority} from '../selectors/people';
 export type {WorkEdit} from '../types/editor';
 interface WorkTreeEditorProps {data:WorkTreeSnapshot;edit:WorkEdit;save:(request:WorkRequest)=>Promise<WorkTreeSnapshot>;onDone:()=>void|Promise<void>;onCancel:()=>void;reload?:()=>Promise<void>;readOnly?:boolean;refreshPending?:boolean}
 export function WorkTreeEditor(props:WorkTreeEditorProps){
@@ -41,10 +42,10 @@ function WorkTreeForm({data,edit,save,onDone,onCancel,reload,readOnly=false,refr
  const fieldPolicyRequired=data.root.kind==='office'&&edit.command==='edit';
  const detailsUnavailable=fieldPolicyRequired&&!detailPolicy?.details;
  const dueChanged=edit.command==='edit'&&editor.fields.due!==editor.baseline.fields.due;
- const reasonRequired=startedEdit&&dueChanged;
+ const reasonRequired=data.root.kind==='office'&&edit.command==='edit'&&dueChanged;
  const createCapability=edit.parent?selectNodeWorkCapability(data,edit.parent,'create_child',context):selectRootWorkCapability(data,'create_child',context);
  const dependencySupported=data.root.kind==='office'&&data.supportsSubtaskDependencies===true;
- const dependencyEditable=dependencySupported&&(edit.command==='create'?createCapability.allowed:edit.command==='edit'&&canEditSubtaskPrerequisites(data,node));
+ const dependencyEditable=dependencySupported&&(edit.command==='create'?createCapability.allowed&&canCreateSubtaskPrerequisites(data):edit.command==='edit'&&canEditSubtaskPrerequisites(data,node));
  const dependencyChoices=subtaskPrerequisiteChoices(data,parent,node?.id||editor.baseline.createdId,editor.baseline.fields.dependencies);
  const dependencyField=dependencySupported&&editor.fields.dependencies!==undefined?<PrerequisiteField label="Prerequisite subtasks" choices={dependencyChoices} selected={editor.fields.dependencies}
   disabled={locked||!dependencyEditable} onChange={value=>update('dependencies',value)}/>:undefined;
@@ -70,8 +71,9 @@ function WorkTreeForm({data,edit,save,onDone,onCancel,reload,readOnly=false,refr
   {edit.command!=='create'&&<h3>{edit.root?'Task Lead and contributors':`${edit.command==='staff'?'Staff':edit.command==='move'?'Move':edit.command==='delete'?'Delete':edit.command==='submit'?'Complete':edit.command==='review'?'History':'Update'} ${node?.title||'subtask'}`}</h3>}
   {error&&<div role="alert" className="nw-operation-error"><AlertCircle size={18} aria-hidden="true"/><div><strong>{editor.saved?'Work saved':'Could not confirm this change'}</strong><p>{error}{editor.unresolvedReceipt?' Your draft is kept. You can retry the same request if its result is still unconfirmed.':outcome.kind==='stale_revision'?' The work changed while you were editing. Your draft is kept.':outcome.kind==='confirmed_failure'?' Nothing was saved. Correct the draft before submitting a new request.':outcome.kind==='revoked_authority'?' Saving is paused while current access is checked. Your draft is kept.':''}</p></div></div>}
   {fieldPolicyRequired&&!detailPolicy&&<p role="status">Editing permissions could not be verified. Refresh this work.</p>}
-  {startedEdit&&<p role="note">Work has started. Title and priority corrections remain available to authorized editors. Due-date changes require supervising authority and a reason.</p>}
+  {startedEdit&&<p role="note">Work is already in progress. Start date and prerequisites cannot be changed. Authorized editors can correct the title and priority; due-date changes require supervising authority and a reason.</p>}
   {['create','edit'].includes(edit.command)&&<WorkDetailsEditor fields={editor.fields} disabled={locked||detailsUnavailable} update={update} presentation={edit.command==='create'?'dialog':'default'}
+   dueChangeReason={reasonRequired&&detailPolicy?.due===true?<label>Reason for due date change<textarea value={note} maxLength={1000} required disabled={locked} onChange={e=>update('note',e.target.value)}/></label>:undefined}
    prerequisiteField={dependencyField} canSelectPrerequisites={dependencyEditable} explicitOnly={dependencySupported&&Array.isArray(editor.baseline.fields.dependencies)}
    showStart={!!data.root.scheduleBounds}
    minDue={data.root.scheduleBounds?dateLimits.earliest||'':calendarMinDate(edit.command==='edit'?editor.baseline.fields.due:'')}
@@ -79,14 +81,14 @@ function WorkTreeForm({data,edit,save,onDone,onCancel,reload,readOnly=false,refr
    planningLocked={fieldPolicyRequired&&detailPolicy?.planning!==true}
    dueDisabled={fieldPolicyRequired&&detailPolicy?.due!==true}
    staffingLocked={edit.command==='create'&&!!data.root.subtask_staffing_locked}
-   peoplePicker={edit.command==='create'&&!data.root.subtask_staffing_locked?{people:data.people,lead,selected:people,onLead:value=>update('lead',value),onSelected:value=>update('people',value),appointmentCapability:createCapability,contributorCapability:createCapability,disabled:locked,
+   peoplePicker={edit.command==='create'&&!data.root.subtask_staffing_locked?{people:data.people,priority:workAssignmentPriority(data,parent||null),lead,selected:people,onLead:value=>update('lead',value),onSelected:value=>update('people',value),appointmentCapability:createCapability,contributorCapability:createCapability,disabled:locked,
     invite:!locked?{project:data.root.project,office:data.root.office,root:data.root.id,node:edit.parent||undefined,canRequest:scopedInvitationRequestAllowed(data,edit.parent||null,context)}:undefined}:undefined}/>}
   {edit.command==='move'&&<WorkMoveDialog data={data} destinations={destinations} allowTask={destinationRoot.allowed} parent={parent} disabled={locked} onChange={value=>update('parent',value)}/>}
   {edit.command==='order'&&<WorkOrderDialog data={data} order={order} disabled={locked} onChange={value=>update('order',value)}/>}
   {edit.command==='delete'&&<WorkDeleteDialog impact={confirmation.impact}/>}
   {edit.command==='progress'&&<p>In progress · Save an update, or mark this step complete.</p>}
 
-  {(edit.command==='edit'&&reasonRequired&&detailPolicy?.due===true||edit.command!=='edit'&&['progress','submit','review'].includes(edit.command))&&<label>{edit.command==='edit'?'Reason for due date change':'Note / feedback'}<textarea value={note} maxLength={edit.command==='edit'?1000:4000} required={edit.command==='edit'} disabled={locked} onChange={e=>update('note',e.target.value)}/></label>}
+  {['progress','submit','review'].includes(edit.command)&&<label>Note / feedback<textarea value={note} maxLength={4000} disabled={locked} onChange={e=>update('note',e.target.value)}/></label>}
   {editor.saved&&<p role="status">Work saved.</p>}
   {editor.recovered&&<p role="status">{editor.staleRecovery?'This draft was saved against an older version. Review it against the current work before saving.':'Draft recovered after current access verification. Review before saving.'}</p>}
   {editor.storageFailed&&<p role="alert">Draft recovery could not be stored in this tab. Keep the editor open to retain your changes.</p>}

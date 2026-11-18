@@ -35,12 +35,14 @@ describe('Phase 5 reviewed workspace import', () => {
     draft.groups[0].tasks[0].dependencies = []; draft.groups[0].tasks[0].included = false;
     expect(() => validateProjectImportDraft(draft, false)).toThrow('omitted');
   });
-  it('rejects invalid calendar dates and negative effort before import', () => {
+  it('rejects invalid calendar dates and omits retired estimate fields', () => {
     const draft = parseProjectImportDraft(JSON.stringify(fixture()), source);
     draft.groups[0].tasks[0].dueDate = '2026-02-30';
     expect(() => validateProjectImportDraft(draft, false)).toThrow('dates');
-    draft.groups[0].tasks[0].dueDate = ''; draft.groups[0].tasks[0].estimatedHours = -1;
-    expect(() => validateProjectImportDraft(draft, false)).toThrow('Estimated hours');
+    expect(draft.groups[0].tasks[0]).not.toHaveProperty('estimatedHours');
+    draft.groups[0].tasks[0].dueDate = ''; draft.offices[0].confirmed = true;
+    Object.assign(draft.groups[0].tasks[0],{estimatedHours:16}); // Older saved draft.
+    expect(reviewedImportPayload(draft, 'plan.md', false).groups[0].tasks[0]).not.toHaveProperty('estimatedHours');
   });
   it('allows reviewing project metadata without silently applying it', () => {
     const draft = parseProjectImportDraft(JSON.stringify(fixture()), source); draft.offices[0].confirmed = true;

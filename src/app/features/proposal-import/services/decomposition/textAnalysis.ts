@@ -244,7 +244,6 @@ const partRegex =
             100,
           ),
           description: normalizedLine,
-          estimatedDuration: "TBD",
           requiredSkills: inferSkillsFromText(normalizedLine),
           priority: "medium" as const,
           subtasks: extractExplicitSubtasks(undefined, normalizedLine).length > 0
@@ -257,7 +256,6 @@ const partRegex =
       tasks.push({
         title: `Execute ${title}`,
         description: `Complete the activities for ${title}`,
-        estimatedDuration: "TBD",
         requiredSkills: [],
         priority: "medium",
       });

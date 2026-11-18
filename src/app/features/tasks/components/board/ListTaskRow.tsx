@@ -19,14 +19,13 @@ interface ListTaskRowProps {
   onOpenTaskEditor?: (task: Task) => void;
   onDeleteTaskRequest?: (task: Task) => void;
   onArchiveTaskRequest?: (task: Task) => void;
-  onCancelTaskRequest?: (task: Task) => void;
   onSubmitRequest?: (task: Task) => void;
   onUndoRequest?: (task: Task) => void;
   onOpenReview?: MondayBoardProps['onOpenReview'];
   onExecute?: MondayBoardProps['onExecute'];
 }
 
-export function ListTaskRow({ task, role, employeeById, currentUserId, onEditTeam, onOpenTaskEditor, onDeleteTaskRequest, onArchiveTaskRequest, onCancelTaskRequest, onSubmitRequest, onUndoRequest, onOpenReview, onExecute }: ListTaskRowProps) {
+export function ListTaskRow({ task, role, employeeById, currentUserId, onEditTeam, onOpenTaskEditor, onDeleteTaskRequest, onArchiveTaskRequest, onSubmitRequest, onUndoRequest, onOpenReview, onExecute }: ListTaskRowProps) {
   const dlInfo = getDeadlineInfo(task);
                   const pm =
                     priorityMeta[task.priority || "medium"] ||
@@ -214,7 +213,6 @@ export function ListTaskRow({ task, role, employeeById, currentUserId, onEditTea
                             onEdit={role === "head" ? onOpenTaskEditor : undefined}
                             onEditTeam={role === "head" ? onEditTeam : undefined}
                             onArchive={role === "head" ? onArchiveTaskRequest : undefined}
-                            onCancel={role === "head" ? onCancelTaskRequest : undefined}
                             onDelete={role === "head" ? onDeleteTaskRequest : undefined}
                             onReopen={role === "head" ? onUndoRequest : undefined}
                             menuPlacement={

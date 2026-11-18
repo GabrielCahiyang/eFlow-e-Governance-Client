@@ -31,8 +31,12 @@ describe('WorkNodeTimelineCell started-edit policy',()=>{
   const start=screen.getByLabelText('Start date') as HTMLInputElement;
   const due=screen.getByLabelText('Due date') as HTMLInputElement;
   expect(start.disabled).toBe(true);expect(due.disabled).toBe(false);
+  expect(screen.queryByLabelText('Due-date change reason')).toBeNull();
   fireEvent.change(due,{target:{value:'2026-11-22'}});
   expect(screen.getByLabelText('Due-date change reason')).toBeTruthy();
+  fireEvent.change(due,{target:{value:item.due_date}});
+  expect(screen.queryByLabelText('Due-date change reason')).toBeNull();
+  fireEvent.change(due,{target:{value:'2026-11-22'}});
   expect(screen.getByRole('button',{name:'Save dates'}).hasAttribute('disabled')).toBe(true);
   fireEvent.change(screen.getByLabelText('Due-date change reason'),{target:{value:'Approved schedule extension'}});
   expect(screen.getByRole('button',{name:'Save dates'}).hasAttribute('disabled')).toBe(false);

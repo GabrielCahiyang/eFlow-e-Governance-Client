@@ -1,6 +1,7 @@
 import { supabase } from "../../../../lib/supabase";
 import {integerError} from '../../../shared/numericValidation';
 import {attachmentError} from '../../../shared/fileValidation';
+import {MutationRejectedError} from '../../../shared/MutationRejectedError';
 import { rowToSubtask, type Subtask } from "../../../services/subtaskService";
 import type {
   SubtaskReviewItem,
@@ -22,15 +23,22 @@ export async function startScheduledSubtask(taskId: string, subtaskId: string): 
 /** Status updates preserve historical percentages and reuse the checked writer. */
 export async function saveSubtaskWorkUpdate(input:{subtaskId:string;state:'in_progress'|'stuck';blocker?:string;note?:string;nextStep?:string;attachment?:File|null}):Promise<void>{
  const issue=attachmentError(input.attachment?[input.attachment]:[],{maxCount:1});
- if(issue)throw new Error(issue);
- if((input.note?.length||0)>3000||(input.blocker?.length||0)>3000||(input.nextStep?.length||0)>300)throw new Error('Work update exceeds its text limit.');
- if(input.state==='stuck'&&!input.blocker?.trim())throw new Error('Tell your lead what is blocking you.');
+ if(issue)throw new MutationRejectedError(issue,'22023');
+ if((input.note?.length||0)>3000||(input.blocker?.length||0)>3000||(input.nextStep?.length||0)>300)throw new MutationRejectedError('Work update exceeds its text limit.','22023');
+ if(input.state==='stuck'&&!input.blocker?.trim())throw new MutationRejectedError('Tell your lead what is blocking you.','22023');
  let uploaded:SubtaskSubmissionAttachment|undefined;
  try{
   if(input.attachment)uploaded=await uploadSubtaskWorkFile(input.subtaskId,'progress',input.attachment);
   const {error}=await supabase.rpc('save_subtask_work_update',{p_subtask_id:input.subtaskId,p_state:input.state,p_blocker:input.blocker?.trim()||null,p_note:input.note?.trim()||null,p_next_step:input.nextStep?.trim()||null,p_attachment_path:uploaded?.filePath||null,p_attachment_name:uploaded?.fileName||null});
-  if(error)throw new Error(error.message);
- }catch(reason){if(uploaded)await supabase.storage.from('task-attachments').remove([uploaded.filePath]);throw reason;}
+  if(error){
+   if(/^(22|23)/.test(error.code||'')||['42501','40001','P0001','40P01','55P03','PGRST202'].includes(error.code||''))throw new MutationRejectedError(error.message,error.code);
+   throw new Error(error.message);
+  }
+ }catch(reason){
+  // An uncertain response may already have attached this file to a committed update.
+  if(uploaded&&reason instanceof MutationRejectedError)await supabase.storage.from('task-attachments').remove([uploaded.filePath]);
+  throw reason;
+ }
 }
 
 export async function uploadSubtaskWorkFile(

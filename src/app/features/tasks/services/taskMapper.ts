@@ -75,7 +75,6 @@ export function rowToTask(row: Record<string, unknown>): Task {
     hierarchyPath: readString(row.hierarchy_path),
     importBatchId: readString(row.import_batch_id),
     barangay: readString(row.barangay),
-    estimatedHours: (row.estimated_hours as number) || undefined,
     budgetImpact: (row.budget_impact as number) || undefined,
     subtaskCount: (row.subtask_count as number) || 0,
     subtaskCompletedCount: (row.subtask_completed_count as number) || 0,
@@ -141,7 +140,6 @@ export function taskToRow(task: Partial<Task>): Record<string, unknown> {
   if (task.importBatchId !== undefined) row.import_batch_id = task.importBatchId;
   if (task.auditHash !== undefined) row.audit_hash = task.auditHash;
   if (task.barangay !== undefined) row.barangay = task.barangay;
-  if (task.estimatedHours !== undefined) row.estimated_hours = task.estimatedHours;
   if (task.budgetImpact !== undefined) row.budget_impact = task.budgetImpact;
   if (task.linkedProjectId !== undefined) row.linked_project_id = task.linkedProjectId || null;
   if (task.milestoneId !== undefined) row.milestone_id = task.milestoneId || null;

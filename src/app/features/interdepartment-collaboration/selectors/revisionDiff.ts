@@ -52,7 +52,7 @@ function responsibilitySignature(tasks: CollaborationSnapshotTask[]) {
 }
 
 function scheduleSignature(tasks: CollaborationSnapshotTask[]) {
-  return tasks.map((task) => ({ key: task.key, deadline: task.deadline || "", estimatedHours: Number(task.estimatedHours || 0) })).sort((a, b) => a.key.localeCompare(b.key));
+  return tasks.map((task) => ({ key: task.key, deadline: task.deadline || "" })).sort((a, b) => a.key.localeCompare(b.key));
 }
 
 function budgetSignature(snapshot: CollaborationDraftSnapshot) {

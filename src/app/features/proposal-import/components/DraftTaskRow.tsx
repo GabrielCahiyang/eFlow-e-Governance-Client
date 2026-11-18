@@ -4,7 +4,6 @@ import {
   TaskDepartmentLabel,
   deadlineInputParts,
   deadlineFromInputs,
-  taskEstimateError,
 } from "../../tasks";
 import { useEffect, useState } from "react";
 import {
@@ -47,7 +46,6 @@ export function DraftTaskRow({
   const [editing, setEditing] = useState(false);
   const [budgetOpen, setBudgetOpen] = useState(false);
   const deadlineParts = deadlineInputParts(dt.deadline);
-  const durationError = taskEstimateError(dt.estimatedHours);
   const assignedEmps = dt.assignedMemberIds
     .map((id) => employees.find((e) => e.id === id))
     .filter((emp): emp is Employee => Boolean(emp));
@@ -66,9 +64,9 @@ export function DraftTaskRow({
     validationMessages[`${dt.key}-budget-lines`];
 
   useEffect(() => {
-    if (titleError || descriptionError || deadlineError || durationError)
+    if (titleError || descriptionError || deadlineError)
       setEditing(true);
-  }, [deadlineError, descriptionError, titleError, durationError]);
+  }, [deadlineError, descriptionError, titleError]);
 
   return (
     <div
@@ -198,36 +196,6 @@ export function DraftTaskRow({
                   </p>
                 )}
               </div>
-              <label className="text-[11px] text-neutral-600">
-                Estimated task days
-                <input
-                  aria-label="Estimated task days"
-                  type="number"
-                  min="0.125"
-                  step="0.125"
-                  value={
-                    dt.estimatedHours !== undefined ? dt.estimatedHours / 8 : ""
-                  }
-                  onChange={(event) =>
-                    onUpdate(dt.key, {
-                      estimatedHours:
-                        event.target.value === ""
-                          ? undefined
-                          : Number(event.target.value) * 8,
-                    })
-                  }
-                  placeholder="e.g. 2"
-                  className="ml-2 w-20 rounded-lg border px-2 py-1"
-                />
-                <span className="ml-2 text-neutral-400">
-                  1 day = 8 work hours
-                </span>
-                {durationError && (
-                  <span role="alert" className="block text-red-700">
-                    {durationError}
-                  </span>
-                )}
-              </label>
               <select
                 aria-label="Task priority"
                 value={dt.priority}
@@ -281,11 +249,6 @@ export function DraftTaskRow({
               </div>
             )}
             <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
-              <span className="text-[10px] text-neutral-500">
-                {dt.estimatedHours
-                  ? String(dt.estimatedHours / 8) + " working day(s)"
-                  : "Estimate needed"}
-              </span>
               {dt.deadline && (
                 <span className="inline-flex items-center gap-1 text-[10px] text-neutral-500 bg-neutral-100 rounded-full px-2 py-0.5">
                   <Clock size={9} />

@@ -72,7 +72,6 @@ Respond with JSON only, no preamble, no markdown fences:
 {
   "tasks": [{
     "title": "...", "description": "...",
-    "estimatedDuration": "2 days",
     "requiredSkills": ["skill1", "skill2"],
     "priority": "high",
     "recommendedEmployeeIds": ["lead-exact-id", "support-exact-id-if-needed", "additional-exact-id-if-needed"],

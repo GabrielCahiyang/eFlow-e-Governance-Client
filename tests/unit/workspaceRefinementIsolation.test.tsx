@@ -118,7 +118,7 @@ describe('R3 scoped navigation, drafts and personal review',()=>{
  it('keeps user/workspace/project table layouts independent while seeding legacy preferences',()=>{
   localStorage.setItem('eflow_project_columns_project',JSON.stringify(['effort']));
   const wrapper=({children,workspace='office',user='owner'}:{children:React.ReactNode;workspace?:string;user?:string})=><WorkspaceScopeContext.Provider value={{workspace:{...office,id:workspace},userId:user,officeProjectIds:['project']}}>{children}</WorkspaceScopeContext.Provider>;
-  const first=renderHook(()=>useTableLayout('project'),{wrapper});expect(first.result.current.hidden).toContain('effort');
+  const first=renderHook(()=>useTableLayout('project'),{wrapper});expect(first.result.current.hidden).not.toContain('effort');
   act(()=>first.result.current.hideColumn('priority'));first.unmount();
   const second=renderHook(()=>useTableLayout('project'),{wrapper:({children})=>wrapper({children,workspace:'other'})});expect(second.result.current.hidden).not.toContain('priority');second.unmount();
   const third=renderHook(()=>useTableLayout('project'),{wrapper:({children})=>wrapper({children,user:'other'})});expect(third.result.current.hidden).not.toContain('priority');third.unmount();

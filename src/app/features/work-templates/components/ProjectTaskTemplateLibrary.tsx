@@ -1,7 +1,7 @@
 import { readableUiError } from '../../../shared/userFacingError';
 import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import { Button } from '@vibe/core';
-import { Copy, Edit3, FolderPlus, Layers, Plus, Trash2 } from 'lucide-react';
+import { Copy, Edit3, Layers, Plus, Trash2 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { EmptyState } from '../../../components/ui/EmptyState';
 import { FeedbackState } from '../../../components/ui/FeedbackState';

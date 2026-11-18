@@ -52,7 +52,6 @@ export const createTask = async (
       assigneeId: p.assigneeId || '',
       assigneeName: p.assigneeName || '',
       barangay: p.barangay || '',
-      estimatedHours: p.estimatedHours || 0,
       budgetImpact: p.budgetImpact || 0,
       proposalId: p.proposalId || '',
       proposalTitle: p.proposalTitle || '',

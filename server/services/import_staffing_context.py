@@ -16,7 +16,7 @@ def build_import_staffing_context(project_id, draft, user):
     profiles = {p['user_id']: p for p in professional or []}
     work = []
     for offset in range(0, 10000, 500):
-        batch = supabase_admin.table('tasks').select('id,assigned_to,recommendation_lead_id,team_member_ids,status,estimated_hours,percent_complete').eq('org_id', user.org_id).is_('deleted_at', 'null').is_('archived_at', 'null').in_('status', list(ACTIVE)).range(offset, offset + 499).execute().data or []
+        batch = supabase_admin.table('tasks').select('id,assigned_to,recommendation_lead_id,team_member_ids,status,percent_complete').eq('org_id', user.org_id).is_('deleted_at', 'null').is_('archived_at', 'null').in_('status', list(ACTIVE)).range(offset, offset + 499).execute().data or []
         work.extend(batch)
         if len(batch) < 500:
             break
@@ -29,13 +29,12 @@ def build_import_staffing_context(project_id, draft, user):
     for person in people:
         workload = workload_for(person['id'], work)
         for item in planned:
-            if not isinstance(item, dict) or not isinstance(item.get('hours', 0), (int, float)) or not 0 <= item.get('hours', 0) <= 10000:
+            if not isinstance(item, dict):
                 raise HTTPException(422, 'Invalid planned workload.')
             if item.get('lead') == person['id']:
                 workload['activeTasks'] += 1
-                workload['remainingHours'] += item.get('hours', 0)
         profile = profiles.get(person['id'], {})
         candidates.append({'id': person['id'], 'name': person['full_name'], **compact_profile(profile), **workload,
                            **({} if profile else {'experience_summary': 'Professional details unconfirmed. Match using known workload; do not invent skills.'})})
-    return {'task': {'id': project_id, 'title': draft['title'], 'description': draft.get('description', '')[:3000], 'skills': [], 'estimatedHours': draft.get('estimatedHours', 0)},
+    return {'task': {'id': project_id, 'title': draft['title'], 'description': draft.get('description', '')[:3000], 'skills': []},
             'candidates': candidates, 'excludedUnconfirmed': 0}

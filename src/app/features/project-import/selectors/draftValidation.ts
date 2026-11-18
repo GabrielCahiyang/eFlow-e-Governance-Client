@@ -35,11 +35,10 @@ export function parseProjectImportDraft(raw: string, source: string): ProjectImp
       return { key: string(g.key, 80), title: string(g.title, 120), color: /^#[\da-f]{6}$/i.test(color) ? color : '#579bfc', existingGroupId: string(g.existingGroupId, 80),
         tasks: array(g.tasks, 100).map(value => {
           const t = object(value);
-          if (typeof t.estimatedHours !== 'number' || !Number.isFinite(t.estimatedHours)) throw new Error('Invalid suggested estimated hours.');
           if (!['low', 'medium', 'high'].includes(String(t.priority))) throw new Error('Invalid suggested priority.');
           const quote = string(t.sourceQuote, 2000);
           return { key: string(t.key, 80), title: string(t.title, 300), description: string(t.description), priority: t.priority as 'low' | 'medium' | 'high',
-            estimatedHours: t.estimatedHours, startDate: string(t.startDate, 10), dueDate: string(t.dueDate, 10), officeKey: string(t.officeKey, 80),
+            startDate: string(t.startDate, 10), dueDate: string(t.dueDate, 10), officeKey: string(t.officeKey, 80),
             dependencies: array(t.dependencies, 100).map(v => string(v, 80)), sourceQuote: quote && compact(source).includes(compact(quote)) ? quote : '', included: true,
             advisory: t.advisory ? object(t.advisory) : undefined,
             subitems: array(t.subitems, 30).map(value => { const s = object(value); if(Object.keys(s).some(key=>["parentSubtaskId","parent_subtask_id","children","subitems"].includes(key)))throw new Error("Nested imports require a hierarchy format; parent links cannot be flattened."); return { title: string(s.title, 300), dueDate: string(s.dueDate, 10) }; }),
@@ -75,7 +74,6 @@ export function validateProjectImportDraft(draft: ProjectImportDraft, confirmati
     for (const t of group.tasks.filter(t => t.included)) {
       const taskIssue=duplicateWorkNameError(t.title,group.tasks.filter(candidate=>candidate!==t&&candidate.included),'Task');if(taskIssue)throw new Error(taskIssue);
       if (!t.title.trim() || t.title.length > 300 || t.description.length > 10000) throw new Error('Enter task names and descriptions within their limits.');
-      if (!Number.isFinite(t.estimatedHours) || t.estimatedHours < 0 || t.estimatedHours > 10000) throw new Error('Estimated hours must be between 0 and 10000.');
       date(t.startDate); date(t.dueDate);
       if (confirmation) { const issue = scheduleRangeError(t.startDate, t.dueDate); if (issue) throw new Error(issue); }
       if (t.startDate && t.dueDate && t.startDate > t.dueDate) throw new Error(`Start date follows due date: ${t.title}`);
@@ -106,7 +104,12 @@ export function validateProjectImportDraft(draft: ProjectImportDraft, confirmati
 export function reviewedImportPayload(draft: ProjectImportDraft, sourceName: string, applyProjectDetails: boolean) {
   validateProjectImportDraft(draft, true, applyProjectDetails);
   return { schemaVersion: 1, project: draft.project, applyProjectDetails, sourceName, offices: draft.offices, pipeline: draft.pipeline,
-    groups: draft.groups.map(g => ({ ...g, tasks: g.tasks.filter(t => t.included).map(({ included: _included, budgetDecision:_decision,budgetLines:_lines, ...task }) => task) })).filter(g => g.tasks.length),
+    groups: draft.groups.map(g => ({ ...g, tasks: g.tasks.filter(t => t.included).map(task => ({
+      key:task.key,title:task.title,description:task.description,priority:task.priority,
+      startDate:task.startDate,dueDate:task.dueDate,officeKey:task.officeKey,
+      dependencies:task.dependencies,subitems:task.subitems.map(item=>({title:item.title,dueDate:item.dueDate})),
+      sourceQuote:task.sourceQuote,...(task.advisory?{advisory:task.advisory}:{}),
+    })) })).filter(g => g.tasks.length),
     ...(draft.sourceBudgetTotal!==undefined ? {sourceBudgetTotal:draft.sourceBudgetTotal,taskBudgets:draft.groups.flatMap(g=>g.tasks.filter(t=>t.included).map(task=>({key:task.key,decision:task.budgetDecision||'missing',lines:task.budgetLines||[]})))} : {}),
   };
 }

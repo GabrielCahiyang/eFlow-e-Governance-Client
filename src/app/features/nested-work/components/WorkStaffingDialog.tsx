@@ -6,7 +6,7 @@ import {useWorkImpactConfirmation} from '../hooks/useWorkImpactConfirmation';
 import {useExplicitDraft} from '../../../shared/useExplicitDraft';
 import {WorkPeoplePicker} from './WorkPeoplePicker';
 import {captureStaffingBaseline,clearedStaffingAppointments,createStaffingRequest,scopedInvitationRequestAllowed,staffingCapabilities,staffingDraftError,staffingNodePath} from '../selectors/staffing';
-import {compatibilityWorkWorkerIds,displayedWorkContributorIds,resolveWorkPersonName} from '../selectors/people';
+import {compatibilityWorkWorkerIds,displayedWorkContributorIds,resolveWorkPersonName,workAssignmentPriority} from '../selectors/people';
 import type {WorkCapabilityContext,WorkRequest,WorkTreeSnapshot,WorkTreeController} from '../types';
 import '../nestedWork.css';
 import {captureWorkEditorBaseline} from '../selectors/editorDraft';
@@ -143,6 +143,7 @@ function WorkStaffingDialogContent({controller,nodeId,readOnly=false,executionBl
   <form className="nw-staffing-form" aria-label="Task/subtask people changes" onSubmit={event=>{event.preventDefault();void submit();}}>
    {!nodeId&&data.root.kind==='office'&&data.can_transfer&&caps.appointment.allowed&&!baseline.leadId&&!contributorsOnly&&!readOnly&&<AutoAssignTaskButton snapshot={data} disabled={locked||dirty||executionBlocked} onBusyChange={value=>{guard.pendingRef.current=value;setAiBusy(value);setBusy(value);}} onAssigned={async receipt=>{confirmed.current=true;recovery.clear();setSaved(true);guard.markClean();await latest.current.onChanged(receipt);}}/>}
    <WorkPeoplePicker people={data.people} lead={lead||''} selected={workers} onLead={setLead} onSelected={setWorkers}
+    priority={nodeId?workAssignmentPriority(data,data.nodes.find(node=>node.id===nodeId)?.parent_subtask_id||null):undefined}
     appointmentCapability={contributorsOnly?{allowed:false,reason_code:'read_only',disabledReason:'Change the lead from the Lead menu.'}:caps.appointment} contributorCapability={caps.contributors} disabled={locked} disabledReason={lockReason}
     invite={!readOnly&&!locked?{project:data.root.project,office:data.root.office,root:controller.rootId,node:nodeId||undefined,canRequest:scopedInvitationRequestAllowed(data,nodeId,context)}:undefined}/>
    {selfLeadReviewerRisk&&<div role="status" className="nw-staffing-banner nw-staffing-banner--warn">Heads up: assigning yourself as both Office Head and Task Lead means you cannot review your own task submission. Unless an independent Project Lead is assigned on the project, final review submission will be blocked.</div>}

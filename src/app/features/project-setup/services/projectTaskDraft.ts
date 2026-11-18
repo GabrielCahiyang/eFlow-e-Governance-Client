@@ -66,7 +66,7 @@ export function projectSetupTaskPayload(
       key: `group-${groupIndex}`, title: group.title, color: '#087972', existingGroupId: '',
       tasks: group.tasks.map((task, taskIndex) => ({
         key: `task-${groupIndex}-${taskIndex}`, title: task.title, included: true,
-        description: '', priority: 'medium', estimatedHours: 0, startDate, dueDate,
+        description: '', priority: 'medium', startDate, dueDate,
         officeKey: '', dependencies: [], sourceQuote: '',
         subitems: task.subtasks.map(title => ({ title, dueDate })),
       })),

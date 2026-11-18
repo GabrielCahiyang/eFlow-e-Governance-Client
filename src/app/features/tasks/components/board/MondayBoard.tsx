@@ -347,7 +347,6 @@ export function MondayBoard({
     handleUndoConfirm,
     handleTaskEditorSave,
     handleTaskDeleteRequest,
-    handleTaskCancelRequest,
     handleTaskArchiveRequest,
     handleTaskEditorDelete,
   } = controller;
@@ -826,9 +825,6 @@ export function MondayBoard({
                     onArchiveTaskRequest={
                       role === "head" ? handleTaskArchiveRequest : undefined
                     }
-                    onCancelTaskRequest={
-                      role === "head" ? handleTaskCancelRequest : undefined
-                    }
                     departmentFilter={departmentFilter}
                     currentUserId={currentUserId}
                     currentUserName={currentUserName}
@@ -851,9 +847,6 @@ export function MondayBoard({
                     }
                     onArchiveTaskRequest={
                       role === "head" ? handleTaskArchiveRequest : undefined
-                    }
-                    onCancelTaskRequest={
-                      role === "head" ? handleTaskCancelRequest : undefined
                     }
                     currentUserId={currentUserId}
                     currentUserName={currentUserName}
@@ -893,9 +886,6 @@ export function MondayBoard({
                     }
                     onArchiveTaskRequest={
                       role === "head" ? handleTaskArchiveRequest : undefined
-                    }
-                    onCancelTaskRequest={
-                      role === "head" ? handleTaskCancelRequest : undefined
                     }
                     currentUserId={currentUserId}
                     onUndoRequest={role === "head" ? openUndoModal : undefined}
@@ -947,9 +937,6 @@ export function MondayBoard({
                     onArchiveTaskRequest={
                       role === "head" ? handleTaskArchiveRequest : undefined
                     }
-                    onCancelTaskRequest={
-                      role === "head" ? handleTaskCancelRequest : undefined
-                    }
                     departmentFilter={departmentFilter}
                     currentUserId={currentUserId}
                     currentUserName={currentUserName}
@@ -984,7 +971,6 @@ export function MondayBoard({
         onClose={closeTaskEditor}
         onSave={handleTaskEditorSave}
         onDelete={handleTaskEditorDelete}
-        onCancelTask={() => editingTask && handleTaskCancelRequest(editingTask)}
         onOpenTeamEditor={() => setTaskEditorAssignOpen(true)}
         saving={taskEditorSaving}
         error={

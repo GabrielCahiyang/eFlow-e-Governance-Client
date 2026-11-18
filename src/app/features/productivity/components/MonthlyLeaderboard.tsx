@@ -82,9 +82,9 @@ export function MonthlyLeaderboard({ employees, tasks, facts, currentUserId, all
         </div>
         <div className="mt-4 grid grid-cols-2 gap-2 lg:grid-cols-4">
           {[
-            ["Delivery", "Priority + estimated effort", <Award size={13} />],
+            ["Delivery", "Approved tasks + priority", <Award size={13} />],
             ["Quality", "On-time + first pass", <ShieldCheck size={13} />],
-            ["Speed", "Effort-normalized and capped", <Timer size={13} />],
+            ["Speed", "No speed points for new results", <Timer size={13} />],
             ["Collaboration", "Completed subitems · max 30", <Gauge size={13} />],
           ].map(([label, detail, icon]) => <div key={label as string} className="rounded-lg border border-border bg-muted/50 px-3 py-2"><div className="flex items-center gap-1.5 text-[12px] font-medium text-foreground">{icon}{label}</div><div className="mt-0.5 text-[11px] text-muted-foreground">{detail}</div></div>)}
         </div>

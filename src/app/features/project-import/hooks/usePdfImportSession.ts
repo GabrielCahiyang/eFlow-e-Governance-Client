@@ -95,8 +95,8 @@ export function usePdfImportSession(
     const external=office&&!office.officeId;
     if(state.autoAssign&&!external){
      await event('staffing',`Choosing people for task ${index+1} of ${tasks.length} · ${task.title}`);
-     const chosen=await prepareImportAssignment(projectId,task,state.assignments.map(item=>({lead:item.lead,hours:item.hours})),`${current.current.id}:staff:${index}:${current.current.revision}`,queue);
-     await event('staffing',chosen?`People selected for ${task.title}`:`${task.title} needs people`,{staffingIndex:index+1,assignments:chosen?[...state.assignments,{key:task.key,...chosen,hours:task.estimatedHours}]:state.assignments});
+     const chosen=await prepareImportAssignment(projectId,task,state.assignments.map(item=>({lead:item.lead})),`${current.current.id}:staff:${index}:${current.current.revision}`,queue);
+     await event('staffing',chosen?`People selected for ${task.title}`:`${task.title} needs people`,{staffingIndex:index+1,assignments:chosen?[...state.assignments,{key:task.key,...chosen}]:state.assignments});
     }else await event('staffing',external?`${task.title} · waiting for office invitations`:`${task.title} · assign people later`,{staffingIndex:index+1});
    }
    if(!current.current.state.review)await event('ready','Checking the final schedule, budgets and assignments',{review:reviewedImportPayload(current.current.state.draft!,current.current.state.sourceName,false)});

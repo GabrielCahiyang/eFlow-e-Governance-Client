@@ -8,9 +8,7 @@ ACTIVE = {'pending_assignment', 'todo', 'in_progress', 'for_review', 'changes_re
 def workload_for(user_id, tasks):
     owned = [t for t in tasks if t.get('status') in ACTIVE and
              user_id in {t.get('assigned_to'), t.get('recommendation_lead_id'), *(t.get('team_member_ids') or [])}]
-    known = [t for t in owned if t.get('estimated_hours') is not None and float(t.get('estimated_hours') or 0) > 0]
-    remaining = sum(float(t['estimated_hours']) * (1 - max(0, min(100, t.get('percent_complete') or 0)) / 100) for t in known)
-    return {'activeTasks': len(owned), 'remainingHours': round(remaining, 1), 'unknownEffortTasks': len(owned) - len(known)}
+    return {'activeTasks': len(owned)}
 
 def compact_profile(profile):
     def items(key, cap):
@@ -22,7 +20,7 @@ def compact_profile(profile):
 
 def build_staffing_context(task_id, user, auto_assign=False):
     require_head(user)
-    rows = supabase_admin.table('tasks').select('id,title,description,tags,org_id,linked_project_id,status,assigned_to,deleted_at,archived_at,estimated_hours,proposed_office_identity_id').eq('id', task_id).limit(1).execute().data or []
+    rows = supabase_admin.table('tasks').select('id,title,description,tags,org_id,linked_project_id,status,assigned_to,deleted_at,archived_at,proposed_office_identity_id').eq('id', task_id).limit(1).execute().data or []
     if not rows:
         raise HTTPException(404, 'Task not found.')
     task = rows[0]
@@ -55,7 +53,7 @@ def build_staffing_context(task_id, user, auto_assign=False):
     # Page through active Office work instead of silently truncating workload.
     work = []; offset = 0
     while True:
-        batch = supabase_admin.table('tasks').select('id,assigned_to,recommendation_lead_id,team_member_ids,status,estimated_hours,percent_complete').eq('org_id', user.org_id).is_('deleted_at', 'null').is_('archived_at', 'null').in_('status', list(ACTIVE)).range(offset, offset + 499).execute().data or []
+        batch = supabase_admin.table('tasks').select('id,assigned_to,recommendation_lead_id,team_member_ids,status,percent_complete').eq('org_id', user.org_id).is_('deleted_at', 'null').is_('archived_at', 'null').in_('status', list(ACTIVE)).range(offset, offset + 499).execute().data or []
         work.extend(batch)
         if len(batch) < 500: break
         offset += 500
@@ -70,8 +68,8 @@ def build_staffing_context(task_id, user, auto_assign=False):
             if p['id'] not in confirmed:
                 load = workload_for(p['id'], work)
                 candidates.append({'id': p['id'], 'name': p['full_name'], **compact_profile({}), **load,
-                    'experience_summary': f"Professional details not confirmed. Current active tasks: {load['activeTasks']}; known remaining hours: {load['remainingHours']}; tasks with unknown effort: {load['unknownEffortTasks']}."})
+                    'experience_summary': f"Professional details not confirmed. Current active tasks: {load['activeTasks']}."})
     if len(candidates) > 200:
         raise HTTPException(409, 'The available Office directory exceeds this request’s 200-person processing limit.')
-    return {'task': {'id': task['id'], 'title': task['title'], 'description': (task.get('description') or '')[:3000], 'skills': task.get('tags') or [], 'estimatedHours': task.get('estimated_hours')},
+    return {'task': {'id': task['id'], 'title': task['title'], 'description': (task.get('description') or '')[:3000], 'skills': task.get('tags') or []},
             'candidates': candidates, 'excludedUnconfirmed': len(profiles) - len(candidates)}

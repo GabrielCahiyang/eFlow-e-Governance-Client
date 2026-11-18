@@ -26,7 +26,6 @@ export function ListBoardView({
   onOpenTaskEditor,
   onDeleteTaskRequest,
   onArchiveTaskRequest,
-  onCancelTaskRequest,
   departmentFilter,
   currentUserId,
   currentUserName,
@@ -44,7 +43,6 @@ export function ListBoardView({
   onOpenTaskEditor?: (task: Task) => void;
   onDeleteTaskRequest?: (task: Task) => void;
   onArchiveTaskRequest?: (task: Task) => void;
-  onCancelTaskRequest?: (task: Task) => void;
   departmentFilter?: string;
   currentUserId?: string;
   currentUserName?: string;
@@ -156,7 +154,6 @@ export function ListBoardView({
                     onOpenTaskEditor={onOpenTaskEditor}
                     onDeleteTaskRequest={onDeleteTaskRequest}
                     onArchiveTaskRequest={onArchiveTaskRequest}
-                    onCancelTaskRequest={onCancelTaskRequest}
                     onSubmitRequest={onSubmitRequest}
                     onUndoRequest={onUndoRequest}
                     onOpenReview={onOpenReview}

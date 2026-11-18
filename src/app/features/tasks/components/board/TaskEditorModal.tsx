@@ -1,5 +1,4 @@
 import { readableUiError } from '../../../../shared/userFacingError';
-import { TaskDepartmentLabel } from "../TaskDepartmentLabel";
 import { Trash2, Users, X } from "lucide-react";
 import { Button } from "../../../../components/ui/button";
 import type { Employee } from "../../../../services/employeeService";
@@ -9,7 +8,7 @@ import {supportsNestedWork} from '../../../nested-work';
 import { TaskBoardDialog } from "./TaskBoardDialog";
 import { TaskChatSection } from "./TaskChatSection";
 import { TaskChatLink } from '../../../chat-calls';
-import type { TaskEditorDraft } from "./model";
+import { buildTaskEditorDraft, type TaskEditorDraft } from "./model";
 import { useEffect, useState } from "react";
 import { fetchTaskDetailEditState, type TaskDetailEditState } from "../../services/taskDetailEditService";
 
@@ -23,7 +22,6 @@ export function TaskEditorModal({
   onClose,
   onSave,
   onDelete,
-  onCancelTask,
   onOpenTeamEditor,
   saving,
   error,
@@ -40,7 +38,6 @@ export function TaskEditorModal({
   onClose: () => void;
   onSave: (legacy?:LegacyEditorStaffingScope, reason?: string) => void;
   onDelete: () => void;
-  onCancelTask: () => void;
   onOpenTeamEditor: () => void;
   saving: boolean;
   error: string;
@@ -96,17 +93,6 @@ export function TaskEditorModal({
               <Trash2 />
               Delete task
             </Button>
-            {task.status !== "completed" && task.status !== "cancelled" && (
-              <Button
-                className="border-[#b65b08] text-[#b65b08] hover:bg-[#fff1d8]"
-                onClick={onCancelTask}
-                size="sm"
-                variant="outline"
-              >
-                <X />
-                Cancel task
-              </Button>
-            )}
           </div>
           <div className="flex items-center justify-end gap-2">
             <Button onClick={onClose} variant="outline">
@@ -120,7 +106,7 @@ export function TaskEditorModal({
       <div className="space-y-4">
         {editStateLoading && <p role="status" className="rounded-lg bg-neutral-50 px-3 py-2 text-xs text-neutral-600">Checking current task editing access…</p>}
         {editStateError && <p role="alert" className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">{editStateError} Editing is unavailable until access can be verified.</p>}
-        {editState?.started && <p role="status" className="rounded-lg border border-sky-200 bg-sky-50 px-3 py-2 text-xs text-sky-900">Work has started. Title and priority corrections remain available to authorized editors. Planning fields are locked; due-date changes require supervising authority and a reason.</p>}
+        {editState?.started && <p role="status" className="rounded-lg border border-sky-200 bg-sky-50 px-3 py-2 text-xs text-sky-900">Work is already in progress. Start date and prerequisites cannot be changed. Authorized editors can correct the title and priority; due-date changes require supervising authority and a reason.</p>}
         {editState&&!editState.details&&<p role="status" className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">Task details are read-only for your current authority or workflow state.</p>}
         {error && <div role="alert" className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-[12px] text-red-700">{error}</div>}
         <div className="grid gap-3 md:grid-cols-2">
@@ -160,38 +146,7 @@ export function TaskEditorModal({
               placeholder="e.g. 2026-07-15 or Month 1"
               className="mt-1 h-[40px] w-full rounded-xl border border-neutral-200 bg-white px-3 text-[13px] text-neutral-900 outline-none focus:border-neutral-400"
             />
-            {editState?.started && dueWritable && <label className="mt-2 block text-xs text-neutral-600">Reason for due-date change<input aria-label="Due-date change reason" value={changeReason} onChange={(event) => setChangeReason(event.target.value)} maxLength={1000} className="mt-1 h-9 w-full rounded-lg border px-3" placeholder="Required when changing the due date" /></label>}
-          </div>
-          <div>
-            <TaskDepartmentLabel task={task} />
-            <label className="block text-xs text-neutral-600">
-              Estimated task days
-              <input
-                aria-label="Estimated task days"
-                disabled={!planningWritable}
-                type="number"
-                min="0.125"
-                step="0.125"
-                value={
-                  draft.estimatedHours !== undefined
-                    ? draft.estimatedHours / 8
-                    : ""
-                }
-                onChange={(event) =>
-                  onChange({
-                    estimatedHours:
-                      event.target.value === ""
-                        ? undefined
-                        : Number(event.target.value) * 8,
-                  })
-                }
-                className="mt-1 w-full rounded-lg border px-3 py-2"
-              />
-            </label>
-            <p className="mt-1 text-xs text-neutral-500">
-              One working day is eight hours. This estimate and the deadline
-              determine workload.
-            </p>
+            {editState?.started && dueWritable && draft.deadline !== buildTaskEditorDraft(task).deadline && <label className="mt-2 block text-xs text-neutral-600">Reason for due-date change<input aria-label="Due-date change reason" value={changeReason} onChange={(event) => setChangeReason(event.target.value)} maxLength={1000} required className="mt-1 h-9 w-full rounded-lg border px-3" placeholder="Required when changing the due date" /></label>}
           </div>
           <div>
             <label className="text-[10px] uppercase tracking-[0.12em] text-neutral-400">

@@ -34,13 +34,9 @@ function makeMember(
     workloadSignal: signal,
     workload: {
       level,
-      label: level === "unknown" ? "Estimate needed" : "Light",
+      label: level === "unknown" ? "Active work" : "Light",
       pressurePercent: signal,
       signal,
-      remainingHours: level === "unknown" ? 0 : activeTasks * 8,
-      capacityHours: 40,
-      dueHours: level === "unknown" ? 0 : activeTasks * 8,
-      missingEstimates: level === "unknown" ? 1 : 0,
       missingDeadlines: 0,
       overdue: 0,
       explanation: "",
@@ -78,7 +74,7 @@ describe("TeamHealthOverview workload concentration", () => {
     expect(screen.getByText("Concentrated")).toBeTruthy();
     expect(screen.queryByText(/Workload is balanced across the team/i)).toBeNull();
     expect(screen.getByText(/Workload is concentrated on 2 of 7 members/i)).toBeTruthy();
-    expect(screen.getAllByText(/1 task · Est\. needed/).length).toBe(2);
+    expect(screen.getAllByText(/^1 task$/).length).toBe(2);
 
     expect(screen.queryByText("Juan Dela Cruz")).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Show all 7 members" }));

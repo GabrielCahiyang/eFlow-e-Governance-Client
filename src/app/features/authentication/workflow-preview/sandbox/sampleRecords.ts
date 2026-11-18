@@ -42,7 +42,7 @@ export function sampleRecords(scene: string) {
     linked_project_id: ids.project, project_id: ids.project, group_id: ids.group, workspace_position: 0,
     status: scene === "task-review" ? "for_review" : ["complete", "archived", "return-funding"].includes(scene) ? "completed" : "in_progress",
     assigned_to: ids.lead, assignee_name: "Paolo Reyes", team_member_ids: [ids.lead, ids.member], team_member_names: ["Paolo Reyes", "Lia Santos"],
-    reviewer_id: ids.head, created_by: ids.head, priority: "medium", estimated_hours: 8, budget_impact: 10000,
+    reviewer_id: ids.head, created_by: ids.head, priority: "medium", budget_impact: 10000,
     start_date: "2026-11-10", deadline: "2026-11-19", due_date: "2026-11-19", created_at: now, updated_at: now, subtask_count: 1,
     latest_submission: { id: "submission-1", submitterId: ids.lead, submitterName: "Paolo Reyes", completionNote: "Seminar kits and printed materials are ready.", submittedAt: Date.parse(now), attempt: 1 } };
   const subtask: Row = { id: ids.subtask, task_id: ids.task, title: "Prepare and check the registration kits", lead_id: ids.member, assigned_to_ids: [ids.member],

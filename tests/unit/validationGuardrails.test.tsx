@@ -79,11 +79,11 @@ describe('Manila date guardrails',()=>{
   expect(workEditorDateError(data,{...baseline,command:'create'},fields)).toContain('before');
   expect(workEditorDateError(data,baseline,{...fields,due:'2026-10-26'})).toContain('after');
   render(<WorkDetailsEditor fields={fields} disabled={false} update={vi.fn()} maxDue="2026-10-25"/>);
-  expect(screen.getByLabelText('Subtask due date')).toHaveAttribute('min','2026-10-17');
+  expect(screen.getByLabelText('Subtask due date')).toHaveAttribute('data-min','2026-10-17');
  });
  it('rejects past dates and parent-bound violations at import commit, beyond HTML constraints',()=>{
   vi.useFakeTimers();vi.setSystemTime(new Date('2026-10-17T04:00:00Z'));
-  const task={key:'task',title:'Prepare',description:'',priority:'medium',estimatedHours:2,startDate:'2026-10-16',dueDate:'2026-10-20',officeKey:'',dependencies:[],subitems:[],sourceQuote:'',included:true};
+  const task={key:'task',title:'Prepare',description:'',priority:'medium',startDate:'2026-10-16',dueDate:'2026-10-20',officeKey:'',dependencies:[],subitems:[],sourceQuote:'',included:true};
   const draft={schemaVersion:1,project:{title:'Plan',description:'',objectives:'',startDate:'',targetDate:''},offices:[],groups:[{key:'group',title:'Work',color:'#ffffff',existingGroupId:'',tasks:[task]}],warnings:[]} as ProjectImportDraft;
   expect(()=>reviewedImportPayload(draft,'plan.md',false)).toThrow('before');
   task.startDate='2026-10-17';
@@ -107,7 +107,7 @@ describe('attachment and recorded meeting guards',()=>{
   render(<GovernanceRecordPanel records={[]} signoffs={[]} organizations={[]} profiles={[]} actingOrgId="office" busy={false} onSaveRecord={save} onOpenMinutes={vi.fn()} onDownloadPacket={vi.fn()}/>);
   const button=screen.getByRole('button',{name:/Save formal record/i});expect(button).toBeDisabled();
   fireEvent.change(screen.getByLabelText('Resolution number'),{target:{value:'RES-1'}});
-  const date=screen.getByLabelText('Meeting date');expect(date).toHaveAttribute('max','2026-10-17');
+  const date=screen.getByLabelText('Meeting date');expect(date).toHaveAttribute('data-max','2026-10-17');
   fireEvent.change(date,{target:{value:'2026-10-18'}});fireEvent.click(button);expect(save).not.toHaveBeenCalled();
   fireEvent.change(date,{target:{value:'2026-10-17'}});fireEvent.click(button);expect(save).toHaveBeenCalledOnce();
  });

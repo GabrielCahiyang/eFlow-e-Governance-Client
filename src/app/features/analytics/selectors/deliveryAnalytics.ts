@@ -179,7 +179,6 @@ export function peopleDelivery(
         ),
       ),
       revisions: own.reduce((n, r) => n + r.revisions, 0),
-      estimatedHours: own.reduce((n, r) => n + (r.task.estimatedHours || 0), 0),
     };
   });
 }

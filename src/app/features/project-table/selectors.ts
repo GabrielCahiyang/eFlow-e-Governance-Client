@@ -22,7 +22,7 @@ export function visibleProjectGroups(groups: ProjectGroup[], allTasks: Task[]): 
 }
 export function groupSummary(tasks: Task[]) {
  const required=tasks.filter(t=>t.status!=='cancelled'),completed=required.filter(t=>t.status==='completed').length;
- return {count:tasks.length,completed,budget:tasks.reduce((n,t)=>n+(t.budgetImpact||0),0),effort:tasks.reduce((n,t)=>n+(t.estimatedHours||0),0),progress:required.length?Math.round(completed*100/required.length):0};
+ return {count:tasks.length,completed,budget:tasks.reduce((n,t)=>n+(t.budgetImpact||0),0),progress:required.length?Math.round(completed*100/required.length):0};
 }
 export function canEditProjectTask(task: Task, head: boolean, officeId: string) {
  return head && task.orgId===officeId && !task.archivedAt && !['completed','cancelled'].includes(task.status);

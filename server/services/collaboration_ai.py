@@ -59,7 +59,7 @@ def _candidate_context(participants: list[dict[str, Any]]) -> list[dict[str, Any
     notes = _rows("employee_notes", "profile_id,strengths,weaknesses,notes,tags").in_("profile_id", ids).execute().data or [] if ids else []
     note_by_id = {str(note["profile_id"]): note for note in notes}
     active_tasks = (
-        _rows("tasks", "assigned_to,team_member_ids,status,deadline,due_date,estimated_hours,percent_complete,archived_at,deleted_at")
+        _rows("tasks", "assigned_to,team_member_ids,status,deadline,due_date,percent_complete,archived_at,deleted_at")
         .in_("status", ["pending_assignment", "todo", "in_progress", "for_review", "changes_requested"])
         .execute().data or []
     )

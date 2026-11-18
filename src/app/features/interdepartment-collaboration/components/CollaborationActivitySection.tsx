@@ -78,7 +78,6 @@ export function CollaborationActivitySection({
                 <TaskDepartmentProvider organizations={organizations}>
                   <TaskDepartmentLabel task={task} />
                 </TaskDepartmentProvider>
-                <p className="mt-1 text-xs text-neutral-500">Estimated task days: {task.estimatedHours ? task.estimatedHours / 8 : "Not set"} (8 hours/day)</p>
                 {editable ? (
                   <textarea
                     value={task.description}

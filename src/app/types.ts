@@ -178,7 +178,6 @@ export interface Task {
   linkedProjectId?: string;
   milestoneId?: string;
   percentComplete?: number;
-  estimatedHours?: number;
   budgetImpact?: number;
   subtaskCount?: number;
   subtaskCompletedCount?: number;

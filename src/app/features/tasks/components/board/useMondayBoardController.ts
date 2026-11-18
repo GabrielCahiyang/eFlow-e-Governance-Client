@@ -362,14 +362,7 @@ export function useMondayBoardController({
       setTaskEditorError("Task title is required.");
       return;
     }
-    if (
-      taskEditorDraft.estimatedHours !== undefined &&
-      (!Number.isFinite(taskEditorDraft.estimatedHours) ||
-        taskEditorDraft.estimatedHours <= 0)
-    ) {
-      setTaskEditorError("Estimated task days must be greater than zero.");
-      return;
-    }
+
 
     const memberIds = uniqueValues(taskEditorDraft.teamMemberIds);
     const canonicalStaffing=supportsNestedWork(editingTask)&&!(legacy?.code==='PGRST202'&&legacy.rootId===editingTask.id&&!!currentUserId&&legacy.actorId===currentUserId);
@@ -409,7 +402,6 @@ export function useMondayBoardController({
       : rawDeadline;
 
     const payload: UpdateTaskPayload = {
-      estimatedHours: taskEditorDraft.estimatedHours || 0,
       title: taskEditorDraft.title.trim(),
       description: taskEditorDraft.description.trim(),
       deadline: cleanDeadline,
@@ -515,7 +507,7 @@ export function useMondayBoardController({
               .filter((key) => JSON.stringify(taskEditorDraft[key]) !== JSON.stringify(baseline[key]));
             if (state.started && lockedKeys.length) throw new Error("Work has started. Planning and staffing edits are locked; your current changes were kept.");
             if (!state.planning && lockedKeys.length) throw new Error("Planning fields are read-only. Your current changes were kept.");
-            if (cleanDeadline !== (editingTask.deadline || editingTask.dueDate || "") && !state.due) throw new Error("Only the supervising Lead or authorized Office Head can reschedule this task.");
+            if (cleanDeadline !== baseline.deadline && !state.due) throw new Error("Only the supervising Lead or authorized Office Head can reschedule this task.");
             if (state.started) {
               await saveStartedTaskDetails(editingTask, {
                 title: taskEditorDraft.title.trim(),
@@ -548,7 +540,6 @@ export function useMondayBoardController({
   };
 
   const handleTaskDeleteRequest = lifecycle.remove;
-  const handleTaskCancelRequest = lifecycle.cancel;
   const handleTaskArchiveRequest = lifecycle.archive;
   const handleTaskEditorDelete = async () => {
     if (editingTask) await lifecycle.remove(editingTask);
@@ -594,7 +585,6 @@ export function useMondayBoardController({
     handleUndoConfirm,
     handleTaskEditorSave,
     handleTaskDeleteRequest,
-    handleTaskCancelRequest,
     handleTaskArchiveRequest,
     handleTaskEditorDelete,
   };

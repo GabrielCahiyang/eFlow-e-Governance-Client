@@ -44,8 +44,8 @@ describe('NW5.5 lightweight forms and authoritative confirmation',()=>{
  it('requires both dates for new subtasks and sends the selected pair',async()=>{
   data.root.scheduleBounds={projectStart:'2026-11-30',projectDue:'2026-12-31',taskStart:'2026-12-01',taskDue:'2026-12-20'};
   open('create');
-  expect((screen.getByLabelText('Subtask start date') as HTMLInputElement).value).toBe('2026-12-01');
-  expect((screen.getByLabelText('Subtask due date') as HTMLInputElement).value).toBe('2026-12-20');
+  expect((screen.getByLabelText('Subtask start date') as HTMLInputElement).value).toBe('12/01/2026');
+  expect((screen.getByLabelText('Subtask due date') as HTMLInputElement).value).toBe('12/20/2026');
   fireEvent.change(screen.getByLabelText('Subtask title'),{target:{value:'New scheduled subtask'}});
   fireEvent.change(screen.getByLabelText('Subtask start date'),{target:{value:''}});
   save();
@@ -78,18 +78,38 @@ describe('NW5.5 lightweight forms and authoritative confirmation',()=>{
   });
   const {props}=open('create');
   fireEvent.change(screen.getByLabelText('Subtask title'),{target:{value:'Create with dependencies'}});
-  fireEvent.change(screen.getByLabelText('Work order'),{target:{value:'explicit'}});
+  expect(screen.queryByLabelText('Work order')).toBeNull();
   expect(screen.queryByRole('checkbox',{name:/^Child/})).toBeNull();
   fireEvent.click(screen.getByRole('checkbox',{name:/^Source/}));
   save();
   await waitFor(()=>expect(writes()).toHaveLength(2));
   expect(writes()[0][1].p_payload).not.toHaveProperty('dependency_ids');
+  expect(writes()[0][1].p_payload.standalone).toBe(false);
   expect(writes()[1][1]).toMatchObject({p_revision:8,p_command:'edit',p_payload:{id:writes()[0][1].p_payload.id,dependency_ids:['source']}});
   if(rejected){
    await screen.findByText(/Subtask created.*Prerequisite rejected/);
    expect(screen.queryByRole('button',{name:'Add subtask',exact:true})).toBeNull();
   }else await waitFor(()=>expect(props.onDone).toHaveBeenCalledOnce());
  },15000);
+ it('creates independent work by default and persists an explicit empty prerequisite list',async()=>{
+  data.supportsSubtaskDependencies=true;
+  api.rpc.mockImplementation(async(_name,args)=>{
+   if(args.p_command==='create'){
+    const id=args.p_payload.id;
+    data={...data,revision:8,nodes:[...data.nodes,{...data.nodes[0],id,title:args.p_payload.title,is_standalone:args.p_payload.standalone,dependency_ids:null,can_edit_dependencies:true,detail_edit:{...data.nodes[0].detail_edit!,node_id:id}}]};
+   }
+   return {data,error:null};
+  });
+  const {props}=open('create');
+  expect(screen.queryByLabelText('Work order')).toBeNull();
+  expect(screen.getAllByRole('checkbox').every(input=>!(input as HTMLInputElement).checked)).toBe(true);
+  fireEvent.change(screen.getByLabelText('Subtask title'),{target:{value:'Independent work'}});save();
+  await waitFor(()=>expect(props.onDone).toHaveBeenCalledOnce());
+  expect(writes()).toHaveLength(2);
+  expect(writes()[0][1].p_payload).toMatchObject({standalone:true});
+  expect(writes()[1][1].p_payload).toMatchObject({standalone:true,dependency_ids:[]});
+  expect(data.nodes[0].dependency_ids).toBeUndefined();
+ });
  it('rejects cycles and preserves legacy sequencing until explicitly changed',async()=>{
   data.supportsSubtaskDependencies=true;
   Object.assign(data.nodes[0],{dependency_ids:null,can_edit_dependencies:true});
@@ -106,24 +126,24 @@ describe('NW5.5 lightweight forms and authoritative confirmation',()=>{
   expect(writes()[0][1].p_payload.dependency_ids).toEqual([]);
  },15000);
  it('checks a server-classified routine date without an extra confirmation',async()=>{
-  open('edit');fireEvent.change(screen.getByLabelText('Subtask due date'),{target:{value:'2026-12-02'}});save();await waitFor(()=>expect(writes()).toHaveLength(1));expect(previews()).toHaveLength(1);expect(screen.queryByRole('alertdialog')).toBeNull();expect(writes()[0][0]).toBe('nw_work_command');expect(writes()[0][1].p_impact_fingerprint).toBe('synthetic-checked-impact');
+  open('edit');fireEvent.change(screen.getByLabelText('Subtask due date'),{target:{value:'2026-12-02'}});fireEvent.change(screen.getByLabelText('Reason for due date change'),{target:{value:'Approved schedule correction'}});save();await waitFor(()=>expect(writes()).toHaveLength(1));expect(previews()).toHaveLength(1);expect(screen.queryByRole('alertdialog')).toBeNull();expect(writes()[0][0]).toBe('nw_work_command');expect(writes()[0][1].p_impact_fingerprint).toBe('synthetic-checked-impact');
  });
  it('discloses material date bounds and recorded commitments before checked saving',async()=>{
   previewPatch={requires_date_confirmation:true,date_impact:{old_due:'2026-12-01',new_due:'2026-12-02',items:[{id:'child',path:['Source','Child'],old_bound:'2026-12-01',new_bound:'2026-12-02',bound_changed:true,history_counts:{evidence:1}}]}};
-  open('edit');fireEvent.change(screen.getByLabelText('Subtask due date'),{target:{value:'2026-12-02'}});save();const dialog=await screen.findByRole('alertdialog');expect(dialog.textContent).toContain('Due date: 2026-12-01 → 2026-12-02');expect(dialog.textContent).toContain('Source / Child');expect(dialog.textContent).toContain('Recorded work or commitments require review');expect(writes()).toHaveLength(0);await accept();await waitFor(()=>expect(writes()).toHaveLength(1));expect(writes()[0][0]).toBe('nw_work_command');
+  open('edit');fireEvent.change(screen.getByLabelText('Subtask due date'),{target:{value:'2026-12-02'}});fireEvent.change(screen.getByLabelText('Reason for due date change'),{target:{value:'Approved schedule correction'}});save();const dialog=await screen.findByRole('alertdialog');expect(dialog.textContent).toContain('Due date: 2026-12-01 → 2026-12-02');expect(dialog.textContent).toContain('Source / Child');expect(dialog.textContent).toContain('Recorded work or commitments require review');expect(writes()).toHaveLength(0);await accept();await waitFor(()=>expect(writes()).toHaveLength(1));expect(writes()[0][0]).toBe('nw_work_command');
  });
  it('keeps a material date draft on cancellation without issuing a write',async()=>{
-  previewPatch={requires_date_confirmation:true};open('edit');fireEvent.change(screen.getByLabelText('Subtask due date'),{target:{value:'2026-12-02'}});save();const dialog=await screen.findByRole('alertdialog');fireEvent.click(within(dialog).getByRole('button',{name:'Cancel',exact:true}));await waitFor(()=>expect(screen.queryByRole('alertdialog')).toBeNull());expect(writes()).toHaveLength(0);expect((screen.getByLabelText('Subtask due date') as HTMLInputElement).value).toBe('2026-12-02');
+  previewPatch={requires_date_confirmation:true};open('edit');fireEvent.change(screen.getByLabelText('Subtask due date'),{target:{value:'2026-12-02'}});fireEvent.change(screen.getByLabelText('Reason for due date change'),{target:{value:'Approved schedule correction'}});save();const dialog=await screen.findByRole('alertdialog');fireEvent.click(within(dialog).getByRole('button',{name:'Cancel',exact:true}));await waitFor(()=>expect(screen.queryByRole('alertdialog')).toBeNull());expect(writes()).toHaveLength(0);expect((screen.getByLabelText('Subtask due date') as HTMLInputElement).value).toBe('12/02/2026');
  });
  it('fails closed when an older server cannot classify a date change',async()=>{
-  previewPatch={requires_date_confirmation:undefined,date_impact:undefined};open('edit');fireEvent.change(screen.getByLabelText('Subtask due date'),{target:{value:'2026-12-02'}});save();await screen.findByText(/Date impact confirmation is not installed/);expect(writes()).toHaveLength(0);
+  previewPatch={requires_date_confirmation:undefined,date_impact:undefined};open('edit');fireEvent.change(screen.getByLabelText('Subtask due date'),{target:{value:'2026-12-02'}});fireEvent.change(screen.getByLabelText('Reason for due date change'),{target:{value:'Approved schedule correction'}});save();await screen.findByText(/Date impact confirmation is not installed/);expect(writes()).toHaveLength(0);
  });
  it('does not skip mode confirmation when a combined date is routine',async()=>{
-  open('edit');fireEvent.change(screen.getByLabelText('Subtask due date'),{target:{value:'2026-12-02'}});fireEvent.change(screen.getByLabelText('Work order'),{target:{value:'independent'}});save();await screen.findByRole('alertdialog');expect(writes()).toHaveLength(0);await accept();await waitFor(()=>expect(writes()).toHaveLength(1));expect(writes()[0][0]).toBe('nw_work_command');
+  open('edit');fireEvent.change(screen.getByLabelText('Subtask due date'),{target:{value:'2026-12-02'}});fireEvent.change(screen.getByLabelText('Reason for due date change'),{target:{value:'Approved schedule correction'}});fireEvent.change(screen.getByLabelText('Work order'),{target:{value:'independent'}});save();await screen.findByRole('alertdialog');expect(writes()).toHaveLength(0);await accept();await waitFor(()=>expect(writes()).toHaveLength(1));expect(writes()[0][0]).toBe('nw_work_command');
  });
  it('never downgrades a routine date after hidden history invalidates the checked write',async()=>{
   api.rpc.mockImplementation(async(name,args)=>name==='r7_work_tree'?{data,error:null}:name==='nw_work_impact'?{data:nestedWorkImpactFixture(data,{revision:args.p_revision,command:args.p_command,payload:args.p_payload}),error:null}:{data:null,error:{code:'40001',message:'Work impact changed; review affected work'}});
-  open('edit');fireEvent.change(screen.getByLabelText('Subtask due date'),{target:{value:'2026-12-02'}});save();await screen.findByText(/Work impact changed; review affected work/);expect(writes()).toHaveLength(1);expect(writes()[0][0]).toBe('nw_work_command');expect(previews()).toHaveLength(1);
+  open('edit');fireEvent.change(screen.getByLabelText('Subtask due date'),{target:{value:'2026-12-02'}});fireEvent.change(screen.getByLabelText('Reason for due date change'),{target:{value:'Approved schedule correction'}});save();await screen.findByText(/Work impact changed; review affected work/);expect(writes()).toHaveLength(1);expect(writes()[0][0]).toBe('nw_work_command');expect(previews()).toHaveLength(1);
  });
  it('keeps execution mode and optional eligible Lead & contributors visible in create dialog',async()=>{
   open('create');expect(screen.getByLabelText('Work order')).toBeTruthy();expect(screen.getByRole('option',{name:'In sequence'})).toBeTruthy();expect(screen.getByRole('option',{name:'Can start out of order'})).toBeTruthy();

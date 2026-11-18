@@ -5,7 +5,7 @@ import {compatibilityWorkWorkerIds} from './people';
 import {subtaskDateIssue,subtaskDateLimits} from './subtaskDates';
 import {getPhilippineCalendarDate,scheduledDateError} from '../../../shared/calendarDates';
 import {readNodeDetailEditState} from './detailEditing';
-import {canEditSubtaskPrerequisites,subtaskPrerequisiteError} from './prerequisites';
+import {canCreateSubtaskPrerequisites,canEditSubtaskPrerequisites,subtaskPrerequisiteError} from './prerequisites';
 
 export function workEditorDateError(data:WorkTreeSnapshot,baseline:WorkEditorBaseline,fields:WorkEditorFields):string {
  if(!['create','edit'].includes(baseline.command))return '';
@@ -28,11 +28,12 @@ export function captureWorkEditorBaseline(data:WorkTreeSnapshot,edit:WorkEdit,ac
  const defaultStart=data.root.scheduleBounds
   ? (rawStart?(defaultDue&&rawStart>defaultDue?defaultDue:rawStart):(effectiveToday&&(!defaultDue||effectiveToday<=defaultDue)?effectiveToday:defaultDue)||'')
   : '';
+ const explicitCreate=edit.command==='create'&&canCreateSubtaskPrerequisites(data);
  return {actorId,rootId:data.root.id,projectId:data.root.project,officeId:data.root.office,kind:data.root.kind,revision:data.revision,
   command:edit.command,nodeId:node?.id||edit.itemId||null,createdId,fields:{title:node?.title||'',...(data.root.scheduleBounds?{start:node?node.start_date||'':defaultStart}:{}),due:node?node.due_date||'':defaultDue||'',
   priority:node?.priority,lead:edit.root?data.root.lead||'':node?.lead_id||'',people:edit.root?[...new Set([data.root.lead,...data.root.people].filter((id):id is string=>!!id))]:[...(node?.assigned_to_ids||[])],
-   parent:node?.parent_subtask_id||edit.parent||'',standalone:node?.is_standalone||false,note:'',progress:node?.percent_complete||0,
-   ...(edit.command==='edit'&&Array.isArray(node?.dependency_ids)?{dependencies:[...node.dependency_ids]}:{}),
+   parent:node?.parent_subtask_id||edit.parent||'',standalone:node?.is_standalone??explicitCreate,note:'',progress:node?.percent_complete||0,
+   ...(explicitCreate?{dependencies:[]}:edit.command==='edit'&&Array.isArray(node?.dependency_ids)?{dependencies:[...node.dependency_ids]}:{}),
    order:data.nodes.filter(item=>item.parent_subtask_id===(edit.parent||null)).sort((a,b)=>a.sibling_order-b.sibling_order||a.id.localeCompare(b.id)).map(item=>item.id)}};
 }
 const applicableFields:Record<WorkEdit['command'],readonly (keyof WorkEditorFields)[]>={
@@ -56,7 +57,7 @@ export function workEditorPayload(baseline:WorkEditorBaseline,fields:WorkEditorF
  const schedule=fields.start?{start:fields.start}:{};
  const id=baseline.nodeId,people=compatibilityWorkWorkerIds(fields.lead||null,fields.people);
  switch(baseline.command){
-  case 'create':return {id:baseline.createdId,title:fields.title,parent:fields.parent||null,lead:fields.lead||null,people,...schedule,due:fields.due||null,standalone:fields.standalone};
+  case 'create':return {id:baseline.createdId,title:fields.title,parent:fields.parent||null,lead:fields.lead||null,people,...schedule,due:fields.due||null,standalone:Array.isArray(fields.dependencies)?fields.dependencies.length===0:fields.standalone};
   case 'edit':return {id,title:fields.title,...schedule,due:fields.due||null,standalone:fields.standalone,note:fields.note,...(fields.priority&&fields.priority!==baseline.fields.priority?{priority:fields.priority}:{}),...(fields.dependencies&&dependenciesChanged(baseline,fields)?{dependency_ids:[...fields.dependencies].sort()}:{})};
   case 'move':return {id,parent:fields.parent||null};
   case 'order':return {parent:fields.parent||null,order:[...fields.order]};
@@ -107,7 +108,7 @@ export function workEditorDefinitionError(data:WorkTreeSnapshot,baseline:WorkEdi
  if(planningChanged&&!policy.planning)return 'Start date, prerequisites and structure cannot change after work has started.';
  const dueChanged=fields.due!==baseline.fields.due;
  if(dueChanged&&!policy.due)return 'Only the supervising Lead or authorized Office Head can reschedule this work.';
- if(dueChanged&&policy.started&&!fields.note.trim())return 'Enter a reason for changing the due date.';
+ if(dueChanged&&!fields.note.trim())return 'Enter a reason for changing the due date.';
  if(dueChanged&&fields.note.trim().length>1000)return 'Keep the schedule change reason within 1,000 characters.';
  return '';
 }

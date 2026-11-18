@@ -1,6 +1,6 @@
 import { useProposalDraftPersistence } from './useProposalDraftPersistence';
 import { resolveScheduleDateInput } from '../../../shared/scheduling/relativeSchedule';
-import { withEmployeeDeadlineWorkload, taskDurationHours, taskEstimateError } from "../../tasks";
+import { withEmployeeDeadlineWorkload } from "../../tasks";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTasks, useEmployeeNotes } from "../../../hooks/useFirebaseData";
 import { useOrgs } from "../../../hooks/useSupabaseData";
@@ -165,7 +165,6 @@ export function useProposalImportController(onClose?: () => void) {
               description: t.description,
               subtasks: t.subtasks,
               deadline: activityDate,
-              estimatedHours: t.estimatedHours ?? taskDurationHours(t.estimatedDuration, t.optimizationMetadata?.durationDays),
               priority: t.priority || "medium",
               requiredSkills: t.requiredSkills || [],
               assignedMemberIds: t.recommendedEmployeeIds || [],
@@ -193,8 +192,7 @@ export function useProposalImportController(onClose?: () => void) {
     tasks: draftTasks, organizations: collaborationOrganizations, ownerOrgId: departmentFilter,
     planningAnchor: planningAnchor.current, budget: buildProposalBudgetFromTasks(draftTasks),
   }) : null, [pdfPhase, draftTasks, pdfFileName, collaborationOrganizations, departmentFilter]);
-  const estimateIssue = draftTasks.find(task => task.enabled && taskEstimateError(task.estimatedHours));
-  const persistence = useProposalDraftPersistence(`${userProfile?.id || ''}:${ownerOrgId}`, draftId, reviewedSnapshot, pdfPhase === 'review', estimateIssue ? `${estimateIssue.title}: ${taskEstimateError(estimateIssue.estimatedHours)}` : '');
+  const persistence = useProposalDraftPersistence(`${userProfile?.id || ''}:${ownerOrgId}`, draftId, reviewedSnapshot, pdfPhase === 'review', '');
   const handlePdfFile = async (file: File, options: ProposalImportOptions) => {
     if (importPending.current || committing) return;
     if (!file.name.toLowerCase().endsWith(".pdf")) {
@@ -397,8 +395,6 @@ export function useProposalImportController(onClose?: () => void) {
     if (importPending.current) return;
     const toCreate = draftTasks.filter((task) => task.enabled);
     if (toCreate.length === 0) return;
-    const invalidEstimate = toCreate.find((task) => taskEstimateError(task.estimatedHours));
-    if (invalidEstimate) { setCommitMessage(`${invalidEstimate.title}: ${taskEstimateError(invalidEstimate.estimatedHours)}`); return; }
     importPending.current = true;
     setCommitting(true);
     setCommitMessage("Saving persistent collaboration draft...");

@@ -2,6 +2,7 @@ import { supabase } from "../../../../lib/supabase";
 import type { Task } from "../taskTypes";
 import { prerequisiteLinkingError } from "../../../shared/prerequisiteLinkingError";
 import { workTimelineError } from "../../../shared/workTimelineError";
+import { deadlineInputParts } from "../selectors/deadlineInput";
 
 export interface TaskDetailEditState {
   version: 1;
@@ -54,7 +55,9 @@ export async function saveStartedTaskDetails(
   const body: Record<string, unknown> = {};
   if (patch.title !== undefined && patch.title !== task.title) body.title = patch.title;
   if (patch.priority !== undefined && patch.priority !== task.priority) body.priority = patch.priority;
-  const previousDue = task.deadline || task.dueDate || "";
+  const storedDue = task.deadline || task.dueDate || "";
+  const previousDue = /^\d{4}-\d{2}-\d{2}T/.test(storedDue)
+    ? deadlineInputParts(storedDue).date || storedDue.slice(0, 10) : storedDue;
   if (patch.deadline !== undefined && patch.deadline !== previousDue) {
     if (!state.due) throw new Error("Only the supervising Lead or authorized Office Head can reschedule this task.");
     const reason = changeReason?.trim() || "";

@@ -30,6 +30,18 @@ const baseline:StaffingBaseline={actorId:'actor',rootId:'root',projectId:'projec
 beforeEach(()=>{sessionStorage.clear();vi.clearAllMocks();});afterEach(()=>cleanup());
 
 describe('canonical staffing dialog capability and commands',()=>{
+ it.each(['branch','child'])('groups %s by its parent team and assigns an eligible specialist only to that subtask',async nodeId=>{
+  const raw=tree();raw.nodes=raw.nodes.filter(node=>node.id!=='completed');
+  const target=raw.nodes.find(node=>node.id===nodeId)!;target.status='todo';
+  const data=await verified(raw),rootBefore=structuredClone(data.root),ctrl=controller(data);
+  render(<WorkStaffingDialog controller={ctrl} nodeId={nodeId} onClose={vi.fn()} onChanged={vi.fn()}/>);
+  expect(screen.getAllByRole('group',{name:nodeId==='child'?'On parent subtask':'On this task'}).length).toBeGreaterThan(0);
+  fireEvent.click(within(screen.getAllByRole('group',{name:'Other eligible members'}).at(-1)!).getByRole('button',{name:'Add contributor Replacement Lead'}));
+  fireEvent.click(saveButton());
+  await waitFor(()=>expect(ctrl.save).toHaveBeenCalledOnce());
+  expect(ctrl.save.mock.calls[0][0]).toMatchObject({command:'staff',payload:{id:nodeId,lead:target.lead_id,people:[...target.assigned_to_ids,'next']}});
+  expect(data.root).toEqual(rootBefore);
+ });
  it('lets the Head choose a first lead and add collaborators in the same save',async()=>{
   const raw=tree();raw.root.lead=null;raw.root.people=[];raw.nodes=[];raw.root.capabilities={appoint_lead:allow,manage_contributors:{allowed:false,reason_code:'lifecycle_blocked'}};
   const ctrl=controller(await verified(raw));render(<WorkStaffingDialog controller={ctrl} nodeId={null} onClose={vi.fn()} onChanged={vi.fn()}/>);

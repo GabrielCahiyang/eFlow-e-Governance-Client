@@ -1,4 +1,23 @@
-import type {WorkPerson} from '../types';
+import type {WorkPerson,WorkTreeSnapshot} from '../types';
+
+export interface WorkPeoplePriority {ids:readonly string[];label:'On this task'|'On parent subtask'}
+
+/** Ranking only: parent responsibility never grants directory eligibility. */
+export function workAssignmentPriority(data:WorkTreeSnapshot,parentId:string|null):WorkPeoplePriority {
+ const parent=parentId?data.nodes.find(node=>node.id===parentId):undefined;
+ return {label:parentId?'On parent subtask':'On this task',ids:deduplicateWorkPersonIds(parentId
+  ?[parent?.lead_id||'',...(parent?.assigned_to_ids||[])]
+  :[data.root.lead||'',...data.root.people])};
+}
+
+/** Search and group only server-confirmed eligible people, preserving directory order. */
+export function groupWorkAssignmentPeople(people:readonly WorkPerson[],priority?:WorkPeoplePriority,query='') {
+ const eligible=eligibleWorkPeople(people).filter(person=>resolveWorkPersonName(people,person.id).toLocaleLowerCase().includes(query.trim().toLocaleLowerCase()));
+ if(!priority)return [{label:'Eligible members',people:eligible}];
+ const ids=new Set(priority.ids);
+ return [{label:priority.label,people:eligible.filter(person=>ids.has(person.id))},
+  {label:'Other eligible members',people:eligible.filter(person=>!ids.has(person.id))}];
+}
 
 /** Preserve canonical IDs and their order; never mutate a stored worker list. */
 export function deduplicateWorkPersonIds(ids:readonly string[]):string[] {

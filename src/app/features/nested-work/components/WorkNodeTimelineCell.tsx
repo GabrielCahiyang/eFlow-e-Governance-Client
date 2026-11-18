@@ -35,7 +35,6 @@ function subtaskTimelineError(
   if (!planning && draft.start !== original.start) return 'The planned start date is locked for this subtask.';
   if (started && draft.start !== original.start) return 'Started subtasks keep their start date.';
   if (!canChangeDue && draft.end !== original.end) return 'You do not have permission to change this due date.';
-  if (started && draft.end !== original.end && (!reason.trim() || reason.trim().length > 1000)) return 'Enter a due-date change reason from 1 to 1,000 characters.';
   if (original.start && !draft.start) return 'Start date cannot be cleared once set.';
   if (draft.start && draft.end && draft.start > draft.end) return 'Due date cannot be before the start date.';
   if ((draft.start !== original.start && draft.start && bounds.earliest && draft.start < bounds.earliest) || (draft.start !== original.start && draft.start && bounds.latest && draft.start > bounds.latest) || (draft.end !== original.end && draft.end && bounds.latest && draft.end > bounds.latest) || (draft.end !== original.end && draft.end && bounds.earliest && draft.end < bounds.earliest)) {
@@ -47,6 +46,7 @@ function subtaskTimelineError(
   if (draft.start && draft.start !== original.start) {
     if (draft.start < today) return 'Choose today or a future start date.';
   }
+  if (draft.end !== original.end && (!reason.trim() || reason.trim().length > 1000)) return 'Enter a due-date change reason from 1 to 1,000 characters.';
   return undefined;
 }
 
@@ -143,7 +143,7 @@ export function WorkNodeTimelineCell({ node, snapshot, context, controller, pare
                     due: draft.end || null,
                     ...(startChanged ? { start: draft.start || null } : {}),
                     standalone: node.is_standalone,
-                    note: dueChanged && started ? draft.reason.trim() : '',
+                    note: dueChanged ? draft.reason.trim() : '',
                   },
                 };
                 const requireFreshAuthorization = async () => {
@@ -164,7 +164,7 @@ export function WorkNodeTimelineCell({ node, snapshot, context, controller, pare
                   }
                   if (startChanged && (policyRequired && !freshPolicy?.planning || !!freshPolicy?.started || freshNode.started_at)) throw new Error('The planned start date is locked for this subtask.');
                   if (dueChanged && policyRequired && !freshPolicy?.due) throw new Error('You do not have permission to change this due date.');
-                  if (dueChanged && (freshPolicy?.started || freshNode.started_at) && (!draft.reason.trim() || draft.reason.trim().length > 1000)) throw new Error('Enter a due-date change reason from 1 to 1,000 characters.');
+                  if (dueChanged && (!draft.reason.trim() || draft.reason.trim().length > 1000)) throw new Error('Enter a due-date change reason from 1 to 1,000 characters.');
                   const rawBounds = subtaskDateLimits(latest, freshNode.parent_subtask_id || '');
                   const freshEarliest = [rawBounds.earliest, parentStartDate?.slice(0, 10)].filter((value): value is string => !!value).sort();
                   const freshBounds = { ...rawBounds, earliest: freshEarliest[freshEarliest.length - 1] };
@@ -207,6 +207,7 @@ export function WorkNodeTimelineCell({ node, snapshot, context, controller, pare
           >
             <strong>Subtask timeline</strong>
             <p>Subtask dates must fit within the parent task timeline.</p>
+            {started && <p role="status">Work is already in progress. Start date and prerequisites cannot be changed.</p>}
             <FormField
               label="Start date"
               description={startLocked ? 'Started subtasks keep their start date.' : undefined}
@@ -233,7 +234,7 @@ export function WorkNodeTimelineCell({ node, snapshot, context, controller, pare
                 onChange={event => editor.setDraft({ ...editor.draft, end: event.target.value })}
               />
             </FormField>
-            {started && <FormField label="Due-date change reason" description="Required when changing a started subtask’s due date (1–1,000 characters).">
+            {editor.draft.end !== due && !dueLocked && <FormField label="Due-date change reason" description="Required when changing the due date (1–1,000 characters).">
               <textarea rows={3} maxLength={1000} value={editor.draft.reason} disabled={!canEdit || editor.pending || dueLocked}
                 onChange={event => editor.setDraft({ ...editor.draft, reason: event.target.value })}
                 className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm" />

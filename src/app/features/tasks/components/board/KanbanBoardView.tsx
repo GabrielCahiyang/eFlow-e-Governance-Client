@@ -21,7 +21,6 @@ export function KanbanBoardView({
   onOpenTaskEditor,
   onDeleteTaskRequest,
   onArchiveTaskRequest,
-  onCancelTaskRequest,
   currentUserId,
   onUndoRequest,
   readOnly = false,
@@ -36,7 +35,6 @@ export function KanbanBoardView({
   onOpenTaskEditor?: (task: Task) => void;
   onDeleteTaskRequest?: (task: Task) => void;
   onArchiveTaskRequest?: (task: Task) => void;
-  onCancelTaskRequest?: (task: Task) => void;
   currentUserId?: string;
   currentUserName?: string;
   onUndoRequest?: (task: Task) => void;
@@ -237,7 +235,6 @@ export function KanbanBoardView({
                           task={task}
                           onEdit={onOpenTaskEditor}
                           onArchive={onArchiveTaskRequest}
-                          onCancel={onCancelTaskRequest}
                           onDelete={onDeleteTaskRequest}
                           onReopen={onUndoRequest}
                         />

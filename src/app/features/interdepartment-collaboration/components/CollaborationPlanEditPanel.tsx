@@ -1,7 +1,7 @@
 import { readableUiError } from '../../../shared/userFacingError';
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTasks } from "../../../hooks/useFirebaseData";
-import { withEmployeeDeadlineWorkload, taskEstimateError } from "../../tasks";
+import { withEmployeeDeadlineWorkload } from "../../tasks";
 import { Layers, Plus } from "lucide-react";
 import { useDeptDirectoryEmployees } from "../../members";
 import { DraftCockpit } from "../../proposal-import/components/DraftCockpit";
@@ -42,7 +42,6 @@ function snapshotTaskToDraftTask(task: CollaborationSnapshotTask): DraftTask {
     title: task.title,
     description: task.description,
     deadline: task.deadline,
-    estimatedHours: task.estimatedHours,
     subtasks: task.subtasks,
     primaryOrgId: task.primaryOrgId,
     supportingOrgIds: task.supportingOrgIds,
@@ -90,7 +89,6 @@ function draftTasksToSnapshotTasks(
       title: dt.title,
       description: dt.description,
       deadline: dt.deadline,
-      estimatedHours: dt.estimatedHours,
       subtasks: dt.subtasks,
       priority: dt.priority,
       requiredSkills: dt.requiredSkills,
@@ -248,8 +246,6 @@ function CollaborationPlanEditPanelInner({
 
 
   const handleCommit = useCallback(async () => {
-    const invalidEstimate = draftTasks.find((task) => task.enabled && taskEstimateError(task.estimatedHours));
-    if (invalidEstimate) { setCommitMessage(`${invalidEstimate.title}: ${taskEstimateError(invalidEstimate.estimatedHours)}`); return; }
     setCommitting(true);
     try {
       const updatedTasks = draftTasksToSnapshotTasks(draftTasks, snapshot.tasks);

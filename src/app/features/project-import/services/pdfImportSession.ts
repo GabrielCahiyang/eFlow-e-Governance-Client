@@ -13,7 +13,7 @@ export interface PdfSessionState {
  projectContext?:{title?:string;description?:string;scope?:string;authorizedBudget?:{fundingNotRequired:boolean;totalAvailable:number;sources:Array<{id:string;name:string;fiscalYear:number;available:number}>}};
  budgetAllocations?:Array<{key:string;lines:Array<{sourceId:string;amount:number;particular?:string}>}>;
  draft?:ProjectImportDraft; extraction?:OfficeExtraction; officesReviewed?:boolean;
- staffingIndex?:number;assignments:Array<{key:string;lead:string;people:string[];hours:number}>;
+ staffingIndex?:number;assignments:Array<{key:string;lead:string;people:string[]}>;
  events:string[];review?:ReturnType<typeof reviewedImportPayload>;
 }
 export interface PdfImportSession {id:string;project_id:string;revision:number;state:PdfSessionState;result:ProjectImportResult|null;lease_until:string|null;runner:string|null}

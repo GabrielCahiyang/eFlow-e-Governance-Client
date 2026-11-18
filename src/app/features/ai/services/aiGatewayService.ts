@@ -19,7 +19,7 @@ export type AiChatRequest = {
   stream?: boolean;
   pdf_office_extraction?: { schemaVersion: 1; document: string; tasks: Array<{key:string;title:string}> };
   workspace_decomposition?: { schemaVersion: 1; projectId: string; sourceText: string; context: Record<string, unknown> };
-  workspace_staffing?: { schemaVersion: 1; taskId: string; autoAssign?: boolean; projectId?: string; draftTask?: {title:string;description:string;estimatedHours:number}; plannedAssignments?: Array<{lead:string;hours:number}> };
+  workspace_staffing?: { schemaVersion: 1; taskId: string; autoAssign?: boolean; projectId?: string; draftTask?: {title:string;description:string}; plannedAssignments?: Array<{lead:string}> };
   pdf_table_enrichment?: {
     schemaVersion: 1;
     tasks: Array<{ key: string; title: string; methodology: string[]; schedule: string }>;

@@ -40,8 +40,6 @@ export interface ProposalDecompositionBudgetLine {
 export interface ProposalDecompositionTask {
   title: string;
   description: string;
-  estimatedHours?: number;
-  estimatedDuration?: string;
   requiredSkills?: string[];
   priority?: "low" | "medium" | "high";
   recommendedEmployeeIds?: string[];

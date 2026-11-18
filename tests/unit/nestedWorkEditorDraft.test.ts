@@ -8,6 +8,27 @@ const data:WorkTreeSnapshot={root:{id:'root',project:'project',office:'office',l
 const fieldsByMode:Record<WorkCommand,(keyof WorkEditorFields)[]>={create:['title','due','standalone','parent','lead','people'],edit:['title','due','standalone','note'],move:['parent'],order:['order'],delete:[],progress:['progress','note'],submit:['note'],review:['progress','note'],staff:['lead','people'],contributors:['people'],root_lead:['lead','people']};
 const changes:WorkEditorFields={title:'Changed work',due:'2026-11-01',standalone:true,parent:'another',lead:'another',people:['another'],note:'A reason',progress:100,order:['node','sibling']};
 describe('NW5.3 pure editor baselines and mode equality',()=>{
+ it('defaults new Office work to explicit independence and derives ordering from selected prerequisites',()=>{
+  const supported={...data,supportsSubtaskDependencies:true};
+  const baseline=captureWorkEditorBaseline(supported,{command:'create',parent:'parent'},'actor','new');
+  expect(baseline.fields).toMatchObject({standalone:true,dependencies:[]});
+  expect(workEditorPayload(baseline,baseline.fields)).toMatchObject({standalone:true});
+  expect(workEditorPayload(baseline,{...baseline.fields,dependencies:['sibling']})).toMatchObject({standalone:false});
+  expect(workEditorPayload(baseline,baseline.fields)).not.toHaveProperty('dependency_ids');
+ });
+ it.each([null,[],['sibling']])('preserves existing dependency semantics %j when opening an edit',dependency_ids=>{
+  const existing={...node,dependency_ids},supported={...data,supportsSubtaskDependencies:true,nodes:[existing]};
+  const baseline=captureWorkEditorBaseline(supported,{command:'edit',node:existing},'actor','unused');
+  expect(baseline.fields.standalone).toBe(false);
+  expect(baseline.fields.dependencies).toEqual(dependency_ids===null?undefined:dependency_ids);
+  expect(workEditorPayload(baseline,baseline.fields)).not.toHaveProperty('dependency_ids');
+ });
+ it('keeps unsupported and Personal creation on their existing sequencing contract',()=>{
+  for(const snapshot of [data,{...data,supportsSubtaskDependencies:true,root:{...data.root,kind:'personal' as const,office:null}}]){
+   const baseline=captureWorkEditorBaseline(snapshot,{command:'create'},'actor','new');
+   expect(baseline.fields.standalone).toBe(false);expect(baseline.fields.dependencies).toBeUndefined();
+  }
+ });
  for(const command of Object.keys(fieldsByMode) as WorkCommand[]){
   it(`${command}: untouched fields are clean`,()=>{
    const baseline=captureWorkEditorBaseline(data,{command,node,parent:'parent'},'actor','created');expect(workEditorDirty(baseline,baseline.fields)).toBe(false);

@@ -14,7 +14,7 @@ export function parseStaffRecommendations(text: string, context: StaffingContext
     const evidence = Array.isArray(row.evidence) ? row.evidence.filter((e: unknown): e is string=>typeof e==='string' && facts.includes(e)).slice(0,5) : [];
     if (!evidence.length) continue;
     seen.add(person.id);
-    rows.push({userId:person.id,evidence,activeTasks:person.activeTasks,remainingHours:person.remainingHours,unknownEffortTasks:person.unknownEffortTasks});
+    rows.push({userId:person.id,evidence,activeTasks:person.activeTasks});
   }
   if (!rows.length) throw new Error('No recommendations cited confirmed profile facts. Try again after checking professional profiles.');
   return rows.slice(0,5);

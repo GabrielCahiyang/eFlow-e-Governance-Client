@@ -48,7 +48,7 @@ describe('Phase 11 edit and creation contracts',()=>{
   expect(timelinePatch(task,{start:'2026-10-01',end:'2026-10-12'},new Date('2026-10-01T00:00:00+08:00'))).toEqual({start_date:'2026-10-01',deadline:'2026-10-12'});
   expect(timelinePatch(task,{start:'',end:''})).toEqual({start_date:null,deadline:''});
   expect(()=>timelinePatch(task,{start:'2026-10-20',end:'2026-10-09'},new Date('2026-10-01T00:00:00+08:00'))).toThrow('before the start date');
-  expect(()=>numericPatch('estimated_hours','100001')).toThrow('amount');expect(()=>numericPatch('budget_impact','Infinity')).toThrow('amount');
+  expect(()=>numericPatch('budget_impact','1000000000001')).toThrow('amount');expect(()=>numericPatch('budget_impact','Infinity')).toThrow('amount');
  });
  it('explains default, nonempty including archived, and unauthorized deletion blockers',()=>{
   expect(groupDeleteBlocker({...group,isDefault:true},[],true)).toBeUndefined();
@@ -71,10 +71,10 @@ describe('Phase 11 edit and creation contracts',()=>{
  });
  it('retains failed numeric values and retries only their patch',async()=>{
   const save=vi.fn().mockRejectedValueOnce(new Error('Denied')).mockResolvedValue(undefined);
-  render(<NumberCell value={8} label="Effort" disabled={false} save={save} field="estimated_hours"/>);
-  const input=screen.getByRole('spinbutton',{name:'Effort'});fireEvent.change(input,{target:{value:'12'}});fireEvent.blur(input);
+  render(<NumberCell value={8} label="Budget" disabled={false} save={save} field="budget_impact"/>);
+  const input=screen.getByRole('spinbutton',{name:'Budget'});fireEvent.change(input,{target:{value:'12'}});fireEvent.blur(input);
   expect((await screen.findByRole('alert')).textContent).toContain('Denied');expect(input).toHaveProperty('value','12');expect(input.getAttribute('aria-invalid')).toBe('true');
-  fireEvent.click(screen.getByRole('button',{name:'Retry'}));await screen.findByText('Saved.');expect(save.mock.calls).toEqual([[{estimated_hours:12}],[{estimated_hours:12}]]);
+  fireEvent.click(screen.getByRole('button',{name:'Retry'}));await screen.findByText('Saved.');expect(save.mock.calls).toEqual([[{budget_impact:12}],[{budget_impact:12}]]);
  });
  it('retains grouped budget amounts after a denial and retries the same numeric patch',async()=>{
   const save=vi.fn().mockRejectedValueOnce(new Error('Denied')).mockResolvedValue(undefined);
@@ -87,13 +87,13 @@ describe('Phase 11 edit and creation contracts',()=>{
  });
  it('prevents duplicate numeric writes and blocks navigation until pending save settles',async()=>{
   let finish!:()=>void;const save=vi.fn(()=>new Promise<void>(r=>{finish=r;}));
-  render(<NumberCell value={8} label="Effort" disabled={false} save={save} field="estimated_hours"/>);
+  render(<NumberCell value={8} label="Budget" disabled={false} save={save} field="budget_impact"/>);
   const input=screen.getByRole('spinbutton');fireEvent.change(input,{target:{value:'12'}});fireEvent.blur(input);fireEvent.blur(input);
   expect(save).toHaveBeenCalledOnce();expect(await requestNavigation(vi.fn())).toBe(false);
   await act(async()=>finish());expect(await requestNavigation(vi.fn())).toBe(true);
  });
  it('cancels numeric drafts using Escape without writing',()=>{
-  const save=vi.fn();render(<NumberCell value={8} label="Effort" disabled={false} save={save} field="estimated_hours"/>);
+  const save=vi.fn();render(<NumberCell value={8} label="Budget" disabled={false} save={save} field="budget_impact"/>);
   const input=screen.getByRole('spinbutton');fireEvent.change(input,{target:{value:'12'}});fireEvent.keyDown(input,{key:'Escape'});fireEvent.blur(input);
   expect(input).toHaveProperty('value','8');expect(save).not.toHaveBeenCalled();
  });

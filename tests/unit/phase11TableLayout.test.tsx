@@ -31,13 +31,13 @@ describe('Phase 11 local table layout',()=>{
  });
  it('preserves explicit all-visible and partial layouts and supports an intentional compact reset',()=>{
   localStorage.setItem('eflow_project_columns_a','[]');
-  localStorage.setItem('eflow_project_table_layout_v1_a',JSON.stringify({version:1,widths:{task:480,effort:160}}));
+  localStorage.setItem('eflow_project_table_layout_v1_a',JSON.stringify({version:1,widths:{task:480,dependencies:160}}));
   const view=renderHook(()=>useTableLayout('a'));
-  expect(view.result.current.hidden).toEqual([]);expect(view.result.current.widths).toMatchObject({task:480,effort:160});
+  expect(view.result.current.hidden).toEqual([]);expect(view.result.current.widths).toMatchObject({task:480,dependencies:160});
   act(()=>view.result.current.resetCompact());
   expect(view.result.current.hidden).toEqual(COMPACT_HIDDEN_COLUMNS);expect(view.result.current.widths).toEqual(COMPACT_COLUMN_WIDTHS);
-  act(()=>{view.result.current.showColumn('effort');view.result.current.showColumn('effort');});
-  expect(view.result.current.hidden).toEqual(COMPACT_HIDDEN_COLUMNS.filter(id=>id!=='effort'));
+  act(()=>{view.result.current.showColumn('dependencies');view.result.current.showColumn('dependencies');});
+  expect(view.result.current.hidden).toEqual(COMPACT_HIDDEN_COLUMNS.filter(id=>id!=='dependencies'));
   expect(localStorage.getItem('eflow_project_columns_a')).toBe(JSON.stringify(view.result.current.hidden));
   localStorage.setItem('eflow_project_table_layout_v1_c',JSON.stringify({version:1,widths:{task:480,timeline:250}}));
   view.unmount();
@@ -46,7 +46,7 @@ describe('Phase 11 local table layout',()=>{
  });
  it('works in memory when browser storage is unavailable',()=>{
   vi.spyOn(Storage.prototype,'getItem').mockImplementation(()=>{throw new Error('Blocked');});vi.spyOn(Storage.prototype,'setItem').mockImplementation(()=>{throw new Error('Blocked');});
-  const view=renderHook(()=>useTableLayout('a'));act(()=>{view.result.current.hideColumn('effort');view.result.current.resizeColumn('task',480);});
+  const view=renderHook(()=>useTableLayout('a'));act(()=>{view.result.current.hideColumn('dependencies');view.result.current.resizeColumn('task',480);});
   expect(view.result.current.hidden).toEqual(COMPACT_HIDDEN_COLUMNS);expect(view.result.current.widths.task).toBe(480);
  });
  it('supports keyboard width adjustments and announces bounds',()=>{

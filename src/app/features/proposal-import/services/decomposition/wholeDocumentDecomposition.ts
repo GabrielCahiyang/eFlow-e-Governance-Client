@@ -108,7 +108,6 @@ Required JSON shape:
         "methodology": ["Workshop"],
         "tasks": [{
           "title": "...", "description": "...",
-          "estimatedDuration": "2 days",
           "requiredSkills": ["facilitation", "data gathering"],
           "priority": "high"${recommendationSchema}${subtaskSchema}
           ,"budgetDecision": "missing",

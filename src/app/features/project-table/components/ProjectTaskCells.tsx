@@ -6,7 +6,7 @@ import { assignTask, getTaskLeadId, type Task } from '../../tasks';
 import { TaskOfficeControl } from '../../project-offices';
 import type { Organization, UserProfile } from '../../../types';
 import type { ProjectColumn, WorkspaceTaskPatch } from '../types';
-import { TimelineCell, DependencyCell, NumberCell } from './PlanningCells';
+import { TimelineCell, DependencyCell } from './PlanningCells';
 import { supportsNestedWork, WorkRootOwner, type WorkTreeController } from '../../nested-work';
 import { AsyncSelectCell, PriorityCell, WorkspaceTooltip } from '../../../components/ui/workspace';
 import '../cellEditors.css';
@@ -28,14 +28,13 @@ export function ProjectTaskCell({ column, task, tasks, profiles, people, orgs, e
   const disabled = !editable || busy;
   const blocked=!!controller?.data?.root.blocker;
   const status=useWorkStatus(blocked?'stuck':task.status,workStateLabel(task.status,blocked),task.customStatusId);
-  if (column === 'office') return <TaskOfficeControl task={task} organizations={orgs} canManage={canSetOffice} hasStaffedSubitems={hasStaffedSubitems}/>;
+  if (column === 'office') return <TaskOfficeControl task={task} organizations={orgs} canManage={!!canSetOffice} hasStaffedSubitems={hasStaffedSubitems}/>;
   if (column === 'owner') {const legacy=<OwnerCell task={task} profiles={profiles} people={people} disabled={disabled || !!task.proposedOfficeIdentityId || task.status === 'for_review'} write={write}/>;return supportsNestedWork(task)?<WorkRootOwner rootId={task.id} controller={controller} layout="table" readOnly={readOnly || busy || !!task.proposedOfficeIdentityId || !!task.archivedAt || ['for_review','completed','cancelled'].includes(task.status)} fallback={legacy}/>:legacy;}
   if (column === 'status') return canUpdateWork && onOpenWork
     ? <WorkStatusControl status={task.status} customStatusId={task.customStatusId} stuck={blocked} disabled={busy} onStart={statuses.includes('in_progress')||task.status==='in_progress'?()=>onOpenWork('work'):undefined} onBlocker={task.status==='in_progress'?()=>onOpenWork('report-blocker'):undefined} onSubmit={canSubmitWork&&task.status==='in_progress'?()=>onOpenWork('submit-work'):undefined}/>
     : <span className={`work-status-trigger work-status-trigger--${blocked?'stuck':task.status}`} style={status.color ? {boxShadow:`inset 3px 0 ${status.color}`} : undefined}>{status.label}</span>;
   if (column === 'priority') return <PriorityCell value={task.priority} title={task.title} disabled={disabled} onSave={priority => save({ priority })}/>;
   if (column === 'timeline') return <TimelineCell task={task} disabled={disabled} projectStartDate={projectStartDate} projectTargetDate={projectTargetDate} save={save}/>;
-  if (column === 'effort') return <NumberCell label={'Estimated hours for ' + task.title} value={task.estimatedHours || 0} disabled={disabled} field="estimated_hours" save={save}/>;
   if (column === 'dependencies') return <DependencyCell task={task} tasks={tasks} disabled={disabled} save={save}/>;
   if (column === 'budget') return <ProjectTaskBudgetCell task={task} readOnly={readOnly||busy||!editable}/>;
   if (column === 'actualExpenses') return <ProjectWorkExpensesCell task={task}/>;
