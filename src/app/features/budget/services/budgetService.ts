@@ -6,6 +6,7 @@ import { assertCashNeededByIsCurrentOrFuture } from "../selectors/cashWorkflowRu
 import { fetchBudgetSections } from "./budgetSectionService";
 import {liquidationInputError} from '../validation/financialValidation';
 import { assertActionActor } from '../../../shared/actionActor';
+import { registerAuthCacheReset } from '../../../shared/authCacheReset';
 import { isCommandId } from '../../../shared/pendingActionStore';
 
 const throwIf = (error: { message: string; code?: string } | null) => { if (error) throw Object.assign(new Error(error.message), { code: error.code }); };
@@ -418,12 +419,55 @@ export async function closeDepartmentFiscalBudget(budgetId: string, reason: stri
   const { error } = await supabase.rpc("close_department_fiscal_budget", { p_budget_id: budgetId, p_reason: reason }); throwIf(error);
 }
 
+const BUDGET_MAINTENANCE_COOLDOWN_MS = 15 * 60 * 1000;
+const BUDGET_MAINTENANCE_STORAGE_KEY = "eflow:budget-maintenance-last-run";
+
 let maintenancePromise: Promise<void> | null = null;
+let lastBudgetMaintenanceAt = 0;
+
+function readLastBudgetMaintenanceAt(): number {
+  if (lastBudgetMaintenanceAt > 0) return lastBudgetMaintenanceAt;
+  try {
+    const stored = Number(globalThis.sessionStorage?.getItem(BUDGET_MAINTENANCE_STORAGE_KEY) || 0);
+    if (Number.isFinite(stored) && stored > 0) return stored;
+  } catch {
+    // Ignore storage read failures.
+  }
+  return 0;
+}
+
+function recordBudgetMaintenanceAt(timestamp: number): void {
+  lastBudgetMaintenanceAt = timestamp;
+  try {
+    globalThis.sessionStorage?.setItem(BUDGET_MAINTENANCE_STORAGE_KEY, String(timestamp));
+  } catch {
+    // Ignore storage write failures.
+  }
+}
+
+export function resetBudgetMaintenanceCooldown(): void {
+  maintenancePromise = null;
+  lastBudgetMaintenanceAt = 0;
+  try {
+    globalThis.sessionStorage?.removeItem(BUDGET_MAINTENANCE_STORAGE_KEY);
+  } catch {
+    // Ignore storage removal failures.
+  }
+}
+
+registerAuthCacheReset(resetBudgetMaintenanceCooldown);
+
 export function runDepartmentBudgetMaintenance() {
   if (maintenancePromise) return maintenancePromise;
+  const now = Date.now();
+  const lastRun = readLastBudgetMaintenanceAt();
+  if (lastRun > 0 && now - lastRun < BUDGET_MAINTENANCE_COOLDOWN_MS) {
+    return Promise.resolve();
+  }
   maintenancePromise = (async () => {
     const { error } = await supabase.rpc("run_department_budget_maintenance");
     if (error && !/not found|schema cache/i.test(error.message)) throw new Error(error.message);
+    recordBudgetMaintenanceAt(Date.now());
   })();
   const current = maintenancePromise;
   void current.finally(() => { if (maintenancePromise === current) maintenancePromise = null; });

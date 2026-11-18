@@ -42,7 +42,7 @@ export interface BackupOverview {
 async function responseError(response: Response, fallback: string): Promise<Error> {
   const payload = await response.json().catch(() => null) as { detail?: string } | null;
   if (response.status === 404) {
-    return new Error("The Backup & Export route is not loaded by the running eFlow gateway. Restart the gateway once, then refresh readiness.");
+    return new Error("The Backup route is not loaded by the running eFlow gateway. Restart the gateway once, then refresh readiness.");
   }
   return new Error(payload?.detail || fallback);
 }

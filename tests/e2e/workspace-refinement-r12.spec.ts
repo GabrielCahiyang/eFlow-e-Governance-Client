@@ -136,10 +136,10 @@ for (const width of [390, 1440])
       await page.evaluate(() => document.documentElement.scrollWidth),
     ).toBeLessThanOrEqual(width);
     await (await supportNav(page))
-      .getByRole("button", { name: "Backup & Export", exact: true })
+      .getByRole("button", { name: "Backup", exact: true })
       .click();
     await expect(
-      page.getByRole("heading", { name: "Backup & Export", exact: true }),
+      page.getByRole("heading", { name: "Backup", exact: true }),
     ).toBeVisible();
     await expect(
       page.getByText("One-time server setup required", { exact: true }),

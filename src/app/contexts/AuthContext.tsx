@@ -7,7 +7,7 @@ import {
 } from "../shared/loginPortal";
 import { clearNavigationPreferences } from '../shared/navigationPreferences';
 import { resetAuthCaches } from '../shared/authCacheReset';
-import { isQueryAccessDenied } from '../shared/queryAccess';
+import { isQueryAccessDenied, isQueryConnectionFailure } from '../shared/queryAccess';
 import { replaceNavigationHistory } from '../shared/navigationHistory';
 import React, {
   useContext,
@@ -113,7 +113,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         })
         .catch(error => {
           if (active && current === sequence && activeUserIdRef.current === userId &&
-              (verifyAccess || isQueryAccessDenied(error) || permissionScope.current?.key !== key)) commitPermissions(new Set());
+              (isQueryAccessDenied(error) || permissionScope.current?.key !== key || (verifyAccess && !isQueryConnectionFailure(error)))) commitPermissions(new Set());
         });
     };
     refreshPermissions();
@@ -148,10 +148,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       lastVisibleRefresh = now;
       refreshPermissions();
     };
+    const refreshOnOnline = () => {
+      if (document.visibilityState !== 'visible') return;
+      lastVisibleRefresh = Date.now();
+      refreshPermissions();
+    };
     window.addEventListener(PERMISSIONS_CHANGED_EVENT, refreshFromAppEvent);
     window.addEventListener('storage', refreshFromStorage);
     window.addEventListener('focus', refreshWhenVisible);
-    window.addEventListener('online', refreshWhenVisible);
+    window.addEventListener('online', refreshOnOnline);
     document.addEventListener('visibilitychange', refreshWhenVisible);
     const fallback = window.setInterval(refreshWhenVisible, 120_000);
 
@@ -160,7 +165,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       window.removeEventListener(PERMISSIONS_CHANGED_EVENT, refreshFromAppEvent);
       window.removeEventListener('storage', refreshFromStorage);
       window.removeEventListener('focus', refreshWhenVisible);
-      window.removeEventListener('online', refreshWhenVisible);
+      window.removeEventListener('online', refreshOnOnline);
       document.removeEventListener('visibilitychange', refreshWhenVisible);
       window.clearInterval(fallback);
       void supabase.removeChannel(channel);
@@ -254,8 +259,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       lastVisibleProfileRefresh = now;
       void refreshProfile();
     };
+    const refreshProfileOnOnline = () => {
+      if (document.visibilityState !== 'visible') return;
+      lastVisibleProfileRefresh = Date.now();
+      void refreshProfile();
+    };
     window.addEventListener('focus', refreshWhenVisible);
-    window.addEventListener('online', refreshWhenVisible);
+    window.addEventListener('online', refreshProfileOnOnline);
     document.addEventListener('visibilitychange', refreshWhenVisible);
     const fallback = window.setInterval(refreshWhenVisible, 120_000);
 
@@ -292,7 +302,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => {
       active = false;
       window.removeEventListener('focus', refreshWhenVisible);
-      window.removeEventListener('online', refreshWhenVisible);
+      window.removeEventListener('online', refreshProfileOnOnline);
       document.removeEventListener('visibilitychange', refreshWhenVisible);
       window.clearInterval(fallback);
       void supabase.removeChannel(profileChannel);

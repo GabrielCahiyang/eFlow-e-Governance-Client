@@ -511,7 +511,8 @@
   --loader-accent: var(--eflow-danger, #c92a3a);
 }
 
-.eflow-view-loading--slow {
+.eflow-view-loading--slow,
+.eflow-view-loading--server_down {
   --loader-accent: #d97706;
 }
 
@@ -525,7 +526,8 @@
   position: relative;
 }
 
-.eflow-view-loading--slow .eflow-view-loading__brand {
+.eflow-view-loading--slow .eflow-view-loading__brand,
+.eflow-view-loading--server_down .eflow-view-loading__brand {
   border-bottom: 2px solid color-mix(in srgb, #d97706 70%, transparent);
   position: relative;
 }
@@ -546,9 +548,10 @@
   z-index: 2;
 }
 
-.eflow-view-loading--offline .eflow-view-loading__track span {
+.eflow-view-loading--offline .eflow-view-loading__track span,
+.eflow-view-loading--server_down .eflow-view-loading__track span {
   animation: none;
-  background: var(--eflow-danger, #c92a3a);
+  background: var(--loader-accent, var(--eflow-danger, #c92a3a));
   box-shadow: none;
   opacity: 0.72;
   width: 100%;
@@ -557,7 +560,11 @@
 .eflow-view-loading--offline .eflow-view-loading__block,
 .eflow-view-loading--offline .eflow-view-loading__tile,
 .eflow-view-loading--offline .eflow-view-loading__tab,
-.eflow-view-loading--offline .eflow-view-loading__chart span {
+.eflow-view-loading--offline .eflow-view-loading__chart span,
+.eflow-view-loading--server_down .eflow-view-loading__block,
+.eflow-view-loading--server_down .eflow-view-loading__tile,
+.eflow-view-loading--server_down .eflow-view-loading__tab,
+.eflow-view-loading--server_down .eflow-view-loading__chart span {
   animation: none;
 }
 
@@ -588,7 +595,8 @@
   color: var(--eflow-negative-text, #a82925);
 }
 
-.eflow-view-loading__signal--slow {
+.eflow-view-loading__signal--slow,
+.eflow-view-loading__signal--server_down {
   background: var(--eflow-warning-bg, #fff2d8);
   color: var(--eflow-warning-text, #795008);
 }
@@ -604,6 +612,15 @@
   font-weight: 600;
   min-height: 28px;
   padding: 3px 10px;
+}
+
+.eflow-view-loading--server_down .eflow-view-loading__retry {
+  border-color: color-mix(in srgb, var(--eflow-warning-text, #795008) 28%, transparent);
+  color: var(--eflow-warning-text, #795008);
+}
+
+.eflow-view-loading--server_down .eflow-view-loading__retry:hover:not(:disabled) {
+  background: var(--eflow-warning-bg, #fff2d8);
 }
 
 .eflow-view-loading__retry:hover:not(:disabled) {

@@ -128,86 +128,138 @@ async function checkLocalAiHealth(): Promise<boolean> {
   return false;
 }
 
-export async function getAiEndpointStatus(): Promise<AiRuntimeState> {
-  // Primary: read AI config from the local EflowWeb server which uses the
-  // service role key — this bypasses Supabase RLS and works on every machine
-  // regardless of the browser client's auth state.
-  let publishedEndpoint: string | null = null;
-  let configuredStatus: string | null = null;
-  let configuredMessage: string | null = null;
-  let heartbeat: string | null = null;
-  let explicitLocalAi: boolean | undefined;
+const AI_RUNTIME_CONFIG_KEYS = [
+  "ai_endpoint",
+  "ai_endpoint_status",
+  "ai_endpoint_status_message",
+  "ai_endpoint_heartbeat",
+] as const;
 
-  try {
-    const resp = await fetch("/controlpanelEflow/api/ai/status");
-    if (resp.ok) {
-      const body = (await resp.json()) as {
-        ai_endpoint?: string | null;
-        ai_endpoint_status?: string | null;
-        ai_endpoint_heartbeat?: string | null;
-        local_ai?: boolean;
-      };
-      explicitLocalAi = body.local_ai;
-      if (isLocalhostBrowser() && body.local_ai === true) {
-        cachedLocalAiHealthyUntil = Date.now() + LOCAL_AI_HEALTH_CACHE_TTL_MS;
-        return {
-          endpoint: "/controlpanelEflow/api",
-          status: "online",
-          message: "",
-        };
+let inFlightAiStatus: Promise<AiRuntimeState> | null = null;
+
+async function readAiRuntimeConfigsFallback(): Promise<[
+  string | null,
+  string | null,
+  string | null,
+  string | null,
+]> {
+  const fromFn = (supabase as unknown as { from?: (table: string) => unknown })?.from;
+  if (typeof fromFn === "function") {
+    try {
+      const table = (supabase as any).from("system_config");
+      const query = table?.select?.("key,value");
+      if (typeof query?.in === "function") {
+        const { data, error } = await query.in("key", [...AI_RUNTIME_CONFIG_KEYS]);
+        if (!error && Array.isArray(data)) {
+          const map = new Map<string, string | null>();
+          for (const row of data) {
+            if (row && typeof row.key === "string") {
+              map.set(row.key, typeof row.value === "string" ? row.value : null);
+            }
+          }
+          const endpoint = map.get("ai_endpoint") ?? null;
+          return [
+            endpoint?.trim() ? endpoint : null,
+            map.get("ai_endpoint_status") ?? null,
+            map.get("ai_endpoint_status_message") ?? null,
+            map.get("ai_endpoint_heartbeat") ?? null,
+          ];
+        }
       }
-      publishedEndpoint = body.ai_endpoint ?? null;
-      configuredStatus = body.ai_endpoint_status ?? null;
-      heartbeat = body.ai_endpoint_heartbeat ?? null;
-    } else {
-      // Fall through to the Supabase direct path below.
-      throw new Error(`/ai/status returned ${resp.status}`);
+    } catch {
+      // Fall back to individual fetchConfig reads below.
     }
-  } catch {
-    // Fallback: read system_config directly via the Supabase client.
-    // This works when the browser session is properly attached (Laptop A's own
-    // browser with a valid JWT) but may return null if RLS blocks the read.
-    [publishedEndpoint, configuredStatus, configuredMessage, heartbeat] = await Promise.all([
-      readPublishedEndpoint(),
-      fetchConfig("ai_endpoint_status").catch(() => null),
-      fetchConfig("ai_endpoint_status_message").catch(() => null),
-      fetchConfig("ai_endpoint_heartbeat").catch(() => null),
-    ]);
   }
+  return Promise.all([
+    readPublishedEndpoint(),
+    fetchConfig("ai_endpoint_status").catch(() => null),
+    fetchConfig("ai_endpoint_status_message").catch(() => null),
+    fetchConfig("ai_endpoint_heartbeat").catch(() => null),
+  ]);
+}
 
-  const status = configuredStatus?.trim().toLowerCase();
-  const effectiveStatus = status === "online" && !isAiHeartbeatFresh(heartbeat)
-    ? "restarting"
-    : status;
-  if (
-    isLocalhostBrowser() &&
-    explicitLocalAi !== false &&
-    (!publishedEndpoint || effectiveStatus !== "online") &&
-    (await checkLocalAiHealth())
-  ) {
+export function getAiEndpointStatus(): Promise<AiRuntimeState> {
+  if (inFlightAiStatus) return inFlightAiStatus;
+  const current = (async (): Promise<AiRuntimeState> => {
+    // Primary: read AI config from the local EflowWeb server which uses the
+    // service role key — this bypasses Supabase RLS and works on every machine
+    // regardless of the browser client's auth state.
+    let publishedEndpoint: string | null = null;
+    let configuredStatus: string | null = null;
+    let configuredMessage: string | null = null;
+    let heartbeat: string | null = null;
+    let explicitLocalAi: boolean | undefined;
+
+    try {
+      const resp = await fetch("/controlpanelEflow/api/ai/status");
+      if (resp.ok) {
+        const body = (await resp.json()) as {
+          ai_endpoint?: string | null;
+          ai_endpoint_status?: string | null;
+          ai_endpoint_heartbeat?: string | null;
+          local_ai?: boolean;
+        };
+        explicitLocalAi = body.local_ai;
+        if (isLocalhostBrowser() && body.local_ai === true) {
+          cachedLocalAiHealthyUntil = Date.now() + LOCAL_AI_HEALTH_CACHE_TTL_MS;
+          return {
+            endpoint: "/controlpanelEflow/api",
+            status: "online",
+            message: "",
+          };
+        }
+        publishedEndpoint = body.ai_endpoint ?? null;
+        configuredStatus = body.ai_endpoint_status ?? null;
+        heartbeat = body.ai_endpoint_heartbeat ?? null;
+      } else {
+        // Fall through to the Supabase direct path below.
+        throw new Error(`/ai/status returned ${resp.status}`);
+      }
+    } catch {
+      // Fallback: read system_config directly via the Supabase client in a single
+      // batched query (falling back to fetchConfig if .from().select().in() is mocked).
+      [publishedEndpoint, configuredStatus, configuredMessage, heartbeat] =
+        await readAiRuntimeConfigsFallback();
+    }
+
+    const status = configuredStatus?.trim().toLowerCase();
+    const effectiveStatus = status === "online" && !isAiHeartbeatFresh(heartbeat)
+      ? "restarting"
+      : status;
+    if (
+      isLocalhostBrowser() &&
+      explicitLocalAi !== false &&
+      (!publishedEndpoint || effectiveStatus !== "online") &&
+      (await checkLocalAiHealth())
+    ) {
+      return {
+        endpoint: "/controlpanelEflow/api",
+        status: "online",
+        message: "",
+      };
+    }
     return {
-      endpoint: "/controlpanelEflow/api",
-      status: "online",
-      message: "",
-    };
-  }
-  return {
-    endpoint: normalizeControlPanelBase(publishedEndpoint || ""),
-    status:
-      effectiveStatus === "online" ||
-      effectiveStatus === "offline" ||
-      effectiveStatus === "starting" ||
-      effectiveStatus === "restarting"
-        ? effectiveStatus
-        : "unknown",
-    message: effectiveStatus === "restarting" && status === "online"
-      ? AI_RESTARTING_MESSAGE
-      : configuredMessage?.trim() || (
-      effectiveStatus === "offline" || effectiveStatus === "starting" || effectiveStatus === "restarting"
+      endpoint: normalizeControlPanelBase(publishedEndpoint || ""),
+      status:
+        effectiveStatus === "online" ||
+        effectiveStatus === "offline" ||
+        effectiveStatus === "starting" ||
+        effectiveStatus === "restarting"
+          ? effectiveStatus
+          : "unknown",
+      message: effectiveStatus === "restarting" && status === "online"
         ? AI_RESTARTING_MESSAGE
-        : ""
-    ),
-  };
+        : configuredMessage?.trim() || (
+        effectiveStatus === "offline" || effectiveStatus === "starting" || effectiveStatus === "restarting"
+          ? AI_RESTARTING_MESSAGE
+          : ""
+      ),
+    };
+  })().finally(() => {
+    if (inFlightAiStatus === current) inFlightAiStatus = null;
+  });
+  inFlightAiStatus = current;
+  return current;
 }
 
 export function isAiHeartbeatFresh(

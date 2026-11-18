@@ -11,15 +11,33 @@ async function rpc<T>(name: string, args?: Record<string, unknown>): Promise<T> 
   }
   return data as T;
 }
-export async function listWorkspaces(): Promise<Workspace[]> {
-  const data = await rpc<Workspace[]>('r3_list_workspaces');
-  if (!Array.isArray(data) || data.some(w => !w.id || !w.name || !['office','personal'].includes(w.kind))) throw new Error('Invalid workspace response.');
-  return data;
+let inFlightWorkspaces: Promise<Workspace[]> | null = null;
+const inFlightSelections = new Map<string, Promise<WorkspaceSnapshot>>();
+
+export function listWorkspaces(): Promise<Workspace[]> {
+  if (inFlightWorkspaces) return inFlightWorkspaces;
+  const request = (async () => {
+    const data = await rpc<Workspace[]>('r3_list_workspaces');
+    if (!Array.isArray(data) || data.some(w => !w.id || !w.name || !['office','personal'].includes(w.kind))) throw new Error('Invalid workspace response.');
+    return data;
+  })().finally(() => {
+    if (inFlightWorkspaces === request) inFlightWorkspaces = null;
+  });
+  inFlightWorkspaces = request;
+  return request;
 }
-export async function selectWorkspace(id: string): Promise<WorkspaceSnapshot> {
-  const data = await rpc<WorkspaceSnapshot>('r3_select_workspace', { p_workspace: id });
-  if (data?.workspace?.id !== id || !Array.isArray(data.projects)) throw new Error('Invalid workspace selection response.');
-  return data;
+export function selectWorkspace(id: string): Promise<WorkspaceSnapshot> {
+  const existing = inFlightSelections.get(id);
+  if (existing) return existing;
+  const request = (async () => {
+    const data = await rpc<WorkspaceSnapshot>('r3_select_workspace', { p_workspace: id });
+    if (data?.workspace?.id !== id || !Array.isArray(data.projects)) throw new Error('Invalid workspace selection response.');
+    return data;
+  })().finally(() => {
+    if (inFlightSelections.get(id) === request) inFlightSelections.delete(id);
+  });
+  inFlightSelections.set(id, request);
+  return request;
 }
 export const createWorkspace = (request: string, name: string, timezone: string) => rpc<Workspace>('r3_create_workspace', { p_request: request, p_name: name, p_timezone: timezone });
 export const createPersonalProject = (workspace: string, request: string, title: string) => rpc<PersonalProject>('r3_create_personal_project', { p_workspace: workspace, p_request: request, p_title: title });

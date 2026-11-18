@@ -56,7 +56,7 @@ function BackupExportWorkspaceSkeleton() {
     >
       <span className="sr-only">Inspecting database backup readiness…</span>
       <WorkspaceHeader
-        title="Backup & Export"
+        title="Backup"
         description="Create and download a verified snapshot of organization data without changing live records."
       />
       <div aria-hidden="true">
@@ -372,7 +372,7 @@ export function BackupExportWorkspace() {
     return (
       <div className="eflow-page-content">
         <WorkspaceHeader
-          title="Backup & Export"
+          title="Backup"
           description="Create an audited, checksummed export of the live eFlow Supabase schema and operational data."
         />
         <BackupGatewayUnavailable
@@ -387,7 +387,7 @@ export function BackupExportWorkspace() {
   return (
     <div className="eflow-page-content">
       <WorkspaceHeader
-        title="Backup & Export"
+        title="Backup"
         description="Create and download a verified snapshot of organization data without changing live records."
         actions={
           <WButton

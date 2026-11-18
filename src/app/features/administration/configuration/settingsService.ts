@@ -138,39 +138,48 @@ function syncRuntimeFromGeneral(values: GeneralSystemSettings) {
   });
 }
 
-export async function fetchGeneralSystemSettings(): Promise<GeneralSystemSettings> {
-  const { data, error } = await supabase
-    .from("system_config")
-    .select("key,value")
-    .in("key", [...GENERAL_SETTINGS_KEYS]);
-  if (error)
-    throw new Error(
-      "System settings could not be loaded. Retry before editing.",
-    );
-  if (!Array.isArray(data))
-    throw new Error("System settings response could not be verified.");
+let inFlightGeneralSettings: Promise<GeneralSystemSettings> | null = null;
 
-  const result: GeneralSystemSettings = { ...DEFAULT_GENERAL_SETTINGS };
-  for (const row of data) {
-    const key = typeof row.key === "string" ? (row.key as keyof GeneralSystemSettings) : null;
-    if (!key || !GENERAL_SETTINGS_KEYS.includes(key)) continue;
-    if (row.value !== null && typeof row.value !== "string")
+export function fetchGeneralSystemSettings(): Promise<GeneralSystemSettings> {
+  if (inFlightGeneralSettings) return inFlightGeneralSettings;
+  const current = (async (): Promise<GeneralSystemSettings> => {
+    const { data, error } = await supabase
+      .from("system_config")
+      .select("key,value")
+      .in("key", [...GENERAL_SETTINGS_KEYS]);
+    if (error)
+      throw new Error(
+        "System settings could not be loaded. Retry before editing.",
+      );
+    if (!Array.isArray(data))
       throw new Error("System settings response could not be verified.");
-    const val = row.value ?? "";
-    if (key === "activation_expiry_hours") {
-      if (val === "24" || val === "72" || val === "168") result.activation_expiry_hours = val;
-    } else if (key === "default_email_notifications_enabled" || key === "maintenance_banner_enabled") {
-      if (val === "true" || val === "false") result[key] = val;
-    } else if (key === "due_soon_days") {
-      if (val === "1" || val === "2" || val === "3" || val === "5" || val === "7") result.due_soon_days = val;
-    } else if (key === "organization_name") {
-      result.organization_name = val || DEFAULT_GENERAL_SETTINGS.organization_name;
-    } else if (key === "organization_subtitle" || key === "support_email" || key === "maintenance_banner_message") {
-      result[key] = val;
+
+    const result: GeneralSystemSettings = { ...DEFAULT_GENERAL_SETTINGS };
+    for (const row of data) {
+      const key = typeof row.key === "string" ? (row.key as keyof GeneralSystemSettings) : null;
+      if (!key || !GENERAL_SETTINGS_KEYS.includes(key)) continue;
+      if (row.value !== null && typeof row.value !== "string")
+        throw new Error("System settings response could not be verified.");
+      const val = row.value ?? "";
+      if (key === "activation_expiry_hours") {
+        if (val === "24" || val === "72" || val === "168") result.activation_expiry_hours = val;
+      } else if (key === "default_email_notifications_enabled" || key === "maintenance_banner_enabled") {
+        if (val === "true" || val === "false") result[key] = val;
+      } else if (key === "due_soon_days") {
+        if (val === "1" || val === "2" || val === "3" || val === "5" || val === "7") result.due_soon_days = val;
+      } else if (key === "organization_name") {
+        result.organization_name = val || DEFAULT_GENERAL_SETTINGS.organization_name;
+      } else if (key === "organization_subtitle" || key === "support_email" || key === "maintenance_banner_message") {
+        result[key] = val;
+      }
     }
-  }
-  syncRuntimeFromGeneral(result);
-  return result;
+    syncRuntimeFromGeneral(result);
+    return result;
+  })().finally(() => {
+    if (inFlightGeneralSettings === current) inFlightGeneralSettings = null;
+  });
+  inFlightGeneralSettings = current;
+  return current;
 }
 
 export function validateGeneralSystemSettings(values: GeneralSystemSettings) {

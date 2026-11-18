@@ -5,9 +5,11 @@ interface SignalBarsIconProps {
   size?: number;
 }
 
-/** Crisp 4-bar signal icon: 1 active bar for slow, slashed bars for offline. */
+/** Crisp 4-bar signal icon: 1 active bar for slow, alert bars for server_down, slashed bars for offline. */
 export function SignalBarsIcon({ status, size = 15 }: SignalBarsIconProps) {
   const offline = status === "offline";
+  const serverDown = status === "server_down";
+  const dimmed = offline || serverDown;
   return (
     <svg
       aria-hidden="true"
@@ -24,7 +26,7 @@ export function SignalBarsIcon({ status, size = 15 }: SignalBarsIconProps) {
         height="3.5"
         rx="0.6"
         fill="currentColor"
-        opacity={offline ? 0.35 : 1}
+        opacity={dimmed ? 0.35 : 1}
       />
       <rect
         x="5.1"
@@ -60,6 +62,17 @@ export function SignalBarsIcon({ status, size = 15 }: SignalBarsIconProps) {
           strokeWidth="1.75"
           strokeLinecap="round"
         />
+      )}
+      {serverDown && (
+        <>
+          <path
+            d="M8 2.5V8.3"
+            stroke="currentColor"
+            strokeWidth="1.85"
+            strokeLinecap="round"
+          />
+          <circle cx="8" cy="11.5" r="1.05" fill="currentColor" />
+        </>
       )}
     </svg>
   );

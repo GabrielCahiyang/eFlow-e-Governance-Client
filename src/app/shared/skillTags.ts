@@ -48,6 +48,23 @@ export async function saveSkillTagDefinition(definition: SkillTagDefinition): Pr
       retired: definition.retired,
       updated_at: new Date().toISOString(),
     });
+  completeSkillTagWrite(error);
+}
+
+export async function updateSkillTagDefinition(
+  id: string,
+  changes: { label: string } | { retired: boolean },
+): Promise<void> {
+  const { error } = await supabase
+    .from("skill_tag_definitions")
+    .update({ ...changes, updated_at: new Date().toISOString() })
+    .eq("id", id)
+    .select("id")
+    .single();
+  completeSkillTagWrite(error);
+}
+
+function completeSkillTagWrite(error: { code: string; message: string } | null) {
   if (error) {
     throw new Error(
       error.code === "23505" ? "That skill tag name is already active." : error.message,

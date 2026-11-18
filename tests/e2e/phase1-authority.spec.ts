@@ -89,7 +89,7 @@ for (const role of ["admin", "head", "member", "accounting_staff"]) {
       for (const section of ["dashboard", "projects", "tasks", "reviews", "team", "accounting_releases"]) {
         await expect(sidebar.locator(`[data-tour-section="${section}"]`)).toHaveCount(0);
       }
-      await expect(sidebar.getByRole("button", { name: "Backup & Export", exact: true })).toBeVisible();
+      await expect(sidebar.getByRole("button", { name: "Backup", exact: true })).toBeVisible();
       await page.getByRole("banner", { name: "Workspace utilities" }).hover();
       await sidebar.getByRole("button", { name: "Role Defaults", exact: true }).click();
       await expect(sidebar.getByRole("button", { name: "Role Defaults", exact: true })).toHaveAttribute("aria-current", "page");

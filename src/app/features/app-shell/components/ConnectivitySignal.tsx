@@ -20,14 +20,19 @@ export function ConnectivitySignal({
   if (status === "online") return null;
 
   const isOffline = status === "offline";
+  const isServerDown = status === "server_down";
   const label = checking
     ? "Checking…"
     : isOffline
       ? "No internet"
-      : "Slow internet";
+      : isServerDown
+        ? "Server down or lagging"
+        : "Slow internet";
   const tooltip = isOffline
     ? "No internet connection. Click to retry."
-    : "Slow internet connection detected. Click to re-check.";
+    : isServerDown
+      ? "Server is down or lagging. Click to retry."
+      : "Slow internet connection detected. Click to re-check.";
 
   return (
     <Tooltip content={tooltip}>

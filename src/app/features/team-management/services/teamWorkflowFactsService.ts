@@ -96,48 +96,61 @@ function toEvidence(row: Record<string, unknown>, kind: "task" | "subtask"): Wor
   };
 }
 
-export async function fetchTeamWorkflowFacts(taskIds: string[]): Promise<TeamWorkflowFacts> {
+const inFlightWorkflowFacts = new Map<string, Promise<TeamWorkflowFacts>>();
+
+export function fetchTeamWorkflowFacts(taskIds: string[]): Promise<TeamWorkflowFacts> {
   const uniqueTaskIds = Array.from(new Set(taskIds.filter(Boolean)));
-  if (uniqueTaskIds.length === 0) return emptyFacts();
+  if (uniqueTaskIds.length === 0) return Promise.resolve(emptyFacts());
+  const scopeKey = uniqueTaskIds.slice().sort().join(",");
+  const existing = inFlightWorkflowFacts.get(scopeKey);
+  if (existing) return existing;
 
-  const tables=['subtasks','task_progress_updates','subtask_progress_updates','task_submissions','subtask_submissions','task_status_history','task_attachments','subtask_submission_attachments'];
-  // Chunk identifiers as well as result pages to keep PostgREST URLs bounded.
-  const sources=await Promise.all(tables.map(async table=>{
-   const rows:Record<string,unknown>[]=[];
-   for(let offset=0;offset<uniqueTaskIds.length;offset+=100)rows.push(...await readAllRows<Record<string,unknown>>((from,to)=>supabase.from(table).select('*',{count:'exact'}).in('task_id',uniqueTaskIds.slice(offset,offset+100)).order('id',{ascending:true}).range(from,to)));
-   return {data:rows};
-  }));
-  const [subtasksResult,taskProgressResult,subtaskProgressResult,taskSubmissionResult,subtaskSubmissionResult,historyResult,taskEvidenceResult,subtaskEvidenceResult]=sources;
+  const request = (async (): Promise<TeamWorkflowFacts> => {
+    const tables=['subtasks','task_progress_updates','subtask_progress_updates','task_submissions','subtask_submissions','task_status_history','task_attachments','subtask_submission_attachments'];
+    // Chunk identifiers as well as result pages to keep PostgREST URLs bounded.
+    const sources=await Promise.all(tables.map(async table=>{
+     const rows:Record<string,unknown>[]=[];
+     for(let offset=0;offset<uniqueTaskIds.length;offset+=100)rows.push(...await readAllRows<Record<string,unknown>>((from,to)=>supabase.from(table).select('*',{count:'exact'}).in('task_id',uniqueTaskIds.slice(offset,offset+100)).order('id',{ascending:true}).range(from,to)));
+     return {data:rows};
+    }));
+    const [subtasksResult,taskProgressResult,subtaskProgressResult,taskSubmissionResult,subtaskSubmissionResult,historyResult,taskEvidenceResult,subtaskEvidenceResult]=sources;
 
-  const subtasks=subtasksResult.data.map(row=>rowToSubtask(row));
-  const scoped=subtasks.filter(item=>uniqueTaskIds.includes(item.taskId));
-  const personIds=deduplicateWorkPersonIds(scoped.flatMap(item=>[...(item.leadId?[item.leadId]:[]),...item.assignedToIds]));
-  // Resolve only staffing IDs in authorized facts, through current profile RLS.
-  // Missing permitted names use the shared display fallback; read errors remain errors.
-  const people:WorkPerson[]=[];
-  for(let offset=0;offset<personIds.length;offset+=100){
-    const selected=personIds.slice(offset,offset+100);
-    const profiles=await readAllRows<{id:string;full_name:string|null}>((from,to)=>supabase.from('profiles').select('id,full_name',{count:'exact'}).in('id',selected).order('id',{ascending:true}).range(from,to));
-    for(const profile of profiles)if(selected.includes(profile.id)&&profile.full_name)people.push({id:profile.id,name:profile.full_name});
-  }
-  const metadata=new Map(uniqueTaskIds.flatMap(rootId=>[...buildSubtaskDisplayMetadata(scoped,{rootId,people})]));
+    const subtasks=subtasksResult.data.map(row=>rowToSubtask(row));
+    const scoped=subtasks.filter(item=>uniqueTaskIds.includes(item.taskId));
+    const personIds=deduplicateWorkPersonIds(scoped.flatMap(item=>[...(item.leadId?[item.leadId]:[]),...item.assignedToIds]));
+    // Resolve only staffing IDs in authorized facts, through current profile RLS.
+    // Missing permitted names use the shared display fallback; read errors remain errors.
+    const people:WorkPerson[]=[];
+    for(let offset=0;offset<personIds.length;offset+=100){
+      const selected=personIds.slice(offset,offset+100);
+      const profiles=await readAllRows<{id:string;full_name:string|null}>((from,to)=>supabase.from('profiles').select('id,full_name',{count:'exact'}).in('id',selected).order('id',{ascending:true}).range(from,to));
+      for(const profile of profiles)if(selected.includes(profile.id)&&profile.full_name)people.push({id:profile.id,name:profile.full_name});
+    }
+    const metadata=new Map(uniqueTaskIds.flatMap(rootId=>[...buildSubtaskDisplayMetadata(scoped,{rootId,people})]));
 
-  return {
-    subtasks: subtasks.map(item=>mergeWorkDisplayMetadata(item,metadata.get(item.id))),
-    progress: [
-      ...(taskProgressResult.data || []).map((row: Record<string, unknown>) => toProgress(row, "task")),
-      ...(subtaskProgressResult.data || []).map((row: Record<string, unknown>) => toProgress(row, "subtask")),
-    ].sort((a, b) => b.createdAt - a.createdAt),
-    submissions: [
-      ...(taskSubmissionResult.data || []).map((row: Record<string, unknown>) => toSubmission(row, "task")),
-      ...(subtaskSubmissionResult.data || []).map((row: Record<string, unknown>) => toSubmission(row, "subtask")),
-    ].sort((a, b) => b.submittedAt - a.submittedAt),
-    statusHistory: (historyResult.data || []).map((row: Record<string, unknown>) => toStatusFact(row)),
-    evidence: [
-      ...(taskEvidenceResult.data || []).map((row: Record<string, unknown>) => toEvidence(row, "task")),
-      ...(subtaskEvidenceResult.data || []).map((row: Record<string, unknown>) => toEvidence(row, "subtask")),
-    ].sort((a, b) => b.createdAt - a.createdAt),
-  };
+    return {
+      subtasks: subtasks.map(item=>mergeWorkDisplayMetadata(item,metadata.get(item.id))),
+      progress: [
+        ...(taskProgressResult.data || []).map((row: Record<string, unknown>) => toProgress(row, "task")),
+        ...(subtaskProgressResult.data || []).map((row: Record<string, unknown>) => toProgress(row, "subtask")),
+      ].sort((a, b) => b.createdAt - a.createdAt),
+      submissions: [
+        ...(taskSubmissionResult.data || []).map((row: Record<string, unknown>) => toSubmission(row, "task")),
+        ...(subtaskSubmissionResult.data || []).map((row: Record<string, unknown>) => toSubmission(row, "subtask")),
+      ].sort((a, b) => b.submittedAt - a.submittedAt),
+      statusHistory: (historyResult.data || []).map((row: Record<string, unknown>) => toStatusFact(row)),
+      evidence: [
+        ...(taskEvidenceResult.data || []).map((row: Record<string, unknown>) => toEvidence(row, "task")),
+        ...(subtaskEvidenceResult.data || []).map((row: Record<string, unknown>) => toEvidence(row, "subtask")),
+      ].sort((a, b) => b.createdAt - a.createdAt),
+    };
+  })().finally(() => {
+    if (inFlightWorkflowFacts.get(scopeKey) === request) {
+      inFlightWorkflowFacts.delete(scopeKey);
+    }
+  });
+  inFlightWorkflowFacts.set(scopeKey, request);
+  return request;
 }
 
 export function getTeamWorkflowFactsScopeKey(taskIds: string[]): string {
@@ -169,6 +182,8 @@ export function subscribeToTeamWorkflowFacts(
   let disposed = false;
   let sequence = 0;
   let reloadTimer = 0;
+  let loading = false;
+  let queuedRefresh = false;
   const scopeKey = getTeamWorkflowFactsScopeKey(taskIds);
 
   const cached = getCachedTeamWorkflowFacts(taskIds);
@@ -177,20 +192,33 @@ export function subscribeToTeamWorkflowFacts(
   }
 
   const load = async (forceRefresh = false) => {
+    if (disposed) return;
+    if (loading) {
+      queuedRefresh = queuedRefresh || forceRefresh;
+      return;
+    }
+    loading = true;
     const run = ++sequence;
     try {
       if (!scopeKey) {
         if (!disposed && run === sequence) onChange(emptyFacts());
         return;
       }
-      if (forceRefresh) {
+      const shouldForce = forceRefresh && !inFlightWorkflowFacts.has(scopeKey);
+      if (shouldForce) {
         invalidateQueryDomain("team-workflow-facts", scopeKey);
       }
-      const facts = await warmTeamWorkflowFacts(taskIds, forceRefresh);
+      const facts = await warmTeamWorkflowFacts(taskIds, shouldForce);
       if (!disposed && run === sequence) onChange(facts);
     } catch (error) {
       if (scopeKey) evictQueryDomain("team-workflow-facts", scopeKey);
       if (!disposed && run === sequence) onError(error instanceof Error ? error.message : "Unable to load team workflow analytics.");
+    } finally {
+      loading = false;
+      if (!disposed && queuedRefresh) {
+        queuedRefresh = false;
+        void load(true);
+      }
     }
   };
   const queueLoad = () => {

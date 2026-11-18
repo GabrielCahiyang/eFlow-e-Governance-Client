@@ -146,12 +146,16 @@ export function ViewLoadingState() {
   const { status: effectiveStatus, checking, retry } = useNetworkConnectivity();
 
   const offline = effectiveStatus === 'offline';
+  const serverDown = effectiveStatus === 'server_down';
   const slow = effectiveStatus === 'slow';
+  const disconnected = offline || serverDown;
   const ariaLabel = offline
     ? 'No internet connection'
-    : slow
-      ? 'Slow internet connection'
-      : 'Getting things done';
+    : serverDown
+      ? 'Server is down or lagging'
+      : slow
+        ? 'Slow internet connection'
+        : 'Getting things done';
 
   const rootClass =
     effectiveStatus === 'online'
@@ -163,7 +167,7 @@ export function ViewLoadingState() {
       className={rootClass}
       role="status"
       aria-label={ariaLabel}
-      aria-busy={!offline}
+      aria-busy={!disconnected}
     >
       <div className="eflow-view-loading__frame">
         <div className="eflow-view-loading__aurora" aria-hidden="true" />
@@ -171,7 +175,7 @@ export function ViewLoadingState() {
         {/* Topbar matching live eFlow header */}
         <header className="eflow-view-loading__brand">
           <div className="eflow-view-loading__brand-lead">
-            <EFlowMark className="eflow-view-loading__mark" height={38} state={offline ? 'idle' : 'submitting'} />
+            <EFlowMark className="eflow-view-loading__mark" height={38} state={disconnected ? 'idle' : 'submitting'} />
             <span className="eflow-view-loading__brand-divider" aria-hidden="true" />
             <span className="eflow-view-loading__brand-org" aria-hidden="true" />
           </div>
@@ -191,9 +195,9 @@ export function ViewLoadingState() {
                   className={`eflow-view-loading__signal eflow-view-loading__signal--${effectiveStatus}`}
                 >
                   <SignalBarsIcon status={effectiveStatus} />
-                  <span>{offline ? 'No internet connection' : 'Slow internet'}</span>
+                  <span>{offline ? 'No internet connection' : serverDown ? 'Server is down or lagging' : 'Slow internet'}</span>
                 </span>
-                {offline && (
+                {disconnected && (
                   <button
                     type="button"
                     className="eflow-view-loading__retry"

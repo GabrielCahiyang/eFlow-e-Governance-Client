@@ -12,11 +12,14 @@ import {
 } from "../../src/app/components/workflow/ProjectWorkspaceSkeleton";
 import {
   NETWORK_ERROR_MESSAGE,
+  SERVER_UNAVAILABLE_MESSAGE,
+  readableUiError,
   userFacingError,
 } from "../../src/app/shared/userFacingError";
 import {
   SLOW_CONNECTION_THRESHOLD_MS,
   installConnectivityMonitor,
+  probeConnectivity,
   resetConnectivityForTests,
 } from "../../src/app/shared/networkConnectivity";
 
@@ -350,5 +353,134 @@ describe("networkConnectivity & offline/slow UI states", () => {
     cleanup();
     const standalone = render(<ProjectWorkspaceSkeleton view="index" />);
     expect(standalone.container.querySelector(".eflow-project-index-skeleton__table")).toBeTruthy();
+  });
+
+  it("reports 'Server down or lagging' instead of 'No internet' when Supabase returns 500/503/504 or CORS-blocked 5xx", async () => {
+    const baseUrl = import.meta.env.VITE_SUPABASE_URL || window.location.origin;
+    let healthy = false;
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      if (healthy) {
+        return new Response(null, { status: 200 });
+      }
+      if (init?.mode === "no-cors") {
+        // Server edge responded without CORS headers (server outage, not offline internet)
+        return { ok: false, status: 0, type: "opaque" } as Response;
+      }
+      if (url.includes("/auth/v1/health")) {
+        return new Response("Service Unavailable", { status: 503 });
+      }
+      if (url.includes("/rest/v1/rpc/r7_work_tree")) {
+        throw new TypeError("Failed to fetch");
+      }
+      return new Response("Internal Server Error", { status: 500 });
+    });
+    window.fetch = fetchMock as typeof fetch;
+    installConnectivityMonitor();
+
+    const { container } = render(
+      <EflowVibeThemeProvider preference="light">
+        <EflowTopBar
+          onOpenMobileNavigation={() => undefined}
+          onPageSelect={() => undefined}
+          role="head"
+          helpOpen={false}
+          onHelpOpenChange={() => undefined}
+        />
+      </EflowVibeThemeProvider>,
+    );
+
+    // 1. Trigger a CORS-blocked TypeError on RPC while online -> probe sees 503 -> server_down
+    await expect(window.fetch(`${baseUrl}/rest/v1/rpc/r7_work_tree`)).rejects.toThrow();
+    await waitFor(() => {
+      expect(container.querySelector(".eflow-topbar--server_down")).toBeTruthy();
+      expect(screen.getByText("Server down or lagging")).toBeVisible();
+    });
+    expect(container.querySelector(".eflow-topbar--offline")).toBeNull();
+    expect(screen.queryByText("No internet")).toBeNull();
+
+    // 2. LoadingScreen and ViewLoadingState reflect server_down (not No internet)
+    cleanup();
+    const loading = render(<LoadingScreen />);
+    expect(loading.container.querySelector(".eflow-loading--server_down")).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Server is down or lagging" })).toBeVisible();
+    expect(screen.queryByRole("heading", { name: "No internet connection" })).toBeNull();
+
+    cleanup();
+    const viewLoading = render(<ViewLoadingState />);
+    expect(viewLoading.container.querySelector(".eflow-view-loading--server_down")).toBeTruthy();
+    expect(screen.getByText("Server is down or lagging")).toBeVisible();
+
+    // 3. Recovery: clicking Retry when server returns 200 clears server_down
+    healthy = true;
+    fireEvent.click(screen.getByRole("button", { name: "Retry" }));
+    await waitFor(() => {
+      expect(screen.getByRole("status", { name: "Getting things done" })).toBeVisible();
+      expect(viewLoading.container.querySelector(".eflow-view-loading--server_down")).toBeNull();
+    });
+  });
+
+  it("distinguishes CORS-blocked server outages (no-cors resolves) from true offline (no-cors rejects)", async () => {
+    const baseUrl = import.meta.env.VITE_SUPABASE_URL || window.location.origin;
+
+    // CORS request rejects, but no-cors reachability resolves -> server_down
+    window.fetch = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+      if (init?.mode === "no-cors") {
+        return { ok: false, status: 0, type: "opaque" } as Response;
+      }
+      throw new TypeError("Failed to fetch");
+    }) as typeof fetch;
+    installConnectivityMonitor();
+
+    await expect(window.fetch(`${baseUrl}/rest/v1/tasks`)).rejects.toThrow();
+    const statusServerDown = await probeConnectivity();
+    expect(statusServerDown).toBe("server_down");
+
+    // Reset and simulate true internet outage (both CORS and no-cors reject) -> offline
+    resetConnectivityForTests();
+    window.fetch = vi.fn(async () => {
+      throw new TypeError("Failed to fetch");
+    }) as typeof fetch;
+    installConnectivityMonitor();
+
+    await expect(window.fetch(`${baseUrl}/rest/v1/tasks`)).rejects.toThrow();
+    await expect(window.fetch(`${baseUrl}/rest/v1/profiles`)).rejects.toThrow();
+    const statusOffline = await probeConnectivity();
+    expect(statusOffline).toBe("offline");
+  });
+
+  it("renders 'Server is down or lagging' in WorkspaceRecoveryState on PGRST002/503 or server_down state", async () => {
+    expect(
+      userFacingError(
+        { code: "PGRST002", message: "Could not query the database for the schema cache. Retrying." },
+        "fallback",
+      ),
+    ).toBe(SERVER_UNAVAILABLE_MESSAGE);
+    expect(readableUiError({ status: 503, message: "Service Unavailable" }, "Could not load.", "read")).toContain(
+      "server is down or lagging",
+    );
+
+    // Explicit 503 / PGRST002 error without global server_down state
+    const onRetry = vi.fn(async () => undefined);
+    render(
+      <WorkspaceRecoveryState
+        error="Could not query the database for the schema cache. Retrying."
+        onRetry={onRetry}
+      />,
+    );
+    expect(screen.getByText("Server unavailable")).toBeVisible();
+    expect(screen.getByRole("heading", { name: "Server is down or lagging" })).toBeVisible();
+    expect(screen.getByText(SERVER_UNAVAILABLE_MESSAGE)).toBeVisible();
+    expect(screen.queryByText("No internet connection")).toBeNull();
+
+    // Global server_down state overrides a generic Failed to fetch message
+    cleanup();
+    window.fetch = vi.fn(async () => new Response("Service Unavailable", { status: 503 })) as typeof fetch;
+    await act(async () => {
+      await probeConnectivity();
+    });
+    render(<WorkspaceRecoveryState error="TypeError: Failed to fetch" onRetry={onRetry} />);
+    expect(screen.getByRole("heading", { name: "Server is down or lagging" })).toBeVisible();
+    expect(screen.queryByRole("heading", { name: "No internet connection" })).toBeNull();
   });
 });

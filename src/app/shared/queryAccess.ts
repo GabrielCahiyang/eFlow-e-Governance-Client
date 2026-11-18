@@ -7,7 +7,7 @@ export function isQueryAccessDenied(error: unknown): boolean {
 
 export function isQueryConnectionFailure(error: unknown): boolean {
   if (!error || typeof error !== "object") return false;
-  const { status, message } = error as { status?: number; message?: string };
-  return status === 0 || (typeof status === "number" && status >= 500) ||
-    /failed to fetch|network|connection|timed? out|load failed|service unavailable/i.test(message || "");
+  const { code, status, message } = error as { code?: string; status?: number; message?: string };
+  return status === 0 || status === 408 || (typeof status === "number" && status >= 500) || code === "57014" ||
+    /failed to fetch|network|connection|timed? ?out|statement timeout|load failed|service unavailable/i.test(message || "");
 }

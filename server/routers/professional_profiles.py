@@ -96,6 +96,8 @@ async def upload_pds(request: Request, invitation_id: UUID | None = None, projec
             pass
         raise HTTPException(503, 'PDS upload could not finish. Please retry.') from exc
     audit(user.id, office, document_id, 'pds_uploaded')
+    from pds.worker import wake_worker
+    wake_worker()
     return {key: row.get(key) for key in DOCUMENT_FIELDS.split(',')}
 
 @router.get('/pds/me')
@@ -108,6 +110,8 @@ def retry_processing(document_id: UUID, user=Depends(require_user)):
     if document['processing_status'] not in ('failed', 'pending'):
         raise HTTPException(409, 'This document is processing or already extracted.')
     supabase_admin.table('user_pds_documents').update({'processing_status': 'pending', 'processing_error': None}).eq('id', str(document_id)).in_('processing_status', ['failed', 'pending']).execute()
+    from pds.worker import wake_worker
+    wake_worker()
     return {'processing_status': 'pending'}
 
 @router.get('/pds/{document_id}/download')

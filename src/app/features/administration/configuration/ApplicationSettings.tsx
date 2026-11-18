@@ -122,39 +122,6 @@ function SettingsForm({ canManage, embedded }: { canManage: boolean; embedded: b
                     }
                   />
                 </label>
-
-                <label>
-                  Organization Full Name / Header Subtitle
-                  <input
-                    maxLength={160}
-                    disabled={locked}
-                    placeholder="e.g. Local Economic Development and Investment Promotions Office"
-                    value={form.organization_subtitle}
-                    onChange={(e) =>
-                      setForm({ ...form, organization_subtitle: e.target.value })
-                    }
-                  />
-                  <small>
-                    Optional agency or city title printed on exported reports and activation emails.
-                  </small>
-                </label>
-
-                <label>
-                  Support / Reply-To Email
-                  <input
-                    type="email"
-                    maxLength={254}
-                    disabled={locked}
-                    placeholder="support@eflow.gov.ph"
-                    value={form.support_email}
-                    onChange={(e) =>
-                      setForm({ ...form, support_email: e.target.value })
-                    }
-                  />
-                  <small>
-                    Included in invitation email footers and used as the reply-to contact when present.
-                  </small>
-                </label>
               </div>
 
               <div className="eflow-admin-card eflow-admin-settings-form">
@@ -191,7 +158,7 @@ function SettingsForm({ canManage, embedded }: { canManage: boolean; embedded: b
                   </small>
                 </label>
 
-                <label className="!flex-row items-start gap-3 !font-normal cursor-pointer">
+                <label className="eflow-admin-checkbox-row">
                   <input
                     type="checkbox"
                     disabled={locked}
@@ -204,7 +171,6 @@ function SettingsForm({ canManage, embedded }: { canManage: boolean; embedded: b
                           : "false",
                       })
                     }
-                    className="mt-0.5 !h-4 !w-4 shrink-0"
                   />
                   <span>
                     <span className="block text-[13px] font-medium text-[var(--eflow-text)]">

@@ -2,6 +2,7 @@
 
 from datetime import datetime, timezone
 import logging
+import time
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -158,6 +159,10 @@ async def _proxy(
 
 
 _STATUS_KEYS = ("ai_endpoint", "ai_endpoint_status", "ai_endpoint_heartbeat")
+_STATUS_CACHE_TTL_SECONDS = 5.0
+_STATUS_STALE_FALLBACK_SECONDS = 60.0
+_cached_status_config: dict[str, str | None] | None = None
+_cached_status_timestamp: float = 0.0
 
 
 async def _is_local_ai_healthy() -> bool:
@@ -177,6 +182,15 @@ async def _is_local_ai_healthy() -> bool:
 
 async def _read_system_config(keys: tuple[str, ...]) -> dict[str, str | None]:
     """Read system_config rows using the service role key (bypasses RLS)."""
+    global _cached_status_config, _cached_status_timestamp
+    now = time.monotonic()
+    if (
+        keys == _STATUS_KEYS
+        and _cached_status_config is not None
+        and (now - _cached_status_timestamp) < _STATUS_CACHE_TTL_SECONDS
+    ):
+        return dict(_cached_status_config)
+
     service_headers = {
         "apikey": settings.supabase_service_role_key,
         "Authorization": f"Bearer {settings.supabase_service_role_key}",
@@ -193,9 +207,19 @@ async def _read_system_config(keys: tuple[str, ...]) -> dict[str, str | None]:
             rows = resp.json()
     except Exception as exc:
         logger.warning("Failed to read system_config for AI status: %s", exc)
+        if (
+            keys == _STATUS_KEYS
+            and _cached_status_config is not None
+            and (now - _cached_status_timestamp) < _STATUS_STALE_FALLBACK_SECONDS
+        ):
+            return dict(_cached_status_config)
         raise HTTPException(status_code=503, detail="Could not read AI configuration.") from exc
 
-    return {row["key"]: row.get("value") for row in rows if isinstance(row, dict)}
+    result = {row["key"]: row.get("value") for row in rows if isinstance(row, dict)}
+    if keys == _STATUS_KEYS:
+        _cached_status_config = dict(result)
+        _cached_status_timestamp = now
+    return result
 
 
 @router.get("/local-health")

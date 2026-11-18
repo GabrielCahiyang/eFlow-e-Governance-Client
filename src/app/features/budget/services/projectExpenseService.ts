@@ -5,7 +5,13 @@ const pendingStatuses = ['liquidation_submitted', 'pending_leader_liquidation_re
 type Amounts = { settled: number; pending: number; pendingCount: number; budget?: number; complete?: boolean; expenseCount?: number };
 export type ProjectExpenseTotals = { tasks: Map<string, Amounts>; subtasks: Map<string, Amounts> };
 
-export async function fetchProjectExpenseTotals(taskIds: string[]): Promise<ProjectExpenseTotals> {
+const inFlightExpenseTotals = new Map<string, Promise<ProjectExpenseTotals>>();
+
+export function fetchProjectExpenseTotals(taskIds: string[]): Promise<ProjectExpenseTotals> {
+  const scopeKey = JSON.stringify([...new Set(taskIds)].sort());
+  const existing = inFlightExpenseTotals.get(scopeKey);
+  if (existing) return existing;
+  const request = (async (): Promise<ProjectExpenseTotals> => {
   const lead = await budgetReportRead(ids => supabase.rpc('task_lead_expense_totals', { p_task_ids: ids }, { count: 'exact' })
     .order('task_id').order('subtask_id'), taskIds);
   if (lead.error) throw new Error(lead.error.message);
@@ -61,4 +67,9 @@ export async function fetchProjectExpenseTotals(taskIds: string[]): Promise<Proj
     if (request.subtask_id) add(totals.subtasks, String(request.subtask_id), bucket, cents);
   }
   return totals;
+  })().finally(() => {
+    if (inFlightExpenseTotals.get(scopeKey) === request) inFlightExpenseTotals.delete(scopeKey);
+  });
+  inFlightExpenseTotals.set(scopeKey, request);
+  return request;
 }

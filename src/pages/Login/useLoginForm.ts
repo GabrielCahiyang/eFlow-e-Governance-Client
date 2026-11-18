@@ -3,6 +3,8 @@ import { getLoginPortal, validateLoginFields, signInWithAccountProtection } from
 import { useAuth } from "../../app/contexts/AuthContext";
 import { SESSION_NOTICE_KEY } from "../../app/features/session-security/constants";
 import { clearAllSessionActivity } from "../../app/features/session-security/services/sessionActivityStorage";
+import { probeConnectivity } from "../../app/shared/networkConnectivity";
+import { isServerUnavailableError, SERVER_UNAVAILABLE_MESSAGE } from "../../app/shared/userFacingError";
 
 export type LoginFormState =
   | "idle"
@@ -167,9 +169,18 @@ export function useLoginForm(): UseLoginFormReturn {
         setErrorMessage("Email or password is incorrect.");
         setShakeField("password");
         setTimeout(() => setShakeField(null), 350);
+      } else if (isServerUnavailableError(err)) {
+        setState("server_error");
+        setErrorMessage(SERVER_UNAVAILABLE_MESSAGE);
       } else if (msg.includes("network") || msg.includes("Failed to fetch")) {
+        const connectivity = await probeConnectivity().catch(() => "offline" as const);
+        if (connectivity === "server_down") {
+          setState("server_error");
+          setErrorMessage(SERVER_UNAVAILABLE_MESSAGE);
+        } else {
         setState("network_offline");
-        setErrorMessage("Network error: Unable to contact authentication servers.");
+          setErrorMessage("Network error: Unable to contact authentication servers.");
+        }
       } else {
         setState("server_error");
         setErrorMessage(/email.*not.*confirm/i.test(msg)

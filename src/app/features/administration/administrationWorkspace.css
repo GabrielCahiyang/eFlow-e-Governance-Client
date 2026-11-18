@@ -5,7 +5,9 @@
   min-width: 0;
   color: var(--eflow-text);
 }
-.eflow-admin-configuration input {
+.eflow-admin-configuration input:not([type="checkbox"]),
+.eflow-admin-configuration select,
+.eflow-admin-configuration textarea {
   display: block;
   width: 100%;
   min-height: var(--eflow-control-height);
@@ -15,17 +17,41 @@
   color: var(--eflow-text);
   border-radius: var(--eflow-radius-control);
   margin-top: 6px;
+  font-size: var(--eflow-text-sm);
+  font-weight: 400;
+}
+.eflow-admin-configuration input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  min-height: 16px;
+  padding: 0;
+  margin-top: 2px;
+  flex-shrink: 0;
+  accent-color: var(--eflow-primary);
+  cursor: pointer;
 }
 .eflow-admin-settings-form {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: 16px;
-  max-width: 680px;
+  max-width: 720px;
 }
 .eflow-admin-settings-form label {
+  display: block;
   font-size: var(--eflow-text-sm);
   font-weight: 600;
   color: var(--eflow-text);
+}
+.eflow-admin-settings-form label.eflow-admin-checkbox-row {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 12px;
+  font-weight: 400;
+  cursor: pointer;
+}
+.eflow-admin-settings-form label.eflow-admin-checkbox-row small {
+  margin-top: 4px;
 }
 .eflow-admin-settings-form small {
   display: block;

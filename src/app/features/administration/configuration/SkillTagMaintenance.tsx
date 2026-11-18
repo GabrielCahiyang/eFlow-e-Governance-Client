@@ -1,31 +1,45 @@
 import "./statusMaintenance.css";
 import { useState, type FormEvent } from "react";
-import { Pencil, Plus, Tag } from "lucide-react";
+import { Pencil, Plus, RotateCcw, Tag, Trash2 } from "lucide-react";
 import { Button } from "../../../components/ui/button";
 import { FeedbackState } from "../../../components/ui/FeedbackState";
+import { FeatureDialog } from "../../../components/ui/FeatureDialog";
+import { FormField, TextInput } from "../../../components/ui/FormField";
+import { useConfirmation } from "../../../components/ui/useConfirmation";
 import { StatusPill, WorkspaceHeader } from "../../../components/ui/workspace";
 import {
   saveSkillTagDefinition,
+  updateSkillTagDefinition,
   useSkillTags,
   type SkillTagDefinition,
 } from "../../../shared/skillTags";
 
 export function SkillTagMaintenance({ embedded = false }: { embedded?: boolean }) {
   const { definitions, loading, error: loadError, refresh } = useSkillTags(true);
-  const [draft, setDraft] = useState<SkillTagDefinition | null>(null);
+  const [editor, setEditor] = useState<{
+    draft: SkillTagDefinition;
+    originalLabel: string | null;
+  } | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const removal = useConfirmation();
 
-  function edit(item: SkillTagDefinition) {
-    setDraft({ ...item });
+  function openEditor(draft: SkillTagDefinition, originalLabel: string | null) {
+    setEditor({ draft, originalLabel });
     setError("");
     setNotice("");
   }
 
+  function closeEditor() {
+    setEditor(null);
+    setError("");
+  }
+
   async function save(event: FormEvent) {
     event.preventDefault();
-    if (!draft || busy) return;
+    if (!editor || busy) return;
+    const { draft } = editor;
     const cleanLabel = draft.label.replace(/\s+/g, " ").trim();
     if (!cleanLabel || cleanLabel.length > 100) {
       setError("Enter a skill name between 1 and 100 characters.");
@@ -34,16 +48,40 @@ export function SkillTagMaintenance({ embedded = false }: { embedded?: boolean }
     setBusy(true);
     setError("");
     try {
-      await saveSkillTagDefinition({
-        ...draft,
-        position: Math.max(0, Math.min(999, Math.round(draft.position || 100))),
-        label: cleanLabel,
-      });
-      setDraft(null);
-      setNotice(`Saved "${cleanLabel}".`);
+      if (editor.originalLabel === null) {
+        await saveSkillTagDefinition({ ...draft, label: cleanLabel });
+      } else {
+        await updateSkillTagDefinition(draft.id, { label: cleanLabel });
+      }
+      closeEditor();
+      setNotice(`Saved “${cleanLabel}”.`);
       await refresh();
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Could not save skill tag.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function toggleVisibility(item: SkillTagDefinition) {
+    if (busy) return;
+    const retire = !item.retired;
+    if (retire && !(await removal.confirm({
+      title: "Remove skill tag?",
+      description: `“${item.label}” will be removed from the skill picker. People who already have this skill will keep it. You can restore the tag from Hidden skill tags.`,
+      actionLabel: "Remove skill tag",
+      danger: true,
+    }))) return;
+
+    setBusy(true);
+    setError("");
+    setNotice("");
+    try {
+      await updateSkillTagDefinition(item.id, { retired: retire });
+      setNotice(retire ? `Removed “${item.label}” from the skill picker.` : `Restored “${item.label}”.`);
+      await refresh();
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "Could not update skill tag.");
     } finally {
       setBusy(false);
     }
@@ -54,12 +92,12 @@ export function SkillTagMaintenance({ embedded = false }: { embedded?: boolean }
       type="button"
       disabled={loading || busy}
       onClick={() =>
-        edit({
+        openEditor({
           id: crypto.randomUUID(),
           label: "",
           position: Math.min(999, (definitions.length + 1) * 10),
           retired: false,
-        })
+        }, null)
       }
     >
       <Plus size={15} aria-hidden="true" /> Add skill tag
@@ -68,6 +106,7 @@ export function SkillTagMaintenance({ embedded = false }: { embedded?: boolean }
 
   const activeTags = definitions.filter((item) => !item.retired);
   const hiddenTags = definitions.filter((item) => item.retired);
+  const editorTitle = editor?.originalLabel ? `Edit “${editor.originalLabel}”` : "Add skill tag";
 
   const renderTable = (items: SkillTagDefinition[]) => (
     <div className="status-maintenance-table">
@@ -76,7 +115,7 @@ export function SkillTagMaintenance({ embedded = false }: { embedded?: boolean }
           <tr>
             <th scope="col">Skill name</th>
             <th scope="col">Status</th>
-            <th scope="col">Action</th>
+            <th scope="col">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -95,16 +134,32 @@ export function SkillTagMaintenance({ embedded = false }: { embedded?: boolean }
                 />
               </td>
               <td>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  aria-label={`Edit ${item.label}`}
-                  disabled={busy}
-                  onClick={() => edit(item)}
-                >
-                  <Pencil size={13} aria-hidden="true" /> Edit
-                </Button>
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    aria-label={`Edit ${item.label}`}
+                    disabled={busy}
+                    onClick={() => openEditor(item, item.label)}
+                  >
+                    <Pencil size={13} aria-hidden="true" /> Edit
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    aria-label={`${item.retired ? "Restore" : "Remove"} ${item.label}`}
+                    disabled={busy}
+                    onClick={() => void toggleVisibility(item)}
+                  >
+                    {item.retired ? (
+                      <><RotateCcw size={13} aria-hidden="true" /> Restore</>
+                    ) : (
+                      <><Trash2 size={13} aria-hidden="true" /> Remove</>
+                    )}
+                  </Button>
+                </div>
               </td>
             </tr>
           ))}
@@ -126,7 +181,7 @@ export function SkillTagMaintenance({ embedded = false }: { embedded?: boolean }
           <div>
             <h2>Skill tags</h2>
             <p className="eflow-admin-copy">
-              Add or update skill tags that invited users and staff can select with a tap instead of typing.
+              Manage the skill tags that invited users and staff can select.
             </p>
           </div>
           {addButton}
@@ -143,40 +198,13 @@ export function SkillTagMaintenance({ embedded = false }: { embedded?: boolean }
           Loading skill tags…
         </div>
       )}
-      {notice && <FeedbackState tone="success" title="Saved">{notice}</FeedbackState>}
+      {notice && <FeedbackState tone="success" title="Skill tags updated">{notice}</FeedbackState>}
+      {error && !editor && (
+        <FeedbackState tone="error" title="Could not update skill tag">{error}</FeedbackState>
+      )}
 
       {!loading && !loadError && (
         <>
-          {draft && (
-            <form className="status-maintenance-editor" onSubmit={save}>
-              <div className="eflow-admin-subsection-header">
-                <h3>{draft.label ? `Edit “${draft.label}”` : "Add skill tag"}</h3>
-              </div>
-              <div className="status-maintenance-fields">
-                <label>
-                  Skill name
-                  <input
-                    required
-                    maxLength={100}
-                    value={draft.label}
-                    disabled={busy}
-                    placeholder="e.g. Budget Forecasting"
-                    onChange={(event) => setDraft({ ...draft, label: event.target.value })}
-                  />
-                </label>
-              </div>
-              {error && <FeedbackState tone="error" title="Check skill details">{error}</FeedbackState>}
-              <div className="status-maintenance-actions">
-                <Button type="button" variant="outline" disabled={busy} onClick={() => setDraft(null)}>
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={busy}>
-                  {busy ? "Saving…" : "Save skill tag"}
-                </Button>
-              </div>
-            </form>
-          )}
-
           <section className="eflow-admin-card space-y-4">
             <div>
               <h3>Active skill tags ({activeTags.length})</h3>
@@ -198,7 +226,7 @@ export function SkillTagMaintenance({ embedded = false }: { embedded?: boolean }
               <div>
                 <h3>Hidden skill tags ({hiddenTags.length})</h3>
                 <p className="eflow-admin-copy">
-                  Hidden from new invitations while preserving skills already saved on accounts.
+                  Hidden from the skill picker. Skills already saved on accounts are kept.
                 </p>
               </div>
               {renderTable(hiddenTags)}
@@ -206,6 +234,41 @@ export function SkillTagMaintenance({ embedded = false }: { embedded?: boolean }
           )}
         </>
       )}
+
+      {editor && (
+        <FeatureDialog
+          title={editorTitle}
+          onClose={closeEditor}
+          preventClose={busy}
+          contentClassName="max-w-md"
+        >
+          <form className="grid gap-4 overflow-y-auto p-6" onSubmit={save}>
+            <h2 className="pr-8 text-lg font-semibold text-[var(--eflow-text)]">{editorTitle}</h2>
+            <FormField label="Skill name" required error={error}>
+              <TextInput
+                required
+                maxLength={100}
+                value={editor.draft.label}
+                disabled={busy}
+                placeholder="e.g. Budget Forecasting"
+                onChange={(event) => setEditor({
+                  ...editor,
+                  draft: { ...editor.draft, label: event.target.value },
+                })}
+              />
+            </FormField>
+            <div className="status-maintenance-actions">
+              <Button type="button" variant="outline" disabled={busy} onClick={closeEditor}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={busy}>
+                {busy ? "Saving…" : "Save skill tag"}
+              </Button>
+            </div>
+          </form>
+        </FeatureDialog>
+      )}
+      {removal.dialog}
     </section>
   );
 }

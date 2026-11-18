@@ -1,7 +1,7 @@
 import { test, expect, type Page } from '@playwright/test';
 import { globalUiP5aFixture } from './fixtures/globalUiP5a';
 test.skip(process.env.EFLOW_E2E!=='1','Opt-in local synthetic browser suite');
-const pages=['People & Accounts','Roles & Access','Account Audit','System & Integrations','Backup & Export'];
+const pages=['People & Accounts','Roles & Access','Account Audit','System & Integrations','Backup'];
 const headings:Record<string,string>={};
 async function nav(page:Page){const region=page.getByRole('navigation',{name:'Admin Center destinations',exact:true});if((page.viewportSize()?.width||1440)<1024&&!await region.isVisible())await page.getByRole('button',{name:'Open navigation',exact:true}).click();await expect(region).toBeVisible();return region;}
 
@@ -43,7 +43,7 @@ for(const theme of ['light','dark'] as const)test(`P5a ${theme} responsive long 
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
   await (await nav(page)).getByRole('button',{name:'Account Audit',exact:true}).click();await expect(page.getByText('No permitted administrative events.',{exact:true})).toBeVisible();
   fixture.state.unavailable=true;await page.getByRole('button',{name:'Refresh audit',exact:true}).click();await expect(page.getByRole('alert')).toContainText('could not be read');
-  await (await nav(page)).getByRole('button',{name:'Backup & Export',exact:true}).click();await expect(page.getByRole('heading',{name:'Backup gateway route unavailable',exact:true})).toBeVisible();
+  await (await nav(page)).getByRole('button',{name:'Backup',exact:true}).click();await expect(page.getByRole('heading',{name:'Backup gateway route unavailable',exact:true})).toBeVisible();
   await expect(page.getByText('One-time server setup required',{exact:true})).toHaveCount(0);
   fixture.state.unavailable=false;await page.getByRole('button',{name:'Check connection again',exact:true}).click();await expect(page.getByText('One-time server setup required',{exact:true})).toBeVisible();
   expect(fixture.state.writes).toEqual([]);

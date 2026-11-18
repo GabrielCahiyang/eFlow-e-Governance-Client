@@ -104,3 +104,28 @@ it("evicts cached Office data when the same role loses a cross-Office grant", as
   expect(view.result.current.can("navigation.budget")).toBe(true);
   expect(readCachedQuery("department-budget", "head:other-office:2026").hit).toBe(false);
 });
+
+it("preserves verified permissions and avoids remounting when a permission check hits a statement timeout", async () => {
+  auth.grants.mockResolvedValue([]);
+  auth.profile.mockResolvedValue({ data: { id: "head", role: "head", org_id: "office", is_active: true } });
+  auth.permissions
+    .mockResolvedValueOnce(new Set(["navigation.budget"]))
+    .mockRejectedValueOnce(Object.assign(new Error("canceling statement due to statement timeout"), { code: "57014" }))
+    .mockRejectedValueOnce(Object.assign(new Error("permission denied for table role_permissions"), { code: "42501" }));
+  const view = renderHook(() => useAuth(), { wrapper: ({ children }: { children: ReactNode }) =>
+    <AuthProvider>{children}</AuthProvider> });
+  act(() => auth.session?.("SIGNED_IN", { user: { id: "head" } }));
+  await waitFor(() => expect(view.result.current.can("navigation.budget")).toBe(true));
+  await loadWithQueryCache({ domain: "department-budget", scope: "head:office:2026", fetcher: async () => ["old-budget"] });
+
+  const revision = view.result.current.accessRevision;
+  await act(async () => { auth.permissionChanged?.(); });
+  expect(view.result.current.can("navigation.budget")).toBe(true);
+  expect(view.result.current.accessRevision).toBe(revision);
+  expect(readCachedQuery("department-budget", "head:office:2026").hit).toBe(true);
+
+  await act(async () => { auth.permissionChanged?.(); });
+  await waitFor(() => expect(view.result.current.can("navigation.budget")).toBe(false));
+  expect(view.result.current.accessRevision).toBe(revision + 1);
+  expect(readCachedQuery("department-budget", "head:office:2026").hit).toBe(false);
+});

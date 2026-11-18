@@ -33,19 +33,41 @@ def process_document(document: dict):
         supabase_admin.table('user_pds_documents').update({'processing_status': 'failed', 'processing_error': reason[:500], 'processed_at': datetime.now(timezone.utc).isoformat()}).eq('id', subject).execute()
         audit(actor, office, subject, 'pds_processing_failed')
 
+_MIN_IDLE_WAIT_SECONDS = 5.0
+_MAX_IDLE_WAIT_SECONDS = 60.0
+_wake_event = Event()
+
+
+class _WorkerStopEvent(Event):
+    def set(self) -> None:
+        super().set()
+        _wake_event.set()
+
+
+def wake_worker() -> None:
+    """Wake the PDS worker immediately when a new upload or retry is queued."""
+    _wake_event.set()
+
+
 def start_worker():
-    stopped = Event()
+    stopped = _WorkerStopEvent()
     def run():
+        idle_wait = _MIN_IDLE_WAIT_SECONDS
         while not stopped.is_set():
             try:
                 rows = supabase_admin.rpc('phase2_claim_pds_job', {}).execute().data or []
                 if rows:
                     process_document(rows[0])
+                    idle_wait = _MIN_IDLE_WAIT_SECONDS
                     continue
             except Exception:
                 # Existing installations without Phase 2 retain their current behavior.
                 pass
-            stopped.wait(5)
+            if _wake_event.wait(timeout=idle_wait):
+                _wake_event.clear()
+                idle_wait = _MIN_IDLE_WAIT_SECONDS
+            else:
+                idle_wait = min(_MAX_IDLE_WAIT_SECONDS, idle_wait * 2.0)
     thread = Thread(target=run, name='eflow-pds-worker', daemon=True)
     if os.getenv('EFLOW_PDS_WORKER_ENABLED', 'true').lower() == 'true':
         thread.start()

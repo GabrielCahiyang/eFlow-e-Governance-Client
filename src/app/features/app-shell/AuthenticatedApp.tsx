@@ -27,16 +27,17 @@ const ShareManagementPage = lazyFeature(() =>
 export function AuthenticatedApp() {
   const { user, userProfile, loading, permissionsLoading, accessRevision } = useAuth();
   const { loading: preferencesLoading } = useUserPreferences();
+  const userId = user?.id;
 
   useEffect(() => {
-    if (!user || ['/activate-account','/accept-invite','/accept-project-invite','/project-share','/manage-project-share'].includes(window.location.pathname)) return;
+    if (!userId || ['/activate-account','/accept-invite','/accept-project-invite','/project-share','/manage-project-share'].includes(window.location.pathname)) return;
     void import("../tasks").then((module) => module.runTaskMaintenance()).catch((error) => {
       console.warn("Task maintenance could not run:", error);
     });
     void import("../budget").then((module) => module.runDepartmentBudgetMaintenance()).catch((error) => {
       console.warn("Office budget maintenance could not run:", error);
     });
-  }, [user]);
+  }, [userId]);
 
   if (window.location.pathname === '/activate-account') return <ActivateAccountPage />;
   if (['/accept-invite','/accept-project-invite'].includes(window.location.pathname)) return <AcceptInvitationPage />;

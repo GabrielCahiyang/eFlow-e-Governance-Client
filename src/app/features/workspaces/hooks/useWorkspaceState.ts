@@ -1,7 +1,7 @@
 import {ACCESS_CHANGED_EVENT} from '../../project-access';
 import { PROJECTS_BROADCAST_EVENT, type Project } from '../../projects';
 import { isDocumentVisible } from '../../../shared/queryCache';
-import { isNetworkError, userFacingError } from '../../../shared/userFacingError';
+import { isNetworkError, isServerUnavailableError, userFacingError } from '../../../shared/userFacingError';
 import { probeConnectivity } from '../../../shared/networkConnectivity';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { NAVIGATION_LOCATION_EVENT } from '../../../shared/navigationHistory';
@@ -38,7 +38,7 @@ export function useWorkspaceState(userId: string, officeId: string, enabled: boo
       if (new URLSearchParams(window.location.search).get(WORKSPACE_QUERY)!==selected) writeWorkspaceLocation(selected,false,'replace');
     } catch(error) {
       if (token!==generation.current) return;
-      if (isNetworkError(error)) {
+      if (isNetworkError(error) || isServerUnavailableError(error)) {
         void probeConnectivity();
       }
       setState({key:scopeKey,workspaces:[],loading:false,error:userFacingError(error,'Could not load workspaces.'),unavailable:error instanceof WorkspaceApiUnavailable});

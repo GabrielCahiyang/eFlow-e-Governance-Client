@@ -4,7 +4,9 @@ import { SignalBarsIcon } from "../../../components/ui/SignalBarsIcon";
 import { useNetworkConnectivity } from "../../../shared/networkConnectivity";
 import {
   isNetworkError,
+  isServerUnavailableError,
   NETWORK_ERROR_MESSAGE,
+  SERVER_UNAVAILABLE_MESSAGE,
   userFacingError,
 } from "../../../shared/userFacingError";
 
@@ -15,35 +17,42 @@ interface WorkspaceRecoveryStateProps {
 
 /**
  * Clean Vibe recovery card shown inside the workspace frame when workspace
- * loading fails (e.g., offline / network failure) or no workspace is selected.
+ * loading fails (e.g., offline / server outage / network failure) or no workspace is selected.
  */
 export function WorkspaceRecoveryState({
   error,
   onRetry,
 }: WorkspaceRecoveryStateProps) {
-  const { isOffline, retry: retryConnectivity } = useNetworkConnectivity();
+  const { isOffline, isServerDown, retry: retryConnectivity } = useNetworkConnectivity();
   const [retrying, setRetrying] = useState(false);
 
-  const networkIssue = isOffline || (Boolean(error) && isNetworkError(error));
-  const hasError = Boolean(error) || isOffline;
+  const serverIssue = isServerDown || (Boolean(error) && isServerUnavailableError(error));
+  const networkIssue = !serverIssue && (isOffline || (Boolean(error) && isNetworkError(error)));
+  const hasError = Boolean(error) || isOffline || serverIssue;
 
-  const badgeLabel = networkIssue
-    ? "No internet"
-    : hasError
-      ? "Workspace unavailable"
-      : "Workspace required";
+  const badgeLabel = serverIssue
+    ? "Server unavailable"
+    : networkIssue
+      ? "No internet"
+      : hasError
+        ? "Workspace unavailable"
+        : "Workspace required";
 
-  const title = networkIssue
-    ? "No internet connection"
-    : hasError
-      ? "Could not load workspace"
-      : "Select or create a workspace";
+  const title = serverIssue
+    ? "Server is down or lagging"
+    : networkIssue
+      ? "No internet connection"
+      : hasError
+        ? "Could not load workspace"
+        : "Select or create a workspace";
 
-  const message = networkIssue
-    ? NETWORK_ERROR_MESSAGE
-    : error
-      ? userFacingError(error, "Could not load workspaces.")
-      : "Create or select a workspace to continue.";
+  const message = serverIssue
+    ? SERVER_UNAVAILABLE_MESSAGE
+    : networkIssue
+      ? NETWORK_ERROR_MESSAGE
+      : error
+        ? userFacingError(error, "Could not load workspaces.")
+        : "Create or select a workspace to continue.";
 
   const handleRetry = async () => {
     if (retrying) return;
@@ -59,7 +68,11 @@ export function WorkspaceRecoveryState({
   return (
     <section
       className={`eflow-workspace eflow-workspace-recovery ${
-        networkIssue ? "eflow-workspace-recovery--offline" : ""
+        serverIssue
+          ? "eflow-workspace-recovery--server_down"
+          : networkIssue
+            ? "eflow-workspace-recovery--offline"
+            : ""
       }`}
       role={hasError ? "alert" : "status"}
       aria-live="polite"
@@ -67,12 +80,16 @@ export function WorkspaceRecoveryState({
       <div className="eflow-workspace-recovery__card">
         <span
           className={`eflow-workspace-recovery__tag ${
-            hasError
-              ? "eflow-workspace-recovery__tag--negative"
-              : "eflow-workspace-recovery__tag--neutral"
+            serverIssue
+              ? "eflow-workspace-recovery__tag--warning"
+              : hasError
+                ? "eflow-workspace-recovery__tag--negative"
+                : "eflow-workspace-recovery__tag--neutral"
           }`}
         >
-          {networkIssue ? (
+          {serverIssue ? (
+            <SignalBarsIcon status="server_down" size={14} />
+          ) : networkIssue ? (
             <SignalBarsIcon status="offline" size={14} />
           ) : hasError ? (
             <AlertCircle size={14} aria-hidden="true" />

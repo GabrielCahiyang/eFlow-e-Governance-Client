@@ -12,6 +12,9 @@ export const PROFILE_VERIFICATION_MESSAGE =
 export const NETWORK_ERROR_MESSAGE =
   'Unable to reach eFlow. Check your internet connection and try again.';
 
+export const SERVER_UNAVAILABLE_MESSAGE =
+  "eFlow's server is down or lagging. Please try again in a moment.";
+
 function messageOf(reason: unknown): string {
   if (reason instanceof Error) return reason.message;
   if (typeof reason === 'string') return reason;
@@ -45,6 +48,32 @@ export function isProfileVerificationError(reason: unknown): boolean {
     message.includes('could not load your eflow profile');
 }
 
+export function isServerUnavailableError(reason: unknown): boolean {
+  if (!reason) return false;
+  const code = reason && typeof reason === 'object' && 'code' in reason
+    ? String((reason as { code?: unknown }).code || '').toUpperCase()
+    : '';
+  const status = reason && typeof reason === 'object' && 'status' in reason
+    ? Number((reason as { status?: unknown }).status)
+    : 0;
+  if (status === 500 || status === 502 || status === 503 || status === 504) {
+    return true;
+  }
+  if (/^PGRST00[123]$/.test(code)) {
+    return true;
+  }
+  const message = messageOf(reason).toLowerCase();
+  return (
+    message.includes('service unavailable') ||
+    message.includes('bad gateway') ||
+    message.includes('gateway timeout') ||
+    message.includes('upstream request timeout') ||
+    message.includes('could not query the database for the schema cache') ||
+    message.includes('pgrst002') ||
+    message.includes('server is down or lagging')
+  );
+}
+
 export function isNetworkError(reason: unknown): boolean {
   if (typeof navigator !== 'undefined' && navigator.onLine === false) {
     const msg = messageOf(reason).toLowerCase();
@@ -67,6 +96,7 @@ export function isNetworkError(reason: unknown): boolean {
 export function userFacingError(reason: unknown, fallback: string): string {
   if (isSessionError(reason)) return SESSION_REFRESH_MESSAGE;
   if (isProfileVerificationError(reason)) return PROFILE_VERIFICATION_MESSAGE;
+  if (isServerUnavailableError(reason)) return SERVER_UNAVAILABLE_MESSAGE;
   if (isNetworkError(reason)) return NETWORK_ERROR_MESSAGE;
   const message = messageOf(reason).trim();
   return message || fallback;
@@ -77,6 +107,11 @@ export function userFacingError(reason: unknown, fallback: string): string {
 export function readableUiError(reason: unknown, fallback: string, operation: 'read' | 'write' = 'write'): string {
   if (isSessionError(reason)) return 'Refresh the page to check your sign-in, then continue.';
   if (isProfileVerificationError(reason)) return "We couldn't check your eFlow account. Refresh the page. If this continues, contact your administrator.";
+  if (isServerUnavailableError(reason)) {
+    return operation === 'read'
+      ? "eFlow's server is down or lagging right now. Reload this view in a moment."
+      : "We couldn't confirm the result because the server is down or lagging. Check the current record before trying again.";
+  }
   const message = messageOf(reason).trim();
   const code = reason && typeof reason === 'object' && 'code' in reason ? String((reason as { code?: unknown }).code || '') : '';
   const status = reason && typeof reason === 'object' && 'status' in reason ? Number((reason as { status?: unknown }).status) : undefined;
