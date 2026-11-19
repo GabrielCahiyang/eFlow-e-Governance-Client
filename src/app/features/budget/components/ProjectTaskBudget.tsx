@@ -1,5 +1,5 @@
 import { readableUiError } from '../../../shared/userFacingError';
-import {TaskFundingCell,useProjectFlow} from '../../project-setup';
+import {TaskFundingCell,useProjectFlow,useReturnedBudget} from '../../project-setup';
 import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Trash2, Wallet, WalletCards } from 'lucide-react';
 import { FeatureDialog } from '../../../components/ui/FeatureDialog';
@@ -41,10 +41,11 @@ export function useProjectTaskBudgetTotal(taskIds:string[]) {
   return allocations.reduce((sum,a,index)=>sum+(a.id&&allocations.findIndex(other=>other.id===a.id)!==index?0:a.amount),0);
 }
 
-export function ProjectWorkExpensesCell({ task, subtaskId, personal }: { task?: Task; subtaskId?: string; personal?: boolean }) {
-  return <ProjectActualExpensesCell taskId={task?.id} subtaskId={subtaskId} personal={personal}/>;
+export function ProjectWorkExpensesCell({ task, subtaskId, subtaskStatus, personal }: { task?: Task; subtaskId?: string; subtaskStatus?: string; personal?: boolean }) {
+  const completed = subtaskId ? subtaskStatus === 'completed' : task?.status === 'completed';
+  return <ProjectActualExpensesCell taskId={task?.id} subtaskId={subtaskId} personal={personal} completed={completed}/>;
 }
-export function ProjectTaskBudgetCell(props:{task:Task;readOnly?:boolean}){return props.task.linkedProjectId?<TaskFundingCell projectId={props.task.linkedProjectId} taskId={props.task.id} title={props.task.title}/>:<LegacyTaskBudgetCell {...props}/>;}
+export function ProjectTaskBudgetCell(props:{task:Task;readOnly?:boolean}){return props.task.linkedProjectId?<TaskFundingCell projectId={props.task.linkedProjectId} taskId={props.task.id} title={props.task.title} taskStatus={props.task.status}/>:<LegacyTaskBudgetCell {...props}/>;}
 function LegacyTaskBudgetCell({task,readOnly=false}:{task:Task;readOnly?:boolean}) {
   const budgets=useContext(BudgetContext),{userProfile}=useAuth(),{orgs}=useOrgs();
   const budget=Object.values(budgets).find(item=>item.allocations.some(a=>a.taskId===task.id&&!a.subtaskId&&a.status==='approved'))||budgets[task.orgId||''];
@@ -79,12 +80,14 @@ export function ProjectSubtaskBudgetCell({
   task,
   subtaskId,
   subtaskTitle,
+  subtaskStatus,
   readOnly = false,
   isPersonal = false,
 }: {
   task?: Task;
   subtaskId: string;
   subtaskTitle: string;
+  subtaskStatus?: string;
   readOnly?: boolean;
   isPersonal?: boolean;
 }) {
@@ -106,13 +109,16 @@ export function ProjectSubtaskBudgetCell({
     return () => window.removeEventListener(SUBTASK_BUDGET_CHANGED_EVENT, syncCap);
   }, [subtaskId, task?.id]);
 
+  const subtaskClosed = subtaskStatus === 'completed' || subtaskStatus === 'cancelled';
+  const returnedToProject = useReturnedBudget(task?.id, subtaskClosed && !isPersonal).subtasks.get(subtaskId) ?? 0;
   if (isPersonal) return <span>—</span>;
   const budget = (task && (Object.values(budgets).find(item => item.allocations.some(a => a.taskId === task.id && a.status === 'approved')) || budgets[task.orgId || ''])) || undefined;
   if (!task) return <span>Budget unavailable</span>;
 
   const caps = budget?.allocations.filter(a => a.taskId === task.id && a.subtaskId === subtaskId && a.status === 'approved') || [];
-  const amount = savedCap ?? caps.reduce((sum, a) => sum + a.amount, 0);
-  const canManage = !readOnly && !!userProfile?.id && userProfile.is_active !== false &&
+  // Finished subtasks keep the budget they were given; the unused part went back to the project.
+  const amount = (savedCap ?? caps.reduce((sum, a) => sum + a.amount, 0)) + returnedToProject;
+  const canManage = !readOnly && !subtaskClosed && !!userProfile?.id && userProfile.is_active !== false &&
     !task.archivedAt && !task.proposedOfficeIdentityId && !['completed', 'cancelled'].includes(task.status);
 
   return (
@@ -124,7 +130,7 @@ export function ProjectSubtaskBudgetCell({
         onClick={() => setOpen(true)}
       >
         <WalletCards size={15} aria-hidden="true" />
-        {amount > 0 ? peso.format(amount) : canManage ? 'Open budget' : 'View budget'}
+        {amount > 0 ? peso.format(amount) : subtaskClosed ? peso.format(0) : canManage ? 'Open budget' : 'View budget'}
       </button>
       {open && (
         <Modal

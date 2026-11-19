@@ -201,7 +201,7 @@ export function TaskActivityTimeline({ taskId,projectId }: { taskId: string;proj
           ) : item.kind === 'task' ? (
             <div key={`t-${item.data.id}`} className="relative flex gap-3">
               <div className="relative z-10 w-7 h-7 rounded-full bg-sky-50 border border-sky-200 flex items-center justify-center text-sky-700 shrink-0"><Activity size={13}/></div>
-              <div className="flex-1 min-w-0 pt-1"><div className="text-[12px] font-medium text-neutral-900">{item.data.userName||'System'} updated task details</div>
+              <div className="flex-1 min-w-0 pt-1"><div className="text-[12px] font-medium text-neutral-900">{item.data.userName||'System'} {item.data.action==='budget_unused_returned'?'returned unused budget to the project':'updated task details'}</div>
                 <div className="mt-0.5 space-y-0.5 text-[11.5px] text-neutral-600">{taskActivityDetails(item.data).map((detail,index)=><p key={`${item.data.id}-${index}`}>{detail}</p>)}</div>
                 <div className="text-[10.5px] text-neutral-400 mt-0.5">{timeAgo(item.data.timestamp)}</div></div>
             </div>

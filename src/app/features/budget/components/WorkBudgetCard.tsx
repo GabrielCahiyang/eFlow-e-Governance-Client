@@ -1,4 +1,4 @@
-import {TaskProjectFunding} from '../../project-setup';
+import {ReturnedBudgetNote,TaskProjectFunding} from '../../project-setup';
 import {OfficePettyCashLauncher} from '../../office-petty-cash';
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -247,6 +247,7 @@ export function WorkBudgetCard({
       aria-label={subtask ? "Subtask funding" : "Task funding"}
       className="space-y-4 rounded-[12px] border border-[var(--eflow-border)] bg-[var(--eflow-surface)] p-4"
     >
+      <ReturnedBudgetNote taskId={task.id} subtaskId={subtask?.id} finished={taskFinished || subtask?.status === "completed"} />
       {!subtask && authorityPending && (
         <p role="status" className="flex items-center gap-2 text-[13px] text-muted-foreground">
           <Loader2 size={14} className="animate-spin" />

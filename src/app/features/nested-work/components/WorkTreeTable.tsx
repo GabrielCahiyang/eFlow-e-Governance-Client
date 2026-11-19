@@ -104,6 +104,7 @@ export function WorkTreeTable({
             task={surfaceProps.parentTask}
             subtaskId={row.node.id}
             subtaskTitle={row.node.title}
+            subtaskStatus={row.node.status}
             readOnly={!surfaceProps.authorityFresh || !!surfaceProps.context.readOnly}
             isPersonal={surfaceProps.snapshot.root.kind === 'personal'}
           />
@@ -112,7 +113,7 @@ export function WorkTreeTable({
     }
     if (column === 'actualExpenses') {
       return <td key={column} className="pt-cell nw-col nw-col--actualExpenses">
-        <ProjectWorkExpensesCell task={surfaceProps.parentTask} subtaskId={row.node.id} personal={surfaceProps.snapshot.root.kind === 'personal'}/>
+        <ProjectWorkExpensesCell task={surfaceProps.parentTask} subtaskId={row.node.id} subtaskStatus={row.node.status} personal={surfaceProps.snapshot.root.kind === 'personal'}/>
       </td>;
     }
     const { snapshot, controller, context, authorityFresh } = surfaceProps;

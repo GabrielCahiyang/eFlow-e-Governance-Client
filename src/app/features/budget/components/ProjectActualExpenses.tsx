@@ -66,19 +66,27 @@ export function ProjectActualExpensesProvider({ taskIds, children }: { taskIds: 
     : { loading: true }}>{children}</Expenses.Provider>;
 }
 
-export function ProjectActualExpensesCell({ taskId, subtaskId, personal }: {
+export function ProjectActualExpensesCell({ taskId, subtaskId, personal, completed = false }: {
   taskId?: string;
   subtaskId?: string;
   personal?: boolean;
+  completed?: boolean;
 }) {
   const { totals, loading, retry } = useContext(Expenses);
   if (personal || !taskId) return <span>—</span>;
   if (loading) return <span aria-label="Loading expenses">…</span>;
   if (!totals) return retry
-    ? <WorkspaceTooltip content="Retry expenses"><button type="button" aria-label="Retry expenses"  onClick={retry}><RotateCw size={14} aria-hidden="true"/></button></WorkspaceTooltip>
+    ? <WorkspaceTooltip content="Retry expenses"><button type="button" aria-label="Retry expenses" onClick={retry}><RotateCw size={14} aria-hidden="true"/></button></WorkspaceTooltip>
     : <span>—</span>;
   const amount = subtaskId ? totals.subtasks.get(subtaskId) : totals.tasks.get(taskId);
-  if (!amount) return <span className="text-muted-foreground" title="No visible expenses">—</span>;
+  if (!amount) {
+    if (completed) {
+      return <span className="block whitespace-nowrap text-right tabular-nums" title="No settled expenses">
+        {peso.format(0)}
+      </span>;
+    }
+    return <span className="text-muted-foreground" title="No visible expenses">—</span>;
+  }
   return <span className="block whitespace-nowrap text-right tabular-nums" title={amount.complete ? 'Settled expenses' : 'Settled expenses visible to your account'}>
     {peso.format(amount.settled / 100)}
   </span>;

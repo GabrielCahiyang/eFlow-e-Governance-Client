@@ -61,8 +61,8 @@ function LegacySubitemRows({ task, subtasks, columns, profiles, canAdd, readOnly
               <td><PriorityCell title={subtask.title} value={subtask.priority} disabled onSave={async () => {}} /></td>
               <td><PrerequisiteCell title={subtask.title} itemName="subtask" selectedIds={subtask.dependencyIds || []}
                 records={subtasks} getChoices={() => []} disabled description="" completedLabel="Completed" onSave={async () => {}} /></td>
-              <td><ProjectSubtaskBudgetCell task={task} subtaskId={subtask.id} subtaskTitle={subtask.title} readOnly={readOnly} /></td>
-              <td><ProjectWorkExpensesCell task={task} subtaskId={subtask.id}/></td>
+              <td><ProjectSubtaskBudgetCell task={task} subtaskId={subtask.id} subtaskTitle={subtask.title} subtaskStatus={subtask.status} readOnly={readOnly} /></td>
+              <td><ProjectWorkExpensesCell task={task} subtaskId={subtask.id} subtaskStatus={subtask.status}/></td>
             </tr>;
           })}
           {!subtasks.length && !canAdd && <tr><td colSpan={8} className="pt-subitems-empty">No subtasks yet.</td></tr>}

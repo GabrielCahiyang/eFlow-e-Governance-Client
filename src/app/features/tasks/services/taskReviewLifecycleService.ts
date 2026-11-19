@@ -9,6 +9,14 @@ import type {
 import { notifyTaskListeners } from "./taskRealtimeService";
 import { getReviewDecisionErrorMessage } from "./taskReviewError";
 
+function dispatchWorkFinanceRefresh(taskId: string) {
+  if (typeof window === 'undefined') return;
+  window.dispatchEvent(new CustomEvent('eflow:work-updated', { detail: { taskId } }));
+  window.dispatchEvent(new Event('eflow:project-setup'));
+  window.dispatchEvent(new Event('eflow:finance-updated'));
+  window.dispatchEvent(new Event('eflow:expenses-updated'));
+}
+
 export const updateTaskStatus = async (
   taskId: string,
   status: TaskStatus,
@@ -22,6 +30,7 @@ export const updateTaskStatus = async (
     p_reason: reason || null,
   });
   if (error) throw new Error(error.message);
+  if (status === 'completed') dispatchWorkFinanceRefresh(taskId);
   await notifyTaskListeners();
 };
 
@@ -96,6 +105,7 @@ export const verifyTask = async (
     throw new Error(getReviewDecisionErrorMessage(error));
   }
 
+  if (approve) dispatchWorkFinanceRefresh(taskId);
   await notifyTaskListeners();
 };
 

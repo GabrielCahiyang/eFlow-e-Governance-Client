@@ -40,5 +40,12 @@ export async function completeSubitem(attempt:SubitemCompletionAttempt,recheck?:
  }
  const clearance=response.data?.status==='completed'||!attempt.rootId?undefined:await fetchWorkFinancialClearance(attempt.rootId,attempt.subtaskId);
  if(response.data?.id!==attempt.subtaskId||(response.data?.status!=='completed'&&!clearance?.workAccepted))throw new Error('Completion was not verified. Retry the same completion.');
+ if(response.data?.status==='completed'&&typeof window!=='undefined'){
+  window.dispatchEvent(new CustomEvent('eflow:work-updated',{detail:{taskId:attempt.rootId}}));
+  window.dispatchEvent(new Event('eflow:project-setup'));
+  window.dispatchEvent(new Event('eflow:finance-updated'));
+  window.dispatchEvent(new Event('eflow:expenses-updated'));
+  window.dispatchEvent(new CustomEvent('eflow:subtask-budget-changed',{detail:{taskId:attempt.rootId,subtaskId:attempt.subtaskId}}));
+ }
  return response.data;
 }

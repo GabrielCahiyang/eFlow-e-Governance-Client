@@ -19,6 +19,7 @@ vi.mock('../../src/app/hooks/useSupabaseData', () => ({ useOrgs: () => ({ orgs: 
 vi.mock('../../src/app/features/project-setup', () => ({
   TaskFundingCell: () => null,
   useProjectFlow: () => ({ data: undefined }),
+  useReturnedBudget: () => ({ task: 0, subtasks: new Map() }),
 }));
 vi.mock('../../src/app/features/budget/hooks/useDepartmentBudget', () => ({
   useDepartmentBudget: () => ({

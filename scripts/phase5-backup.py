@@ -15,7 +15,7 @@ from dotenv import dotenv_values
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--phase', choices=('5','6','7','office-budget','account-lockout'), default='5')
+parser.add_argument('--phase', choices=('5','6','7','office-budget','account-lockout','unused-budget-log'), default='5')
 parser.add_argument('--timeout', type=int, default=180)
 args = parser.parse_args()
 
@@ -24,7 +24,7 @@ url = urlparse(cfg['EFLOW_DATABASE_URL'])
 assert 'ixnfphgjyelhckjwjkdv' in (url.username or ''), 'Use the main eFlow project connection.'
 root = Path(os.environ['LOCALAPPDATA']) / 'eFlow' / 'deployment-backups' / (datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')+f'-phase{args.phase}-main')
 root.mkdir(parents=True, exist_ok=False)
-bin_dir = Path('C:/Program Files/PostgreSQL/17/bin')
+bin_dir = Path(os.environ.get('EFLOW_PG_BIN', 'C:/Program Files/PostgreSQL/17/bin'))
 env = {**os.environ, 'PGPASSWORD': unquote(url.password or ''), 'PGSSLMODE': 'require', 'PGCONNECT_TIMEOUT': '15'}
 # Native Windows libpq can stall resolving this pooler; retain its hostname for
 # TLS while using a freshly resolved IPv4 address for the socket connection.

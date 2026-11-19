@@ -188,6 +188,7 @@ export function WorkFinancialClearancePanel({
         window.dispatchEvent(
           new CustomEvent("eflow:work-updated", { detail: { taskId: root } }),
         );
+        window.dispatchEvent(new Event("eflow:project-setup"));
         window.dispatchEvent(new Event("eflow:finance-updated"));
         window.dispatchEvent(new Event("eflow:expenses-updated"));
       }
