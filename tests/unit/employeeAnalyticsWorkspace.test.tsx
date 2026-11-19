@@ -51,6 +51,9 @@ vi.mock("../../src/app/features/reports", () => ({
     <div>Preserved reports {embedded ? "(embedded)" : ""}</div>
   ),
 }));
+vi.mock("../../src/app/features/process-mining", () => ({
+  DeepAnalysisPanel: () => <div>Process mining deep analysis</div>,
+}));
 vi.mock("../../src/app/features/office-team", () => ({
   OfficeTeamWorkspace: () => <div>Preserved account invitations</div>,
 }));
@@ -130,21 +133,41 @@ it("does not load coaching notes or intelligence-only views when that permission
   state.intel = false;
   render(<EmployeeAnalyticsWorkspace />);
   expect(screen.queryByRole("button", { name: "Workload & health" })).toBeNull();
+  expect(screen.queryByRole("button", { name: "Deep Analysis" })).toBeNull();
   fireEvent.click(screen.getByRole("button", { name: "People & skills", exact: true }));
   expect(screen.queryByRole("button", { name: "Employee 360" })).toBeNull();
   expect(state.notes).not.toHaveBeenCalled();
 });
-it("consolidates redundant Overview and Team access tabs while embedding Reports", () => {
+it("consolidates redundant Overview and Team access tabs while embedding Reports and Deep Analysis", () => {
   render(<EmployeeAnalyticsWorkspace />);
   expect(screen.queryByRole("button", { name: "Team access" })).toBeNull();
   expect(screen.queryByRole("button", { name: "Overview" })).toBeNull();
+  const tabLabels = screen
+    .getAllByRole("button")
+    .filter((btn) =>
+      ["Delivery", "Workload & health", "People & skills", "Contributions", "Reports", "Deep Analysis"].includes(
+        btn.textContent?.trim() || "",
+      ),
+    )
+    .map((btn) => btn.textContent?.trim());
+  expect(tabLabels).toEqual([
+    "Delivery",
+    "Workload & health",
+    "People & skills",
+    "Contributions",
+    "Reports",
+    "Deep Analysis",
+  ]);
   fireEvent.click(screen.getByRole("button", { name: "Reports", exact: true }));
   expect(screen.getByText(/Preserved reports \(embedded\)/)).toBeTruthy();
+  fireEvent.click(screen.getByRole("button", { name: "Deep Analysis", exact: true }));
+  expect(screen.getByText("Process mining deep analysis")).toBeTruthy();
 });
 it("renders focused summary without the analytics tab bar in home mode", () => {
   render(<EmployeeAnalyticsWorkspace home />);
   expect(screen.queryByRole("button", { name: "Delivery", exact: true })).toBeNull();
   expect(screen.queryByRole("button", { name: "Reports", exact: true })).toBeNull();
+  expect(screen.queryByRole("button", { name: "Deep Analysis", exact: true })).toBeNull();
   expect(screen.getByRole("button", { name: /Open full analytics/ })).toBeTruthy();
 });
 it("rejects Member entry before loading department analytics", () => {

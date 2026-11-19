@@ -7,6 +7,7 @@ import {
   FolderKanban,
   Trophy,
   UsersRound,
+  Workflow,
 } from "lucide-react";
 import { useAuth } from "../../../../contexts/AuthContext";
 import { useEmployeeNotes } from "../../../../hooks/useFirebaseData";
@@ -17,6 +18,7 @@ import { TaskDetailDrawer } from "../../../task-inspector";
 import type { Task } from "../../../tasks";
 import { MonthlyLeaderboard } from "../../../productivity";
 import { HeadReportsWorkspace } from "../../../reports";
+import { DeepAnalysisPanel } from "../../../process-mining";
 import { useDepartmentTeamAnalytics } from "../../hooks/useDepartmentTeamAnalytics";
 import { buildSkillCoverage } from "../../selectors/teamAnalyticsSelectors";
 import { PeopleWorkspaceShell } from "../PeopleWorkspaceShell";
@@ -28,7 +30,7 @@ import { EmployeeIntelligencePanel } from "../intelligence/EmployeeIntelligenceP
 import { SkillCoveragePanel } from "../intelligence/SkillCoveragePanel";
 import type { Employee, EmployeeNote } from "../../../members";
 
-type View = "projects" | "health" | "people" | "contribution" | "reports";
+type View = "projects" | "health" | "people" | "contribution" | "reports" | "process_mining";
 type LegacyOrCurrentView =
   | View
   | "overview"
@@ -42,6 +44,7 @@ const tabs = [
   { id: "people", label: "People & skills", icon: UsersRound },
   { id: "contribution", label: "Contributions", icon: Trophy },
   { id: "reports", label: "Reports", icon: FileText },
+  { id: "process_mining", label: "Deep Analysis", icon: Workflow },
 ] as const;
 
 function normalizeInitialView(initialView: LegacyOrCurrentView): View {
@@ -49,7 +52,8 @@ function normalizeInitialView(initialView: LegacyOrCurrentView): View {
     initialView === "health" ||
     initialView === "people" ||
     initialView === "contribution" ||
-    initialView === "reports"
+    initialView === "reports" ||
+    initialView === "process_mining"
   ) {
     return initialView;
   }
@@ -97,7 +101,7 @@ function AnalyticsContent({
   home: boolean;
   onNavigate?: (section: string, page: string, project?: string) => void;
 }) {
-  const { user, can } = useAuth(),
+  const { user, userProfile, can } = useAuth(),
     analytics = useDepartmentTeamAnalytics({ includeCurrentUser: true });
   const [view, setView] = useState<View>(initialView),
     [employeeId, setEmployeeId] = useState(""),
@@ -110,7 +114,7 @@ function AnalyticsContent({
   const available = tabs.filter((t) =>
     t.id === "reports"
       ? reportsAllowed
-      : t.id === "health" || t.id === "contribution"
+      : t.id === "health" || t.id === "contribution" || t.id === "process_mining"
         ? intelligence
         : t.id === "people"
           ? supervision || intelligence
@@ -276,11 +280,18 @@ function AnalyticsContent({
     </div>
   ) : (
     <div className="ea-workspace">
-      <div className="ea-tabs" role="group" aria-label="Analytics sections">
+      <div className="ea-tabs" role="group" aria-label="Analytics sections" data-tour-id="analytics-tabs">
         {available.map(({ id, label, icon: Icon }) => (
           <button
             type="button"
             key={id}
+            data-tour-id={
+              id === "process_mining"
+                ? "analytics-deep-analysis-tab"
+                : id === "reports"
+                  ? "analytics-reports-tab"
+                  : undefined
+            }
             aria-pressed={selectedView === id}
             onClick={() => switchView(id)}
           >
@@ -293,7 +304,7 @@ function AnalyticsContent({
         <EmployeeAnalyticsViewSkeleton selectedView={selectedView} />
       ) : (
         <>
-          {analytics.error && selectedView !== "projects" && (
+          {analytics.error && !["projects", "process_mining"].includes(selectedView) && (
             <div role="alert" className="ea-warning ea-error">
               Some workflow records are unavailable. {analytics.error} Employee
               comparisons and health totals are unavailable until they reload.{" "}
@@ -356,6 +367,22 @@ function AnalyticsContent({
             </>
           )}
           {selectedView === "reports" && <HeadReportsWorkspace embedded />}
+          {selectedView === "process_mining" && (
+            <DeepAnalysisPanel
+              projects={analytics.projects}
+              cacheScopeKey={`${userProfile?.org_id || "office"}:${user?.id || "head"}`}
+              orgId={userProfile?.org_id || undefined}
+              userId={user?.id}
+              userName={userProfile?.full_name || undefined}
+              onOpenProject={navigateProject}
+              onOpenTaskId={(taskId) =>
+                setTask(
+                  analytics.tasks.find((item) => item.id === taskId) ||
+                    ({ id: taskId } as Task),
+                )
+              }
+            />
+          )}
         </>
       )}
       <TaskDetailDrawer

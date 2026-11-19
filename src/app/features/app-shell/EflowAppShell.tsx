@@ -45,6 +45,7 @@ import { usePresentationBranding } from "../administration";
 import { OnboardingWorkspace } from "../onboarding";
 import { WorkspaceRecoveryState } from "./components/WorkspaceRecoveryState";
 import { PersonalWorkspace, WorkspaceScopeContext, WorkspaceSelector, useWorkspaceState, buildWorkspaceNavigation,selectWorkspace } from '../workspaces';
+import { buildVisibleTourSections } from './tourNavigationOrder';
 
 interface EflowAppShellProps {
   role: string;
@@ -208,11 +209,15 @@ export function EflowAppShell({ role }: EflowAppShellProps) {
     [selectPageAsync, workspaceState.snapshot,workspaceState.workspaces, workspaceState.select,personal,officeContext,officeId,userId,currentWorkspace?.id],
   );
 
-  const tourSections = navigationItems.map((item) => ({
-    id: item.id,
-    label: item.label,
-    page: getInitialPage(item.id) || item.label,
-  }));
+  const tourSections = useMemo(
+    () =>
+      buildVisibleTourSections({
+        items: navigationItems,
+        role: userProfile?.role || role,
+        workspaceKind: currentWorkspace?.kind,
+      }),
+    [currentWorkspace?.kind, navigationItems, role, userProfile?.role],
+  );
   const openSearch = () => {
     searchReturnFocus.current = isMobileNavigationOpen
       ? document.querySelector<HTMLElement>('button[aria-label="Open navigation"]')

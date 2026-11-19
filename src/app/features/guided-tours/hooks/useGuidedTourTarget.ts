@@ -8,10 +8,17 @@ export interface TourTargetRect {
   height: number;
 }
 
-function findTarget(step: GuidedTourStep): HTMLElement | null {
-  return typeof step.target === "function"
-    ? step.target()
-    : document.querySelector<HTMLElement>(step.target);
+function resolveSelector(
+  selector: string | (() => HTMLElement | null) | undefined,
+): HTMLElement | null {
+  if (!selector) return null;
+  const element = typeof selector === "function"
+    ? selector()
+    : document.querySelector<HTMLElement>(selector);
+  if (!element || !element.isConnected || element.closest("[hidden]")) {
+    return null;
+  }
+  return element;
 }
 
 function toRect(element: HTMLElement): TourTargetRect {
@@ -37,9 +44,17 @@ export function useGuidedTourTarget(step: GuidedTourStep): TourTargetRect | null
     const reveal = async () => {
       await step.beforeShow?.();
       let target: HTMLElement | null = null;
-      for (let attempt = 0; attempt < 12 && !target && !cancelled; attempt += 1) {
-        target = findTarget(step);
-        if (!target) await new Promise((resolve) => window.setTimeout(resolve, 80));
+      // Wait for newly navigated rails/tabs to mount before falling back to a parent container.
+      const primaryAttempts = step.fallbackTarget ? 8 : 12;
+      for (let attempt = 0; attempt < primaryAttempts && !target && !cancelled; attempt += 1) {
+        target = resolveSelector(step.target);
+        if (!target) await new Promise((resolve) => window.setTimeout(resolve, 75));
+      }
+      if (!target && !cancelled && step.fallbackTarget) {
+        for (let attempt = 0; attempt < 4 && !target && !cancelled; attempt += 1) {
+          target = resolveSelector(step.fallbackTarget);
+          if (!target) await new Promise((resolve) => window.setTimeout(resolve, 60));
+        }
       }
       if (cancelled) return;
       target ||= document.querySelector<HTMLElement>("[data-tour-page-content]");

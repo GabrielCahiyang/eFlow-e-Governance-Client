@@ -14,7 +14,7 @@ test('P6 dark first-run retains its readable controls and original dismissal rec
   await info.attach('dark-first-run-a11y',{body:JSON.stringify(findings.violations),contentType:'application/json'});expect(findings.violations.filter(v=>v.impact==='serious'||v.impact==='critical')).toEqual([]);
   await page.setViewportSize({width:320,height:568});expect(await welcome.getByRole('button').evaluateAll(items=>items.every(e=>e.getBoundingClientRect().height>=44))).toBe(true);
   await welcome.getByRole('button',{name:'Skip for now',exact:true}).click();await expect(welcome).toHaveCount(0);expect(record.status).toBe('dismissed');
-  await page.getByRole('button',{name:'Open help',exact:true}).click();await page.getByRole('menuitem',{name:'Getting started',exact:true}).click();await expect(page.getByRole('dialog',{name:'Help & Getting Started',exact:true})).toBeVisible();
+  await page.getByRole('button',{name:'Open help',exact:true}).click();await expect(page.getByRole('menuitem',{name:'Guide for this page',exact:true})).toBeVisible();await expect(page.getByRole('menuitem',{name:'Tour of eFlow',exact:true})).toBeVisible();await expect(page.getByRole('menuitem',{name:'Getting started',exact:true})).toHaveCount(0);await expect(page.getByRole('menuitem',{name:'Talk to eFlow AI',exact:true})).toHaveCount(0);
 });
 
 test('P6 system tour respects the existing financial draft guard before it navigates',async({page})=>{
@@ -32,12 +32,9 @@ for(const role of ['head','member','accounting_staff','admin'] as const)for(cons
   if(role==='admin')await page.goto('/users?page=All+Users');else await page.goto('/my-work');
   const topHelp=page.getByRole('button',{name:'Open help',exact:true});await expect(topHelp).toBeVisible();await expect(page.locator('html')).toHaveAttribute('data-theme',theme);
   await expect(page.locator('[data-tour-id="page-walkthrough"], [data-tour-id="system-walkthrough"]')).toHaveCount(0);
-  await topHelp.click();await expect(page.getByRole('menuitem')).toHaveCount(role==='admin'?2:3);
-  if(role==='admin')await expect(page.getByRole('menuitem',{name:'Getting started',exact:true})).toHaveCount(0);
-  else{
-    await page.getByRole('menuitem',{name:'Getting started',exact:true}).click();const getting=page.getByRole('dialog',{name:'Help & Getting Started',exact:true});await expect(getting).toBeVisible();
-    await expect(getting.getByRole('button',{name:'Review your professional profile',exact:true})).toBeVisible();await getting.getByRole('button',{name:'Close',exact:true}).click();await expect(topHelp).toBeFocused();await topHelp.click();
-  }
+  await topHelp.click();await expect(page.getByRole('menuitem')).toHaveCount(2);
+  await expect(page.getByRole('menuitem',{name:'Getting started',exact:true})).toHaveCount(0);
+  await expect(page.getByRole('menuitem',{name:'Talk to eFlow AI',exact:true})).toHaveCount(0);
   await page.getByRole('menuitem',{name:'Guide for this page',exact:true}).click();const tour=page.getByRole('dialog',{name:'Guided walkthrough',exact:true});await expect(tour).toBeVisible();await expect(tour.getByText('Step 1 of 4',{exact:true})).toBeVisible();
   await page.keyboard.press('Tab');expect(await page.evaluate(()=>Boolean(document.activeElement?.closest('[aria-label="Guided walkthrough"]')))).toBe(true);await page.keyboard.press('Shift+Tab');await expect(tour.getByRole('button',{name:'Next',exact:true})).toBeFocused();
   await tour.getByRole('button',{name:'Next',exact:true}).click();await expect(tour.getByText('Step 2 of 4',{exact:true})).toBeVisible();await page.keyboard.press('Escape');await expect(tour).toHaveCount(0);await expect(topHelp).toBeFocused();
@@ -50,13 +47,8 @@ for(const role of ['head','member','accounting_staff','admin'] as const)for(cons
     expect(await page.evaluate(()=>{const a=document.querySelector('.eflow-topbar__leading')!.getBoundingClientRect(),b=document.querySelector('.eflow-topbar__utilities')!.getBoundingClientRect();return a.right<=b.left+1&&b.right<=innerWidth;}),'Help, communications and Account must all fit beside the brand').toBe(true);
     await page.screenshot({path:info.outputPath(`help-${width}.png`),animations:'disabled'});await page.keyboard.press('Escape');await expect(topHelp).toBeFocused();
   }
-  const openNavigation=page.getByRole('button',{name:'Open navigation',exact:true});await openNavigation.click();const drawer=page.getByRole('dialog',{name:'Navigation',exact:true});await drawer.getByRole('button',{name:'Help',exact:true}).click();await expect(drawer).toHaveCount(0);expect(await page.evaluate(()=>Boolean(document.activeElement?.closest('[role="menu"]')))).toBe(true);await page.keyboard.press('Home');await expect(page.getByRole('menuitem',{name:role==='admin'?'Guide for this page':'Getting started',exact:true})).toBeFocused();await page.keyboard.press('Escape');await expect(openNavigation).toBeFocused();
+  const openNavigation=page.getByRole('button',{name:'Open navigation',exact:true});await openNavigation.click();const drawer=page.getByRole('dialog',{name:'Navigation',exact:true});await drawer.getByRole('button',{name:'Help',exact:true}).click();await expect(drawer).toHaveCount(0);expect(await page.evaluate(()=>Boolean(document.activeElement?.closest('[role="menu"]')))).toBe(true);await page.keyboard.press('Home');await expect(page.getByRole('menuitem',{name:'Guide for this page',exact:true})).toBeFocused();await page.keyboard.press('Escape');await expect(openNavigation).toBeFocused();
   await openNavigation.click();await page.getByRole('dialog',{name:'Navigation',exact:true}).getByRole('button',{name:'Help',exact:true}).click();await page.getByRole('menuitem',{name:'Guide for this page',exact:true}).click();await expect(tour).toBeVisible();await page.keyboard.press('Escape');await expect(openNavigation).toBeFocused();
-  if(role!=='admin'){
-    await page.setViewportSize({width:320,height:568});await topHelp.click();await page.getByRole('menuitem',{name:'Getting started',exact:true}).click();const getting=page.getByRole('dialog',{name:'Help & Getting Started',exact:true});
-    expect(await getting.evaluate(e=>{const b=e.getBoundingClientRect();return b.top>=-1&&b.bottom<=innerHeight+1&&getComputedStyle(e).overflowY==='auto';})).toBe(true);
-    const profile=getting.getByRole('button',{name:'Review your professional profile',exact:true});await profile.scrollIntoViewIfNeeded();await expect(profile).toBeInViewport();await page.keyboard.press('Escape');await expect(topHelp).toBeFocused();
-  }
   await page.setViewportSize({width:320,height:568});await topHelp.click();await page.getByRole('menuitem',{name:'Guide for this page',exact:true}).click();await expect(tour).toBeVisible();
   await expect.poll(()=>page.getByTestId('guided-tour-card').evaluate(e=>{const b=e.getBoundingClientRect();return b.top>=-1&&b.bottom<=innerHeight+1;})).toBe(true);await page.keyboard.press('Escape');await expect(topHelp).toBeFocused();
   await page.setViewportSize({width:1440,height:950});await page.getByRole('button',{name:/Collapse .* sidebar/}).click();const railHelp=page.getByRole('complementary',{name:'Primary navigation'}).getByRole('button',{name:'Help',exact:true});await railHelp.click();await expect(page.getByRole('menuitem',{name:'Tour of eFlow',exact:true})).toBeVisible();await page.keyboard.press('Escape');await expect(railHelp).toBeFocused();

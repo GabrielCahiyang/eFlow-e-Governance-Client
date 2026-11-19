@@ -39,7 +39,11 @@ export async function enrichPdfSourceTasksWithMetadata(
   requestId?: string,
   addSubtasks = true,
   projectContext?: PdfEnrichmentProjectContext,
-): Promise<{ tasks: EnrichedSourceTask[]; budgetAllocations: PdfBudgetAllocationProposal[] }> {
+): Promise<{
+  tasks: EnrichedSourceTask[];
+  budgetAllocations: PdfBudgetAllocationProposal[];
+  budgetRebudgeted: boolean;
+}> {
   if (actions.length > 100) throw new Error('Import up to 100 tasks at a time.');
 
   const sourceTasks = actions.map((action, index) => ({ key: `task-${index + 1}`, ...action }));
@@ -103,7 +107,8 @@ export async function enrichPdfSourceTasksWithMetadata(
   const budgetAllocations: PdfBudgetAllocationProposal[] = Array.isArray(payload.budgetAllocations)
     ? payload.budgetAllocations
     : [];
-  return { tasks, budgetAllocations };
+  const budgetRebudgeted = payload.budgetRebudgeted === true;
+  return { tasks, budgetAllocations, budgetRebudgeted };
 }
 
 export async function enrichPdfSourceTasks(

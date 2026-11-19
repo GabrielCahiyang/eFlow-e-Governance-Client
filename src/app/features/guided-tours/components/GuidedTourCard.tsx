@@ -40,7 +40,7 @@ export function GuidedTourCard({
             aria-label={voice.enabled ? "Turn AI voice off" : "Turn AI voice on"}
             onClick={voice.toggle} disabled={!voice.supported}
             className={`group inline-flex h-8 items-center gap-1.5 overflow-hidden rounded-lg border px-2.5 text-[12px] font-medium transition-all duration-300 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-40 motion-reduce:transform-none ${voice.enabled ? "border-primary/20 bg-primary/10 text-primary" : "border-border bg-card text-muted-foreground hover:bg-accent"}`}
-            title={voice.supported ? "Read each walkthrough step aloud" : "Voice narration is unavailable in this browser"}>
+            title={voice.supported ? "Listen to a smooth spoken guide for each step" : "Voice narration is unavailable in this browser"}>
             <span className="relative grid h-4 w-4 place-items-center">{voice.enabled ? voice.speaking ? <AudioLines size={14} className="animate-pulse motion-reduce:animate-none" /> : <Volume2 size={14} /> : <VolumeX size={14} />}</span>
             <span>AI voice</span><span className={`h-1.5 w-1.5 rounded-full transition-colors duration-300 ${voice.enabled ? "bg-primary/100" : "bg-muted-foreground"}`} />
           </button>}

@@ -24,6 +24,13 @@ export type AiChatRequest = {
     schemaVersion: 1;
     tasks: Array<{ key: string; title: string; methodology: string[]; schedule: string }>;
     costs: Array<{ sourceId: string }>;
+    projectContext?: { title?: string; description?: string; scope?: string };
+    addSubtasks?: boolean;
+    authorizedBudget?: {
+      fundingNotRequired: boolean;
+      totalAvailable: number;
+      sources: Array<{ id: string; name: string; fiscalYear: number; available: number }>;
+    };
   };
 };
 

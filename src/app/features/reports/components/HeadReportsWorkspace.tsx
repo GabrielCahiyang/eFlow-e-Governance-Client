@@ -30,7 +30,6 @@ import {
 } from "../selectors/departmentReportSelectors";
 import type { DepartmentReportKind } from "../types";
 import { DepartmentReportTable } from "./DepartmentReportTable";
-import { ManagementBriefPanel } from "./ManagementBriefPanel";
 import {
   buildMonthlyContributionLeaderboard,
   ContributionSummaryCard,
@@ -201,19 +200,13 @@ export function HeadReportsWorkspace({ embedded = false }: { embedded?: boolean 
   };
 
   const headerActions = (
-    <>
-      <ManagementBriefPanel
-        title={definition.title}
-        rows={analytics.error ? [] : rows}
-      />
-      <ExportMenu
-        onCsv={() => exportRows("csv")}
-        onPdf={() => exportRows("pdf")}
-        disabled={
-          rows.length === 0 || !!analytics.error || analytics.refreshing
-        }
-      />
-    </>
+    <ExportMenu
+      onCsv={() => exportRows("csv")}
+      onPdf={() => exportRows("pdf")}
+      disabled={
+        rows.length === 0 || !!analytics.error || analytics.refreshing
+      }
+    />
   );
 
   return (

@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { EflowVibeThemeProvider } from "../../src/app/shared/vibe";
 
@@ -63,7 +63,7 @@ describe("Phase 02 auth presentation", () => {
     expect(screen.getByText("Government work, connected.")).toBeTruthy();
   });
 
-  it("opens the Usage scenarios menu and filters scenarios between client (/) and admin (/admin) portals", async () => {
+  it("renders separate client (/) and admin (/admin) portal headers without Usage scenarios", () => {
     window.history.replaceState({}, "", "/");
     const { unmount } = render(
       <EflowVibeThemeProvider preference="light">
@@ -72,11 +72,8 @@ describe("Phase 02 auth presentation", () => {
     );
 
     expect(screen.getByRole("heading", { name: "Sign in to eFlow" })).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: "Choose a development account" }));
-
-    expect(screen.queryByRole("menuitem", { name: "Admin — admin@gmail.com" })).toBeNull();
-    const headAccount = await screen.findByRole("menuitem", { name: "Cheryl Gallo — bplo.head@gmail.com" });
-    expect(headAccount).toBeTruthy();
+    expect(screen.queryByRole("button", { name: /Choose a development account|Usage scenarios/i })).toBeNull();
+    expect(document.querySelector("#quick-login-picker")).toBeNull();
     unmount();
 
     window.history.replaceState({}, "", "/admin");
@@ -87,14 +84,8 @@ describe("Phase 02 auth presentation", () => {
     );
 
     expect(screen.getByRole("heading", { name: "Sign in to eFlow Admin" })).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: "Choose a development account" }));
-
-    expect(screen.queryByRole("menuitem", { name: "Cheryl Gallo — bplo.head@gmail.com" })).toBeNull();
-    const superAdmin = await screen.findByRole("menuitem", { name: "Admin — admin@gmail.com" });
-    expect(superAdmin).toBeTruthy();
-    auth.login.mockClear();
-    fireEvent.click(superAdmin);
-    await waitFor(() => expect(auth.login).toHaveBeenCalledWith("admin@gmail.com", "admin123"));
+    expect(screen.queryByRole("button", { name: /Choose a development account|Usage scenarios/i })).toBeNull();
+    expect(document.querySelector("#quick-login-picker")).toBeNull();
     window.history.replaceState({}, "", "/");
   });
 });

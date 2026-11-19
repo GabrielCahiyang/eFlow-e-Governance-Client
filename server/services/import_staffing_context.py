@@ -35,6 +35,6 @@ def build_import_staffing_context(project_id, draft, user):
                 workload['activeTasks'] += 1
         profile = profiles.get(person['id'], {})
         candidates.append({'id': person['id'], 'name': person['full_name'], **compact_profile(profile), **workload,
-                           **({} if profile else {'experience_summary': 'Professional details unconfirmed. Match using known workload; do not invent skills.'})})
+                           **({} if profile else {'experience_summary': f"Professional details not confirmed. Current active tasks: {workload['activeTasks']}. Match using known workload; do not invent skills."})})
     return {'task': {'id': project_id, 'title': draft['title'], 'description': draft.get('description', '')[:3000], 'skills': []},
             'candidates': candidates, 'excludedUnconfirmed': 0}

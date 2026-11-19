@@ -158,4 +158,190 @@ describe("PDF directly into the current project table", () => {
       ).rejects.toThrow();
     },
   );
+  it("fairly re-budgets a PDF whose budget exceeds Head-authorized funding without sending over-ceiling taskBudgets", async () => {
+    const twoTaskSource = [
+      "[PDF WORK TABLE]",
+      JSON.stringify({
+        part: 1,
+        title: "Part 1: MSME Profiling and Stakeholder Consultation",
+        details: "1. Conduct Local MSME Profiling and Stakeholder Consultation Workshop",
+        methodology: "• Sectoral Business Data Gathering\n• Stakeholder Consultation Workshop",
+        schedule: "Month 1",
+      }),
+      JSON.stringify({
+        part: 2,
+        title: "Part 2: Investment Directory Publication and Validation",
+        details: "2. Prepare, Validate, and Print the Ormoc City MSME Investment Directory",
+        methodology: "• Draft Investment Directory Compilation\n• Final Directory Layout and Printing",
+        schedule: "Month 2",
+      }),
+      "[/PDF WORK TABLE]",
+      "[PDF BUDGET TABLE PAGE 2]",
+      JSON.stringify({
+        page: 2,
+        expenseClass: "OTHER EXPENSES",
+        category: "Workshop and Consultation",
+        particular: "Meals and Snacks for Consultation Workshop (100 pax @ P350)",
+        amount: "35,000.00",
+        subtotal: "35,000.00",
+        fundSource: "LEDIPO",
+      }),
+      JSON.stringify({
+        page: 2,
+        expenseClass: "OTHER EXPENSES",
+        category: "Production of Promotional Collaterals",
+        particular: "MSME Investment Directory Printing (150 pcs @ P200)",
+        amount: "30,000.00",
+        subtotal: "30,000.00",
+        fundSource: "LEDIPO",
+      }),
+      JSON.stringify({
+        page: 2,
+        expenseClass: "OTHER EXPENSES",
+        category: "Total Other Expenses",
+        particular: "",
+        amount: "65,000.00",
+        subtotal: "65,000.00",
+        fundSource: "",
+      }),
+      JSON.stringify({
+        page: 2,
+        expenseClass: "OTHER EXPENSES",
+        category: "TOTAL PROJECT COST",
+        particular: "",
+        amount: "65,000.00",
+        subtotal: "65,000.00",
+        fundSource: "",
+      }),
+      "[/PDF BUDGET TABLE]",
+    ].join("\n");
+
+    api.chat.mockResolvedValue({
+      message: {
+        content: JSON.stringify({
+          tasks: [
+            { key: "task-1", priority: "high", estimatedHours: 16 },
+            { key: "task-2", priority: "medium", estimatedHours: 12 },
+          ],
+          allocations: [
+            { sourceId: "budget-1", taskId: "task-1" },
+            { sourceId: "budget-2", taskId: "task-2" },
+          ],
+          budgetAllocations: [
+            { key: "task-1", lines: [{ sourceId: "fund-ledipo", amount: 3000, particular: "Meals and Snacks (adjusted)" }] },
+            { key: "task-2", lines: [{ sourceId: "fund-ledipo", amount: 2000, particular: "Directory Printing (adjusted)" }] },
+          ],
+          budgetRebudgeted: true,
+        }),
+      },
+    });
+
+    const draft = await generatePdfProjectDraft(
+      "ledipo-project",
+      twoTaskSource,
+      "Project-Proposal-LEDIPO-Capstone-Sample.pdf",
+      "2099-10-20",
+      vi.fn(),
+      undefined,
+      {
+        addBudget: true,
+        addSubtasks: true,
+        projectContext: {
+          title: "MSME Directory",
+          authorizedBudget: {
+            fundingNotRequired: false,
+            totalAvailable: 5000,
+            sources: [{ id: "fund-ledipo", name: "MOOE Investment Promotion", fiscalYear: 2026, available: 5000 }],
+          },
+        },
+      },
+    );
+
+    expect(draft.sourceBudgetTotal).toBeUndefined();
+    expect(draft.budgetAllocations).toEqual([
+      { key: "task-1", lines: [{ sourceId: "fund-ledipo", amount: 3000, particular: "Meals and Snacks (adjusted)" }] },
+      { key: "task-2", lines: [{ sourceId: "fund-ledipo", amount: 2000, particular: "Directory Printing (adjusted)" }] },
+    ]);
+    expect(draft.warnings.join(" ")).toContain("65,000.00");
+    expect(draft.warnings.join(" ")).toContain("5,000.00");
+    const tasks = draft.groups.flatMap((g) => g.tasks);
+    expect(tasks[0].description).toContain("PHP 3,000.00");
+    expect(tasks[1].description).toContain("PHP 2,000.00");
+    const review = reviewedImportPayload(draft, "Project-Proposal-LEDIPO-Capstone-Sample.pdf", false);
+    expect(review).not.toHaveProperty("sourceBudgetTotal");
+    expect(review).not.toHaveProperty("taskBudgets");
+
+    // Also verify weighted fallback if AI omits budgetAllocations while PDF exceeds ceiling (never 50/50)
+    api.chat.mockResolvedValueOnce({
+      message: {
+        content: JSON.stringify({
+          tasks: [
+            { key: "task-1", priority: "high", estimatedHours: 16 },
+            { key: "task-2", priority: "medium", estimatedHours: 12 },
+          ],
+          allocations: [
+            { sourceId: "budget-1", taskId: "task-1" },
+            { sourceId: "budget-2", taskId: "task-2" },
+          ],
+        }),
+      },
+    });
+    const fallbackDraft = await generatePdfProjectDraft(
+      "ledipo-project",
+      twoTaskSource,
+      "Project-Proposal-LEDIPO-Capstone-Sample.pdf",
+      "2099-10-20",
+      vi.fn(),
+      undefined,
+      {
+        addBudget: true,
+        addSubtasks: true,
+        projectContext: {
+          title: "MSME Directory",
+          authorizedBudget: {
+            fundingNotRequired: false,
+            totalAvailable: 5000,
+            sources: [{ id: "fund-ledipo", name: "MOOE Investment Promotion", fiscalYear: 2026, available: 5000 }],
+          },
+        },
+      },
+    );
+    expect(fallbackDraft.sourceBudgetTotal).toBeUndefined();
+    const fallbackAmounts = (fallbackDraft.budgetAllocations || []).map((a) =>
+      a.lines.reduce((sum, l) => sum + l.amount, 0),
+    );
+    expect(fallbackAmounts[0]).toBeGreaterThan(fallbackAmounts[1]);
+    expect(Math.round((fallbackAmounts[0] + fallbackAmounts[1]) * 100) / 100).toBe(5000);
+  });
+
+  it("populates real authorized source allocations when PDF budget fits within Head-authorized funding", async () => {
+    api.chat.mockResolvedValue({
+      message: { content: JSON.stringify(enrichment()) },
+    });
+    const draft = await generatePdfProjectDraft(
+      "existing-project",
+      source,
+      "proposal.pdf",
+      "2099-10-20",
+      vi.fn(),
+      undefined,
+      {
+        addBudget: true,
+        addSubtasks: true,
+        projectContext: {
+          title: "OCEDSIPP",
+          authorizedBudget: {
+            fundingNotRequired: false,
+            totalAvailable: 2500000,
+            sources: [{ id: "fund-main", name: "MOOE", fiscalYear: 2026, available: 2500000 }],
+          },
+        },
+      },
+    );
+    expect(draft.sourceBudgetTotal).toBe(2156500);
+    const totalAllocated = (draft.budgetAllocations || [])
+      .flatMap((a) => a.lines)
+      .reduce((sum, line) => sum + line.amount, 0);
+    expect(totalAllocated).toBe(2156500);
+  });
 });

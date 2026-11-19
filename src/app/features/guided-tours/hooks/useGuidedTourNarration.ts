@@ -2,7 +2,10 @@ import { useEffect, useState } from "react";
 import { isTourNarrationSupported, speakTourStep, stopTourNarration } from "../services/tourNarrationService";
 import type { GuidedTourStep } from "../types";
 
-export function useGuidedTourNarration(step: Pick<GuidedTourStep, "id" | "title" | "description">, enabled: boolean) {
+export function useGuidedTourNarration(
+  step: Pick<GuidedTourStep, "id" | "title" | "description"> & { narration?: string },
+  enabled: boolean,
+) {
   const supported = isTourNarrationSupported();
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [finishedStepId, setFinishedStepId] = useState<string | null>(null);

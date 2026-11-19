@@ -147,6 +147,7 @@ truncate table
   public.project_import_batches,
   public.project_pdf_import_sessions,
   public.project_readiness_reviews,
+  public.process_mining_snapshots,
   public.office_project_homes,
   public.proposal_collaboration_commit_projects,
   public.proposal_delivery_closeout_decisions,

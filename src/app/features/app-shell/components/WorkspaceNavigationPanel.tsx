@@ -36,7 +36,7 @@ export function WorkspaceNavigationPanel({ items, activeSection, activePage, wor
     ? (workspaceKind === 'personal' || role === 'head') && items.some(item => item.group === 'workspaces' && item.id !== 'projects' && item.id !== 'tasks') : canOpenProjects);
   const destinations = (destinations: ShellNavigationItem[]) => destinations.map(item => {
     return <div key={item.id} data-tour-section={item.id}>
-      {item.pages.map(page => {const Icon=getEflowNavigationIcon(item.id,page.label);const label=item.pages.length === 1 ? item.label : pageDisplayLabel(item.id,page.label);return <button className="eflow-workspace-navigation__destination" type="button" key={page.label} aria-label={label} aria-current={activeSection === item.id && activePage === page.label ? 'page' : undefined} onClick={() => onPageSelect(item.id, page.label)}>
+      {item.pages.map(page => {const Icon=getEflowNavigationIcon(item.id,page.label);const label=item.pages.length === 1 ? item.label : pageDisplayLabel(item.id,page.label);return <button className="eflow-workspace-navigation__destination" type="button" key={page.label} data-tour-dest={`${item.id}:${page.label}`} aria-label={label} aria-current={activeSection === item.id && activePage === page.label ? 'page' : undefined} onClick={() => onPageSelect(item.id, page.label)}>
         <Icon size={17} aria-hidden="true" /><span>{label}</span>{'hasAlert' in item && item.hasAlert && <span className="eflow-navigation-alert" aria-label="Actions pending" />}
       </button>;})}
     </div>;
@@ -88,6 +88,7 @@ export function WorkspaceNavigationPanel({ items, activeSection, activePage, wor
               </button>
               <button
                 type="button"
+                data-tour-dest="projects:Projects"
                 className="eflow-workspace-navigation__destination eflow-workspace-section__link"
                 aria-current={activeSection === 'projects' && !selectedProjectId ? 'page' : undefined}
                 onClick={() => onPageSelect('projects', 'Projects')}
@@ -96,7 +97,7 @@ export function WorkspaceNavigationPanel({ items, activeSection, activePage, wor
               </button>
             </div>
           ) : (
-            <button type="button" className="eflow-workspace-section__disclosure" aria-expanded={open} aria-controls={`workspace-section-${id}`} onClick={() => preference.toggleDisclosure(id)}>
+            <button type="button" data-tour-dest={id === 'projects' ? 'projects:Projects' : undefined} className="eflow-workspace-section__disclosure" aria-expanded={open} aria-controls={`workspace-section-${id}`} onClick={() => preference.toggleDisclosure(id)}>
               {open ? <ChevronDown size={15} /> : <ChevronRight size={15} />}<Icon size={17} /><span>{label}</span>
             </button>
           )}

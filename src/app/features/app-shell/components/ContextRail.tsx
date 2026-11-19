@@ -8,7 +8,7 @@ function Destinations({items,activeSection,activePage,onPageSelect}:{items:Shell
  return <>{items.map(item=>{return <div key={item.id} data-tour-section={item.group==='admin-center'&&item.id==='users'?undefined:item.id}>{item.pages.filter(page=>item.id!=='inbox'||page.label!=='Inbox').map(page=>{
   const Icon=getEflowNavigationIcon(item.id,page.label);
   const label=item.group!=='admin-center'&&item.pages.length===1?item.label:pageDisplayLabel(item.id,page.label);
-  return <button key={page.label} id={item.id==='inbox'&&(page.label==='Notifications'||page.label==='Updates')?'inbox-updates-context':undefined} type="button" className="eflow-workspace-navigation__destination" aria-current={activeSection===item.id&&activePage===page.label?'page':undefined} onClick={()=>onPageSelect(item.id,page.label)}><Icon size={17} aria-hidden="true"/><span>{label}</span>{item.hasAlert&&<span className="eflow-navigation-alert" aria-label="Actions pending"/>}</button>;
+  return <button key={page.label} id={item.id==='inbox'&&(page.label==='Notifications'||page.label==='Updates')?'inbox-updates-context':undefined} type="button" data-tour-dest={`${item.id}:${page.label}`} className="eflow-workspace-navigation__destination" aria-current={activeSection===item.id&&activePage===page.label?'page':undefined} onClick={()=>onPageSelect(item.id,page.label)}><Icon size={17} aria-hidden="true"/><span>{label}</span>{item.hasAlert&&<span className="eflow-navigation-alert" aria-label="Actions pending"/>}</button>;
  })}</div>;})}</>;
 }
 function ContextContent({children,...props}:Props&{children:ReactNode}){

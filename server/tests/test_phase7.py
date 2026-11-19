@@ -20,12 +20,12 @@ class Phase7Tests(unittest.TestCase):
   read.assert_called_once_with(TASK,user,auto_assign=True)
   self.assertEqual(out['model'],'qwen3.5:4b');self.assertTrue(out['workspace_staffing']['autoAssign'])
   self.assertEqual(out['workspace_staffing']['context'],canonical)
- def test_workload_counts_team_members_and_unknown_effort_without_inventing_zero(self):
-  tasks=[{'assigned_to':'m','status':'in_progress','estimated_hours':10,'percent_complete':40},
-         {'team_member_ids':['m'],'status':'todo','estimated_hours':None},
-         {'assigned_to':'m','status':'completed','estimated_hours':30},
-         {'assigned_to':'other','status':'todo','estimated_hours':10}]
-  self.assertEqual(service.workload_for('m',tasks),{'activeTasks':2,'remainingHours':6,'unknownEffortTasks':1})
+ def test_workload_counts_active_team_members_without_estimated_hours(self):
+  tasks=[{'assigned_to':'m','status':'in_progress','percent_complete':40},
+         {'team_member_ids':['m'],'status':'todo'},
+         {'assigned_to':'m','status':'completed'},
+         {'assigned_to':'other','status':'todo'}]
+  self.assertEqual(service.workload_for('m',tasks),{'activeTasks':2})
  def test_professional_context_excludes_sensitive_and_raw_document_fields(self):
   out=service.compact_profile({'skills':['Surveying'],'education':['Civil Engineering'],'date_of_birth':'secret','medical':'secret','raw_text':'secret','trainings':['Safety']})
   self.assertEqual(out['skills'],['Surveying']);self.assertEqual(out['training'],['Safety']);self.assertNotIn('medical',out);self.assertNotIn('raw_text',out)

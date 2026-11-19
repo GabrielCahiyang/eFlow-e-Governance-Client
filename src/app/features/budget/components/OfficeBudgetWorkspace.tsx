@@ -190,7 +190,7 @@ function OfficeBudgetContent({ orgId, fiscalYear, embedded, tab, setTab, setFisc
             </div>
           </div>
         ))}
-        <div className={`eflow-budget-view-toolbar${groupedViews ? ' eflow-budget-view-toolbar--grouped' : ''}`}>
+        <div className={`eflow-budget-view-toolbar${groupedViews ? ' eflow-budget-view-toolbar--grouped' : ''}`} data-tour-id="office-budget-views">
           <BudgetViewControl value={tab} onChange={setTab} grouped={groupedViews} />
         </div>
         {budget.loading ? (
