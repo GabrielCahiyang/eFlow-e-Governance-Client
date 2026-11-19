@@ -1,4 +1,5 @@
 import { EmptyState } from '../../../../components/ui/EmptyState';
+import { formatManilaDate } from '../../../../shared/calendarDisplay';
 import type { Task } from "../../../../services/taskService";
 import { getDeadlineInfo, parseTaskDeadline, priorityMeta, statusMeta } from "./model";
 
@@ -97,10 +98,7 @@ export function TimelineView({
               className="flex-1 px-1 py-2.5 border-r border-neutral-100 last:border-0 text-center"
             >
               <div className="text-[10px] font-semibold text-neutral-400">
-                {w.toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                })}
+                {formatManilaDate(w, "")}
               </div>
             </div>
           ))}
@@ -214,7 +212,7 @@ export function TimelineView({
                       width: `${barWidth}%`,
                       minWidth: "16px",
                     }}
-                    title={`${task.title} · Due: ${task.deadline || task.dueDate}`}
+                    title={`${task.title} · Due: ${formatManilaDate(task.deadline || task.dueDate, task.deadline || task.dueDate || "Not set")}`}
                   >
                     {barWidth > 5 ? task.title : ""}
                   </div>

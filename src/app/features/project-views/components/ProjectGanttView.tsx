@@ -63,7 +63,7 @@ export function ProjectGanttView({ data, allTasks, canManage, onOpenTask, onOpen
     {actions.notice && <p className="pv-error" role="alert">{actions.notice}</p>}
     <div className="pv-gantt-scroll" ref={scroller} aria-busy={actions.busy}>
       <div className="pv-gantt-sheet" style={{ width: width + LABEL, minHeight: HEADER + height }}>
-        <div className="pv-gantt-header" style={{ height: HEADER }}><span style={{ width: LABEL }}>Task / milestone</span><div style={{ width }}>{ticks.map(day => <span key={day} style={{ left: x(day) }}>{new Date(day * 86400000).toLocaleDateString('en-US', { timeZone: 'UTC', month: 'short', day: 'numeric' })}</span>)}</div></div>
+        <div className="pv-gantt-header" style={{ height: HEADER }}><span style={{ width: LABEL }}>Task / milestone</span><div style={{ width }}>{ticks.map(day => <span key={day} style={{ left: x(day) }}>{new Date(day * 86400000).toLocaleDateString('en-US', { timeZone: 'UTC', month: '2-digit', day: '2-digit', year: 'numeric' })}</span>)}</div></div>
         <div className="pv-gantt-axis" style={{ left: LABEL, width, top: HEADER, height }}>
           {ticks.map(day => <i key={day} style={{ left: x(day) }}/>) }{today >= min && today <= max && <i className="pv-today-line" style={{ left: x(today) }} aria-label="Today"/>}
           <svg className="pv-dependencies" width={width} height={height} aria-label="Task dependencies"><defs><marker id="pv-arrow" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6" fill="#7b8495"/></marker></defs>

@@ -200,7 +200,7 @@ function GeneralJournalView({
             className="eflow-budget-register-search"
             clearIconLabel="Clear journal search"
             inputAriaLabel="Search journal"
-            onChange={setQuery}
+            onChange={(next) => setQuery(next.slice(0, 120))}
             onClear={() => setQuery("")}
             placeholder="Search voucher, account, memo, or recorder…"
             showClearIcon

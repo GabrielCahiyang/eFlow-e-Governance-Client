@@ -1,4 +1,5 @@
 import { MoneyInput } from '../../../components/ui/MoneyInput';
+import { formatManilaDateTime } from '../../../shared/calendarDisplay';
 import { FieldLengthHint } from '../../../components/ui/FieldLengthHint';
 import { INPUT_LIMITS } from '../../../shared/inputLimits';
 import { useRef, useState } from "react";
@@ -246,7 +247,7 @@ export function LockedBudgetControls({
               <span>→ {peso.format(item.adjustedAmount)}</span>
               <span className="text-neutral-500">{item.reason}</span>
               <span className="text-neutral-400">
-                {new Date(item.createdAt).toLocaleString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric', hour: 'numeric', minute: '2-digit' })}
+                {formatManilaDateTime(item.createdAt, "—")}
               </span>
             </div>
           ))}

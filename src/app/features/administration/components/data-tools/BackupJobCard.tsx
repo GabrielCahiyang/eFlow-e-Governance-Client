@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { formatManilaDateTime } from "../../../../shared/calendarDisplay";
 import {
   AlertTriangle,
   Check,
@@ -81,14 +82,7 @@ export function BackupJobCard({
               {archiveTitle}
             </div>
             <p className="mt-0.5 text-xs text-neutral-500">
-              {job.phase} ·{" "}
-              {new Date(job.created_at).toLocaleString("en-US", {
-                month: "short",
-                day: "numeric",
-                year: "numeric",
-                hour: "numeric",
-                minute: "2-digit",
-              })}
+              {job.phase} · {formatManilaDateTime(job.created_at, "—")}
             </p>
           </div>
         </div>
@@ -175,16 +169,7 @@ export function BackupJobCard({
           <Metric label="Size" value={formatBytes(job.archive_size)} />
           <Metric
             label="Expires"
-            value={
-              job.expires_at
-                ? new Date(job.expires_at).toLocaleString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                    hour: "numeric",
-                    minute: "2-digit",
-                  })
-                : "—"
-            }
+            value={job.expires_at ? formatManilaDateTime(job.expires_at, "—") : "—"}
           />
         </div>
       )}

@@ -1,4 +1,5 @@
 import { AlertCircle, ArrowRight, RefreshCw } from "lucide-react";
+import { formatManilaDate } from "../../../shared/calendarDisplay";
 import type { CashReviewFocus, TaskCashBlocker } from "../types";
 import { canOpenCashBlockerReview, isTaskCashApprovalBlocked } from "../selectors/taskCashClearance";
 import { peso } from "./budgetUi";
@@ -65,7 +66,7 @@ export function TaskCashClearancePanel({ blockers, loading, error, serverBlocked
                 <div><dt className="inline font-semibold">Next step: </dt><dd className="inline">{!blocksApproval ? "You can approve the work now. An eligible Accounting Officer must settle the cash before final completion." : staffingBlocked ? "You can approve the work now. Resolve the Accounting staffing hold and settle the cash before final completion." : blocker.nextStep}</dd></div>
                 <div><dt className="inline font-semibold">Where: </dt><dd className="inline">{independentReview ? "Reviews → Budget → Independent financial reviews" : blocker.location} → {number}</dd></div>
               </dl>
-              {(request.releasedAmount || 0) > 0 && <p className="mt-2 text-neutral-600">Released: {peso.format(request.releasedAmount || 0)}{request.liquidationDueAt ? ` · Receipts due ${new Date(request.liquidationDueAt).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })}` : ""}</p>}
+              {(request.releasedAmount || 0) > 0 && <p className="mt-2 text-neutral-600">Released: {peso.format(request.releasedAmount || 0)}{request.liquidationDueAt ? ` · Receipts due ${formatManilaDate(request.liquidationDueAt, "—")}` : ""}</p>}
               {liquidation && <p className="mt-1 text-neutral-600">Receipt package #{liquidation.version}: {peso.format(liquidation.declaredSpent)} declared spent · {peso.format(liquidation.returnedAmount)} declared return</p>}
               {feedback && <p className="mt-2 rounded bg-amber-50 p-2 text-amber-900">Reviewer feedback: {feedback}</p>}
               {onOpenFinancialReview && canOpenCashBlockerReview(blocker, currentUserId, role) && <button

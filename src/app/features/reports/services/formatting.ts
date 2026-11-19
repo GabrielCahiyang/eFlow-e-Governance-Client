@@ -1,3 +1,5 @@
+import { getPhilippineCalendarDate } from "../../../shared/calendarDates";
+
 export function escapeCsv(value: string | number): string {
   const stringValue = String(value ?? "");
   if (/[",\n]/.test(stringValue)) {
@@ -10,7 +12,7 @@ export function safeFilename(title: string, extension: string): string {
   const base =
     title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") ||
     "report";
-  return base + "-" + new Date().toISOString().slice(0, 10) + "." + extension;
+  return base + "-" + getPhilippineCalendarDate() + "." + extension;
 }
 
 export function escapeHtml(value: string): string {

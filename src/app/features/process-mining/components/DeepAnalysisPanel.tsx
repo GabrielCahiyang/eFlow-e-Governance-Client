@@ -48,11 +48,12 @@ const pesoFmt = new Intl.NumberFormat("en-PH", {
 });
 const dateTimeFmt = new Intl.DateTimeFormat("en-US", {
   timeZone: "Asia/Manila",
-  month: "short",
-  day: "numeric",
+  month: "2-digit",
+  day: "2-digit",
   year: "numeric",
-  hour: "numeric",
+  hour: "2-digit",
   minute: "2-digit",
+  hour12: true,
 });
 
 function formatDurationHours(hours: number | null | undefined): string {

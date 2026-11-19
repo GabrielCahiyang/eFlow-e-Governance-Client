@@ -1,4 +1,5 @@
 import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
+import { formatManilaDate } from "../../../shared/calendarDisplay";
 import { useEffect, useState } from 'react';
 import { Building2, ClipboardList, Folder, Pin, Search, SquarePen } from 'lucide-react';
 import { EmptyState } from '../../../components/ui/EmptyState';
@@ -60,7 +61,7 @@ export function ChatChannelList({ selected, onSelect, onCompose }: {
       <span className="messages-preview">{chat.lastMessage ? parseMessage(chat.lastMessage).text : 'No messages yet'}</span>
     </span>
     <span className="messages-conversation-meta">
-      {chat.lastMessageAt && <time dateTime={new Date(chat.lastMessageAt).toISOString()}>{new Date(chat.lastMessageAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</time>}
+      {chat.lastMessageAt && <time dateTime={new Date(chat.lastMessageAt).toISOString()}>{formatManilaDate(chat.lastMessageAt, '')}</time>}
       {chat.unread && !chat.archived && <span className="messages-unread-dot" aria-hidden="true" />}
     </span>
   </button>;

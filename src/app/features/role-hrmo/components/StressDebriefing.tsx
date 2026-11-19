@@ -1,4 +1,5 @@
 import { Plus } from "lucide-react";
+import { formatManilaDate } from "../../../shared/calendarDisplay";
 import { Btn, PageHeader, Stat } from "./primitives";
 
 type DebriefEvent = {
@@ -69,7 +70,7 @@ export function StressDebriefing() {
                   </span>
                 </div>
               </div>
-              <div className="col-span-2 text-[12px] font-normal text-neutral-600">{d.deadline}</div>
+              <div className="col-span-2 text-[12px] font-normal text-neutral-600">{formatManilaDate(d.deadline, d.deadline)}</div>
               <div className="col-span-1 text-right">
                 <button className="text-[11px] font-medium text-neutral-900 hover:underline cursor-pointer">Schedule</button>
               </div>

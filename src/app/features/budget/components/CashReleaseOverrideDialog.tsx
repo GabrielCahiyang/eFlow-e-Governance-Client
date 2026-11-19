@@ -1,4 +1,5 @@
 import { useId, useRef, useState } from "react";
+import { formatManilaDate } from "../../../shared/calendarDisplay";
 import { AlertTriangle, Loader2 } from "lucide-react";
 import {
   Dialog,
@@ -164,7 +165,7 @@ export function CashReleaseOverrideDialog({
               request?.requesterName ||
               "Assigned recipient"}
           </p>
-          <p className="mt-1">Original schedule: {release.scheduledDate}</p>
+          <p className="mt-1">Original schedule: {formatManilaDate(release.scheduledDate, release.scheduledDate)}</p>
         </div>
         <p className="text-sm text-neutral-600">
           This overrides the release date only—not funding approval or receipt requirements. Your identity, reason, and release time will

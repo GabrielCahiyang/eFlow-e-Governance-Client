@@ -1,6 +1,7 @@
 import * as Carbon from "@carbon/icons-react";
 import * as Lucide from "lucide-react";
 import { useState } from "react";
+import { formatManilaTime } from "../../../shared/calendarDisplay";
 import type { DocNote, TaskCard } from "./councilorData";
 import { mockAISummary, mockFullText } from "./councilorData";
 
@@ -27,7 +28,7 @@ export function FocusReader({
       {
         id: `n${Date.now()}`,
         text: newNote.trim(),
-        timestamp: new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }),
+        timestamp: formatManilaTime(new Date(), ""),
       },
     ]);
     setNewNote("");

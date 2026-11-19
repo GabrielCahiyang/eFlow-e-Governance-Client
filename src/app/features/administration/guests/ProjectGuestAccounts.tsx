@@ -2,6 +2,7 @@ import { useState, type ReactNode } from 'react';
 import { Clock3, ShieldCheck, UserRoundCheck, UsersRound } from 'lucide-react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { isAdminRole } from '../../../shared/roles';
+import { formatManilaDate, formatManilaDateTime } from '../../../shared/calendarDisplay';
 import { Button } from '../../../components/ui/button';
 import { DataTable, type Column } from '../../../components/ui/DataTable';
 import { FeedbackState } from '../../../components/ui/FeedbackState';
@@ -43,7 +44,7 @@ export function ProjectGuestAccounts() {
     {key: 'sponsor', header: 'Sponsoring office', render: g => g.sponsor_office},
     {key: 'projects', header: 'Active projects', render: g => g.projects.length ? <ul>{g.projects.map(p => <li key={p.id}>{p.title}</li>)}</ul> : <span className="guest-secondary">No active project</span>},
     {key: 'status', header: 'Status', render: g => <span className="guest-status" data-tone={guestStatus(g).tone}>{guestStatus(g).label}</span>},
-    {key: 'deadline', header: 'Auto-deactivation', render: g => !g.is_active ? g.deactivated_at ? new Date(g.deactivated_at).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }) : 'Deactivated' : g.finance_open && !g.projects.length ? 'Paused while cash is open' : g.deactivates_at ? new Date(g.deactivates_at).toLocaleString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric', hour: 'numeric', minute: '2-digit' }) : 'Active on project'},
+    {key: 'deadline', header: 'Auto-deactivation', render: g => !g.is_active ? g.deactivated_at ? formatManilaDate(g.deactivated_at, 'Deactivated') : 'Deactivated' : g.finance_open && !g.projects.length ? 'Paused while cash is open' : g.deactivates_at ? formatManilaDateTime(g.deactivates_at, 'Active on project') : 'Active on project'},
     {key: 'actions', header: 'Actions', action: true, render: guest => <div className="guest-row-actions"><Button size="sm" variant="outline" onClick={() => setSelection({guest, mode: 'details'})}>View details</Button><Button size="sm" variant={guest.is_active ? 'outline' : 'default'} disabled={guest.is_active && guest.finance_open} title={guest.is_active && guest.finance_open ? 'Settle open cash before deactivating.' : undefined} onClick={() => setSelection({guest, mode: guest.is_active ? 'deactivate' : 'activate'})}>{guest.is_active ? 'Deactivate' : 'Reactivate'}</Button></div>},
   ];
   const stats = [{filter: 'active', label: 'Active guests', icon: UserRoundCheck}, {filter: 'unassigned', label: 'Awaiting assignment', icon: UsersRound}, {filter: 'soon', label: 'Deactivating soon', icon: Clock3}, {filter: 'deactivated', label: 'Deactivated', icon: ShieldCheck}] as const;

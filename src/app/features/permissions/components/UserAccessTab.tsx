@@ -1,9 +1,12 @@
-import { readableUiError } from '../../../shared/userFacingError';
-import { EmptyState } from '../../../components/ui/EmptyState';
-import '../permissionPresentation.css';
+import { readableUiError } from "../../../shared/userFacingError";
+import { EmptyState } from "../../../components/ui/EmptyState";
+import "../permissionPresentation.css";
 import { isAdminRole } from "../../../shared/roles";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
+  Info,
+  Link2,
+  LockKeyhole,
   Search,
   Shield,
   UserRoundCog,
@@ -17,12 +20,22 @@ import {
   PERMISSIONS_CHANGED_EVENT,
   VISIBLE_PAGE_PERMISSION_KEYS as PAGE_PERMISSION_KEYS,
   PERMISSION_LABELS,
+  type PermissionKey,
 } from "../constants";
+import {
+  getModuleAllKeys,
+  getPermissionDependents,
+  getPermissionPrerequisites,
+  getPermissionRestriction,
+  PERMISSION_MODULES,
+  planUserOverrideChange,
+  type PermissionModuleDefinition,
+} from "../dependencies";
 import { resolveAccountRoleDisplay, useRoleCatalog } from "../hooks/useRoleCatalog";
 import { resolvePermissions, rolePermissionAllowed } from "../selectors";
 import {
   fetchIndividualAccess,
-  setUserOverride,
+  setUserOverridesBatch,
 } from "../services/permissionService";
 import type { RolePermissionRow, UserOverrideRow } from "../types";
 
@@ -30,9 +43,15 @@ import { useConfirmation } from "../../../components/ui/useConfirmation";
 import { useExplicitDraft } from "../../../shared/useExplicitDraft";
 import { requestNavigation } from "../../../shared/navigationGuard";
 import { FeedbackState } from "../../../components/ui/FeedbackState";
-function AccessRows({
-  title,
-  permissions,
+
+const ACTION_KEY_SET = new Set<string>(ACTION_PERMISSION_KEYS);
+const ALL_VISIBLE_KEYS: readonly PermissionKey[] = [
+  ...PAGE_PERMISSION_KEYS,
+  ...ACTION_PERMISSION_KEYS,
+];
+
+function UserAccessModuleCard({
+  module,
   role,
   fallbackRole,
   roleRows,
@@ -41,75 +60,141 @@ function AccessRows({
   exceptionsOnly,
   onSelectOverride,
 }: {
-  title: string;
-  permissions: readonly string[];
+  module: PermissionModuleDefinition;
   role: string;
-  fallbackRole?: string;
+  fallbackRole: string;
   roleRows: RolePermissionRow[];
   overrides: UserOverrideRow[];
   effective: Set<string>;
   exceptionsOnly: boolean;
-  onSelectOverride: (permission: string, next: boolean | null) => void;
+  onSelectOverride: (permission: PermissionKey, next: boolean | null) => void;
 }) {
+  const allKeys = getModuleAllKeys(module);
   const visible = exceptionsOnly
-    ? permissions.filter((permission) =>
+    ? allKeys.filter((permission) =>
         overrides.some((row) => row.permission === permission),
       )
-    : permissions;
+    : allKeys;
+
+  if (visible.length === 0) return null;
+
+  const allowedCount = allKeys.filter((permission) => effective.has(permission)).length;
+
   return (
     <section className="overflow-hidden rounded-xl border border-neutral-200 bg-white">
-      <div className="flex items-center justify-between border-b border-neutral-100 bg-neutral-50/70 px-4 py-3">
-        <span className="text-[13px] font-semibold text-neutral-900">{title}</span>
-        <span className="eflow-tabular text-[12px] text-neutral-400">
-          {visible.length} {visible.length === 1 ? "rule" : "rules"}
-        </span>
+      <div className="border-b border-neutral-100 bg-neutral-50/80 px-4 py-3">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-[13.5px] font-semibold text-neutral-900">
+              {module.title}
+            </span>
+            <span className="eflow-tabular rounded-full bg-white px-2 py-0.5 text-[11px] font-medium text-neutral-600 ring-1 ring-neutral-200">
+              {allowedCount}/{allKeys.length} allowed
+            </span>
+            {module.adminOnly ? (
+              <span className="inline-flex items-center gap-1 rounded-full bg-neutral-200/70 px-2 py-0.5 text-[11px] font-medium text-neutral-600">
+                <LockKeyhole className="h-3 w-3" aria-hidden="true" />
+                Admin only
+              </span>
+            ) : null}
+          </div>
+          <span className="eflow-tabular text-[12px] text-neutral-400">
+            {visible.length} {visible.length === 1 ? "rule" : "rules"}
+          </span>
+        </div>
+        <p className="mt-0.5 text-[12px] text-neutral-500">{module.description}</p>
+        {module.id === "accounting" && fallbackRole !== "accounting_staff" ? (
+          <div className="mt-2 flex items-start gap-2 rounded-lg border border-amber-200/80 bg-amber-50/70 px-3 py-1.5 text-[11.5px] text-amber-900">
+            <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-700" aria-hidden="true" />
+            <span>
+              Treasury and journal actions require an <strong>Accounting Staff</strong> account type.
+            </span>
+          </div>
+        ) : null}
       </div>
-      {visible.length === 0 ? (
-        <p className="px-4 py-6 text-center text-[13px] text-neutral-400">
-          No custom permissions in {title.toLowerCase()}.
-        </p>
-      ) : (
-        <div className="divide-y divide-neutral-100">
-          {visible.map((permission) => {
-            const inherited = rolePermissionAllowed(role, permission, roleRows, fallbackRole);
-            const override = overrides.find(
-              (row) => row.permission === permission,
-            );
-            const allowed = effective.has(permission);
-            const currentMode = !override
-              ? "default"
-              : override.allowed
-                ? "allow"
-                : "deny";
-            return (
-              <div key={permission} className="eflow-access-row">
-                <div className="min-w-0 flex-1">
+
+      <div className="divide-y divide-neutral-100">
+        {visible.map((permission) => {
+          const restriction = getPermissionRestriction(permission, fallbackRole);
+          const inherited = rolePermissionAllowed(role, permission, roleRows, fallbackRole);
+          const override = overrides.find((row) => row.permission === permission);
+          const allowed = effective.has(permission);
+          const currentMode = !override
+            ? "default"
+            : override.allowed
+              ? "allow"
+              : "deny";
+          const prereqs = getPermissionPrerequisites(permission);
+          const activeDependents = getPermissionDependents(permission).filter((dep) =>
+            effective.has(dep),
+          );
+
+          return (
+            <div key={permission} className="eflow-access-row">
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-2">
                   <div
-                    id={`access-${title.replace(/ /g, "-")}-${permission}`}
+                    id={`access-${module.id}-${permission}`}
                     className="text-[13px] font-medium text-neutral-900"
                   >
-                    {
-                      PERMISSION_LABELS[
-                        permission as keyof typeof PERMISSION_LABELS
-                      ]
-                    }
+                    {PERMISSION_LABELS[permission] || permission}
                   </div>
-                  <div className="mt-0.5 text-[12px] text-neutral-400">
-                    Default: {inherited ? "Allowed" : "Denied"}
-                    {override
-                      ? ` · Overridden to ${override.allowed ? "Allowed" : "Denied"}`
-                      : ""}
-                  </div>
+                  {ACTION_KEY_SET.has(permission) ? (
+                    <span className="rounded bg-neutral-100 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-neutral-500">
+                      Action
+                    </span>
+                  ) : (
+                    <span className="rounded bg-[#0d544f]/8 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-[#0d544f]">
+                      Page
+                    </span>
+                  )}
                 </div>
-                <span
-                  className={`rounded-md px-2.5 py-1 text-[12px] font-medium ${allowed ? "bg-emerald-50 text-emerald-700" : "bg-neutral-100 text-neutral-500"}`}
-                >
-                  {allowed ? "Allowed" : "Denied"}
+
+                <div className="mt-0.5 text-[12px] text-neutral-400">
+                  Default: {inherited ? "Allowed" : "Denied"}
+                  {override
+                    ? ` · Overridden to ${override.allowed ? "Allowed" : "Denied"}`
+                    : ""}
+                </div>
+
+                {restriction.restricted ? (
+                  <div className="mt-1 flex items-center gap-1 text-[11.5px] text-neutral-500">
+                    <LockKeyhole className="h-3 w-3 shrink-0 text-neutral-400" aria-hidden="true" />
+                    {restriction.reason}
+                  </div>
+                ) : (
+                  <div className="mt-1 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[11px] text-neutral-500">
+                    {prereqs.length > 0 ? (
+                      <span className="inline-flex items-center gap-1 rounded bg-neutral-100 px-1.5 py-0.5 text-neutral-600">
+                        <Link2 className="h-3 w-3 shrink-0 text-[#0d544f]" aria-hidden="true" />
+                        Requires: {prereqs.map((req) => PERMISSION_LABELS[req] || req).join(", ")}
+                      </span>
+                    ) : null}
+                    {activeDependents.length > 0 ? (
+                      <span className="text-[#0d544f]">
+                        Required by: {activeDependents.map((dep) => PERMISSION_LABELS[dep] || dep).join(", ")}
+                      </span>
+                    ) : null}
+                  </div>
+                )}
+              </div>
+
+              <span
+                className={`rounded-md px-2.5 py-1 text-[12px] font-medium ${allowed ? "bg-emerald-50 text-emerald-700" : "bg-neutral-100 text-neutral-500"}`}
+              >
+                {allowed ? "Allowed" : "Denied"}
+              </span>
+
+              {restriction.restricted ? (
+                <span className="inline-flex min-h-[32px] items-center gap-1 rounded-lg border border-neutral-200 bg-neutral-100 px-3 text-[12px] font-medium text-neutral-500">
+                  <LockKeyhole className="h-3.5 w-3.5" aria-hidden="true" />
+                  Locked
                 </span>
+              ) : (
                 <div
                   role="group"
-                  aria-label={`Override for ${PERMISSION_LABELS[permission as keyof typeof PERMISSION_LABELS] || permission}`}
-                  aria-describedby={`access-${title.replace(/ /g, "-")}-${permission}`}
+                  aria-label={`Override for ${PERMISSION_LABELS[permission] || permission}`}
+                  aria-describedby={`access-${module.id}-${permission}`}
                   className="inline-flex overflow-hidden rounded-lg border border-neutral-200 bg-neutral-50 p-0.5"
                 >
                   {(
@@ -143,11 +228,11 @@ function AccessRows({
                     );
                   })}
                 </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
+              )}
+            </div>
+          );
+        })}
+      </div>
     </section>
   );
 }
@@ -219,6 +304,7 @@ export function UserAccessTab({
     window.addEventListener(PERMISSIONS_CHANGED_EVENT, onPermissionsChanged);
     return () => window.removeEventListener(PERMISSIONS_CHANGED_EVENT, onPermissionsChanged);
   }, []);
+
   useEffect(() => {
     if (!selectedId) return;
     let live = true;
@@ -235,7 +321,7 @@ export function UserAccessTab({
       })
       .catch((error) => {
         if (!live) return;
-        setAccessReadError({ key: accessKey, message: readableUiError(error, "Access could not be read.", 'read') });
+        setAccessReadError({ key: accessKey, message: readableUiError(error, "Access could not be read.", "read") });
       });
     return () => {
       live = false;
@@ -257,6 +343,26 @@ export function UserAccessTab({
         : new Set<string>(),
     [selected, roleRows, overrides, selectedCustomRole],
   );
+
+  const roleBaselineMap = useMemo(() => {
+    const map: Record<string, boolean> = {};
+    if (!selected) return map;
+    const roleKey = selectedCustomRole?.key || selected.role;
+    const baseRole = selectedCustomRole?.baseRole || selected.role;
+    for (const permission of ALL_VISIBLE_KEYS) {
+      map[permission] = rolePermissionAllowed(roleKey, permission, roleRows, baseRole);
+    }
+    return map;
+  }, [selected, selectedCustomRole, roleRows]);
+
+  const currentOverridesMap = useMemo(() => {
+    const map: Record<string, boolean> = {};
+    for (const row of overrides) {
+      map[row.permission] = row.allowed;
+    }
+    return map;
+  }, [overrides]);
+
   const pageCount = PAGE_PERMISSION_KEYS.filter((permission) =>
     effective.has(permission),
   ).length;
@@ -264,7 +370,7 @@ export function UserAccessTab({
     effective.has(permission),
   ).length;
 
-  const updateOverride = async (permission: string, next: boolean | null) => {
+  const updateOverride = async (permission: PermissionKey, next: boolean | null) => {
     if (!selected || !userProfile || !accessReady || pending.current) return;
     const current = overrides.find((row) => row.permission === permission);
     const currentLabel = !current
@@ -275,29 +381,47 @@ export function UserAccessTab({
     const nextLabel =
       next === null ? "Default" : next ? "Allow" : "Deny";
     if (currentLabel === nextLabel) return;
+
+    const baseRole = selectedCustomRole?.baseRole || selected.role;
+    const plan = planUserOverrideChange(
+      roleBaselineMap,
+      currentOverridesMap,
+      permission,
+      next,
+      baseRole,
+    );
+    if (!plan.allowed) {
+      setFailure(plan.error || "This override cannot be applied to this account.");
+      toast(plan.error || "This override cannot be applied to this account.", "error");
+      return;
+    }
+
     pending.current = true;
     draft.pendingRef.current = true;
     setBusy(true);
     setFailure("");
     try {
+      const dependencyNote = plan.summary ? ` ${plan.summary}` : "";
       if (
         !(await confirmation.confirm({
           title: "Change individual access?",
-          description: `${selected.full_name}: ${PERMISSION_LABELS[permission as keyof typeof PERMISSION_LABELS] || permission} will change from ${currentLabel} to ${nextLabel}. The change applies only to this account. Project access still depends on project membership.`,
-          actionLabel: "Change access",
+          description: `${selected.full_name}: ${PERMISSION_LABELS[permission] || permission} will change from ${currentLabel} to ${nextLabel}.${dependencyNote} The change applies only to this account. Project access still depends on project membership.`,
+          actionLabel: plan.cascadeDisabled.length > 0 ? "Apply changes together" : "Change access",
         }))
       )
         return;
-      await setUserOverride(selected.id, permission, next, userProfile.id);
+
+      await setUserOverridesBatch(selected.id, plan.changes, userProfile.id);
       setResult(
-        `${selected.full_name} · ${PERMISSION_LABELS[permission as keyof typeof PERMISSION_LABELS] || permission}: ${next === null ? "Default" : next ? "Allowed" : "Denied"}. Saved.`,
+        `${selected.full_name} · ${PERMISSION_LABELS[permission] || permission}: ${next === null ? "Default" : next ? "Allowed" : "Denied"}.${dependencyNote} Saved.`,
       );
       toast(
-        next === null
-          ? "Restored the role default."
-          : next
-            ? "Individual access allowed."
-            : "Individual access denied.",
+        plan.summary ||
+          (next === null
+            ? "Restored the role default."
+            : next
+              ? "Individual access allowed."
+              : "Individual access denied."),
         "success",
       );
     } catch (error: any) {
@@ -309,6 +433,8 @@ export function UserAccessTab({
       setBusy(false);
     }
   };
+
+  const hasVisibleExceptions = !exceptionsOnly || overrides.length > 0;
 
   return (
     <div className="eflow-permissions-surface eflow-access-workspace grid min-h-[650px] gap-4 xl:grid-cols-[280px_minmax(0,1fr)]">
@@ -454,8 +580,7 @@ export function UserAccessTab({
                   aria-hidden="true"
                   className="text-[var(--eflow-primary)]"
                 />
-                Custom permissions override this user’s role defaults. Project
-                access still depends on project membership.
+                Individual overrides stay linked to required pages. Project access still depends on project membership.
               </span>
               <div
                 role="group"
@@ -489,32 +614,33 @@ export function UserAccessTab({
               </div>
             </div>
           </header>
-          <fieldset disabled={busy || !accessReady} className="min-w-0">
-            <AccessRows
-              title="Page access"
-              permissions={PAGE_PERMISSION_KEYS}
-              role={selectedCustomRole?.key || selected.role}
-              fallbackRole={selected.role}
-              roleRows={roleRows}
-              overrides={overrides}
-              effective={effective}
-              exceptionsOnly={exceptionsOnly}
-              onSelectOverride={updateOverride}
-            />
-          </fieldset>
-          <fieldset disabled={busy || !accessReady} className="min-w-0">
-            <AccessRows
-              title="Actions"
-              permissions={ACTION_PERMISSION_KEYS}
-              role={selectedCustomRole?.key || selected.role}
-              fallbackRole={selected.role}
-              roleRows={roleRows}
-              overrides={overrides}
-              effective={effective}
-              exceptionsOnly={exceptionsOnly}
-              onSelectOverride={updateOverride}
-            />
-          </fieldset>
+
+          {!hasVisibleExceptions ? (
+            <div className="rounded-xl border border-neutral-200 bg-white p-6">
+              <EmptyState
+                illustration="complete"
+                size="compact"
+                title="No custom overrides for this account"
+                description="This account currently inherits all permissions from its assigned role."
+              />
+            </div>
+          ) : (
+            <fieldset disabled={busy || !accessReady} className="min-w-0 space-y-3">
+              {PERMISSION_MODULES.map((module) => (
+                <UserAccessModuleCard
+                  key={module.id}
+                  module={module}
+                  role={selectedCustomRole?.key || selected.role}
+                  fallbackRole={selectedCustomRole?.baseRole || selected.role}
+                  roleRows={roleRows}
+                  overrides={overrides}
+                  effective={effective}
+                  exceptionsOnly={exceptionsOnly}
+                  onSelectOverride={(permission, next) => void updateOverride(permission, next)}
+                />
+              ))}
+            </fieldset>
+          )}
         </div>
       )}
     </div>

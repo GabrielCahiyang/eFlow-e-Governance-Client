@@ -1,4 +1,5 @@
 import { Avatar, Label } from "@vibe/core";
+import { formatManilaDateTime } from "../../../shared/calendarDisplay";
 import { GitCompareArrows, History } from "lucide-react";
 import type { UserProfile } from "../../../types";
 import { summarizeRevisionDiff } from "../selectors/revisionDiff";
@@ -114,13 +115,7 @@ export function RevisionTimeline({
                       </span>
                       <span>·</span>
                       <time>
-                        {new Date(revision.createdAt).toLocaleString('en-US', {
-                          month: "short",
-                          day: "numeric",
-                          year: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
+                        {formatManilaDateTime(revision.createdAt, "—")}
                       </time>
                     </div>
                   </div>

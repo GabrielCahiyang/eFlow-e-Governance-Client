@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Database, HardDrive, RotateCcw, ShieldCheck } from "lucide-react";
 import { useAuth } from "../../../contexts/AuthContext";
+import { formatManilaTime } from "../../../shared/calendarDisplay";
 import {
   inspectStorageAndCache,
   purgeAllQueryCaches,
@@ -126,7 +127,7 @@ export function StorageCacheSettingsPage() {
 
           <p className="mt-4 text-[11px] text-neutral-500 dark:text-slate-400">
             {diagnostics.lastClearedAt
-              ? `Last cleared at ${new Date(diagnostics.lastClearedAt).toLocaleTimeString()}`
+              ? `Last cleared at ${formatManilaTime(diagnostics.lastClearedAt, "", { withSeconds: true })} PHT`
               : "eFlow clears cached data when you sign out, switch accounts, or your permissions change."}
           </p>
         </details>

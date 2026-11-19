@@ -1,5 +1,6 @@
 import { CalendarDays } from "lucide-react";
 import { DateInput } from "../../../components/ui/DateInput";
+import { formatManilaDate } from "../../../shared/calendarDisplay";
 import { INPUT_LIMITS } from "../../../shared/inputLimits";
 import { Label } from "@vibe/core";
 import type { Organization } from "../../../types";
@@ -112,7 +113,7 @@ export function CollaborationActivitySection({
                     />
                   ) : (
                     <span className="font-medium text-neutral-800">
-                      {task.deadline || "Unscheduled"}
+                      {task.deadline ? formatManilaDate(task.deadline, task.deadline) : "Unscheduled"}
                     </span>
                   )}
                 </div>

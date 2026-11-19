@@ -1,4 +1,5 @@
 import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
+import { formatManilaDate } from "../../../shared/calendarDisplay";
 import { MoneyInput } from "../../../components/ui/MoneyInput";
 import { FieldLengthHint } from "../../../components/ui/FieldLengthHint";
 import { INPUT_LIMITS } from "../../../shared/inputLimits";
@@ -259,11 +260,7 @@ export function CashLiquidationDialog({
   };
 
   const deadlineLabel = request.liquidationDueAt
-    ? new Date(request.liquidationDueAt).toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      })
+    ? formatManilaDate(request.liquidationDueAt, `${liquidationDueDays} days after full release`)
     : `${liquidationDueDays} days after full release`;
 
   const unusedCash = Math.max(0, approved - spent);

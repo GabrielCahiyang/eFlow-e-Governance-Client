@@ -4,9 +4,10 @@ import type {ReactNode} from 'react';
 import {buildDiff,type AuditEvent,type DiffRow} from '../../../services/auditService';
 import {humanizeAuditField,orderAuditDiff,presentAuditValue,redactAuditDisplay,type AuditValueLookup} from '../presentation';
 import {AuditCopyButton} from './AuditCopyButton';
+import {formatManilaDateTime} from '../../../shared/calendarDisplay';
 export type AuditDetailSection='overview'|'changes'|'technical';
 
-export function auditEventTime(timestamp:number){return Number.isFinite(timestamp)?new Date(timestamp).toLocaleString('en-US',{timeZone:'Asia/Manila',dateStyle:'medium',timeStyle:'short'}):'Not recorded';}
+export function auditEventTime(timestamp:number){return formatManilaDateTime(timestamp,'Not recorded');}
 
 /** Every value follows the existing diff/redaction pipeline, independent of its surface. */
 export function AuditEventDetailContent({event,entityLabel,officeLabel,section,lookup}:{event:AuditEvent;entityLabel:string;officeLabel:string;section:AuditDetailSection;lookup?:AuditValueLookup}){

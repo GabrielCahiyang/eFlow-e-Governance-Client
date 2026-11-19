@@ -1,6 +1,7 @@
 import "../permissionPresentation.css";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
+  Link2,
   LockKeyhole,
   Pencil,
   Plus,
@@ -22,6 +23,13 @@ import {
   VISIBLE_PAGE_PERMISSION_KEYS,
   type PermissionKey,
 } from "../constants";
+import {
+  getPermissionRestriction,
+  PERMISSION_MODULES,
+  planModulePresetChange,
+  planRolePermissionToggle,
+  type PermissionModuleDefinition,
+} from "../dependencies";
 import { useRoleCatalog } from "../hooks/useRoleCatalog";
 import { rolePermissionAllowed } from "../selectors";
 import {
@@ -29,104 +37,17 @@ import {
   deleteCustomRole,
   fetchRolePermissions,
   restoreRoleDefaults,
-  setRolePermission,
+  setRolePermissionsBatch,
   updateCustomRole,
 } from "../services/permissionService";
 import type { CustomRoleDefinition, RolePermissionRow } from "../types";
 import { CustomRoleModal, type CustomRoleModalProps } from "./CustomRoleModal";
-
-type PermissionCategoryFilter = "all" | "pages" | "actions";
+import {
+  ModuleRolePermissionCards,
+  type PermissionCategoryFilter,
+} from "./ModulePermissionCards";
 
 const ALL_CAPABILITY_KEYS = [...VISIBLE_PAGE_PERMISSION_KEYS, ...ACTION_PERMISSION_KEYS];
-
-function CapabilitySection({
-  title,
-  keys,
-  selectedRoleKey,
-  selectedRoleLabel,
-  fallbackRole,
-  isBuiltIn,
-  isLocked,
-  rows,
-  savingKey,
-  onToggle,
-}: {
-  title: string;
-  keys: readonly PermissionKey[];
-  selectedRoleKey: string;
-  selectedRoleLabel: string;
-  fallbackRole: string;
-  isBuiltIn: boolean;
-  isLocked: boolean;
-  rows: RolePermissionRow[];
-  savingKey: string | null;
-  onToggle: (roleKey: string, permission: string, nextAllowed: boolean) => void;
-}) {
-  if (keys.length === 0) return null;
-  return (
-    <section className="overflow-hidden rounded-xl border border-neutral-200 bg-white">
-      <div className="flex items-center justify-between border-b border-neutral-200 bg-neutral-50/70 px-4 py-3">
-        <h4 className="text-[13px] font-semibold text-neutral-900">{title}</h4>
-        <span className="text-[12px] text-neutral-500">
-          {keys.length} {keys.length === 1 ? "permission" : "permissions"}
-        </span>
-      </div>
-      <div className="divide-y divide-neutral-200">
-        {keys.map((permission) => {
-          const allowed = rolePermissionAllowed(selectedRoleKey, permission, rows, fallbackRole);
-          const baselineAllowed = (FALLBACK_DEFAULTS[fallbackRole] || []).includes(permission);
-          const isCustomized = isBuiltIn && !isLocked && allowed !== baselineAllowed;
-          const rowKey = `${selectedRoleKey}:${permission}`;
-          const busy = savingKey === rowKey;
-
-          return (
-            <div key={permission} className="eflow-role-row">
-              <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-[13px] font-medium text-neutral-900">
-                    {PERMISSION_LABELS[permission] || permission}
-                  </span>
-                  {isCustomized ? (
-                    <span className="rounded-md bg-blue-50 px-2 py-0.5 text-[11px] font-medium text-blue-700">
-                      Modified
-                    </span>
-                  ) : null}
-                </div>
-                {isLocked ? (
-                  <p className="mt-0.5 text-[12px] text-neutral-400">
-                    System admin permission (locked).
-                  </p>
-                ) : isBuiltIn ? (
-                  <p className="mt-0.5 text-[12px] text-neutral-400">
-                    Default: {baselineAllowed ? "Allowed" : "Denied"}
-                  </p>
-                ) : null}
-              </div>
-
-              <button
-                type="button"
-                aria-label={`${selectedRoleLabel}: ${allowed ? "Allowed" : "Denied"}`}
-                aria-pressed={isLocked ? undefined : allowed}
-                disabled={isLocked || busy}
-                onClick={() => onToggle(selectedRoleKey, permission, !allowed)}
-                className={`eflow-role-permission inline-flex items-center justify-center gap-1.5 rounded-lg border px-3 py-1.5 text-[12px] font-medium transition-colors ${
-                  isLocked
-                    ? "cursor-not-allowed border-neutral-200 bg-neutral-100 text-neutral-600 opacity-85"
-                    : allowed
-                      ? "border-emerald-200 bg-emerald-50 text-emerald-700 hover:brightness-95"
-                      : "border-neutral-200 bg-neutral-100 text-neutral-600 hover:bg-neutral-200/70"
-                } disabled:opacity-60`}
-              >
-                {isLocked ? <LockKeyhole className="h-3.5 w-3.5" aria-hidden="true" /> : null}
-                {busy ? "Saving…" : allowed ? "Allowed" : "Denied"}
-              </button>
-            </div>
-          );
-        })}
-      </div>
-    </section>
-  );
-}
 
 export function RoleDefaultsTab() {
   const { toast } = useToast();
@@ -141,6 +62,8 @@ export function RoleDefaultsTab() {
   const [selectedRoleKey, setSelectedRoleKey] = useState<string>("admin");
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<PermissionCategoryFilter>("all");
+  const [compactView, setCompactView] = useState(false);
+  const [dependencyNotice, setDependencyNotice] = useState<string | null>(null);
 
   const [modalMode, setModalMode] = useState<"create" | "edit" | null>(null);
   const [editingRole, setEditingRole] = useState<CustomRoleDefinition | null>(null);
@@ -170,6 +93,10 @@ export function RoleDefaultsTab() {
     setSelectedRoleKey(roleCatalog[0]?.key || "admin");
   }, [roleCatalog, selectedRoleKey]);
 
+  useEffect(() => {
+    setDependencyNotice(null);
+  }, [selectedRoleKey]);
+
   const builtInRoles = useMemo(
     () => roleCatalog.filter((entry) => entry.isBuiltIn),
     [roleCatalog],
@@ -189,22 +116,35 @@ export function RoleDefaultsTab() {
     [customRoles, selectedRole],
   );
 
-  const normalizedQuery = searchQuery.trim().toLowerCase();
-  const visiblePageKeys = useMemo(() => {
-    if (categoryFilter === "actions") return [];
-    return VISIBLE_PAGE_PERMISSION_KEYS.filter((permission) =>
-      !normalizedQuery
-        ? true
-        : (PERMISSION_LABELS[permission] || permission).toLowerCase().includes(normalizedQuery),
-    );
-  }, [categoryFilter, normalizedQuery]);
+  const selectedRoleAllowedMap = useMemo(() => {
+    const map: Record<string, boolean> = {};
+    if (!selectedRole) return map;
+    for (const permission of ALL_CAPABILITY_KEYS) {
+      map[permission] = rolePermissionAllowed(
+        selectedRole.key,
+        permission,
+        rows,
+        selectedRole.baseRole,
+      );
+    }
+    return map;
+  }, [selectedRole, rows]);
 
-  const visibleActionKeys = useMemo(() => {
-    if (categoryFilter === "pages") return [];
-    return ACTION_PERMISSION_KEYS.filter((permission) =>
-      !normalizedQuery
-        ? true
-        : (PERMISSION_LABELS[permission] || permission).toLowerCase().includes(normalizedQuery),
+  const normalizedQuery = searchQuery.trim().toLowerCase();
+  const hasVisiblePermissions = useMemo(() => {
+    const actionSet = new Set<string>(ACTION_PERMISSION_KEYS);
+    return PERMISSION_MODULES.some((module) =>
+      [...module.pageKeys, ...module.standardActionKeys, ...module.advancedActionKeys].some((key) => {
+        const isAction = actionSet.has(key);
+        if (categoryFilter === "pages" && isAction) return false;
+        if (categoryFilter === "actions" && !isAction) return false;
+        if (!normalizedQuery) return true;
+        return (
+          (PERMISSION_LABELS[key] || key).toLowerCase().includes(normalizedQuery) ||
+          key.toLowerCase().includes(normalizedQuery) ||
+          module.title.toLowerCase().includes(normalizedQuery)
+        );
+      }),
     );
   }, [categoryFilter, normalizedQuery]);
 
@@ -219,29 +159,93 @@ export function RoleDefaultsTab() {
   const hasCustomizedPermissions = useMemo(() => {
     if (!selectedRole || !selectedRole.isBuiltIn || selectedRole.isLocked) return false;
     return ALL_CAPABILITY_KEYS.some((permission) => {
-      const current = rolePermissionAllowed(
-        selectedRole.key,
-        permission,
-        rows,
-        selectedRole.baseRole,
-      );
+      if (getPermissionRestriction(permission, selectedRole.baseRole).restricted) return false;
+      const current = Boolean(selectedRoleAllowedMap[permission]);
       const baseline = (FALLBACK_DEFAULTS[selectedRole.baseRole] || []).includes(permission);
       return current !== baseline;
     });
-  }, [selectedRole, rows]);
+  }, [selectedRole, selectedRoleAllowedMap]);
 
-  const handleToggle = async (roleKey: string, permission: string, nextAllowed: boolean) => {
-    if (isAdminRole(roleKey)) return;
-    const key = `${roleKey}:${permission}`;
+  const handleToggle = async (permission: PermissionKey, nextAllowed: boolean) => {
+    if (!selectedRole || isAdminRole(selectedRole.key)) return;
+    const plan = planRolePermissionToggle(
+      selectedRoleAllowedMap,
+      permission,
+      nextAllowed,
+      selectedRole.baseRole,
+    );
+    if (!plan.allowed) {
+      toast(plan.error || "This permission cannot be changed for this role.", "error");
+      return;
+    }
+
+    if (plan.cascadeDisabled.length > 0) {
+      const dependentLabels = plan.cascadeDisabled
+        .map((key) => PERMISSION_LABELS[key] || key)
+        .join(", ");
+      const ok = await confirm({
+        title: `Turn off ${PERMISSION_LABELS[permission] || permission}?`,
+        description: `${selectedRole.label} currently has dependent permissions enabled: ${dependentLabels}. Turning off ${PERMISSION_LABELS[permission] || permission} will disable them together so access rules stay consistent.`,
+        actionLabel: "Disable together",
+        cancelLabel: "Keep enabled",
+      });
+      if (!ok) return;
+    }
+
+    const key = `${selectedRole.key}:${permission}`;
     setSavingKey(key);
     try {
-      await setRolePermission(roleKey, permission, nextAllowed);
+      await setRolePermissionsBatch(selectedRole.key, plan.changes);
       setRows(await fetchRolePermissions());
-      const label = roleCatalog.find((item) => item.key === roleKey)?.label || roleKey;
-      toast(`${label} default updated.`, "success");
+      setDependencyNotice(plan.summary);
+      toast(plan.summary || `${selectedRole.label} default updated.`, "success");
     } catch (error) {
       toast(
         error instanceof Error ? error.message : "Could not update role default.",
+        "error",
+      );
+    } finally {
+      setSavingKey(null);
+    }
+  };
+
+  const handleSelectPreset = async (module: PermissionModuleDefinition, presetId: string) => {
+    if (!selectedRole || isAdminRole(selectedRole.key)) return;
+    const plan = planModulePresetChange(
+      selectedRoleAllowedMap,
+      module,
+      presetId,
+      selectedRole.baseRole,
+    );
+    if (!plan.allowed) {
+      toast(plan.error || "Could not apply access level.", "error");
+      return;
+    }
+    if (Object.keys(plan.changes).length === 0) return;
+
+    if (plan.cascadeDisabled.length > 0 && presetId === "none") {
+      const removedLabels = plan.cascadeDisabled
+        .map((key) => PERMISSION_LABELS[key] || key)
+        .join(", ");
+      const ok = await confirm({
+        title: `Remove ${module.title} access for ${selectedRole.label}?`,
+        description: `This disables ${module.title} access and turns off active actions: ${removedLabels}.`,
+        actionLabel: "Remove access",
+        cancelLabel: "Keep current",
+      });
+      if (!ok) return;
+    }
+
+    const key = `${selectedRole.key}:module:${module.id}`;
+    setSavingKey(key);
+    try {
+      await setRolePermissionsBatch(selectedRole.key, plan.changes);
+      setRows(await fetchRolePermissions());
+      setDependencyNotice(plan.summary);
+      toast(plan.summary || `${selectedRole.label} ${module.title} updated.`, "success");
+    } catch (error) {
+      toast(
+        error instanceof Error ? error.message : "Could not update module access.",
         "error",
       );
     } finally {
@@ -263,6 +267,7 @@ export function RoleDefaultsTab() {
     try {
       await restoreRoleDefaults(selectedRole.key);
       setRows(await fetchRolePermissions());
+      setDependencyNotice(null);
       toast(`${selectedRole.label} restored to default permissions.`, "success");
     } catch (error) {
       toast(
@@ -300,6 +305,7 @@ export function RoleDefaultsTab() {
         await Promise.all([reloadCatalog(), fetchRolePermissions().then(setRows)]);
         setSelectedRoleKey(created.key);
         setModalMode(null);
+        setDependencyNotice(null);
         toast(`Created custom role "${created.label}".`, "success");
       } else if (modalMode === "edit" && editingRole) {
         const updated = await updateCustomRole(editingRole.key, {
@@ -308,6 +314,7 @@ export function RoleDefaultsTab() {
         });
         await Promise.all([reloadCatalog(), fetchRolePermissions().then(setRows)]);
         setModalMode(null);
+        setDependencyNotice(null);
         toast(`Updated custom role "${updated.label}".`, "success");
       }
     } catch (error) {
@@ -349,7 +356,7 @@ export function RoleDefaultsTab() {
         <div>
           <h3 className="text-[16px] font-semibold text-neutral-900">Role defaults</h3>
           <p className="text-[13px] text-neutral-500">
-            Choose a role to view or change its default permissions.
+            Configure module access levels or individual permissions. Required pages are linked automatically.
           </p>
         </div>
 
@@ -410,7 +417,7 @@ export function RoleDefaultsTab() {
                         {role.isLocked ? "System admin · Locked" : "Built-in role"}
                       </div>
                     </div>
-                    <span className="shrink-0 rounded-full bg-neutral-100 px-2 py-0.5 text-[11px] font-medium text-neutral-600">
+                    <span className="shrink-0 rounded-full bg-neutral-100 px-2 py-0.5 text-[11px] font-medium text-neutral-600 tabular-nums">
                       {count}/{ALL_CAPABILITY_KEYS.length}
                     </span>
                   </button>
@@ -460,7 +467,7 @@ export function RoleDefaultsTab() {
                           Custom role · {getRoleLabel(role.baseRole)}
                         </div>
                       </div>
-                      <span className="shrink-0 rounded-full bg-neutral-100 px-2 py-0.5 text-[11px] font-medium text-neutral-600">
+                      <span className="shrink-0 rounded-full bg-neutral-100 px-2 py-0.5 text-[11px] font-medium text-neutral-600 tabular-nums">
                         {count}/{ALL_CAPABILITY_KEYS.length}
                       </span>
                     </button>
@@ -547,40 +554,65 @@ export function RoleDefaultsTab() {
                     />
                   </div>
 
-                  <div
-                    role="group"
-                    aria-label="Permission group"
-                    className="inline-flex rounded-lg border border-neutral-200 bg-neutral-50 p-0.5"
-                  >
-                    {(
-                      [
-                        ["all", "All"],
-                        ["pages", "Page access"],
-                        ["actions", "Actions"],
-                      ] as const
-                    ).map(([value, label]) => {
-                      const active = categoryFilter === value;
-                      return (
-                        <button
-                          key={value}
-                          type="button"
-                          aria-pressed={active}
-                          onClick={() => setCategoryFilter(value)}
-                          className={`min-h-[30px] rounded-md px-2.5 text-[12px] font-medium transition-colors ${
-                            active
-                              ? "bg-white text-neutral-900 shadow-xs"
-                              : "text-neutral-500 hover:text-neutral-900"
-                          }`}
-                        >
-                          {label}
-                        </button>
-                      );
-                    })}
+                  <div className="flex flex-wrap items-center gap-2">
+                    <div
+                      role="group"
+                      aria-label="Permission group"
+                      className="inline-flex rounded-lg border border-neutral-200 bg-neutral-50 p-0.5"
+                    >
+                      {(
+                        [
+                          ["all", "All"],
+                          ["pages", "Page access"],
+                          ["actions", "Actions"],
+                        ] as const
+                      ).map(([value, label]) => {
+                        const active = categoryFilter === value;
+                        return (
+                          <button
+                            key={value}
+                            type="button"
+                            aria-pressed={active}
+                            onClick={() => setCategoryFilter(value)}
+                            className={`min-h-[30px] rounded-md px-2.5 text-[12px] font-medium transition-colors ${
+                              active
+                                ? "bg-white text-neutral-900 shadow-xs"
+                                : "text-neutral-500 hover:text-neutral-900"
+                            }`}
+                          >
+                            {label}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    <button
+                      type="button"
+                      aria-pressed={compactView}
+                      onClick={() => setCompactView((current) => !current)}
+                      className={`min-h-[34px] rounded-lg border px-2.5 text-[12px] font-medium transition-colors ${
+                        compactView
+                          ? "border-[#0d544f]/30 bg-teal-50 text-[#0d544f]"
+                          : "border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-50"
+                      }`}
+                    >
+                      {compactView ? "Show details" : "Compact view"}
+                    </button>
                   </div>
                 </div>
+
+                {dependencyNotice ? (
+                  <div
+                    role="status"
+                    className="mt-3 flex items-center gap-2 rounded-lg border border-[#0d544f]/20 bg-teal-50/80 px-3 py-2 text-[12px] text-[#0d544f]"
+                  >
+                    <Link2 className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                    <span>{dependencyNotice}</span>
+                  </div>
+                ) : null}
               </div>
 
-              {visiblePageKeys.length === 0 && visibleActionKeys.length === 0 ? (
+              {!hasVisiblePermissions ? (
                 <div className="rounded-xl border border-neutral-200 bg-white p-6">
                   <EmptyState
                     illustration="search"
@@ -590,32 +622,22 @@ export function RoleDefaultsTab() {
                   />
                 </div>
               ) : (
-                <>
-                  <CapabilitySection
-                    title="Page access"
-                    keys={visiblePageKeys}
-                    selectedRoleKey={selectedRole.key}
-                    selectedRoleLabel={selectedRole.label}
-                    fallbackRole={selectedRole.baseRole}
-                    isBuiltIn={selectedRole.isBuiltIn}
-                    isLocked={selectedRole.isLocked}
-                    rows={rows}
-                    savingKey={savingKey}
-                    onToggle={(roleKey, permission, next) => void handleToggle(roleKey, permission, next)}
-                  />
-                  <CapabilitySection
-                    title="Actions"
-                    keys={visibleActionKeys}
-                    selectedRoleKey={selectedRole.key}
-                    selectedRoleLabel={selectedRole.label}
-                    fallbackRole={selectedRole.baseRole}
-                    isBuiltIn={selectedRole.isBuiltIn}
-                    isLocked={selectedRole.isLocked}
-                    rows={rows}
-                    savingKey={savingKey}
-                    onToggle={(roleKey, permission, next) => void handleToggle(roleKey, permission, next)}
-                  />
-                </>
+                <ModuleRolePermissionCards
+                  mode="role-tab"
+                  selectedRoleKey={selectedRole.key}
+                  selectedRoleLabel={selectedRole.label}
+                  baseRole={selectedRole.baseRole}
+                  isBuiltIn={selectedRole.isBuiltIn}
+                  isLocked={selectedRole.isLocked}
+                  allowedMap={selectedRoleAllowedMap}
+                  searchQuery={searchQuery}
+                  categoryFilter={categoryFilter}
+                  compact={compactView}
+                  savingKey={savingKey}
+                  disabled={restoring}
+                  onTogglePermission={(permission, next) => void handleToggle(permission, next)}
+                  onSelectPreset={(module, presetId) => void handleSelectPreset(module, presetId)}
+                />
               )}
             </div>
           ) : null}

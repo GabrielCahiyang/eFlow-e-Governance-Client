@@ -287,7 +287,7 @@ export function CashRequestTimeline({
               ].includes(request.status) && (
                 <div className="mt-1 text-[12px] text-amber-700">
                   Temporary hold—not approved spending · expires{" "}
-                  {new Date(request.reservationExpiresAt).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })}
+                  {formatManilaDate(request.reservationExpiresAt, "—")}
                 </div>
               )}
             {[
@@ -340,7 +340,7 @@ export function CashRequestTimeline({
                 >
                   {liquidationOverdue
                     ? "Liquidation is overdue. Submission remains open, but Head approval is required."
-                    : `Receipts due ${new Date(request.liquidationDueAt).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })} (${data.summary?.liquidationDueDays || 15}-day window).`}
+                    : `Receipts due ${formatManilaDate(request.liquidationDueAt, "—")} (${data.summary?.liquidationDueDays || 15}-day window).`}
                 </div>
               )}
             {latest && (

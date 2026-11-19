@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import asyncio
 import csv
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
+
+MANILA_TZ = timezone(timedelta(hours=8))
 import io
 import json
 import re
@@ -575,7 +577,8 @@ class BackupExplorerService:
         if not col_names and rows:
             col_names = list(rows[0].keys())
 
-        timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d-%H%M%S")
+        now_manila = datetime.now(MANILA_TZ)
+        timestamp = now_manila.strftime("%Y-%m-%d-%H%M%S")
         base_filename = f"eflow-{clean_name}-{scope}-{timestamp}"
 
         if export_format == "csv":
@@ -608,7 +611,7 @@ class BackupExplorerService:
         elif export_format == "sql":
             header_lines = [
                 f"-- eFlow table export: public.{clean_name}",
-                f"-- Generated at: {datetime.now(timezone.utc).isoformat()}",
+                f"-- Generated at: {now_manila.strftime('%m/%d/%Y, %I:%M %p')} PHT ({now_manila.isoformat()})",
                 f"-- Scope: {scope} ({len(rows)} rows)",
                 "",
             ]

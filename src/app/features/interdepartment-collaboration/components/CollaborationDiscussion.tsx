@@ -4,6 +4,7 @@ import { MessageSquare, Send } from "lucide-react";
 import type { Organization, UserProfile } from "../../../types";
 import { FieldLengthHint } from "../../../components/ui/FieldLengthHint";
 import { INPUT_LIMITS } from "../../../shared/inputLimits";
+import { formatManilaDateTime } from "../../../shared/calendarDisplay";
 import type { CollaborationMessage } from "../types";
 
 export function CollaborationDiscussion({
@@ -102,12 +103,7 @@ export function CollaborationDiscussion({
                   </div>
                 </div>
                 <time className="text-[11px] text-secondary">
-                  {new Date(item.createdAt).toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    month: "short",
-                    day: "numeric",
-                  })}
+                  {formatManilaDateTime(item.createdAt, "—")}
                 </time>
               </div>
 

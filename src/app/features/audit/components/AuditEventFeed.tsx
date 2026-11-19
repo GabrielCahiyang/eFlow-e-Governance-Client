@@ -2,6 +2,7 @@ import { Activity, AlertTriangle, CheckCircle2, ChevronRight, Clock3, Info, Shie
 import type { AuditEvent } from "../../../services/auditService";
 import { InitialsAvatar } from "../../../components/workflow/StatusBadges";
 import { auditActionTone, humanizeAuditAction, humanizeEntityType, summarizeAuditChanges, type AuditValueLookup } from "../presentation";
+import { formatManilaDateTime } from "../../../shared/calendarDisplay";
 
 const TONE_STYLE = {
   good: "border-emerald-100 bg-emerald-50 text-emerald-700",
@@ -20,7 +21,7 @@ function ToneIcon({ tone }: { tone: keyof typeof TONE_STYLE }) {
 }
 
 function eventTime(timestamp: number): string {
-  return new Date(timestamp).toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" });
+  return formatManilaDateTime(timestamp, "Not recorded");
 }
 
 export function AuditEventFeed({

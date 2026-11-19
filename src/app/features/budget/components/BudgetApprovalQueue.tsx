@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { formatManilaDate } from "../../../shared/calendarDisplay";
 import { Button } from "@vibe/core";
 import { AnimatePresence } from "motion/react";
 import * as m from "motion/react-m";
@@ -762,7 +763,7 @@ export function BudgetApprovalQueue({
                 recordId={release.id}
                 focused={focusRecordId === release.id}
                 title={`FR-${String(request?.requestNumber || 0).padStart(5, "0")} · ${[request ? commitmentById.get(request.commitmentId)?.title : undefined, request?.taskTitle, request?.subtaskTitle].filter(Boolean).join(" → ") || "Funded work"}`}
-                meta={`${release.scheduledDate} · recipient ${request?.cashRecipientName || request?.requesterName || "Member"} · ${peso.format(release.amount)}`}
+                meta={`${formatManilaDate(release.scheduledDate, release.scheduledDate)} · recipient ${request?.cashRecipientName || request?.requesterName || "Member"} · ${peso.format(release.amount)}`}
                 status={release.status}
                 actions={
                   <button

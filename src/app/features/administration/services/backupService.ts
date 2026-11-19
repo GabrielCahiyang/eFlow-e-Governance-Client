@@ -1,4 +1,5 @@
 import * as XLSX from "xlsx";
+import { getPhilippineCalendarDate } from "../../../shared/calendarDates";
 import {
   AiServiceUnavailableError,
   ControlPanelUnavailableError,
@@ -366,7 +367,7 @@ export async function downloadTableExport(
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, tableName.slice(0, 31));
     const buffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" }) as ArrayBuffer;
-    const filename = `eflow-${tableName}-${scope}-${new Date().toISOString().slice(0, 10)}.xlsx`;
+    const filename = `eflow-${tableName}-${scope}-${getPhilippineCalendarDate()}.xlsx`;
     triggerBlobDownload(
       new Blob([buffer], {
         type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -379,7 +380,7 @@ export async function downloadTableExport(
   const disposition = response.headers.get("Content-Disposition") || "";
   const match = /filename="?([^"]+)"?/.exec(disposition);
   const filename =
-    match?.[1] || `eflow-${tableName}-${scope}-${new Date().toISOString().slice(0, 10)}.${format}`;
+    match?.[1] || `eflow-${tableName}-${scope}-${getPhilippineCalendarDate()}.${format}`;
   const blob = await response.blob();
   triggerBlobDownload(blob, filename);
   return { filename, rowCount, truncated };
@@ -389,7 +390,7 @@ export function exportBackupJobsHistory(
   jobs: BackupJob[],
   format: "csv" | "json" | "xlsx",
 ): string {
-  const dateStamp = new Date().toISOString().slice(0, 10);
+  const dateStamp = getPhilippineCalendarDate();
   if (format === "json") {
     const filename = `eflow-backup-history-${dateStamp}.json`;
     triggerBlobDownload(

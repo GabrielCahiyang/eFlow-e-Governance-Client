@@ -6,6 +6,7 @@ import { InlineEditableText } from '../../../../components/ui/workspace';
 import type { ProjectCommandMetrics } from './types';
 import './projectIdentity.css';
 import { projectOperationError } from '../../presentation/projectOperationError';
+import { formatManilaInstant } from '../../../../shared/calendarDisplay';
 
 export function ProjectHeader({ project, organizations, profiles=[], metrics, editable = false, onTitleChange, participants, utilities, hideTitle = false }: {
   project: Project; organizations: Organization[]; profiles?: UserProfile[]; metrics?: ProjectCommandMetrics; hideTitle?: boolean;
@@ -32,7 +33,7 @@ export function ProjectHeader({ project, organizations, profiles=[], metrics, ed
       {utilities}
     </div>
     {closed && <p role="status">{project.status === 'archived' ? 'Archived' : 'Completed'} project details are read-only. History and reports remain available.</p>}
-    {project.status==='completed'&&project.completedAt&&<p role="status">Auto-archive: {new Date(new Date(project.completedAt).getTime()+30*86400000).toLocaleString('en-US',{timeZone:'Asia/Manila',month:'2-digit',day:'2-digit',year:'numeric',hour:'numeric',minute:'2-digit'})} PHT. You can archive sooner. Blockchain publication stays manual.</p>}
+    {project.status==='completed'&&project.completedAt&&<p role="status">Auto-archive: {formatManilaInstant(new Date(project.completedAt).getTime()+30*86400000, '—')}. You can archive sooner. Blockchain publication stays manual.</p>}
     <span className="sr-only" aria-live="polite">{titleNotice}</span>
   </header>;
 }

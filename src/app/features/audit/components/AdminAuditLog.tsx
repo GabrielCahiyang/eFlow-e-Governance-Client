@@ -24,15 +24,10 @@ import {
 import { EMPTY_AUDIT_FILTERS, filterAuditEvents } from "../auditFilters";
 import { AuditEventDetailPage } from "./AuditEventDetailPage";
 import {useAuditDetailNavigation} from '../hooks/useAuditDetailNavigation';
+import { formatManilaDateTime, formatManilaInstant } from "../../../shared/calendarDisplay";
 
 function formatAuditTimestamp(timestamp: number): string {
-  return new Date(timestamp).toLocaleString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  });
+  return formatManilaDateTime(timestamp, "Not recorded");
 }
 
 export function AdminAuditLog() {
@@ -141,7 +136,7 @@ function AdministrativeAuditView() {
       render: (event) => (
         <span
           className="eflow-tabular whitespace-nowrap text-xs text-[var(--eflow-text)]"
-          title={new Date(event.createdAt).toLocaleString("en-US")}
+          title={formatManilaInstant(event.createdAt)}
         >
           {formatAuditTimestamp(event.createdAt)}
         </span>

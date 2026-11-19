@@ -1,4 +1,5 @@
 import { EmptyState } from '../../../components/ui/EmptyState';
+import { formatManilaDateTime } from '../../../shared/calendarDisplay';
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Search as VibeSearch } from "@vibe/core";
 import * as m from "motion/react-m";
@@ -205,7 +206,7 @@ export function AccountingTrailPanel({
                     {entry.description}
                   </p>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    {new Date(entry.createdAt).toLocaleString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric', hour: 'numeric', minute: '2-digit' })} ·{" "}
+                    {formatManilaDateTime(entry.createdAt, "—")} ·{" "}
                     {entry.actorRole
                       ? entry.actorRole.split("_").join(" ")
                       : "system"}

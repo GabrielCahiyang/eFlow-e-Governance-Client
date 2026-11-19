@@ -1,5 +1,6 @@
 import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import { DateInput } from "../../../components/ui/DateInput";
+import { formatManilaDate } from "../../../shared/calendarDisplay";
 import { INPUT_LIMITS } from "../../../shared/inputLimits";
 import {
   TaskDepartmentLabel,
@@ -255,7 +256,7 @@ export function DraftTaskRow({
               {dt.deadline && (
                 <span className="inline-flex items-center gap-1 text-[10px] text-neutral-500 bg-neutral-100 rounded-full px-2 py-0.5">
                   <Clock size={9} />
-                  {dt.deadline}
+                  {formatManilaDate(dt.deadline, dt.deadline)}
                 </span>
               )}
               <span

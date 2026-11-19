@@ -3,6 +3,7 @@ import { Button } from "../../../components/ui/button";
 import { EmptyState } from "../../../components/ui/EmptyState";
 import { StatusPill } from "../../../components/ui/workspace/StatusPill";
 import { fetchDispositionCertificate, formatStorageBytes } from "./retentionService";
+import { formatManilaDate } from "../../../shared/calendarDisplay";
 import type { RetentionDisposition } from "./types";
 
 const MODE_LABELS: Record<string, string> = {
@@ -118,11 +119,7 @@ export function DispositionHistoryPanel({
                     <span>{item.purgedByName}</span>
                     <span className="eflow-retention-sub">
                       {TRIGGER_LABELS[item.purgeTrigger] ?? item.purgeTrigger} ·{" "}
-                      {new Date(item.purgedAt).toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                        year: "numeric",
-                      })}
+                      {formatManilaDate(item.purgedAt, "—")}
                     </span>
                   </td>
                   <td>

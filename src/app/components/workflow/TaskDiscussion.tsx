@@ -21,6 +21,7 @@ import {
   type TaskComment,
 } from "../../services/taskDiscussionService";
 import { useAuth } from "../../contexts/AuthContext";
+import { formatManilaDate } from "../../shared/calendarDisplay";
 import { useToast } from "../ui/Toast";
 import { InitialsAvatar } from "./StatusBadges";
 
@@ -33,7 +34,7 @@ function timeAgo(ts: number): string {
   if (h < 24) return `${h}h`;
   const d = Math.floor(h / 24);
   if (d < 7) return `${d}d`;
-  return new Date(ts).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  return formatManilaDate(ts, "");
 }
 
 export function TaskDiscussion({

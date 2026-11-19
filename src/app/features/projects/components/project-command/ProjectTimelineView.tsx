@@ -1,4 +1,5 @@
 import {formatDate} from '../../../../components/workflow/primitives';
+import {formatManilaDate} from '../../../../shared/calendarDisplay';
 import { useEffect, useMemo, useRef, useState } from "react";
 import Gantt from "frappe-gantt";
 // frappe-gantt exposes its stylesheet through a conditional `style` export,
@@ -248,7 +249,7 @@ export function ProjectTimelineView({
               <div class="eflow-gantt-popup">
                 <div class="gantt-popup-type">${typeLabel}</div>
                 <div class="gantt-popup-title">${task.name}</div>
-                <div class="gantt-popup-dates">${task._start ? formatDateYMD(task._start) : task.start} &rarr; ${task._end ? formatDateYMD(task._end) : task.end}</div>
+                <div class="gantt-popup-dates">${formatManilaDate(task._start ? formatDateYMD(task._start) : task.start, '')} &rarr; ${formatManilaDate(task._end ? formatDateYMD(task._end) : task.end, '')}</div>
                 <div class="gantt-popup-progress">Progress: <strong>${task.progress}%</strong></div>
                 ${statusLine}
                 ${ownerLine}

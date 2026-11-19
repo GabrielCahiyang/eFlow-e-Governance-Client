@@ -9,6 +9,7 @@
 //        table, and an optional chart snapshot (SVG/canvas dataURL).
 
 import { recordAudit } from './auditService';
+import { formatManilaInstant } from '../shared/calendarDisplay';
 import { getExportBrandHeader } from '../shared/systemRuntimeConfig';
 import {
   escapeCsv as formatCsvValue,
@@ -83,15 +84,7 @@ export function exportCsv<T>(rows: T[], columns: ReportColumn<T>[], meta: Report
 // ─── PDF preview document ───────────────────────────────────────
 // The same document powers the in-app preview and the legacy print action.
 export function buildReportHtml<T>(rows: T[], columns: ReportColumn<T>[], meta: ReportMeta): string {
-  const generatedAt = new Date().toLocaleString('en-US', {
-    timeZone: meta.timezone,
-    timeZoneName: 'short',
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+  const generatedAt = formatManilaInstant(new Date());
 
   const filtersHtml = meta.filters && Object.keys(meta.filters).length
     ? `<div class="filters">${Object.entries(meta.filters)

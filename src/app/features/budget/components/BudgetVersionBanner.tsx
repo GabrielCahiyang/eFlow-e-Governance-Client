@@ -1,4 +1,5 @@
 import { ArrowRight, History, ShieldCheck } from "lucide-react";
+import { formatManilaDateTime } from "../../../shared/calendarDisplay";
 import type { DepartmentBudgetBundle } from "../types";
 import { budgetVersionChanges } from "../selectors/budgetVersions";
 import { peso } from "./budgetUi";
@@ -21,7 +22,7 @@ export function BudgetVersionBanner({ data }: { data: DepartmentBudgetBundle }) 
             <span className="budget-version__meta">
               <ShieldCheck size={13} aria-hidden="true" />
               {current
-                ? `${current.actorName} · ${new Date(current.createdAt).toLocaleString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric', hour: 'numeric', minute: '2-digit' })}`
+                ? `${current.actorName} · ${formatManilaDateTime(current.createdAt, "—")}`
                 : "Locked budget"}
             </span>
           </div>
@@ -49,7 +50,7 @@ export function BudgetVersionBanner({ data }: { data: DepartmentBudgetBundle }) 
                       V{version.version} · {peso.format(version.total)}
                     </strong>
                     <span>
-                      {version.actorName} · {new Date(version.createdAt).toLocaleString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric', hour: 'numeric', minute: '2-digit' })}
+                      {version.actorName} · {formatManilaDateTime(version.createdAt, "—")}
                     </span>
                   </header>
                   <p>{version.reason}</p>

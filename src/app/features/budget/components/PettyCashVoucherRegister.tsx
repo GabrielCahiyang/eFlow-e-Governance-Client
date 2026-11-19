@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { formatManilaDate } from "../../../shared/calendarDisplay";
 import { Button } from "@vibe/core";
 import { Download, Printer, ReceiptText, Search } from "lucide-react";
 import { EmptyState } from "../../../components/ui/EmptyState";
@@ -209,7 +210,7 @@ export function PettyCashVoucherRegister({ data }: { data: DepartmentBudgetBundl
                                   <div className="font-mono text-foreground">
                                     {receipt.receiptNumber || "—"}
                                   </div>
-                                  <div>{receipt.receiptDate}</div>
+                                  <div>{formatManilaDate(receipt.receiptDate, receipt.receiptDate)}</div>
                                 </td>
                                 <td>
                                   <div className="text-foreground">
@@ -237,7 +238,7 @@ export function PettyCashVoucherRegister({ data }: { data: DepartmentBudgetBundl
                                     <div className="font-mono text-foreground">
                                       {receipt.receiptNumber || "—"}
                                     </div>
-                                    <div>{receipt.receiptDate}</div>
+                                    <div>{formatManilaDate(receipt.receiptDate, receipt.receiptDate)}</div>
                                   </>
                                 ) : (
                                   ""

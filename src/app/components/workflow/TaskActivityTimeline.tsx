@@ -1,4 +1,5 @@
 import { readableUiError } from '../../shared/userFacingError';
+import { formatManilaDate } from '../../shared/calendarDisplay';
 import { EmptyState } from '../ui/EmptyState';
 // ─── TaskActivityTimeline ────────────────────────────────────────
 // Merges immutable system events (status history) with structured progress
@@ -70,7 +71,7 @@ function timeAgo(ts: number): string {
   if (h < 24) return `${h}h ago`;
   const d = Math.floor(h / 24);
   if (d < 7) return `${d}d ago`;
-  return new Date(ts).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  return formatManilaDate(ts, "");
 }
 
 export function TaskActivityTimeline({ taskId,projectId }: { taskId: string;projectId?:string }) {

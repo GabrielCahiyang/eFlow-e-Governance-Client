@@ -45,7 +45,7 @@ export function BudgetReleaseCalendar({ data }: { data: DepartmentBudgetBundle }
         <div className="budget-release-calendar__month">
           <nav aria-label="Release calendar month">
             <WorkspaceTooltip content="Previous release month"><button type="button" aria-label="Previous release month" disabled={month === 0} onClick={() => changeMonth(-1)}><ChevronLeft size={19} /></button></WorkspaceTooltip>
-            <strong>{monthStart.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</strong>
+            <strong>{monthStart.toLocaleDateString('en-US', { timeZone: 'Asia/Manila', month: 'long', year: 'numeric' })}</strong>
             <WorkspaceTooltip content="Next release month"><button type="button" aria-label="Next release month" disabled={month === 11} onClick={() => changeMonth(1)}><ChevronRight size={19} /></button></WorkspaceTooltip>
           </nav>
           <div className="budget-release-calendar__grid">

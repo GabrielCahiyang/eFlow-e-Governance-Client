@@ -1,4 +1,5 @@
 import type { Project } from "../services/types";
+import { getPhilippineDayStartMs } from "../../../shared/calendarDates";
 import { getDueSoonWindowDays } from "../../../shared/systemRuntimeConfig";
 
 const DAY = 86_400_000;
@@ -25,10 +26,9 @@ export function deriveProposalTargetDate<T extends { projects: Project[] }>(prog
 export function getPortfolioDeadlineState(targetDate: string | undefined, completed: boolean, now = Date.now()): PortfolioDeadlineState {
   if (completed) return { tone: "completed", label: "Completed" };
   if (!targetDate) return { tone: "none", label: "No target date" };
-  const targetAt = new Date(`${targetDate.slice(0, 10)}T00:00:00`).getTime();
+  const targetAt = new Date(`${targetDate.slice(0, 10)}T00:00:00+08:00`).getTime();
   if (!Number.isFinite(targetAt)) return { tone: "none", label: "No target date" };
-  const today = new Date(now);
-  const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
+  const todayStart = getPhilippineDayStartMs(new Date(now));
   const days = Math.round((targetAt - todayStart) / DAY);
   if (days < 0) return { tone: "overdue", label: `${Math.abs(days)}d overdue`, targetAt };
   if (days === 0) return { tone: "due_soon", label: "Due today", targetAt };

@@ -4,6 +4,7 @@ import { AlertTriangle, Check, Plus } from "lucide-react";
 import type { Organization, UserProfile } from "../../../types";
 import { FieldLengthHint } from "../../../components/ui/FieldLengthHint";
 import { INPUT_LIMITS } from "../../../shared/inputLimits";
+import { formatManilaDate } from "../../../shared/calendarDisplay";
 import type {
   CollaborationChangeRequest,
   CollaborationTargetType,
@@ -209,11 +210,7 @@ export function ChangeRequestsPanel({
                           {requester?.full_name || "Office Reviewer"}
                         </span>
                         {org?.name && ` (${org.name})`} ·{" "}
-                        {new Date(request.createdAt).toLocaleDateString('en-US', {
-                          month: "short",
-                          day: "numeric",
-                          year: "numeric",
-                        })}
+                        {formatManilaDate(request.createdAt, "—")}
                       </div>
                     </div>
                   </div>

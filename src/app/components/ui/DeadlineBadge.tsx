@@ -1,6 +1,7 @@
 import {useSyncExternalStore} from 'react';
 import {CalendarDays, Clock3, TriangleAlert} from 'lucide-react';
 import {deadlinePresentation} from '../../shared/deadlinePresentation';
+import {formatManilaDate} from '../../shared/calendarDisplay';
 import './deadlineBadge.css';
 
 // One clock for every visible badge; refresh after a suspended/background tab too.
@@ -31,7 +32,7 @@ export function DeadlineBadge({value, status, now, history = false, showDate = t
   const liveNow = useSyncExternalStore(subscribe, snapshot, snapshot);
   const state = deadlinePresentation(value, status, now ?? liveNow);
   const Icon = state.tone === 'red' ? TriangleAlert : state.tone === 'yellow' ? Clock3 : CalendarDays;
-  const date = state.date && new Date(state.date + 'T12:00:00Z').toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC'});
+  const date = state.date ? formatManilaDate(state.date, '') : '';
   return <span className="eflow-deadline" data-tone={state.tone}>
     {showDate && date && <time dateTime={value || state.date}>{date}</time>}
     <span className="eflow-deadline__signal"><Icon size={13} aria-hidden="true"/>{history && <span>At change · </span>}{state.label}</span>

@@ -1,4 +1,5 @@
 import { ArrowRight, Bot, Brain, CheckCircle2, ListChecks } from "lucide-react";
+import { formatManilaDate } from "../../../shared/calendarDisplay";
 import { Btn, PageHeader, Stat } from "./primitives";
 
 type ExtractedAction = {
@@ -197,7 +198,7 @@ export function ActionItemsExtraction() {
                       <div>
                         <span className="text-neutral-500">Due: </span>
                         <span className="text-neutral-900 font-medium tabular-nums">
-                          {a.dueDate}
+                          {formatManilaDate(a.dueDate, a.dueDate)}
                         </span>
                       </div>
                     </div>

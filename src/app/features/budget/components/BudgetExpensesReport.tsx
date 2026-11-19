@@ -1,4 +1,5 @@
 import { WorkspaceHeader } from "../../../components/ui/workspace";
+import { formatManilaDate, formatManilaDateTime, MANILA_TIMEZONE } from "../../../shared/calendarDisplay";
 import { BudgetTableRegion } from './BudgetTableRegion';
 import {
   exportCsv as exportReportCsv,
@@ -111,7 +112,7 @@ export function BudgetExpensesReport({
     {
       key: "settled",
       header: "Settled",
-      value: (r) => new Date(r.settledAt).toLocaleString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric', hour: 'numeric', minute: '2-digit' }),
+      value: (r) => formatManilaDateTime(r.settledAt, "—"),
     },
     { key: "proposal", header: "Proposal", value: (r) => r.proposal },
     { key: "task", header: "Task", value: (r) => r.task },
@@ -274,7 +275,7 @@ export function BudgetExpensesReport({
                           {formatFundingRequestCode(row.requestNumber)}
                         </strong>
                         <div className="mt-1 text-muted-foreground">
-                          {new Date(row.settledAt).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })}
+                          {formatManilaDate(row.settledAt, "—")}
                         </div>
                       </td>
                       <td className="max-w-[300px] px-3 py-3">
@@ -479,7 +480,8 @@ function unique(values: string[]) {
   );
 }
 function formatMonth(value: string) {
-  return new Date(`${value}-01T00:00:00`).toLocaleDateString('en-US', {
+  return new Date(`${value}-01T00:00:00+08:00`).toLocaleDateString('en-US', {
+    timeZone: MANILA_TIMEZONE,
     month: "long",
     year: "numeric",
   });

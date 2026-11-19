@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { formatManilaTime } from "../../../shared/calendarDisplay";
 import { ArrowRight, CheckCircle2, Navigation, Radio, Route, Timer, Zap } from "lucide-react";
 import type { Task } from "../../../services/taskService";
 import type { Employee } from "../../../services/employeeService";
@@ -33,8 +34,7 @@ export function IdleTimeMinimization({}: {
             : u,
         ),
       );
-      const now = new Date();
-      const stamp = `${now.getHours().toString().padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}`;
+      const stamp = formatManilaTime(new Date(), "");
       setLog([
         {
           at: stamp,

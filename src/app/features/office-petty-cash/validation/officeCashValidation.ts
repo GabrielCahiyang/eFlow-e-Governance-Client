@@ -1,4 +1,5 @@
 import { getPhilippineCalendarDate, isCalendarDate } from '../../../shared/calendarDates';
+import { formatManilaDate } from '../../../shared/calendarDisplay';
 import type { OfficeCashRequest, OfficeReceipt } from '../types';
 
 export const OFFICE_PETTY_CASH_CEILING = 30000;
@@ -43,12 +44,7 @@ export function getLiquidationDueStatus(
   const todayMs = Date.parse(`${todayManila}T00:00:00Z`);
   const daysRemaining = Math.round((dueMs - todayMs) / 86_400_000);
   const isOverdue = daysRemaining < 0;
-  const formattedDate = new Intl.DateTimeFormat('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-    timeZone: 'Asia/Manila',
-  }).format(parsed);
+  const formattedDate = formatManilaDate(parsed, dueDate);
   const label = isOverdue
     ? `Overdue by ${Math.abs(daysRemaining)} ${Math.abs(daysRemaining) === 1 ? 'day' : 'days'} (due ${formattedDate})`
     : daysRemaining === 0

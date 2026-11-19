@@ -1,4 +1,5 @@
 import type { Employee } from "../../../services/employeeService";
+import { formatManilaDate } from "../../../shared/calendarDisplay";
 import type { Task } from "../../../services/taskService";
 
 export type Project = {
@@ -120,15 +121,9 @@ export function deriveProjectsFromTasks(
         overdue > 0 ? (daysLeft < 0 ? Math.abs(daysLeft) : 0) : undefined,
       bpaNode: overdue > 0 ? `${dept} · Overdue Review` : undefined,
       nextMilestone: nearestDl
-        ? `Next deadline · ${nearestDl.toLocaleDateString("en-US", { month: "short", day: "numeric" })}`
+        ? `Next deadline · ${formatManilaDate(nearestDl, "-")}`
         : "No deadlines",
-      deadline: nearestDl
-        ? nearestDl.toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "short",
-            day: "numeric",
-          })
-        : "-",
+      deadline: nearestDl ? formatManilaDate(nearestDl, "-") : "-",
       burnSpark: spark,
       status,
       barangay: barangays[0] || "-",

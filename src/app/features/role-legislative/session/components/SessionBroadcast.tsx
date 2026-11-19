@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Checkbox, CheckboxCheckedFilled, CheckmarkOutline, ChevronDown, ChevronRight, EventSchedule, ListChecked, Pause, StopFilled, Warning } from "@carbon/icons-react";
 import { FeatureDialog } from "../../../../components/ui/FeatureDialog";
+import { formatManilaTime } from "../../../../shared/calendarDisplay";
 
 export interface BroadcastEvent {
   id: number;
@@ -12,8 +13,7 @@ export interface BroadcastEvent {
 }
 
 export function getCurrentTimestamp(): string {
-  const now = new Date();
-  return now.toLocaleTimeString("en-PH", { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false });
+  return formatManilaTime(new Date(), "", { withSeconds: true });
 }
 
 export const actionStyles: Record<BroadcastEvent["action"], { color: string; bg: string; border: string; icon: string; label: string }> = {

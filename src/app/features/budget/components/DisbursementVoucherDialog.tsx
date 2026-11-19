@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { formatManilaDate } from "../../../shared/calendarDisplay";
 import { AttentionBox, Button } from "@vibe/core";
 import * as m from "motion/react-m";
 import { AlertTriangle, CheckCircle2, Copy } from "lucide-react";
@@ -342,7 +343,7 @@ export function DisbursementVoucherDialog({
                 <span>
                   <strong>Override schedule</strong>
                   <br />
-                  Release this tranche before {release.scheduledDate}. This does
+                  Release this tranche before {formatManilaDate(release.scheduledDate, release.scheduledDate)}. This does
                   not bypass funding or the daily release limit.
                 </span>
               </label>

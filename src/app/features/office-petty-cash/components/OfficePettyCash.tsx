@@ -3,6 +3,7 @@ import { Banknote, Plus, RefreshCw } from 'lucide-react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useToast } from '../../../components/ui/Toast';
 import { readableUiError } from '../../../shared/userFacingError';
+import { formatManilaDateTime } from '../../../shared/calendarDisplay';
 import { Modal } from '../../../components/ui/Modal';
 import { EmptyState } from '../../../components/ui/EmptyState';
 import { StatusPill } from '../../../components/ui/workspace/StatusPill';
@@ -490,13 +491,7 @@ function ScopedOfficeCash({
                     {snapshot.events.map((event) => (
                       <tr key={event.id}>
                         <td>
-                          {new Date(event.created_at).toLocaleString('en-US', {
-                            month: '2-digit',
-                            day: '2-digit',
-                            year: 'numeric',
-                            hour: 'numeric',
-                            minute: '2-digit',
-                          })}
+                          {formatManilaDateTime(event.created_at, '—')}
                         </td>
                         <td>{eventActionLabels[event.action] || event.action.replace(/_/g, ' ')}</td>
                         <td>{peso.format(event.amount)}</td>

@@ -93,10 +93,7 @@ export function ProjectActivityHistory({
       auditTrail={auditTrail}
       data={{ project: { id: projectId, title } }}
       workspace={context?.workspace.name || "Office project"}
-      timezone={
-        context?.workspace.timezone ||
-        Intl.DateTimeFormat().resolvedOptions().timeZone
-      }
+      timezone={context?.workspace.timezone || "Asia/Manila"}
     />
   );
 }

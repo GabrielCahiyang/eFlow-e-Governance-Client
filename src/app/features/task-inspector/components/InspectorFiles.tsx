@@ -1,4 +1,5 @@
 import { readableUiError } from '../../../shared/userFacingError';
+import { formatManilaDate } from '../../../shared/calendarDisplay';
 import { useEffect, useState } from 'react';
 import { ExternalLink, FileText } from 'lucide-react';
 import { EmptyState } from '../../../components/ui/EmptyState';
@@ -53,7 +54,7 @@ export function InspectorFiles({ task }: { task: Task; readOnly?: boolean }) {
                     <ExternalLink size={13} aria-hidden="true" />
                   </button>
                 </div>
-                <p className="task-files-item__meta">{file.source} · {file.uploader} · {file.at ? new Date(file.at).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }) : 'Date not recorded'}</p>
+                <p className="task-files-item__meta">{file.source} · {file.uploader} · {file.at ? formatManilaDate(file.at, 'Date not recorded') : 'Date not recorded'}</p>
                 <p className="task-files-item__restriction">{file.restriction}</p>
               </li>
             ))}

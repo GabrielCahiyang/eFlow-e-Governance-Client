@@ -1,5 +1,6 @@
 import {BudgetReleaseCalendar} from './BudgetReleaseCalendar';
 import { readableUiError } from '../../../shared/userFacingError';
+import { formatManilaDateTime } from '../../../shared/calendarDisplay';
 import { Button as VibeButton } from "@vibe/core";
 import { useState, useEffect } from "react";
 import {
@@ -168,7 +169,7 @@ function OfficeBudgetContent({ orgId, fiscalYear, embedded, tab, setTab, setFisc
         {embedded && <div className="eflow-budget-ledger-status">
           <StatusPill label={statusLabel} tone={budgetStatus === 'locked' ? 'positive' : budgetStatus === 'draft' ? 'warning' : budget.error ? 'negative' : 'neutral'} />
           <span>{budget.loading ? `Loading FY ${fiscalYear}…` : budget.error ? 'Pending financial actions unavailable' : `Pending financial actions: ${pendingCount}`}</span>
-          {budget.summary?.updatedAt && <span>· Updated {new Date(budget.summary.updatedAt).toLocaleString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric', hour: 'numeric', minute: '2-digit' })}</span>}
+          {budget.summary?.updatedAt && <span>· Updated {formatManilaDateTime(budget.summary.updatedAt, '—')}</span>}
         </div>}
         {budget.error && (
           <FeedbackState tone="error" title="Budget data unavailable" onRetry={() => void budget.refresh()}>

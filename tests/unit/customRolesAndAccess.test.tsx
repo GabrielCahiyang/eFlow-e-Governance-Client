@@ -166,20 +166,23 @@ afterEach(() => {
 });
 
 describe("dynamic custom roles & redesigned RoleDefaultsTab", () => {
-  it("inherits base_role defaults, applies custom overrides, and keeps individual overrides highest precedence", () => {
+  it("inherits base_role defaults, enforces prerequisites & admin locks, and keeps individual overrides highest precedence", () => {
     const customRole = { key: "budget_reviewer", baseRole: "accounting_staff" as const };
     const roleRows = [
+      { role: "budget_reviewer", permission: "navigation.reviews", allowed: true },
       { role: "budget_reviewer", permission: "tasks.verify", allowed: true },
       { role: "budget_reviewer", permission: "navigation.accounting_overview", allowed: false },
     ];
     const overrides = [
-      { userId: "u1", permission: "navigation.audit", allowed: true },
+      { userId: "u1", permission: "projects.create", allowed: true },
+      { userId: "u1", permission: "navigation.audit", allowed: true }, // Admin-only: must stay blocked for non-Admin
     ];
 
     const resolved = resolvePermissions("accounting_staff", roleRows, overrides, customRole);
     expect(resolved.has("tasks.verify")).toBe(true);
     expect(resolved.has("navigation.accounting_overview")).toBe(false);
-    expect(resolved.has("navigation.audit")).toBe(true);
+    expect(resolved.has("projects.create")).toBe(true); // navigation.projects inherited from baseRole
+    expect(resolved.has("navigation.audit")).toBe(false);
 
     // Base accounting_staff defaults are unaffected by custom role overrides.
     expect(rolePermissionAllowed("accounting_staff", "navigation.accounting_overview", roleRows)).toBe(true);

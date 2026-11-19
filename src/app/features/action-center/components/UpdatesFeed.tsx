@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { formatManilaDate } from '../../../shared/calendarDisplay';
 import {
   AlertTriangle,
   Bell,
@@ -82,7 +83,7 @@ function formatTimeAgo(timestamp: number): string {
   if (hours < 24) return `${hours}h ago`;
   const days = Math.floor(hours / 24);
   if (days < 7) return `${days}d ago`;
-  return new Date(timestamp).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
+  return formatManilaDate(timestamp, '');
 }
 
 function UpdatesFeedSkeleton() {

@@ -1,4 +1,5 @@
 import { EmptyState } from '../../../../components/ui/EmptyState';
+import { formatManilaDateTime } from '../../../../shared/calendarDisplay';
 import { Activity, CheckCircle2, Clock3, RotateCcw, ShieldAlert, Sparkles } from "lucide-react";
 import type { Employee, EmployeeNote } from "../../../members";
 import type { Task } from "../../../tasks";
@@ -57,7 +58,7 @@ export function EmployeeIntelligencePanel({
           <div className="border-b border-border px-4 py-3"><h3 className="text-[14px] font-semibold text-foreground">Recent delivery activity</h3><p className="mt-0.5 text-[12px] text-muted-foreground">Progress and review events attributable to this person.</p></div>
           <div className="p-4">
             <div className="space-y-4">
-              {activity.map((entry) => <div key={entry.id} className="relative pl-5 before:absolute before:left-[4px] before:top-3.5 before:h-[calc(100%+8px)] before:w-px before:bg-border last:before:hidden"><span className="absolute left-0 top-1.5 h-2 w-2 rounded-[3px] border border-border bg-muted-foreground/50" /><div className="text-[12px] font-medium text-foreground">{entry.title}</div><div className="mt-0.5 text-[12px] leading-4 text-muted-foreground">{entry.detail}</div><div className="mt-0.5 text-[11px] text-muted-foreground">{new Date(entry.at).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}</div></div>)}
+              {activity.map((entry) => <div key={entry.id} className="relative pl-5 before:absolute before:left-[4px] before:top-3.5 before:h-[calc(100%+8px)] before:w-px before:bg-border last:before:hidden"><span className="absolute left-0 top-1.5 h-2 w-2 rounded-[3px] border border-border bg-muted-foreground/50" /><div className="text-[12px] font-medium text-foreground">{entry.title}</div><div className="mt-0.5 text-[12px] leading-4 text-muted-foreground">{entry.detail}</div><div className="mt-0.5 text-[11px] text-muted-foreground">{formatManilaDateTime(entry.at, "—")}</div></div>)}
               {activity.length === 0 && <EmptyState illustration="tasks" size="compact" title="No attributable progress or review activity yet."/>}
             </div>
             <div className="mt-4 rounded-lg border border-border bg-muted/50 px-3 py-2 text-[12px] leading-4 text-muted-foreground">Participates in {taskIds.size} task(s). Metrics show source-backed workflow activity and are not an HR rating.</div>

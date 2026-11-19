@@ -2,7 +2,7 @@ import { isCalendarDate } from './calendarDates';
 
 export const MANILA_TIMEZONE = 'Asia/Manila';
 
-const EXPLICIT_ZONE_RE = /(?:Z|[+-]\d{2}(?::?\d{2})?)$/i;
+const EXPLICIT_ZONE_RE = /(?:T|\s)\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}(?::?\d{2})?)$/i;
 
 const dateFormat = new Intl.DateTimeFormat('en-US', {
   timeZone: MANILA_TIMEZONE,

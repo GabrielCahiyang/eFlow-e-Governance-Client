@@ -133,7 +133,7 @@ export function ManualPlanBuilder({
           </label>
           <label className="block">
             <span className="text-[11.5px] font-bold uppercase tracking-wider text-neutral-700">
-              Plan description
+              Plan description <FieldLengthHint length={planDescription.length} max={INPUT_LIMITS.PROJECT_DESCRIPTION} className="ml-2 font-normal normal-case tracking-normal" />
             </span>
             <textarea
               ref={planDescriptionInputRef}

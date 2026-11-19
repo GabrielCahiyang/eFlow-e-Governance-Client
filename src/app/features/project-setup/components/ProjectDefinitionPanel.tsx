@@ -1,5 +1,6 @@
 import {useAuth} from '../../../contexts/AuthContext';
 import { readableUiError } from '../../../shared/userFacingError';
+import { formatManilaDate } from '../../../shared/calendarDisplay';
 import {useEffect,useRef,useState} from 'react';
 import {ArrowRight,Check,ClipboardList,Lock,RotateCcw,Wallet} from 'lucide-react';
 import type {Organization,UserProfile} from '../../../types';
@@ -132,7 +133,7 @@ export function ProjectDefinitionPanel({projectId,profiles,profilesLoading,organ
   {!editable&&<div className="pf-readonly-notice" role="status"><Lock size={16} aria-hidden="true"/><div><strong>Editing is disabled</strong><p>{readOnlyDetail}</p></div></div>}
   <ProjectSetupFields step={0} draft={draft} update={update} profiles={profiles} disabled={!editable||busy} readOnlyReason={!editable?readOnlyDetail:undefined} settings/>
   <ProjectSetupFields step={1} draft={draft} update={update} profiles={profiles} disabled={!editable||busy} readOnlyReason={!editable?readOnlyDetail:undefined} settings/>
-  <dl className="pf-definition-summary"><div><dt>Timeline</dt><dd>{project.start_date&&project.target_date?`${project.start_date} → ${project.target_date}`:'Set automatically from tasks and subtasks'}</dd></div></dl>
+  <dl className="pf-definition-summary"><div><dt>Timeline</dt><dd>{project.start_date&&project.target_date?`${formatManilaDate(project.start_date,project.start_date)} → ${formatManilaDate(project.target_date,project.target_date)}`:'Set automatically from tasks and subtasks'}</dd></div></dl>
   {error&&<FlowError error={error}/>}
   {notice&&<p role="status" className="pf-success">{notice}</p>}
    {editable&&<div className="pf-actions">
@@ -140,7 +141,7 @@ export function ProjectDefinitionPanel({projectId,profiles,profilesLoading,organ
     <button type="button" disabled={!dirty||busy} onClick={()=>{if(baseDraft)setDraft({...baseDraft,lead:canConfigure&&user?.id&&!baseDraft.lead?user.id:baseDraft.lead});setError('');setNotice('');}}><RotateCcw size={15}/>Discard changes</button>
     <span role="status" className="text-xs text-muted-foreground">{dirty?'Unsaved changes':'All changes saved'}</span>
    </div>}
-  </form>:<section className="pf-panel" aria-label="Project definition"><header><div><h2><ClipboardList size={21}/>Project details</h2><p>Complete each section in the setup dialog before adding work or people.</p></div>{planning&&!closed&&canConfigure&&<button className="pf-primary" onClick={()=>launch(0)}>Continue project setup<ArrowRight size={16}/></button>}</header><dl className="pf-definition-summary"><div><dt>Project</dt><dd>{project.title}</dd></div><div><dt>Project lead</dt><dd>{profiles.find(person=>person.id===project.project_lead_id)?.full_name||'Not selected'}</dd></div><div><dt>Timeline</dt><dd>{project.start_date&&project.target_date?`${project.start_date} → ${project.target_date}`:'Set automatically from tasks and subtasks'}</dd></div><div><dt>Scope</dt><dd>{project.scope||'Not defined'}</dd></div></dl></section>)}
+  </form>:<section className="pf-panel" aria-label="Project definition"><header><div><h2><ClipboardList size={21}/>Project details</h2><p>Complete each section in the setup dialog before adding work or people.</p></div>{planning&&!closed&&canConfigure&&<button className="pf-primary" onClick={()=>launch(0)}>Continue project setup<ArrowRight size={16}/></button>}</header><dl className="pf-definition-summary"><div><dt>Project</dt><dd>{project.title}</dd></div><div><dt>Project lead</dt><dd>{profiles.find(person=>person.id===project.project_lead_id)?.full_name||'Not selected'}</dd></div><div><dt>Timeline</dt><dd>{project.start_date&&project.target_date?`${formatManilaDate(project.start_date,project.start_date)} → ${formatManilaDate(project.target_date,project.target_date)}`:'Set automatically from tasks and subtasks'}</dd></div><div><dt>Scope</dt><dd>{project.scope||'Not defined'}</dd></div></dl></section>)}
   {section!=='details'&&(section==='funding'?<>
    {planning&&!closed&&canConfigure&&data.total===0&&data.fundingRequests.length===0&&<section className="pf-panel" aria-label="Funding requirement">
     <label className="pf-checkbox"><input type="checkbox" checked={project.funding_not_required} disabled={fundingModeBusy} onChange={e=>{void toggleNoFunding(e.target.checked);}}/>No funding required for this project</label>

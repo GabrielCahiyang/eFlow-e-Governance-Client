@@ -3,6 +3,7 @@ import { Button } from "../../../components/ui/button";
 import { EmptyState } from "../../../components/ui/EmptyState";
 import { StatusPill } from "../../../components/ui/workspace/StatusPill";
 import { formatStorageBytes } from "./retentionService";
+import { formatManilaDate } from "../../../shared/calendarDisplay";
 import type { RetentionArchivedProject, RetentionProjectStatus } from "./types";
 
 const STATUS_META: Record<
@@ -17,14 +18,7 @@ const STATUS_META: Record<
 };
 
 function formatDate(iso?: string | null): string {
-  if (!iso) return "—";
-  const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return "—";
-  return date.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
+  return formatManilaDate(iso, "—");
 }
 
 export function RetentionQueueTable({

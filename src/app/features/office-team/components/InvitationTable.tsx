@@ -7,6 +7,7 @@ import {
   type Invitation,
 } from '../../invitations';
 import { accountRoleLabel } from '../selectors';
+import { formatManilaDate } from '../../../shared/calendarDisplay';
 
 export function InvitationTable({
   rows,
@@ -68,7 +69,7 @@ export function InvitationTable({
                   )}
                 </td>
                 <td data-label="Invited">
-                  {new Date(item.created_at).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })}
+                  {formatManilaDate(item.created_at, '—')}
                 </td>
                 <td data-label="Actions">
                   {canManage && invitationCanManage(item) ? (

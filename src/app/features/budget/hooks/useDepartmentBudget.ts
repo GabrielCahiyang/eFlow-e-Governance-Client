@@ -1,4 +1,5 @@
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import { getPhilippineYear } from "../../../shared/calendarDates";
 import { subscribeBudgetRealtime } from "./budgetRealtimeCoordinator";
 import {
   buildQueryScopeKey,
@@ -51,7 +52,7 @@ export function warmDepartmentBudget(orgId: string, fiscalYear: number, actorId?
 
 export function useDepartmentBudget(
   orgId?: string,
-  fiscalYear = new Date().getFullYear(),
+  fiscalYear = getPhilippineYear(),
 ) {
   const actorId = useContext(AuthContext)?.user?.id;
   const cacheScope = budgetCacheKey(orgId, fiscalYear, actorId);

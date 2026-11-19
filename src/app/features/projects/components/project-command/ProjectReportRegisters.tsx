@@ -1,4 +1,5 @@
 import { EmptyStateIllustration } from '../../../../components/ui/EmptyStateIllustration';
+import { formatManilaDate } from '../../../../shared/calendarDisplay';
 import { Button, EmptyState, Label } from "@vibe/core";
 import { Open } from "@vibe/icons";
 import { Eye, ReceiptText } from "lucide-react";
@@ -106,7 +107,7 @@ export function ExecutionRow({
       <td className="px-4 py-3">
         <Label text={row.schedule.replace(/_/g, " ")} color={scheduleColor} />
         <div className="mt-1 text-[11px] text-muted-foreground">
-          {row.deadline || "No deadline"}
+          {row.deadline ? formatManilaDate(row.deadline, row.deadline) : "No deadline"}
         </div>
       </td>
       <td className="px-4 py-3">
@@ -240,7 +241,7 @@ export function ReceiptRegister({ data }: { data: ProjectCommandData }) {
                     {peso.format(receipt.amount)}
                   </div>
                   <div className="text-xs text-muted-foreground">
-                    {receipt.vendor} · {receipt.receiptDate}
+                    {receipt.vendor} · {formatManilaDate(receipt.receiptDate, receipt.receiptDate)}
                   </div>
                 </div>
                 <Button

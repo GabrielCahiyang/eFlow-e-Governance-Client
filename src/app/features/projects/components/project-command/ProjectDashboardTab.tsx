@@ -1,4 +1,5 @@
 import { EmptyState } from '../../../../components/ui/EmptyState';
+import { formatManilaDate } from '../../../../shared/calendarDisplay';
 import { useMemo } from "react";
 import {
   AlertTriangle,
@@ -397,7 +398,7 @@ export function ProjectDashboardTab({
                       {act.actorName || "System"} {act.title}
                     </div>
                     <div className="text-[11px] text-neutral-400">
-                      {new Date(act.occurredAt).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })} · {act.detail}
+                      {formatManilaDate(act.occurredAt, "—")} · {act.detail}
                     </div>
                   </div>
                 ))}

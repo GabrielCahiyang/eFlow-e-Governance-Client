@@ -1,5 +1,6 @@
 import { isAdminRole } from "../../shared/roles";
 import { FALLBACK_DEFAULTS, type PermissionKey } from "./constants";
+import { enforcePermissionDependencies, getPermissionRestriction } from "./dependencies";
 import type { CustomRoleSummary, RolePermissionRow, UserOverrideRow } from "./types";
 
 export function resolvePermissions(
@@ -17,9 +18,9 @@ export function resolvePermissions(
   (FALLBACK_DEFAULTS[fallbackRole] || []).forEach((permission) => {
     if (!persisted.has(permission)) result.add(permission);
   });
-  roleRows.forEach((row) => row.allowed ? result.add(row.permission) : result.delete(row.permission));
-  overrides.forEach((row) => row.allowed ? result.add(row.permission) : result.delete(row.permission));
-  return result;
+  roleRows.forEach((row) => (row.allowed ? result.add(row.permission) : result.delete(row.permission)));
+  overrides.forEach((row) => (row.allowed ? result.add(row.permission) : result.delete(row.permission)));
+  return enforcePermissionDependencies(result, { isAdmin: false, baseRole: fallbackRole });
 }
 
 export function rolePermissionAllowed(
@@ -29,8 +30,9 @@ export function rolePermissionAllowed(
   fallbackRole?: string,
 ): boolean {
   if (isAdminRole(role)) return FALLBACK_DEFAULTS.admin.includes(permission as PermissionKey);
+  const baseKey = fallbackRole || role;
+  if (getPermissionRestriction(permission, baseKey).restricted) return false;
   const stored = rows.find((row) => row.role === role && row.permission === permission);
   if (stored) return stored.allowed;
-  const baseKey = fallbackRole || role;
   return (FALLBACK_DEFAULTS[baseKey] || []).includes(permission as PermissionKey);
 }

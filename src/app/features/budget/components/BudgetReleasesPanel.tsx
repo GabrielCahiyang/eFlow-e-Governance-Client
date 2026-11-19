@@ -1,4 +1,5 @@
 import { readableUiError } from '../../../shared/userFacingError';
+import { formatManilaDate, formatManilaDateTime } from '../../../shared/calendarDisplay';
 import { useMemo, useState } from "react";
 import { Banknote, CalendarClock, CheckCircle2, Clock3, ReceiptText, Search, X } from "lucide-react";
 import { useAuth } from "../../../contexts/AuthContext";
@@ -220,7 +221,7 @@ export function BudgetReleasesPanel({
                   {request?.cashRecipientName ||
                     request?.requesterName ||
                     "Assigned recipient"}{" "}
-                  · Scheduled {release.scheduledDate}
+                  · Scheduled {formatManilaDate(release.scheduledDate, release.scheduledDate)}
                 </div>
                 <div className="mt-1 font-mono text-xs text-muted-foreground">
                   {release.voucherNumber ||
@@ -231,7 +232,7 @@ export function BudgetReleasesPanel({
                 </div>
                 {release.releasedAt && (
                   <div className="mt-1 text-xs text-muted-foreground">
-                    Released {new Date(release.releasedAt).toLocaleString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric', hour: 'numeric', minute: '2-digit' })}
+                    Released {formatManilaDateTime(release.releasedAt, "—")}
                   </div>
                 )}
               </div>
@@ -330,7 +331,7 @@ export function BudgetReleasesPanel({
                 <div className="text-xs text-muted-foreground">
                   <Clock3 size={13} aria-hidden="true" className="mr-1 inline" />
                   {settled ? "Settlement posted" : request.liquidationDueAt
-                    ? `Due ${new Date(request.liquidationDueAt).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })}`
+                    ? `Due ${formatManilaDate(request.liquidationDueAt, "—")}`
                     : "Awaiting full release"}
                 </div>
                 <div className="text-right">

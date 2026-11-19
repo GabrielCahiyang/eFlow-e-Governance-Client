@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { get, push, ref, set } from 'firebase/database';
 import { database } from '../../../../../firebase';
 import { useAuth } from '../../../../contexts/AuthContext';
+import { formatManilaTime } from '../../../../shared/calendarDisplay';
 
 interface LogEntry {
   timestamp: string;
@@ -15,7 +16,7 @@ interface MigrationStats {
 }
 
 function timestamp(): string {
-  return new Date().toLocaleTimeString('en-PH', { hour12: false });
+  return formatManilaTime(new Date(), '', { withSeconds: true });
 }
 
 export function useMigrationToolController() {

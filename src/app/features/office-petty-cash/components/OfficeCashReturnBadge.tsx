@@ -1,4 +1,5 @@
 import { computeReturnedAmount } from '../validation/officeCashValidation';
+import { formatManilaDate } from '../../../shared/calendarDisplay';
 import type { OfficeCashRequest } from '../types';
 
 const peso = new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' });
@@ -32,7 +33,7 @@ export function OfficeCashReturnBadge({ request }: { request: OfficeCashRequest 
       {request.refund_receipt_number && (
         <small>
           Refund OR: {request.refund_receipt_number}
-          {request.refund_date ? ` · ${request.refund_date}` : ''}
+          {request.refund_date ? ` · ${formatManilaDate(request.refund_date, request.refund_date)}` : ''}
         </small>
       )}
       {request.cash_return_receive_reference && received && (

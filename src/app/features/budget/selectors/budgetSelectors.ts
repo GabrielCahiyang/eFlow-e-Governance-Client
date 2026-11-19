@@ -1,3 +1,4 @@
+import { getPhilippineMonthIndex, getPhilippineYear } from "../../../shared/calendarDates";
 import type {
   BudgetLineInput,
   DepartmentBudgetBundle,
@@ -96,7 +97,7 @@ export function normalizeTaskBudgetLines(taskKey: string, lines: BudgetLineInput
 
 export function buildProposalBudgetFromTasks(
   tasks: TaskBudgetSource[],
-  fiscalYear = new Date().getFullYear(),
+  fiscalYear = getPhilippineYear(),
 ): ProposalBudgetDraft {
   const taskBudgets: ProposalTaskBudget[] = tasks
     .filter((task) => task.enabled !== false)
@@ -264,7 +265,7 @@ export function getTaskBudgetDistribution(
 
 export function getBudgetUtilizationSignal(
   summary: DepartmentBudgetSummary,
-  monthIndex = new Date().getMonth(),
+  monthIndex = getPhilippineMonthIndex(),
 ) {
   const utilization = summary.approvedAmount > 0
     ? (summary.spentAmount / summary.approvedAmount) * 100

@@ -3,6 +3,7 @@ import { AlertTriangle, ShieldCheck, Trash2 } from "lucide-react";
 import { Button } from "../../../components/ui/button";
 import { FeedbackState } from "../../../components/ui/FeedbackState";
 import { Modal } from "../../../components/ui/Modal";
+import { formatManilaDate } from "../../../shared/calendarDisplay";
 import {
   executeProjectPurge,
   fetchProjectPurgePreview,
@@ -228,7 +229,7 @@ export function RetentionPurgeDialog({
                 <p className="m-0 font-semibold flex items-center gap-1.5">
                   <AlertTriangle size={14} aria-hidden="true" />
                   Retention period has not expired yet (expires{" "}
-                  {preview.expiresAt ? new Date(preview.expiresAt).toLocaleDateString("en-US") : "later"}).
+                  {preview.expiresAt ? formatManilaDate(preview.expiresAt, "later") : "later"}).
                 </p>
                 <label className="flex items-start gap-2 cursor-pointer">
                   <input

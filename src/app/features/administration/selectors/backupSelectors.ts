@@ -1,4 +1,5 @@
 import type { BackupJob } from "../services/backupService";
+import { formatManilaDateTime } from "../../../shared/calendarDisplay";
 
 export interface BackupJobFilters {
   search: string;
@@ -227,16 +228,8 @@ export function formatExplorerCell(value: unknown): string {
   }
   const text = String(value);
   if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(text)) {
-    const parsed = new Date(text);
-    if (!Number.isNaN(parsed.getTime())) {
-      return parsed.toLocaleString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-        hour: "numeric",
-        minute: "2-digit",
-      });
-    }
+    const formatted = formatManilaDateTime(text, "");
+    if (formatted) return formatted;
   }
   return text.length > 72 ? `${text.slice(0, 72)}…` : text;
 }

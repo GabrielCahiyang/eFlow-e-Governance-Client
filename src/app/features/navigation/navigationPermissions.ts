@@ -74,7 +74,7 @@ export function canOpenNavigationSection(
 ): boolean {
   if (!ENTITLEMENT_ROLES.has(role)) return false;
   if (role === "admin" && !isAdministrativeNavigationSection(section) && section !== "permissions" && section !== "settings") return false;
-  if (role === "accounting_staff" && (isAdministrativeNavigationSection(section) || section === "permissions")) return false;
+  if (role !== "admin" && (isAdministrativeNavigationSection(section) || section === "permissions")) return false;
   if (section === "inbox") return true;
   // Task leadership is assigned operationally, not through a permanent
   // account role. An assigned Task Lead must always be able to open both the

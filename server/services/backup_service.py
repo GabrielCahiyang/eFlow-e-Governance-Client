@@ -5,6 +5,8 @@ from __future__ import annotations
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timedelta, timezone
+
+MANILA_TZ = timezone(timedelta(hours=8))
 import json
 import logging
 from pathlib import Path
@@ -397,7 +399,7 @@ class BackupService:
     ) -> None:
         with self._lock:
             job = self._jobs[job_id]
-        timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d-%H%M%S")
+        timestamp = datetime.now(MANILA_TZ).strftime("%Y-%m-%d-%H%M%S")
         scope_tag = "" if job.scope == "full" else f"-{job.scope}"
         archive_stem = f"eflow-backup{scope_tag}-{timestamp}-{job.id[:8]}"
         workspace = ensure_within(settings.backup_root, settings.backup_root / job.id)

@@ -1,4 +1,5 @@
 import { calendarMinDate, getPhilippineCalendarDate, scheduleRangeError, scheduledDateError } from '../../../../shared/calendarDates';
+import { formatManilaDate } from '../../../../shared/calendarDisplay';
 import { DateInput } from '../../../../components/ui/DateInput';
 import { INPUT_LIMITS } from '../../../../shared/inputLimits';
 import { useEffect, useState } from "react";
@@ -179,7 +180,7 @@ export function ProjectPlanTab({
               <div className="eflow-readonly-item">
                 <span className="eflow-readonly-label">Target date</span>
                 <div className="mt-1 text-sm font-medium text-neutral-900">
-                  {project.targetDate || "Not scheduled"}
+                  {project.targetDate ? formatManilaDate(project.targetDate, project.targetDate) : "Not scheduled"}
                 </div>
               </div>
             </div>

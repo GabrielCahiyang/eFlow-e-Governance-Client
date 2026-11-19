@@ -1,4 +1,5 @@
 import { MoneyInput } from '../../../components/ui/MoneyInput';
+import { formatManilaDateTime } from '../../../shared/calendarDisplay';
 import { FieldLengthHint } from '../../../components/ui/FieldLengthHint';
 import { INPUT_LIMITS, blockInvalidNumberKey, maxDigitsForNumber } from '../../../shared/inputLimits';
 import {budgetSettingsError,fiscalYearError} from '../validation/financialValidation';
@@ -266,7 +267,7 @@ export function AnnualBudgetSetup({
             <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
               <span>Fiscal year {fiscalYear}</span>
               {data.summary?.updatedAt && (
-                <span>· Updated {new Date(data.summary.updatedAt).toLocaleString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric', hour: 'numeric', minute: '2-digit' })}</span>
+                <span>· Updated {formatManilaDateTime(data.summary.updatedAt, '—')}</span>
               )}
             </div>
           </div>

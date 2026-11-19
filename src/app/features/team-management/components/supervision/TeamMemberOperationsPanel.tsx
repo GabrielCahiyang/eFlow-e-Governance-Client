@@ -1,4 +1,5 @@
 import { EmptyState } from '../../../../components/ui/EmptyState';
+import { formatManilaDate } from '../../../../shared/calendarDisplay';
 import { useMemo, useState } from "react";
 import { AlertTriangle, ArrowRightLeft, CalendarClock, CheckCircle2, ExternalLink, Loader2, ShieldAlert, Users } from "lucide-react";
 import type { Employee } from "../../../members";
@@ -83,7 +84,7 @@ export function TeamMemberOperationsPanel({
           <div className="space-y-2">
             {activeTasks.map((task) => (
               <button key={task.id} type="button" onClick={() => onOpenTask(task)} className="flex w-full items-start gap-2 rounded-lg border border-neutral-200 p-2.5 text-left transition hover:bg-neutral-50">
-                <div className="min-w-0 flex-1"><p className="truncate text-[12px] font-medium text-neutral-800">{task.title}</p><p className="mt-0.5 text-[12px] text-neutral-500">{task.assigneeId === employee.id ? "Team Lead" : "Team Member"} · {task.status.replace(/_/g, " ")} · {task.deadline || task.dueDate || "No deadline"}</p></div><ExternalLink size={12} className="mt-0.5 shrink-0 text-neutral-400" />
+                <div className="min-w-0 flex-1"><p className="truncate text-[12px] font-medium text-neutral-800">{task.title}</p><p className="mt-0.5 text-[12px] text-neutral-500">{task.assigneeId === employee.id ? "Team Lead" : "Team Member"} · {task.status.replace(/_/g, " ")} · {task.deadline || task.dueDate ? formatManilaDate(task.deadline || task.dueDate, task.deadline || task.dueDate || "No deadline") : "No deadline"}</p></div><ExternalLink size={12} className="mt-0.5 shrink-0 text-neutral-400" />
               </button>
             ))}
             {activeTasks.length === 0 && <EmptyState illustration="tasks" size="compact" title="No active task participation."/>}

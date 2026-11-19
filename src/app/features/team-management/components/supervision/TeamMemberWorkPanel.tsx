@@ -1,4 +1,5 @@
 import { EmptyState } from '../../../../components/ui/EmptyState';
+import { formatManilaDate } from '../../../../shared/calendarDisplay';
 import { CalendarDays, CheckCircle2, ExternalLink, ListChecks } from "lucide-react";
 import { isActive, type Task } from "../../../tasks";
 import type { Employee } from "../../../members";
@@ -58,7 +59,7 @@ export function TeamMemberWorkPanel({
             {memberTasks.slice(0, 6).map((task) => (
               <button key={task.id} type="button" onClick={() => onOpenTask(task)} className="flex w-full items-start gap-2 rounded-lg border border-neutral-200 p-3 text-left transition hover:bg-neutral-50">
                 <CheckCircle2 className="mt-0.5 shrink-0 text-neutral-400" size={14} />
-                <span className="min-w-0 flex-1"><span className="block break-words text-[13px] font-medium leading-5 text-neutral-800">{task.title}</span><span className="mt-1 block break-words text-[12px] text-neutral-500">{task.assigneeId === employee.id ? "Team Lead" : "Team member"} · {task.status.replace(/_/g, " ")} · {task.deadline || task.dueDate || "No deadline"}</span></span>
+                <span className="min-w-0 flex-1"><span className="block break-words text-[13px] font-medium leading-5 text-neutral-800">{task.title}</span><span className="mt-1 block break-words text-[12px] text-neutral-500">{task.assigneeId === employee.id ? "Team Lead" : "Team member"} · {task.status.replace(/_/g, " ")} · {task.deadline || task.dueDate ? formatManilaDate(task.deadline || task.dueDate, task.deadline || task.dueDate || "No deadline") : "No deadline"}</span></span>
                 <ExternalLink className="mt-0.5 shrink-0 text-neutral-400" size={13} />
               </button>
             ))}

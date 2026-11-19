@@ -8,8 +8,8 @@ import { splitMessageLinks } from '../services/sharedChatLinks';
 import type { Message } from '../services/messagesWorkspace';
 import { ConversationImage } from './ConversationImage';
 
-const days = new Intl.DateTimeFormat('en-US', { dateStyle: 'medium', timeZone: 'Asia/Manila' });
-const times = new Intl.DateTimeFormat('en-US', { timeStyle: 'short', timeZone: 'Asia/Manila' });
+const days = new Intl.DateTimeFormat('en-US', { month: '2-digit', day: '2-digit', year: 'numeric', timeZone: 'Asia/Manila' });
+const times = new Intl.DateTimeFormat('en-US', { hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'Asia/Manila' });
 const emojis = ['👍', '❤️', '😂', '😮', '😢', '😡'];
 
 export function MessageHistory({ messages, userId, group, historyRef, readOnly, nicknames, highlightedId, onReply, onReact, onPin, onDelete }: {

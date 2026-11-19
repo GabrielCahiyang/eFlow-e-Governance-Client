@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { formatManilaInstant } from "../../../shared/calendarDisplay";
 import {
   ShieldCheck,
   Download,
@@ -82,7 +83,7 @@ export function PublicProjectRecord({
             <div>
               <small>Sealed</small>
               <strong>
-                {new Date(certificate.sealed_at).toLocaleString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric', hour: 'numeric', minute: '2-digit' })}
+                {formatManilaInstant(certificate.sealed_at, "—")}
               </strong>
             </div>
             <div>

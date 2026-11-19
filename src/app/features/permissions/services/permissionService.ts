@@ -16,6 +16,10 @@ import {
   VISIBLE_PAGE_PERMISSION_KEYS,
 } from "../constants";
 import {
+  isAdminOnlyPermission,
+  normalizeRolePermissionMap,
+} from "../dependencies";
+import {
   cleanCustomRoleLabel,
   validateCustomRoleName,
   type ExistingRoleLabelEntry,
@@ -162,11 +166,32 @@ export function buildCustomRoleKey(label: string, existingKeys: Iterable<string>
   return candidate;
 }
 
+function hasSupabaseRpc(): boolean {
+  return typeof (supabase as { rpc?: unknown })?.rpc === "function";
+}
+
 export async function saveCustomRolePermissions(
   roleKey: string,
   allowedMap: Record<string, boolean>,
+  baseRole: BaseCustomRole = "member",
 ): Promise<void> {
   if (!roleKey || isAdminRole(roleKey)) throw new Error("Admin defaults cannot be changed.");
+  const normalized = normalizeRolePermissionMap(allowedMap, baseRole);
+  const fullMap: Record<string, boolean> = {};
+  for (const permission of ALL_MANAGED_PERMISSIONS) {
+    fullMap[permission] = Boolean(normalized[permission]);
+  }
+
+  if (hasSupabaseRpc()) {
+    const { error } = await supabase.rpc("admin_set_role_permissions", {
+      p_role: roleKey,
+      p_changes: fullMap,
+    });
+    if (error) throw error;
+    announcePermissionsChanged();
+    return;
+  }
+
   const del = await supabase.from("role_permissions").delete().eq("role", roleKey);
   if (del?.error) throw del.error;
 
@@ -174,7 +199,7 @@ export async function saveCustomRolePermissions(
   const rows = ALL_MANAGED_PERMISSIONS.map((permission) => ({
     role: roleKey,
     permission,
-    allowed: Boolean(allowedMap[permission]),
+    allowed: Boolean(fullMap[permission]),
     updated_at: now,
   }));
 
@@ -207,6 +232,28 @@ export async function createCustomRole(input: {
     : existingRoles.map((r) => r.key);
   const key = buildCustomRoleKey(label, currentKeys);
   const baseRole = input.baseRole ?? "member";
+  const normalizedPermissions = input.permissions
+    ? normalizeRolePermissionMap(input.permissions, baseRole)
+    : {};
+
+  if (hasSupabaseRpc()) {
+    const { data, error } = await supabase.rpc("admin_save_custom_role", {
+      p_key: key,
+      p_label: label,
+      p_description: description,
+      p_base_role: baseRole,
+      p_permissions: normalizedPermissions,
+      p_is_new: true,
+    });
+    if (error) {
+      if (error.code === "23505") throw new Error("A role with that name already exists. Choose a different role name.");
+      throw error;
+    }
+    const row = Array.isArray(data) ? data[0] : data;
+    announceCustomRolesChanged();
+    return mapCustomRoleRow((row || { key, label, description, base_role: baseRole }) as Record<string, any>);
+  }
+
   const { data, error } = await supabase
     .from("custom_roles")
     .insert({ key, label, description, base_role: baseRole })
@@ -217,7 +264,7 @@ export async function createCustomRole(input: {
     throw error;
   }
   if (input.permissions) {
-    await saveCustomRolePermissions(key, input.permissions);
+    await saveCustomRolePermissions(key, normalizedPermissions, baseRole);
   }
   announceCustomRolesChanged();
   return mapCustomRoleRow(data as Record<string, any>);
@@ -240,6 +287,29 @@ export async function updateCustomRole(
     throw new Error(nameError);
   }
   const description = (input.description || "").trim().slice(0, 240);
+  const resolvedBaseRole = input.baseRole ?? "member";
+  const normalizedPermissions = input.permissions
+    ? normalizeRolePermissionMap(input.permissions, resolvedBaseRole)
+    : undefined;
+
+  if (hasSupabaseRpc() && normalizedPermissions) {
+    const { data, error } = await supabase.rpc("admin_save_custom_role", {
+      p_key: key,
+      p_label: label,
+      p_description: description,
+      p_base_role: resolvedBaseRole,
+      p_permissions: normalizedPermissions,
+      p_is_new: false,
+    });
+    if (error) {
+      if (error.code === "23505") throw new Error("A role with that name already exists. Choose a different role name.");
+      throw error;
+    }
+    const row = Array.isArray(data) ? data[0] : data;
+    announceCustomRolesChanged();
+    return mapCustomRoleRow((row || { key, label, description, base_role: resolvedBaseRole }) as Record<string, any>);
+  }
+
   const patch: Record<string, unknown> = {
     label,
     description,
@@ -257,8 +327,8 @@ export async function updateCustomRole(
     throw error;
   }
   const updated = mapCustomRoleRow(data as Record<string, any>);
-  if (input.permissions) {
-    await saveCustomRolePermissions(key, input.permissions);
+  if (normalizedPermissions) {
+    await saveCustomRolePermissions(key, normalizedPermissions, updated.baseRole);
   }
   announceCustomRolesChanged();
   return updated;
@@ -280,28 +350,93 @@ export async function restoreRoleDefaults(role: string): Promise<void> {
   announcePermissionsChanged();
 }
 
-export async function setRolePermission(role: string, permission: string, allowed: boolean): Promise<void> {
+export async function setRolePermissionsBatch(
+  role: string,
+  changes: Record<string, boolean>,
+): Promise<void> {
   if (isAdminRole(role)) throw new Error("Admin core access cannot be changed.");
-  const { error } = await supabase.from("role_permissions").upsert(
-    { role, permission, allowed, updated_at: new Date().toISOString() }, { onConflict: "role,permission" },
-  );
-  if (error) throw error;
-  announcePermissionsChanged();
-}
-
-export async function setUserOverride(userId: string, permission: string, allowed: boolean | null, setBy: string): Promise<void> {
-  if (allowed === null) {
-    const { error } = await supabase.from("user_permission_overrides").delete().eq("user_id", userId).eq("permission", permission);
+  const entries = Object.entries(changes);
+  if (entries.length === 0) return;
+  for (const [permission, allowed] of entries) {
+    if (allowed && isAdminOnlyPermission(permission)) {
+      throw new Error("Administrative permissions cannot be assigned to non-Admin roles.");
+    }
+  }
+  if (hasSupabaseRpc()) {
+    const { error } = await supabase.rpc("admin_set_role_permissions", {
+      p_role: role,
+      p_changes: changes,
+    });
     if (error) throw error;
     announcePermissionsChanged();
     return;
   }
-  const { error } = await supabase.from("user_permission_overrides").upsert(
-    { user_id: userId, permission, allowed, set_by: setBy, updated_at: new Date().toISOString() },
-    { onConflict: "user_id,permission" },
-  );
+  const now = new Date().toISOString();
+  const payload = entries.map(([permission, allowed]) => ({
+    role,
+    permission,
+    allowed,
+    updated_at: now,
+  }));
+  const { error } = await supabase.from("role_permissions").upsert(payload, {
+    onConflict: "role,permission",
+  });
   if (error) throw error;
   announcePermissionsChanged();
+}
+
+export async function setRolePermission(role: string, permission: string, allowed: boolean): Promise<void> {
+  await setRolePermissionsBatch(role, { [permission]: allowed });
+}
+
+export async function setUserOverridesBatch(
+  userId: string,
+  changes: Record<string, boolean | null>,
+  setBy: string,
+): Promise<void> {
+  const entries = Object.entries(changes);
+  if (entries.length === 0) return;
+  for (const [permission, allowed] of entries) {
+    if (allowed === true && isAdminOnlyPermission(permission)) {
+      throw new Error("Administrative permissions cannot be granted to non-Admin accounts.");
+    }
+  }
+  if (hasSupabaseRpc()) {
+    const { error } = await supabase.rpc("admin_set_user_permission_overrides", {
+      p_user_id: userId,
+      p_changes: changes,
+    });
+    if (error) throw error;
+    announcePermissionsChanged();
+    return;
+  }
+  const now = new Date().toISOString();
+  for (const [permission, allowed] of entries) {
+    if (allowed === null) {
+      const { error } = await supabase
+        .from("user_permission_overrides")
+        .delete()
+        .eq("user_id", userId)
+        .eq("permission", permission);
+      if (error) throw error;
+    } else {
+      const { error } = await supabase.from("user_permission_overrides").upsert(
+        { user_id: userId, permission, allowed, set_by: setBy, updated_at: now },
+        { onConflict: "user_id,permission" },
+      );
+      if (error) throw error;
+    }
+  }
+  announcePermissionsChanged();
+}
+
+export async function setUserOverride(
+  userId: string,
+  permission: string,
+  allowed: boolean | null,
+  setBy: string,
+): Promise<void> {
+  await setUserOverridesBatch(userId, { [permission]: allowed }, setBy);
 }
 
 export async function fetchOrganizationScopeGrants(userId: string): Promise<OrganizationScopeGrant[]> {

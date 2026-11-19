@@ -1,5 +1,6 @@
 import { ArrowUpRight } from "lucide-react";
 import { DeadlineBadge } from "../../../components/ui/DeadlineBadge";
+import { formatManilaDate } from "../../../shared/calendarDisplay";
 import type { ProjectFlow } from "../../project-setup";
 import type { Task } from "../../tasks";
 import { resolveStatus, useWorkStatuses } from "../../work-status";
@@ -14,15 +15,7 @@ const labels: Record<string, string> = {
   changes_requested: "Changes requested",
   completed: "Completed",
 };
-const date = (at?: number) =>
-  at
-    ? new Date(at).toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-        timeZone: "Asia/Manila",
-      })
-    : "—";
+const date = (at?: number) => (at ? formatManilaDate(at, "—") : "—");
 const duration = (hours: number | null) =>
   hours === null
     ? "Not enough data"
@@ -107,8 +100,8 @@ export function AnalyticsTables({
                     </small>
                   </td>
                   <td>
-                    {project.startDate || "Not set"}
-                    <small>to {project.targetDate || "Not set"}</small>
+                    {project.startDate ? formatManilaDate(project.startDate, project.startDate) : "Not set"}
+                    <small>to {project.targetDate ? formatManilaDate(project.targetDate, project.targetDate) : "Not set"}</small>
                   </td>
                   <td>{own.length}</td>
                   <td>{done}</td>

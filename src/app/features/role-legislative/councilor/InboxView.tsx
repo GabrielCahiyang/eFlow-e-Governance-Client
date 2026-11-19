@@ -1,5 +1,6 @@
 import * as Carbon from "@carbon/icons-react";
 import * as Lucide from "lucide-react";
+import { formatManilaWeekdayDate } from "../../../shared/calendarDisplay";
 import type { TaskCard } from "./councilorData";
 import { mockCouncilor, priorityConfig } from "./councilorData";
 
@@ -23,12 +24,7 @@ export function InboxView({
           </div>
           <div className="flex items-center gap-2 text-[11px] font-normal text-neutral-400">
             <Carbon.Time size={12} />
-            {new Date().toLocaleDateString("en-US", {
-              weekday: "long",
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })}
+            {formatManilaWeekdayDate(new Date())}
           </div>
         </div>
       </div>

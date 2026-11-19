@@ -1,6 +1,7 @@
 import { EmptyState } from '../../../../components/ui/EmptyState';
 import { DateInput } from '../../../../components/ui/DateInput';
 import { getPhilippineCalendarDate, historicalDateError } from '../../../../shared/calendarDates';
+import { formatManilaDateTime } from '../../../../shared/calendarDisplay';
 import { attachmentError, EVIDENCE_ACCEPT } from '../../../../shared/fileValidation';
 import { useExplicitDraft } from "../../../../shared/useExplicitDraft";
 import * as React from "react";
@@ -185,7 +186,7 @@ export function GovernanceRecordPanel({
                       (item) => item.id === signoff.organizationId,
                     )?.name
                   }{" "}
-                  · {new Date(signoff.createdAt).toLocaleString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric', hour: 'numeric', minute: '2-digit' })}
+                  · {formatManilaDateTime(signoff.createdAt, "—")}
                 </div>
                 {signoff.reason && (
                   <div className="mt-1 text-[9px] text-neutral-600">

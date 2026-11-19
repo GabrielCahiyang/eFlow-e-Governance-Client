@@ -1,4 +1,5 @@
 import { getPhilippineLocalDateTime } from '../../../shared/calendarDates';
+import { DateTimeInput } from '../../../components/ui/DateTimeInput';
 import { useExplicitDraft } from "../../../shared/useExplicitDraft";
 import {MAX_RECURRENCE_INTERVAL,RECURRING_TEXT_LIMITS,recurringTemplateError} from '../validation/recurringValidation';
 import {integerError} from '../../../shared/numericValidation';
@@ -205,12 +206,12 @@ export function RecurringTemplateForm({
           className={inputClass}
           title="Repeat interval"
         />
-        <input
+        <DateTimeInput
           aria-label="First scheduled run"
-          type="datetime-local" min={getPhilippineLocalDateTime()}
+          min={getPhilippineLocalDateTime()}
           value={nextRun}
-          onChange={(event) => setNextRun(event.target.value)}
-          className={inputClass}
+          onChange={setNextRun}
+          className="col-span-full"
         />
       </div>
       <p className="text-[11px] text-muted-foreground">First run uses Philippine time. Repeat interval: 1–365.</p>

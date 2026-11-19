@@ -1,4 +1,5 @@
 import {deadlinePresentation} from '../../../../shared/deadlinePresentation';
+import { formatManilaDateTime } from '../../../../shared/calendarDisplay';
 import { workDay } from '../../../../shared/workCalendar';
 import { deadlineInputParts } from '../../selectors/deadlineInput';
 import { ListChecks } from "lucide-react";
@@ -447,14 +448,7 @@ export const filterTasksByBoardView = (
 
 export const formatShortDateTime = (value?: number) => {
   if (!value) return "";
-  const dt = new Date(value);
-  if (Number.isNaN(dt.getTime())) return "";
-  return dt.toLocaleString("en-US", {
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  return formatManilaDateTime(value, "");
 };
 
 export interface TaskProjectOption {

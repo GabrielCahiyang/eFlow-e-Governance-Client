@@ -1,4 +1,5 @@
 import { readableUiError } from "../../../shared/userFacingError";
+import { formatManilaDate } from "../../../shared/calendarDisplay";
 import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import { useEffect, useRef, useState } from 'react';
 import { Archive, ArrowLeft, ImagePlus, Info, Phone, Pin, Send, Video, X } from 'lucide-react';
@@ -179,7 +180,7 @@ export function ActiveChatPanel({ conversation, userId, userName, targetMessageI
       </header>
       {conversation.archived && <div className="messages-archive-banner"><Archive size={17} />
         <span>{conversation.projectTitle || 'This project'} {conversation.completedAt ? 'was completed on ' +
-          new Date(conversation.completedAt).toLocaleDateString('en-US', { dateStyle: 'medium', timeZone: 'Asia/Manila' }) : 'is closed'}. This chat is archived.</span>
+          formatManilaDate(conversation.completedAt, '—') : 'is closed'}. This chat is archived.</span>
         {parentProject && <button type="button" className="messages-task-link" onClick={() => onOpenProject(parentProject)}>Open project</button>}
       </div>}
       {thread.pinned[0] && <button type="button" className="messages-pinned-bar" onClick={() => showPinned(thread.pinned[0])}><Pin size={15} /><span>{parseMessage(thread.pinned[0].content).text || 'Shared image'}</span><small>{thread.pinned.length} pinned</small></button>}

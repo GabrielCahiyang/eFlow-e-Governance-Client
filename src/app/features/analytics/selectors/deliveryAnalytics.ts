@@ -202,8 +202,9 @@ export function completionTrend(rows: TaskAnalytic[], now = Date.now()) {
       from: new Date(from).toISOString().slice(0, 10),
       to: new Date(to - 1).toISOString().slice(0, 10),
       label: new Date(from).toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        year: "numeric",
         timeZone: "UTC",
       }),
       count: tasks.length,

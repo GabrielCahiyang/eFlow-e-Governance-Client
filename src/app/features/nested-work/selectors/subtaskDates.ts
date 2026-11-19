@@ -1,4 +1,5 @@
 import {isCalendarDate} from '../../../shared/calendarDates';
+import {formatManilaDate} from '../../../shared/calendarDisplay';
 import type {WorkTreeSnapshot} from '../types';
 
 export function subtaskDateLimits(tree: WorkTreeSnapshot, parentId: string) {
@@ -30,7 +31,7 @@ export function subtaskDateIssue(
   if (!isCalendarDate(start)) return 'Choose a subtask start date.';
   if (!isCalendarDate(due)) return 'Choose a subtask due date.';
   if (start > due) return 'Subtask due date must be on or after its start date.';
-  if (earliest && start < earliest) return `Subtask start date cannot be before ${earliest}.`;
-  if (latest && due > latest) return `Subtask due date cannot be after ${latest}.`;
+  if (earliest && start < earliest) return `Subtask start date cannot be before ${formatManilaDate(earliest, earliest)}.`;
+  if (latest && due > latest) return `Subtask due date cannot be after ${formatManilaDate(latest, latest)}.`;
   return '';
 }

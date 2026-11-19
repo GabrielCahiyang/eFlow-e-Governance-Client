@@ -1,4 +1,5 @@
 import { readableUiError } from '../../../shared/userFacingError';
+import { formatManilaDateTime } from '../../../shared/calendarDisplay';
 import { EmptyState } from '../../../components/ui/EmptyState';
 import { useReviewedMutation } from "../../../shared/useReviewedMutation";
 import { FeedbackState } from "../../../components/ui/FeedbackState";
@@ -101,7 +102,7 @@ export function RecurringTaskTemplatesPanel({
                     ? `${template.recurrenceRule.interval} `
                     : ""}
                   {template.recurrenceRule.frequency} · next{" "}
-                  {new Date(template.nextRunAt).toLocaleString("en-US")}
+                  {formatManilaDateTime(template.nextRunAt, "—")}
                 </div>
               </div>
               <span

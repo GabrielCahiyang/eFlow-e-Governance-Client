@@ -1,11 +1,16 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
-import { ShieldPlus, X } from "lucide-react";
+import { Link2, ShieldPlus, X } from "lucide-react";
 import {
   ACTION_PERMISSION_KEYS,
-  PERMISSION_LABELS,
   VISIBLE_PAGE_PERMISSION_KEYS,
   type PermissionKey,
 } from "../constants";
+import {
+  normalizeRolePermissionMap,
+  planModulePresetChange,
+  planRolePermissionToggle,
+  type PermissionModuleDefinition,
+} from "../dependencies";
 import { rolePermissionAllowed } from "../selectors";
 import {
   cleanCustomRoleLabel,
@@ -13,6 +18,7 @@ import {
   type ExistingRoleLabelEntry,
 } from "../validation/roleNameValidation";
 import type { BaseCustomRole, CustomRoleDefinition, RolePermissionRow } from "../types";
+import { ModuleRolePermissionCards } from "./ModulePermissionCards";
 
 const ALL_CAPABILITY_KEYS: readonly PermissionKey[] = [
   ...VISIBLE_PAGE_PERMISSION_KEYS,
@@ -24,13 +30,14 @@ function buildInitialPermissionMap(
   baseRole: string | null,
   rows: RolePermissionRow[],
 ): Record<string, boolean> {
+  const effectiveBase = baseRole || "member";
   const map: Record<string, boolean> = {};
   for (const permission of ALL_CAPABILITY_KEYS) {
     map[permission] = roleKey
-      ? rolePermissionAllowed(roleKey, permission, rows, baseRole || "member")
+      ? rolePermissionAllowed(roleKey, permission, rows, effectiveBase)
       : false;
   }
-  return map;
+  return normalizeRolePermissionMap(map, effectiveBase);
 }
 
 export interface CustomRoleModalProps {
@@ -48,82 +55,6 @@ export interface CustomRoleModalProps {
     baseRole: BaseCustomRole;
     permissions: Record<string, boolean>;
   }) => Promise<void> | void;
-}
-
-function ModalPermissionGroup({
-  title,
-  keys,
-  permissions,
-  disabled,
-  onToggle,
-}: {
-  title: string;
-  keys: readonly PermissionKey[];
-  permissions: Record<string, boolean>;
-  disabled: boolean;
-  onToggle: (permission: PermissionKey) => void;
-}) {
-  return (
-    <section className="overflow-hidden rounded-xl border border-neutral-200 bg-white">
-      <div className="flex items-center justify-between border-b border-neutral-200 bg-neutral-50/70 px-3.5 py-2">
-        <h4 className="text-[12px] font-semibold text-neutral-900">{title}</h4>
-        <span className="text-[11px] text-neutral-500">
-          {keys.filter((k) => Boolean(permissions[k])).length}/{keys.length} allowed
-        </span>
-      </div>
-      <div className="divide-y divide-neutral-100">
-        {keys.map((permission) => {
-          const allowed = Boolean(permissions[permission]);
-          return (
-            <div
-              key={permission}
-              className="flex items-center justify-between gap-3 px-3.5 py-2 hover:bg-neutral-50/60"
-            >
-              <span className="text-[12.5px] font-medium text-neutral-800">
-                {PERMISSION_LABELS[permission] || permission}
-              </span>
-              <div
-                role="group"
-                aria-label={PERMISSION_LABELS[permission] || permission}
-                className="inline-flex shrink-0 overflow-hidden rounded-lg border border-neutral-200 bg-neutral-50 p-0.5"
-              >
-                <button
-                  type="button"
-                  aria-pressed={allowed}
-                  disabled={disabled}
-                  onClick={() => {
-                    if (!allowed) onToggle(permission);
-                  }}
-                  className={`rounded-md px-2.5 py-1 text-[11px] font-medium transition-colors ${
-                    allowed
-                      ? "bg-emerald-50 text-emerald-700"
-                      : "text-neutral-500 hover:text-neutral-900"
-                  }`}
-                >
-                  Allow
-                </button>
-                <button
-                  type="button"
-                  aria-pressed={!allowed}
-                  disabled={disabled}
-                  onClick={() => {
-                    if (allowed) onToggle(permission);
-                  }}
-                  className={`rounded-md px-2.5 py-1 text-[11px] font-medium transition-colors ${
-                    !allowed
-                      ? "bg-white text-neutral-900 shadow-xs"
-                      : "text-neutral-500 hover:text-neutral-900"
-                  }`}
-                >
-                  Deny
-                </button>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </section>
-  );
 }
 
 const EMPTY_EXISTING_ROLES: readonly ExistingRoleLabelEntry[] = [];
@@ -145,6 +76,7 @@ export function CustomRoleModal({
   const [baseRole, setBaseRole] = useState<BaseCustomRole>("member");
   const [permissions, setPermissions] = useState<Record<string, boolean>>({});
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [dependencyNotice, setDependencyNotice] = useState<string | null>(null);
   const [labelTouched, setLabelTouched] = useState(false);
 
   useEffect(() => {
@@ -160,6 +92,7 @@ export function CustomRoleModal({
       ),
     );
     setValidationError(null);
+    setDependencyNotice(null);
     setLabelTouched(false);
   }, [open, initialRole, mode, roleRows]);
 
@@ -188,11 +121,34 @@ export function CustomRoleModal({
 
   if (!open) return null;
 
-  const handleTogglePermission = (permission: PermissionKey) => {
-    setPermissions((current) => ({
-      ...current,
-      [permission]: !current[permission],
-    }));
+  const handleTogglePermission = (permission: PermissionKey, nextAllowed: boolean) => {
+    const plan = planRolePermissionToggle(permissions, permission, nextAllowed, baseRole);
+    if (!plan.allowed) {
+      setDependencyNotice(plan.error || null);
+      return;
+    }
+    setPermissions((current) =>
+      normalizeRolePermissionMap({ ...current, ...plan.changes }, baseRole),
+    );
+    setDependencyNotice(plan.summary);
+  };
+
+  const handleSelectPreset = (module: PermissionModuleDefinition, presetId: string) => {
+    const plan = planModulePresetChange(permissions, module, presetId, baseRole);
+    if (!plan.allowed) {
+      setDependencyNotice(plan.error || null);
+      return;
+    }
+    setPermissions((current) =>
+      normalizeRolePermissionMap({ ...current, ...plan.changes }, baseRole),
+    );
+    setDependencyNotice(plan.summary);
+  };
+
+  const handleBaseRoleChange = (nextBase: BaseCustomRole) => {
+    setBaseRole(nextBase);
+    setPermissions((current) => normalizeRolePermissionMap(current, nextBase));
+    setDependencyNotice(null);
   };
 
   const handleSubmit = async (event: FormEvent) => {
@@ -213,7 +169,7 @@ export function CustomRoleModal({
       label: cleanedLabel,
       description: description.trim().slice(0, 240),
       baseRole,
-      permissions,
+      permissions: normalizeRolePermissionMap(permissions, baseRole),
     });
   };
 
@@ -227,7 +183,7 @@ export function CustomRoleModal({
       aria-modal="true"
       aria-labelledby="custom-role-modal-title"
     >
-      <div className="flex max-h-[88vh] w-full max-w-2xl flex-col overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-xl">
+      <div className="flex max-h-[88vh] w-full max-w-3xl flex-col overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-xl">
         <div className="flex items-center justify-between border-b border-neutral-200 px-5 py-4">
           <div className="flex items-center gap-2.5">
             <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#0d544f]/10 text-[#0d544f]">
@@ -239,8 +195,8 @@ export function CustomRoleModal({
               </h3>
               <p className="text-[12px] text-neutral-500">
                 {mode === "create"
-                  ? "Name the role and pick which pages and actions it can access."
-                  : "Update the role name, description, and allowed permissions."}
+                  ? "Name the role and pick module access levels or individual permissions."
+                  : "Update the role name, account type, and module permissions."}
               </p>
             </div>
           </div>
@@ -314,7 +270,7 @@ export function CustomRoleModal({
               <select
                 id="custom-role-base"
                 value={baseRole}
-                onChange={(event) => setBaseRole(event.target.value as BaseCustomRole)}
+                onChange={(event) => handleBaseRoleChange(event.target.value as BaseCustomRole)}
                 disabled={saving}
                 aria-describedby="custom-role-base-description"
                 className="h-9 w-full rounded-lg border border-neutral-200 bg-white px-3 text-[13px] text-neutral-900 sm:w-1/2"
@@ -324,7 +280,7 @@ export function CustomRoleModal({
                 <option value="head">Head</option>
               </select>
               <p id="custom-role-base-description" className="mt-1.5 text-[12px] text-neutral-500">
-                Determines the account seat when assigning this role. Leave as Member unless this role replaces the Office Head.
+                Determines the account seat when assigning this role. Leave as Member unless this role replaces the Office Head or belongs to Accounting Staff.
               </p>
               {baseRole === "head" && (
                 <p className="mt-1.5 rounded-lg border border-amber-200 bg-amber-50 px-3 py-1.5 text-[11.5px] text-amber-800">
@@ -336,27 +292,34 @@ export function CustomRoleModal({
             <div className="space-y-3 pt-1">
               <div className="flex items-center justify-between">
                 <span className="text-[13px] font-semibold text-neutral-900">
-                  Permissions
+                  Module permissions
                 </span>
-                <span className="text-[12px] text-neutral-500">
+                <span className="text-[12px] text-neutral-500 tabular-nums">
                   {allowedCount} of {ALL_CAPABILITY_KEYS.length} allowed
                 </span>
               </div>
 
-              <ModalPermissionGroup
-                title="Page access"
-                keys={VISIBLE_PAGE_PERMISSION_KEYS}
-                permissions={permissions}
-                disabled={saving}
-                onToggle={handleTogglePermission}
-              />
+              {dependencyNotice ? (
+                <div
+                  role="status"
+                  className="flex items-center gap-2 rounded-lg border border-[#0d544f]/20 bg-teal-50/80 px-3 py-2 text-[12px] text-[#0d544f]"
+                >
+                  <Link2 className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                  <span>{dependencyNotice}</span>
+                </div>
+              ) : null}
 
-              <ModalPermissionGroup
-                title="Actions"
-                keys={ACTION_PERMISSION_KEYS}
-                permissions={permissions}
+              <ModuleRolePermissionCards
+                mode="modal"
+                selectedRoleKey={initialRole?.key || "new_custom_role"}
+                selectedRoleLabel={label || "Custom role"}
+                baseRole={baseRole}
+                isBuiltIn={false}
+                isLocked={false}
+                allowedMap={permissions}
                 disabled={saving}
-                onToggle={handleTogglePermission}
+                onTogglePermission={handleTogglePermission}
+                onSelectPreset={handleSelectPreset}
               />
             </div>
 

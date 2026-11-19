@@ -10,8 +10,7 @@ export async function fetchActivityPage(
   page = 0,
   snapshot?: string,
 ): Promise<ActivityPage> {
-  const timezone =
-    filters.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const timezone = filters.timezone || "Asia/Manila";
   const { data, error } = await supabase.rpc("r11_project_activity", {
     p_project: project,
     p_snapshot: snapshot || null,

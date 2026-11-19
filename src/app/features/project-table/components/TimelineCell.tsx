@@ -1,4 +1,5 @@
 import { readableUiError } from '../../../shared/userFacingError';
+import { formatManilaDate } from '../../../shared/calendarDisplay';
 import {DeadlineBadge} from '../../../components/ui/DeadlineBadge';
 import { useEffect, useRef, useState } from 'react';
 import { Calendar } from 'lucide-react';
@@ -27,10 +28,10 @@ export function TimelineCell({ task, disabled, projectStartDate, projectTargetDa
   const due = task.deadline || task.dueDate || '', date = timelineDraft(task).end;
   const needsDate = !date && !due.trim() && !['completed', 'cancelled'].includes(task.status);
   const validation = editor.dirty ? timelineError(task, editor.draft, undefined, projectBounds) : undefined;
-  const text = date ? new Date(date + 'T12:00:00').toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }) : due || 'Set dates';
-  const startText=task.startDate ? new Date(task.startDate.slice(0,10)+'T12:00:00').toLocaleDateString('en-US',{month:'2-digit',day:'2-digit',year:'numeric'}) : '';
+  const text = date ? formatManilaDate(date, date) : due ? formatManilaDate(due, due) : 'Set dates';
+  const startText = task.startDate ? formatManilaDate(task.startDate.slice(0, 10), task.startDate) : '';
   return <Popover open={editor.open} onOpenChange={editor.onOpenChange}>
-    <PopoverTrigger asChild><button ref={trigger} className={needsDate ? 'pt-date pt-date--required' : 'pt-date'} disabled={disabled} title={needsDate ? 'Set a due date in this column. Tasks without a due date will not be shown to the assigned leader.' : `${task.startDate ? task.startDate+' → ' : ''}${date||due}`} aria-label={'Edit dates for ' + task.title}><Calendar size={14}/><span className="pt-date-label"><span>{startText ? startText+' → ' : ''}{text}</span>{date ? <DeadlineBadge value={date} status={task.status} showDate={false}/> : needsDate ? <span className="pt-date-required-hint">{disabled ? 'Date required' : 'Required · hidden from lead'}</span> : null}
+    <PopoverTrigger asChild><button ref={trigger} className={needsDate ? 'pt-date pt-date--required' : 'pt-date'} disabled={disabled} title={needsDate ? 'Set a due date in this column. Tasks without a due date will not be shown to the assigned leader.' : `${startText ? startText + ' → ' : ''}${text}`} aria-label={'Edit dates for ' + task.title}><Calendar size={14}/><span className="pt-date-label"><span>{startText ? startText+' → ' : ''}{text}</span>{date ? <DeadlineBadge value={date} status={task.status} showDate={false}/> : needsDate ? <span className="pt-date-required-hint">{disabled ? 'Date required' : 'Required · hidden from lead'}</span> : null}
 </span></button></PopoverTrigger>
     <PopoverContent className="eflow-workspace-popover pt-planning-editor pt-timeline-editor" aria-label={'Task timeline for ' + task.title} align="start" sticky="always" collisionPadding={12} onInteractOutside={event => { if (editor.pending) event.preventDefault(); }} onEscapeKeyDown={event => { if (editor.pending) event.preventDefault(); }} onCloseAutoFocus={event => {
       if (!focusAfterSave.current) return;

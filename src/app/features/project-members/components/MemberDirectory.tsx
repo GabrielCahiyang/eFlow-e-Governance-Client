@@ -11,7 +11,7 @@ export function MemberDirectory({ members, snapshot, access, closed, onOpenTask,
   onOpenTask: (id: string) => void;
   onRemove: (member: SelectedMember) => void;
 }) {
-  const dateFormat = new Intl.DateTimeFormat('en-US', { dateStyle: 'medium', timeZone: snapshot.timezone || 'Asia/Manila' });
+  const dateFormat = new Intl.DateTimeFormat('en-US', { month: '2-digit', day: '2-digit', year: 'numeric', timeZone: snapshot.timezone || 'Asia/Manila' });
   return <table className="project-members-table" aria-label="Selected project members" role="table">
     <thead><tr role="row">{['Member', 'Project access', 'Responsibilities', 'Actions'].map(label => <th scope="col" key={label}>{label}</th>)}</tr></thead>
     <tbody>

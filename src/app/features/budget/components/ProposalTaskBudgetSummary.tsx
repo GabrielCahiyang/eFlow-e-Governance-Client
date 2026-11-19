@@ -1,4 +1,5 @@
 import { CheckCircle2, ShieldAlert } from "lucide-react";
+import { getPhilippineYear } from "../../../shared/calendarDates";
 import {
   buildProposalBudgetFromTasks,
   getProposalBudgetReadiness,
@@ -8,7 +9,7 @@ import { peso } from "./budgetUi";
 
 export function ProposalTaskBudgetSummary({
   tasks,
-  fiscalYear = new Date().getFullYear(),
+  fiscalYear = getPhilippineYear(),
   fundingOwnerName,
 }: {
   tasks: TaskBudgetSource[];

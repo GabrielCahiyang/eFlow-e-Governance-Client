@@ -5,6 +5,7 @@ import { Button } from '../../../components/ui/button';
 import { EmptyState } from '../../../components/ui/EmptyState';
 import { FeedbackState } from '../../../components/ui/FeedbackState';
 import { fetchNotificationSubitem, useNotificationNavigationIntent } from '../../notifications';
+import { formatManilaDate } from '../../../shared/calendarDisplay';
 
 function formatRelativeTime(value: string) {
   const time = Date.parse(value);
@@ -16,7 +17,7 @@ function formatRelativeTime(value: string) {
   if (hrs < 24) return `${hrs}h ago`;
   const days = Math.floor(hrs / 24);
   if (days < 7) return `${days}d ago`;
-  return new Date(time).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
+  return formatManilaDate(time, value);
 }
 import { SubtaskWorkDrawer } from '../../subtasks';
 import type { TaskInspectorOrigin } from '../../task-inspector';

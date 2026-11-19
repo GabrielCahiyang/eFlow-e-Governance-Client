@@ -36,6 +36,6 @@ it('updates a mounted badge at midnight without a manual refresh', () => {
 });
 it('shows the date and words so urgency does not depend on color alone', () => {
   render(<DeadlineBadge value="2026-11-05" now={now}/>);
-  expect(screen.getByText('Nov 5, 2026')).toBeVisible();
+  expect(screen.getByText('11/05/2026')).toBeVisible();
   expect(screen.getByText('2 days left')).toBeVisible();
 });
