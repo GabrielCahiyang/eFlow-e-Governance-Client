@@ -1,9 +1,0 @@
-Error: Could not find Gabriel Cahiyang assignment summary. Current page: http://localhost:5173/
-    at expectVisible (file:///C:/Users/gabri/OneDrive/Desktop/EflowWeb/scripts/e2e_live_spectate.mjs:82:11)
-    at async assignDraftTeam (file:///C:/Users/gabri/OneDrive/Desktop/EflowWeb/scripts/e2e_live_spectate.mjs:236:3)
-    at async createAndRequestReview (file:///C:/Users/gabri/OneDrive/Desktop/EflowWeb/scripts/e2e_live_spectate.mjs:264:3)
-    at async main (file:///C:/Users/gabri/OneDrive/Desktop/EflowWeb/scripts/e2e_live_spectate.mjs:433:5)
-    at async file:///C:/Users/gabri/OneDrive/Desktop/EflowWeb/scripts/e2e_live_spectate.mjs:463:1
-
-PAGE
-eFlow Console Overview Plans & Projects Task Board Department Budget My Subtasks Reviews Team Supervision Team Intelligence Reports Announcements User Management Org Structure 7 Start Walkthrough Settings CG Cheryl Gallo Head Walkthrough DEPARTMENT · PLANNING PORTFOLIO Proposals & Projects Manage complete proposals, their programs, operational projects, milestones, and delivery work from one workspace. Build work plan Import PDF with AI Templates Operational portfolio 0 My drafts 3 Incoming reviews 0 Ready to commit 0 VISIBLE PROPOSALS 0 ACTIVE 0 PLANNING 0 ON HOLD 0 COMPLETED 0 Active Planning On hold Completed Archived All statuses All health Empty projects On track Due soon Overdue At risk Completed All owners Cheryl Gallo All Task Leads Raoul Cam Any deadline Due in 30 days Past due Unscheduled No projects yet Build a structured work plan or import a proposal to organize projects, milestones, and tasks. Build work plan Import PDF with AI Manual plan saved as a collaboration draft.
