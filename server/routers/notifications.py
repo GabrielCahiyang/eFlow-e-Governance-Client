@@ -8,7 +8,7 @@ import smtplib
 import ssl
 
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from gateway_dependencies import AuthenticatedUser, require_user, supabase_admin
 
@@ -17,10 +17,10 @@ router = APIRouter(prefix="/controlpanelEflow/api/notifications", tags=["notific
 
 
 class EmailNotificationPayload(BaseModel):
-    userId: str
-    title: str = "eFlow Notification"
-    body: str = ""
-    taskId: str | None = None
+    userId: str = Field(min_length=1, max_length=128)
+    title: str = Field(default="eFlow Notification", max_length=200)
+    body: str = Field(default="", max_length=10000)
+    taskId: str | None = Field(default=None, max_length=128)
 
 
 def _send_email(to_email: str, subject: str, html_body: str) -> None:

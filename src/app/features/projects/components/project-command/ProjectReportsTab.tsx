@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { useOrgs } from "../../../../hooks/useSupabaseData";
 import { Button } from "../../../../components/ui/button";
 import { DateInput } from "../../../../components/ui/DateInput";
+import { INPUT_LIMITS } from "../../../../shared/inputLimits";
 import {
   WorkspaceHeader,
   EmptyWorkspaceState,
@@ -213,6 +214,7 @@ export function ProjectReportsTab({
         <label>
           Search register
           <input
+            maxLength={INPUT_LIMITS.SEARCH}
             value={filters.search}
             onChange={(e) => change({ search: e.target.value })}
           />

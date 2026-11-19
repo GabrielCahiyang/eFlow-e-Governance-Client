@@ -113,6 +113,7 @@ export function NLPTranscription() {
                   {editingId === entry.id ? (
                     <div className="space-y-2">
                       <textarea
+                        maxLength={4000}
                         value={editText}
                         onChange={e => setEditText(e.target.value)}
                         className="w-full p-2 text-[12px] font-normal border border-blue-300 rounded-lg outline-none bg-blue-50/50 text-neutral-800 resize-none"
@@ -162,6 +163,7 @@ export function NLPTranscription() {
                 <DocumentAdd size={14} className="text-neutral-400 shrink-0" />
                 <input
                   type="text"
+                  maxLength={1000}
                   value={officialNote}
                   onChange={(e) => setOfficialNote(e.target.value)}
                   placeholder="Insert official note…"

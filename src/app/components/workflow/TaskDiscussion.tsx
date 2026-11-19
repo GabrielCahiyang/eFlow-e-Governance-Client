@@ -4,6 +4,8 @@ import { Button } from '../ui/button';
 import { FeatureDialog } from '../ui/FeatureDialog';
 import { requestNavigation } from '../../shared/navigationGuard';
 import { useExplicitDraft } from '../../shared/useExplicitDraft';
+import { INPUT_LIMITS } from '../../shared/inputLimits';
+import { FieldLengthHint } from '../ui/FieldLengthHint';
 // ─── TaskDiscussion ──────────────────────────────────────────────
 // Threaded comments on a task. Participation is restricted to the task's
 // assignees / team members and authorized reviewers. Dept Head / Admin
@@ -162,26 +164,32 @@ export function TaskDiscussion({
       </div>
 
       {canParticipate ? (
-        <div className="flex items-end gap-2 border-t border-neutral-100 pt-3">
-          <textarea
-            aria-label="Task discussion comment"
-            disabled={sending}
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) send();
-            }}
-            rows={2}
-            placeholder="Write a comment…  (⌘/Ctrl + Enter to send)"
-            className="flex-1 resize-none rounded-lg border border-neutral-200 px-3 py-2 text-[12.5px] font-normal text-neutral-800 placeholder:text-neutral-400 focus:outline-none focus:border-neutral-400 focus:ring-1 focus:ring-neutral-200"
-          />
-          <button
-            onClick={send}
-            disabled={!draft.trim() || sending}
-            className="h-9 px-3 rounded-lg bg-neutral-900 text-white text-[12px] font-medium flex items-center gap-1.5 disabled:opacity-40 hover:bg-neutral-800"
-          >
-            <Send size={13} /> Send
-          </button>
+        <div className="border-t border-neutral-100 pt-3">
+          <div className="flex items-end gap-2">
+            <textarea
+              aria-label="Task discussion comment"
+              disabled={sending}
+              maxLength={INPUT_LIMITS.COMMENT}
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) send();
+              }}
+              rows={2}
+              placeholder="Write a comment…  (⌘/Ctrl + Enter to send)"
+              className="flex-1 resize-none rounded-lg border border-neutral-200 px-3 py-2 text-[12.5px] font-normal text-neutral-800 placeholder:text-neutral-400 focus:outline-none focus:border-neutral-400 focus:ring-1 focus:ring-neutral-200"
+            />
+            <button
+              onClick={send}
+              disabled={!draft.trim() || sending}
+              className="h-9 px-3 rounded-lg bg-neutral-900 text-white text-[12px] font-medium flex items-center gap-1.5 disabled:opacity-40 hover:bg-neutral-800"
+            >
+              <Send size={13} /> Send
+            </button>
+          </div>
+          <div className="mt-1 flex justify-end">
+            <FieldLengthHint length={draft.length} max={INPUT_LIMITS.COMMENT} />
+          </div>
         </div>
       ) : (
         <div className="border-t border-neutral-100 pt-3 text-[11.5px] font-normal text-neutral-400 text-center">
@@ -190,7 +198,7 @@ export function TaskDiscussion({
       )}
     </div>
     {moderating && <FeatureDialog title="Remove comment" description="The reason is recorded in the audit log and comment history is preserved." onClose={closeModeration} preventClose={removing} contentClassName="max-w-md">
-     <form className="p-5 space-y-3" onSubmit={event => {event.preventDefault();void remove(moderating);}}><h2 className="text-lg font-semibold">Remove comment</h2><label className="block">Reason<textarea aria-label="Comment removal reason" className="w-full border rounded-md p-2" value={reason} disabled={removing} onChange={event=>setReason(event.target.value)}/></label><Button variant="outline" type="button" onClick={closeModeration} disabled={removing}>Cancel</Button><Button variant="destructive" type="submit" pending={removing} disabled={removing || !reason.trim()}>Remove comment</Button></form>
+     <form className="p-5 space-y-3" onSubmit={event => {event.preventDefault();void remove(moderating);}}><h2 className="text-lg font-semibold">Remove comment</h2><label className="block"><span className="flex items-center justify-between gap-2"><span>Reason</span><FieldLengthHint length={reason.length} max={INPUT_LIMITS.REASON} /></span><textarea aria-label="Comment removal reason" maxLength={INPUT_LIMITS.REASON} className="mt-1 w-full border rounded-md p-2" value={reason} disabled={removing} onChange={event=>setReason(event.target.value)}/></label><Button variant="outline" type="button" onClick={closeModeration} disabled={removing}>Cancel</Button><Button variant="destructive" type="submit" pending={removing} disabled={removing || !reason.trim()}>Remove comment</Button></form>
     </FeatureDialog>}
     </>
   );

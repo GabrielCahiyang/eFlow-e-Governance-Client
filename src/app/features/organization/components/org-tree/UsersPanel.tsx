@@ -43,6 +43,7 @@ export function UsersPanel({
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search users..."
+          maxLength={120}
           className="w-full rounded-lg border border-neutral-200 py-2 pl-9 pr-3 text-[12px] font-normal placeholder:text-neutral-400 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
         /></div>
       </div>

@@ -153,7 +153,7 @@ export function AcceptInvitationPage() {
               <form onSubmit={finish} className="eflow-accept-form">
                 <label>
                   Email
-                  <input value={invite.email} readOnly type="email" aria-readonly="true" />
+                  <input value={invite.email} readOnly type="email" maxLength={254} aria-readonly="true" />
                 </label>
                 {wrongAccount ? (
                   <>

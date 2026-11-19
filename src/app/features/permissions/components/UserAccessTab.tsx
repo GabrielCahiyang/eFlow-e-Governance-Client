@@ -8,7 +8,7 @@ import {
   Shield,
   UserRoundCog,
 } from "lucide-react";
-import { useProfiles, useOrgs } from "../../../hooks/useSupabaseData";
+import { useProfiles } from "../../../hooks/useSupabaseData";
 import { useAuth } from "../../../contexts/AuthContext";
 import { useToast } from "../../../components/ui/Toast";
 import { Button } from "../../../components/ui/button";
@@ -25,7 +25,6 @@ import {
   setUserOverride,
 } from "../services/permissionService";
 import type { RolePermissionRow, UserOverrideRow } from "../types";
-import { WSelect } from "../../../components/workflow/primitives";
 
 import { useConfirmation } from "../../../components/ui/useConfirmation";
 import { useExplicitDraft } from "../../../shared/useExplicitDraft";
@@ -161,13 +160,11 @@ export function UserAccessTab({
   onSelectedUserIdChange?: (userId: string) => void;
 }) {
   const { profiles } = useProfiles();
-  const { orgs } = useOrgs();
   const { userProfile } = useAuth();
   const { toast } = useToast();
   const { roleCatalog, customRoles } = useRoleCatalog();
   const [internalUserId, setInternalUserId] = useState(selectedUserId || "");
   const [search, setSearch] = useState("");
-  const [orgFilter, setOrgFilter] = useState("all");
   const [roleRows, setRoleRows] = useState<RolePermissionRow[]>([]);
   const [overrides, setOverrides] = useState<UserOverrideRow[]>([]);
   const [accessRevision, setAccessRevision] = useState(0);
@@ -198,29 +195,14 @@ export function UserAccessTab({
     setFailure("");
     setAccessRevision((revision) => revision + 1);
   };
-  const orgMap = useMemo(
-    () => Object.fromEntries(orgs.map((org) => [org.id, org.name])),
-    [orgs],
-  );
   const manageable = profiles.filter(
     (profile) => !isAdminRole(profile.role) && profile.is_active,
   );
   const filteredUsers = manageable.filter(
     (profile) =>
-      (orgFilter === "all" || profile.org_id === orgFilter) &&
-      `${profile.full_name} ${profile.email} ${profile.role} ${orgMap[profile.org_id || ""] || ""}`
+      `${profile.full_name} ${profile.email} ${profile.role} ${resolveAccountRoleDisplay(profile.role, profile.custom_role_key, roleCatalog).label}`
         .toLowerCase()
         .includes(search.toLowerCase()),
-  );
-  const orgOptions = useMemo(
-    () => [
-      { value: "all", label: "All offices" },
-      ...orgs
-        .filter((org) => org.is_active)
-        .map((org) => ({ value: org.id, label: org.name }))
-        .sort((a, b) => a.label.localeCompare(b.label)),
-    ],
-    [orgs],
   );
 
   const chooseUser = (userId: string) => {
@@ -301,7 +283,7 @@ export function UserAccessTab({
       if (
         !(await confirmation.confirm({
           title: "Change individual access?",
-          description: `${selected.full_name}: ${PERMISSION_LABELS[permission as keyof typeof PERMISSION_LABELS] || permission} will change from ${currentLabel} to ${nextLabel}. The change applies only to this account. This person’s Office access still applies.`,
+          description: `${selected.full_name}: ${PERMISSION_LABELS[permission as keyof typeof PERMISSION_LABELS] || permission} will change from ${currentLabel} to ${nextLabel}. The change applies only to this account. Project access still depends on project membership.`,
           actionLabel: "Change access",
         }))
       )
@@ -342,17 +324,11 @@ export function UserAccessTab({
               value={search}
               onChange={(event) => setSearch(event.target.value)}
               aria-label="Search account access"
-              placeholder="Search name, email, role or Office…"
+              maxLength={120}
+              placeholder="Search name, email, or role…"
               className="h-9 w-full rounded-xl border border-neutral-200 bg-neutral-50 pl-9 pr-3 text-[12px] outline-none focus:border-neutral-400"
             />
           </div>
-          <WSelect
-            ariaLabel="Filter users by office"
-            className="!w-full"
-            value={orgFilter}
-            onChange={setOrgFilter}
-            options={orgOptions}
-          />
         </div>
         <div className="max-h-[590px] overflow-y-auto p-2">
           {filteredUsers.map((profile) => (
@@ -380,7 +356,6 @@ export function UserAccessTab({
                 <span
                   className={`block truncate text-[12px] ${profile.id === activeUserId ? "text-neutral-300" : "text-neutral-400"}`}
                 >
-                  {orgMap[profile.org_id || ""] || "No Office"} ·{" "}
                   {resolveAccountRoleDisplay(profile.role, profile.custom_role_key, roleCatalog).label}
                 </span>
               </span>
@@ -442,7 +417,7 @@ export function UserAccessTab({
                   </h2>
                   <p className="mt-0.5 text-[13px] text-neutral-500">
                     {resolveAccountRoleDisplay(selected.role, selected.custom_role_key, roleCatalog).label} ·{" "}
-                    {orgMap[selected.org_id || ""] || "No Office assigned"}
+                    {selected.email}
                   </p>
                 </div>
               </div>

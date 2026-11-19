@@ -3,6 +3,7 @@ import { useState, type ReactNode } from "react";
 import { ArrowDown, ArrowUp, CalendarDays, CornerDownRight, Plus, Trash2 } from "lucide-react";
 import { EmptyState } from "../../../components/ui/EmptyState";
 import { MoneyInput } from "../../../components/ui/MoneyInput";
+import { INPUT_LIMITS } from "../../../shared/inputLimits";
 import type { BudgetSection } from "../types";
 import { addSectionChild, removeSectionTree, sectionTotal } from "../selectors/budgetSections";
 import { accountReleaseSchedule } from "../selectors/budgetReleaseSchedule";
@@ -85,6 +86,7 @@ export function BudgetSectionEditor({
                 <input
                   aria-label={`Account name ${s.id}`}
                   disabled={disabled}
+                  maxLength={INPUT_LIMITS.TITLE}
                   value={s.name}
                   placeholder={depth ? "Subaccount name" : "Your own account name"}
                   onChange={(e) => patch(s.id, { name: e.target.value })}
@@ -97,6 +99,7 @@ export function BudgetSectionEditor({
                   <input
                     aria-label={`Expense-account code (optional) ${s.id}`}
                     disabled={disabled}
+                    maxLength={INPUT_LIMITS.CODE}
                     value={s.accountCode || ""}
                     placeholder={disabled ? "—" : "5-02-03-010"}
                     onChange={(e) => patch(s.id, { accountCode: e.target.value })}
@@ -120,6 +123,7 @@ export function BudgetSectionEditor({
                     aria-label={`Budget amount ${s.name || s.id}`}
                     disabled={disabled}
                     min="0"
+                    max={INPUT_LIMITS.MONEY_MAX_BUDGET}
                     step="0.01"
                     value={s.amount || ""}
                     onValueChange={(raw) => patch(s.id, { amount: Number(raw) })}
@@ -161,6 +165,7 @@ export function BudgetSectionEditor({
                     aria-label={`Hold ${s.name || s.id}`}
                     disabled={disabled}
                     min="0"
+                    max={INPUT_LIMITS.MONEY_MAX_BUDGET}
                     step="0.01"
                     value={s.heldAmount || ""}
                     onValueChange={(raw) => patch(s.id, { heldAmount: Number(raw) })}

@@ -92,7 +92,7 @@ function MembersContent({ projectId, projectStatus, onOpenTask }: ProjectMembers
       <label className="project-members-search">
         <Search size={17} aria-hidden="true" />
         <span className="sr-only">Search project members</span>
-        <input type="search" placeholder="Search name, office or engagement" value={query} onChange={event => setQuery(event.target.value)} />
+        <input type="search" maxLength={120} placeholder="Search name, office or engagement" value={query} onChange={event => setQuery(event.target.value)} />
       </label>
     </header>
 

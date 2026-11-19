@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useRef } from "react";
+import { FieldLengthHint } from "../../../components/ui/FieldLengthHint";
+import { INPUT_LIMITS } from "../../../shared/inputLimits";
 import { FilePenLine, Layers, Plus } from "lucide-react";
 import { AssignmentModal } from "./AssignmentModal";
 import { DraftCockpit } from "./DraftCockpit";
@@ -106,6 +108,7 @@ export function ManualPlanBuilder({
             <input
               ref={planTitleInputRef}
               aria-label="Plan title"
+              maxLength={INPUT_LIMITS.TITLE}
               aria-describedby={planTitleFieldError ? "manual-plan-title-error" : undefined}
               aria-invalid={Boolean(planTitleFieldError)}
               data-testid="manual-plan-title"
@@ -135,6 +138,7 @@ export function ManualPlanBuilder({
             <textarea
               ref={planDescriptionInputRef}
               aria-label="Plan description"
+              maxLength={INPUT_LIMITS.PROJECT_DESCRIPTION}
               aria-describedby={planDescriptionError ? "manual-plan-description-error" : undefined}
               aria-invalid={Boolean(planDescriptionError)}
               data-testid="manual-plan-description"

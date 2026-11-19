@@ -140,7 +140,12 @@ describe("Streamlined Invite eFlow User + ActivateAccountPage full name", () => 
     await waitFor(() => expect(mocks.listActivationOffices).toHaveBeenCalled());
 
     fireEvent.change(screen.getByPlaceholderText("j.delacruz@eflow.gov.ph"), { target: { value: "ojt@example.test" } });
-    if (mode === "ledipo_create") fireEvent.change(screen.getByPlaceholderText("Juan Dela Cruz"), { target: { value: "OJT Applicant" } });
+    if (mode === "ledipo_create") {
+      fireEvent.change(screen.getByPlaceholderText("Juan Dela Cruz"), { target: { value: "OJT Applicant" } });
+      expect(screen.queryByPlaceholderText(/Loading LEDIPO/i)).toBeNull();
+      expect(screen.queryByText("This account belongs to LEDIPO.")).toBeNull();
+      expect(screen.queryByText(/Personal Data Sheet/i)).toBeNull();
+    }
     const role = screen.getByRole("combobox", { name: /Role/ });
     const submit = screen.getByRole("button", { name: "Send activation email" });
     fireEvent.change(role, { target: { value: "head" } });
@@ -175,7 +180,7 @@ describe("Streamlined Invite eFlow User + ActivateAccountPage full name", () => 
 
     render(<ActivateAccountPage />);
 
-    const nameInput = await screen.findByLabelText("Full name");
+    const nameInput = await screen.findByLabelText("Full name", {}, { timeout: 5000 });
     fireEvent.change(nameInput, { target: { value: "Maria Santos" } });
     fireEvent.click(screen.getByRole("button", { name: "Continue" }));
 

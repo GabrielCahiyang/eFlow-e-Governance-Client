@@ -1,4 +1,6 @@
 import { EmptyState } from '../../../components/ui/EmptyState';
+import { FieldLengthHint } from '../../../components/ui/FieldLengthHint';
+import { INPUT_LIMITS } from '../../../shared/inputLimits';
 import { useMemo, useRef, useState } from "react";
 import { AttentionBox, Button, Label } from "@vibe/core";
 import { AnimatePresence } from "motion/react";
@@ -394,9 +396,13 @@ export function AccountingSettlementQueue({
                       className="mt-4 border-t border-border pt-4"
                     >
                       <label className="block text-xs font-medium text-muted-foreground">
-                        Required correction
+                        <span className="flex items-center justify-between gap-2">
+                          <span>Required correction</span>
+                          <FieldLengthHint length={reason.length} max={INPUT_LIMITS.REASON} />
+                        </span>
                         <textarea
                           aria-label="Required liquidation correction"
+                          maxLength={INPUT_LIMITS.REASON}
                           value={reason}
                           onChange={(event) => setReason(event.target.value)}
                           rows={2}

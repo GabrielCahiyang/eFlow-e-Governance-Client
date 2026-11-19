@@ -1,5 +1,6 @@
 import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import { DateInput } from "../../../components/ui/DateInput";
+import { INPUT_LIMITS } from "../../../shared/inputLimits";
 import {
   TaskDepartmentLabel,
   deadlineInputParts,
@@ -99,7 +100,7 @@ export function DraftTaskRow({
         {dt.subtasks !== undefined && <details className="my-2 rounded border px-3 py-2">
           <summary className="cursor-pointer text-sm">Subtasks ({dt.subtasks.filter(item => item.trim()).length})</summary>
           <label className="mt-2 grid gap-1 text-sm">Subtasks to add (one per line)
-            <textarea className="rounded border p-2" rows={3} value={dt.subtasks.join('\n')}
+            <textarea className="rounded border p-2" rows={3} maxLength={INPUT_LIMITS.DESCRIPTION} value={dt.subtasks.join('\n')}
               onChange={event => onUpdate(dt.key, { subtasks: event.target.value.split('\n') })}/>
           </label>
         </details>}
@@ -108,6 +109,7 @@ export function DraftTaskRow({
             <div>
               <input
                 aria-label="Task title"
+                maxLength={INPUT_LIMITS.TASK_TITLE}
                 aria-describedby={
                   titleError ? `manual-task-${dt.key}-title-error` : undefined
                 }
@@ -135,6 +137,7 @@ export function DraftTaskRow({
             <div>
               <textarea
                 aria-label="Task description"
+                maxLength={INPUT_LIMITS.DESCRIPTION}
                 aria-describedby={
                   descriptionError
                     ? `manual-task-${dt.key}-description-error`

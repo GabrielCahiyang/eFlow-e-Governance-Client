@@ -168,6 +168,7 @@ export function BudgetReleasesPanel({
               <input
                 type="search"
                 aria-label="Search releases"
+                maxLength={120}
                 placeholder="Search request code, voucher, task, or recipient…"
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}

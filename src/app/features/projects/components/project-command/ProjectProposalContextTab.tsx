@@ -12,6 +12,8 @@ import {
 import type { Organization, UserProfile } from "../../../../types";
 import { useAuth } from "../../../../contexts/AuthContext";
 import { useToast } from "../../../../components/ui/Toast";
+import { FieldLengthHint } from "../../../../components/ui/FieldLengthHint";
+import { INPUT_LIMITS } from "../../../../shared/inputLimits";
 import { useCollaborationDraft } from "../../../interdepartment-collaboration/hooks/useCollaborationDraft";
 import {
   fetchMyCollaborationMemberships,
@@ -462,11 +464,15 @@ export function ProjectProposalContextTab({
               {changeFormOpen ? (
                 <div className="space-y-3 pt-2">
                   <textarea
+                    maxLength={INPUT_LIMITS.REASON}
                     value={changeReason}
                     onChange={(e) => setChangeReason(e.target.value)}
                     placeholder="Describe specific changes or clarifications required before signing off…"
                     className="h-24 w-full rounded-xl border border-neutral-300 p-3 text-xs focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/20"
                   />
+                  <div className="flex justify-end">
+                    <FieldLengthHint length={changeReason.length} max={INPUT_LIMITS.REASON} />
+                  </div>
                   <div className="flex items-center gap-2">
                     <button
                       type="button"

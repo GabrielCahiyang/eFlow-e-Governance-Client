@@ -4,10 +4,12 @@ import type { useDepartmentBudget } from '../hooks/useDepartmentBudget';
 import { getScheduledReleaseSummary } from '../selectors/cashWorkflowRules';
 import { peso } from './budgetUi';
 import {AccountingAnalytics} from './AccountingAnalytics';
+import { ProjectFundingCertificationQueue } from './ProjectFundingCertificationQueue';
 
 /** Summary only. The canonical Settlements destination owns decisions and drafts. */
-export function AccountingOverview({ budget, journalCount, onSettlements,onReleases,onBudgets }: {
+export function AccountingOverview({ budget, orgId, journalCount, onSettlements,onReleases,onBudgets }: {
   budget: ReturnType<typeof useDepartmentBudget>;
+  orgId?: string;
   journalCount?: number;
   onSettlements?: () => void;
   onReleases?:()=>void;
@@ -35,6 +37,7 @@ export function AccountingOverview({ budget, journalCount, onSettlements,onRelea
       <div><h2>Settlement records</h2><p>{unavailable ? 'The settlement count is unavailable.' : `${settlements} pending receipt package${settlements === 1 ? '' : 's'} ready for review.`}</p></div>
       {onSettlements && <Button variant="outline" onClick={onSettlements}>View settlements</Button>}
     </section>
+    {orgId && <ProjectFundingCertificationQueue orgId={orgId} onChanged={budget.refresh} />}
     <AccountingAnalytics budget={budget} onReleases={onReleases} onSettlements={onSettlements} onBudgets={onBudgets}/>
     <details className="eflow-accounting-help"><summary>Accounting authority and posting</summary>
       <p>Accounting Staff can record releases, review settlement evidence, post balanced corrections and read Office ledgers. The eligible Office Head approves funding. The assigned Lead endorses requests and receipts, and late receipt submissions may need Head authorization. These are separate steps. Each action must follow Office access and independent-review rules.</p>

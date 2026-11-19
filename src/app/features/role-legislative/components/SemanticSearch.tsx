@@ -69,6 +69,7 @@ export function SemanticSearch() {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Ask a question about city ordinances…"
+                maxLength={240}
                 className="flex-1 bg-transparent outline-none text-[13px] font-normal text-neutral-800 placeholder:text-neutral-400"
               />
             </div>

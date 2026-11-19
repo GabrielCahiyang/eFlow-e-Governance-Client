@@ -291,6 +291,7 @@ export function DeliveryAnalytics({
             Search
             <input
               type="search"
+              maxLength={120}
               placeholder="Task, project or lead"
               value={filters.query}
               onChange={(e) => update({ query: e.target.value })}

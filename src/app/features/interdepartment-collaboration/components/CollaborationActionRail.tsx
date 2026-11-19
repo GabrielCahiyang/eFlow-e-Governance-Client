@@ -2,6 +2,7 @@ import { readableUiError } from '../../../shared/userFacingError';
 import { useState } from "react";
 import { CheckCircle2, Send, Trash2 } from "lucide-react";
 import { useConfirmation } from "../../../components/ui/useConfirmation";
+import { INPUT_LIMITS } from "../../../shared/inputLimits";
 import { canRequestCollaborationApproval } from "../selectors/reviewActions";
 import type { CollaborationDraftStatus, CollaborationReadiness as Readiness } from "../types";
 
@@ -40,6 +41,6 @@ export function CollaborationActionRail({ isOwner, status, readiness, busy, hasR
     {!departmentOnly && !isOwner && readiness?.ready && unpublished && <p className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-xs">Approved and ready to publish. Waiting for {ownerName || "the lead office"} to publish the work plan.</p>}
     {unpublished && <p className="rounded-xl border border-blue-100 bg-blue-50 p-3 text-xs text-blue-800"><strong>Draft assignments are proposed.</strong><br />Projects and tasks become active when the lead office publishes the approved plan.</p>}
     {isOwner && unpublished && (!deleting ? <button type="button" disabled={locked} onClick={() => setDeleting(true)} className="flex w-full items-center justify-center gap-2 rounded-xl border border-red-200 p-3 text-xs font-semibold text-red-700"><Trash2 size={14} />Delete draft</button> :
-      <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-3"><strong className="text-xs">Delete this draft?</strong><p className="mt-1 text-xs">The draft will be removed from active workspaces. Its approval history will be retained. Enter a reason.</p><textarea aria-label="Reason for deletion" value={reason} onChange={(event) => setReason(event.target.value)} rows={2} className="mt-2 w-full rounded-lg border p-2 text-xs" /><div className="mt-2 flex justify-end gap-2"><button type="button" disabled={locked} onClick={() => { setDeleting(false); setReason(""); }}>Cancel</button><button type="button" disabled={locked || !reason.trim()} onClick={() => void run(() => onDelete(reason))} className="rounded-lg bg-red-600 px-3 py-2 text-xs text-white disabled:opacity-50">Delete draft</button></div></div>)}
+      <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-3"><strong className="text-xs">Delete this draft?</strong><p className="mt-1 text-xs">The draft will be removed from active workspaces. Its approval history will be retained. Enter a reason.</p><textarea aria-label="Reason for deletion" maxLength={INPUT_LIMITS.REASON} value={reason} onChange={(event) => setReason(event.target.value)} rows={2} className="mt-2 w-full rounded-lg border p-2 text-xs" /><div className="mt-2 flex justify-end gap-2"><button type="button" disabled={locked} onClick={() => { setDeleting(false); setReason(""); }}>Cancel</button><button type="button" disabled={locked || !reason.trim()} onClick={() => void run(() => onDelete(reason))} className="rounded-lg bg-red-600 px-3 py-2 text-xs text-white disabled:opacity-50">Delete draft</button></div></div>)}
   </div>;
 }

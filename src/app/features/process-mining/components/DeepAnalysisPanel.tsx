@@ -1089,6 +1089,7 @@ function EventTraceTable({
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Filter by project, task, person, or action…"
+            maxLength={120}
             aria-label="Filter activity timeline"
             className="h-9 w-full rounded-lg border border-border bg-card pl-8 pr-3 text-[12.5px] text-foreground"
           />
@@ -1253,6 +1254,7 @@ function StageActionsModal({
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder="Search person, project, task, or note…"
+                maxLength={120}
                 aria-label="Search stage actions"
                 className="h-9 w-full rounded-lg border border-border bg-card pl-8 pr-3 text-[12.5px] text-foreground"
               />

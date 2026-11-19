@@ -100,6 +100,7 @@ export function AssignmentModal({
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by name, role, or office…"
+              maxLength={120}
               className="h-[38px] flex-1 border-0 bg-transparent px-2 text-[12px] shadow-none focus:outline-none focus:ring-0 focus:ring-offset-0 focus-visible:!border-0 focus-visible:!outline-none focus-visible:!ring-0 focus-visible:!ring-offset-0"
             />
             {search && (

@@ -1,6 +1,7 @@
 import { readableUiError } from '../../../../shared/userFacingError';
 import { WorkspaceTooltip } from "../../../../components/ui/workspace/WorkspaceTooltip";
 import { useExplicitDraft } from "../../../../shared/useExplicitDraft";
+import { INPUT_LIMITS, blockInvalidNumberKey, maxDigitsForNumber } from "../../../../shared/inputLimits";
 import * as React from "react";
 import {governanceConfigurationError} from '../../validation/governanceValidation';
 import { Plus, Save, Trash2, Users } from "lucide-react";
@@ -247,23 +248,29 @@ export function GovernanceRosterPanel({
                       <input
                         type="number"
                         min={1}
+                        max={INPUT_LIMITS.QUORUM_MAX}
+                        step={1}
                         value={participant.quorumCount || 1}
-                        onChange={(event) =>
+                        onKeyDown={(event) => blockInvalidNumberKey(event)}
+                        onChange={(event) => {
+                          const raw = event.target.value;
+                          const intDigits = raw.replace(/^-/, "").split(".")[0].replace(/^0+(?=\d)/, "");
+                          if (intDigits.length > maxDigitsForNumber(INPUT_LIMITS.QUORUM_MAX)) return;
                           setOrgs((current) =>
                             current.map((item) =>
                               item.orgId === participant.orgId
                                 ? {
                                     ...item,
-                                    quorumCount: Math.max(
-                                      1,
-                                      Number(event.target.value),
+                                    quorumCount: Math.min(
+                                      INPUT_LIMITS.QUORUM_MAX,
+                                      Math.max(1, Number(raw) || 1),
                                     ),
                                   }
                                 : item,
                             ),
-                          )
-                        }
-                        className="h-8 w-16 rounded-lg border border-neutral-200 bg-white px-2 text-[9px]"
+                          );
+                        }}
+                        className="h-8 w-16 rounded-lg border border-neutral-200 bg-white px-2 text-[9px] tabular-nums"
                         title="Required signatures"
                       />
                     )}
@@ -272,23 +279,29 @@ export function GovernanceRosterPanel({
                       <input
                         type="number"
                         min={1}
+                        max={INPUT_LIMITS.SEQUENCE_MAX}
+                        step={1}
                         value={participant.sequence || 1}
-                        onChange={(event) =>
+                        onKeyDown={(event) => blockInvalidNumberKey(event)}
+                        onChange={(event) => {
+                          const raw = event.target.value;
+                          const intDigits = raw.replace(/^-/, "").split(".")[0].replace(/^0+(?=\d)/, "");
+                          if (intDigits.length > maxDigitsForNumber(INPUT_LIMITS.SEQUENCE_MAX)) return;
                           setOrgs((current) =>
                             current.map((item) =>
                               item.orgId === participant.orgId
                                 ? {
                                     ...item,
-                                    sequence: Math.max(
-                                      1,
-                                      Number(event.target.value),
+                                    sequence: Math.min(
+                                      INPUT_LIMITS.SEQUENCE_MAX,
+                                      Math.max(1, Number(raw) || 1),
                                     ),
                                   }
                                 : item,
                             ),
-                          )
-                        }
-                        className="h-8 w-14 rounded-lg border border-neutral-200 bg-white px-2"
+                          );
+                        }}
+                        className="h-8 w-14 rounded-lg border border-neutral-200 bg-white px-2 tabular-nums"
                       />
                     </label>
                     <label className="flex items-center gap-1 text-[9px] text-neutral-500">
@@ -296,23 +309,29 @@ export function GovernanceRosterPanel({
                       <input
                         type="number"
                         min={1}
-                        max={90}
+                        max={INPUT_LIMITS.DAYS_REVIEW_MAX}
                         step={1}
                         aria-label="Review deadline in days"
                         aria-invalid={!!governanceConfigurationError([participant])}
                         value={participant.reviewDeadlineDays || 5}
-                        onChange={(event) =>
+                        onKeyDown={(event) => blockInvalidNumberKey(event)}
+                        onChange={(event) => {
+                          const raw = event.target.value;
+                          if (raw !== "") {
+                            const intDigits = raw.replace(/^-/, "").split(".")[0].replace(/^0+(?=\d)/, "");
+                            if (intDigits.length > maxDigitsForNumber(INPUT_LIMITS.DAYS_REVIEW_MAX)) return;
+                          }
                           setOrgs((current) =>
                             current.map((item) =>
                               item.orgId === participant.orgId
                                 ? {
                                     ...item,
-                                    reviewDeadlineDays: event.target.value===''?NaN:Number(event.target.value),
+                                    reviewDeadlineDays: raw === "" ? NaN : Number(raw),
                                   }
                                 : item,
                             ),
-                          )
-                        }
+                          );
+                        }}
                         className="h-8 w-14 rounded-lg border border-neutral-200 bg-white px-2"
                       />
                       days

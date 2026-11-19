@@ -80,7 +80,7 @@ class AcceptRequest(TokenRequest):
 class InviteRow(BaseModel):
     model_config = ConfigDict(extra='forbid')
     email: str = Field(min_length=3, max_length=254)
-    account_role: str
+    account_role: str = Field(min_length=1, max_length=64)
     skills: list[str] | None = Field(default=None, max_length=100)
 
     @field_validator('skills')

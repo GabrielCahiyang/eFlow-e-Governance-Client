@@ -3,6 +3,8 @@ import { AttentionBox, Button } from "@vibe/core";
 import * as m from "motion/react-m";
 import { AlertTriangle, CheckCircle2, Copy } from "lucide-react";
 import { BxsBox } from "../../../components/ui/boxicons";
+import { FieldLengthHint } from "../../../components/ui/FieldLengthHint";
+import { INPUT_LIMITS } from "../../../shared/inputLimits";
 import {
   Dialog,
   DialogContent,
@@ -296,6 +298,7 @@ export function DisbursementVoucherDialog({
                   Cheque number
                   <input
                     aria-label="Cheque number"
+                    maxLength={INPUT_LIMITS.CODE}
                     value={chequeNumber}
                     onChange={(event) => setChequeNumber(event.target.value)}
                     disabled={busy}
@@ -350,8 +353,11 @@ export function DisbursementVoucherDialog({
                   className="mt-4 border-t border-amber-200 pt-3"
                 >
                   <label className="block text-[10.5px] font-medium text-amber-950">
-                    <span className="flex items-center gap-1">
-                      <AlertTriangle size={12} /> Override reason
+                    <span className="flex items-center justify-between gap-2">
+                      <span className="flex items-center gap-1">
+                        <AlertTriangle size={12} /> Override reason
+                      </span>
+                      <FieldLengthHint length={overrideReason.length} max={INPUT_LIMITS.REASON} />
                     </span>
                     <textarea
                       aria-label="Schedule override reason"
@@ -361,7 +367,7 @@ export function DisbursementVoucherDialog({
                       }
                       disabled={busy}
                       rows={3}
-                      maxLength={1000}
+                      maxLength={INPUT_LIMITS.REASON}
                       placeholder="Explain why the cash must be handed over before its scheduled date…"
                       className="mt-1.5 w-full resize-none rounded-lg border border-amber-300 bg-white p-2.5 text-[11px] text-neutral-800 outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-200"
                     />

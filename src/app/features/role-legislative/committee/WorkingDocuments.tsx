@@ -144,6 +144,7 @@ export function WorkingDocuments() {
 
           <div className="p-5">
             <textarea
+              maxLength={50000}
               value={text}
               onChange={(e) => setText(e.target.value)}
               className="w-full min-h-[560px] bg-transparent text-[13px] font-normal text-neutral-700 leading-relaxed outline-none resize-none"

@@ -99,12 +99,12 @@ async def delete_managed_user(
 
 
 class UpdateMessagePayload(BaseModel):
-    messageId: str
-    newContent: str = Field(min_length=1)
+    messageId: str = Field(min_length=1, max_length=128)
+    newContent: str = Field(min_length=1, max_length=4000)
 
 
 class DeleteMessagePayload(BaseModel):
-    messageId: str
+    messageId: str = Field(min_length=1, max_length=128)
 
 
 def _require_message_moderator(message_id: str, user: AuthenticatedUser) -> None:

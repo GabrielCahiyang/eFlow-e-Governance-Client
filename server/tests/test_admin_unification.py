@@ -19,8 +19,14 @@ with patch.dict(sys.modules, {"gateway_config": config}):
         admin = importlib.import_module("routers.admin")
 
 
-def user(role="admin", uid="caller", org_id=None):
-    return dependencies.AuthenticatedUser(id=uid, email="test@example.test", role=role, org_id=org_id)
+def user(role="admin", uid="caller", org_id=None, custom_role_key=None):
+    return dependencies.AuthenticatedUser(
+        id=uid,
+        email="test@example.test",
+        role=role,
+        org_id=org_id,
+        custom_role_key=custom_role_key,
+    )
 
 
 class AdminGatewayTests(unittest.IsolatedAsyncioTestCase):
@@ -127,6 +133,57 @@ class AdminGatewayTests(unittest.IsolatedAsyncioTestCase):
             with self.assertRaises(HTTPException) as raised:
                 dependencies.require_user(HTTPAuthorizationCredentials(scheme="Bearer", credentials="mock-session"))
             self.assertEqual(raised.exception.status_code, 403)
+
+    def test_custom_role_and_permission_dependencies_resolve_on_backend(self):
+        custom_roles = [
+            {"key": "bagong_role", "base_role": "member"},
+            {"key": "broken_role", "base_role": "member"},
+        ]
+        role_perms = [
+            {"role": "bagong_role", "permission": "navigation.projects", "allowed": True},
+            {"role": "bagong_role", "permission": "projects.create", "allowed": True},
+            {"role": "broken_role", "permission": "navigation.projects", "allowed": False},
+            {"role": "broken_role", "permission": "projects.create", "allowed": True},
+        ]
+        overrides = []
+
+        def fake_table(name):
+            tbl = MagicMock()
+
+            def make_chain(cur_filters):
+                chain = MagicMock()
+                chain.eq.side_effect = lambda col, val: make_chain({**cur_filters, col: val})
+
+                def limit_fn(_n):
+                    res = MagicMock()
+                    source = {
+                        "custom_roles": custom_roles,
+                        "role_permissions": role_perms,
+                        "user_permission_overrides": overrides,
+                    }.get(name, [])
+                    data = [r for r in source if all(r.get(k) == v for k, v in cur_filters.items())]
+                    res.execute.return_value = SimpleNamespace(data=data[:1])
+                    return res
+
+                chain.limit.side_effect = limit_fn
+                return chain
+
+            tbl.select.side_effect = lambda _cols: make_chain({})
+            return tbl
+
+        self.client.table.side_effect = fake_table
+
+        delegated = user("member", uid="u-bagong", org_id="org-1", custom_role_key="bagong_role")
+        self.assertTrue(dependencies._permission_allowed(delegated, "projects.create"))
+        self.assertTrue(dependencies._permission_allowed(delegated, "navigation.tasks"))
+        self.assertFalse(dependencies._permission_allowed(delegated, "users.manage"))
+        self.assertFalse(dependencies._permission_allowed(delegated, "database.backup"))
+
+        broken = user("member", uid="u-broken", org_id="org-1", custom_role_key="broken_role")
+        self.assertFalse(dependencies._permission_allowed(broken, "projects.create"))
+
+        overrides.append({"user_id": "u-bagong", "permission": "navigation.projects", "allowed": False})
+        self.assertFalse(dependencies._permission_allowed(delegated, "projects.create"))
 
 
 if __name__ == "__main__":

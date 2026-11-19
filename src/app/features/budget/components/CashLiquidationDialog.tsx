@@ -1,5 +1,7 @@
 import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import { MoneyInput } from "../../../components/ui/MoneyInput";
+import { FieldLengthHint } from "../../../components/ui/FieldLengthHint";
+import { INPUT_LIMITS } from "../../../shared/inputLimits";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AttentionBox, Button } from "@vibe/core";
 import { AlertCircle, CheckCircle2, FileText, Plus, RefreshCw, Trash2, Upload, X } from "lucide-react";
@@ -515,6 +517,7 @@ export function CashLiquidationDialog({
                       label="Vendor / payee"
                       required
                       disabled={!editable}
+                      maxLength={INPUT_LIMITS.TITLE}
                       value={receipt.vendor}
                       placeholder="e.g. Mercury Drug, National Book Store"
                       error={vendorErr}
@@ -528,6 +531,7 @@ export function CashLiquidationDialog({
                     <Field
                       label="OR/AR number (optional)"
                       disabled={!editable}
+                      maxLength={INPUT_LIMITS.CODE}
                       value={receipt.receiptNumber}
                       placeholder="e.g. OR-00142"
                       onChange={(value) => update(receipt.id, { receiptNumber: value })}
@@ -587,6 +591,7 @@ export function CashLiquidationDialog({
                       <Input
                         aria-invalid={Boolean(descErr)}
                         disabled={!editable}
+                        maxLength={INPUT_LIMITS.TITLE}
                         value={receipt.description}
                         placeholder={
                           itemized
@@ -719,6 +724,7 @@ export function CashLiquidationDialog({
                 label="Official refund receipt number"
                 required
                 disabled={!editable}
+                maxLength={INPUT_LIMITS.CODE}
                 value={refundReceiptNumber}
                 placeholder="e.g. OR-REF-2026-01"
                 error={showFieldError("refundNumber") ? validation.refundReceiptNumberError : ""}
@@ -751,12 +757,16 @@ export function CashLiquidationDialog({
 
           {/* Liquidation note */}
           <label className="block">
-            <span className="text-[11.5px] font-medium text-foreground after:ml-0.5 after:text-destructive after:content-['*']">
-              Liquidation note
-            </span>
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[11.5px] font-medium text-foreground after:ml-0.5 after:text-destructive after:content-['*']">
+                Liquidation note
+              </span>
+              <FieldLengthHint length={note.length} max={INPUT_LIMITS.REASON} />
+            </div>
             <Textarea
               aria-invalid={Boolean(showFieldError("note") && validation.noteError)}
               disabled={!editable}
+              maxLength={INPUT_LIMITS.REASON}
               value={note}
               onBlur={() => markTouched("note")}
               onChange={(event) => {
@@ -877,6 +887,7 @@ function Field({
   onBlur,
   type = "text",
   max,
+  maxLength,
   placeholder,
   required = false,
   error = "",
@@ -889,6 +900,7 @@ function Field({
   onBlur?: () => void;
   type?: string;
   max?: string;
+  maxLength?: number;
   placeholder?: string;
   required?: boolean;
   error?: string;
@@ -907,6 +919,7 @@ function Field({
       {type === "number" ? (
         <MoneyInput
           min={0}
+          max={INPUT_LIMITS.MONEY_MAX_LINE}
           aria-invalid={Boolean(error)}
           disabled={disabled}
           value={value}
@@ -918,6 +931,7 @@ function Field({
         <Input
           type={type}
           max={max}
+          maxLength={type === "date" ? maxLength : (maxLength ?? INPUT_LIMITS.TITLE)}
           placeholder={placeholder}
           aria-invalid={Boolean(error)}
           disabled={disabled}

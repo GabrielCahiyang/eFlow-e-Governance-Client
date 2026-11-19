@@ -1,8 +1,22 @@
 /** Canonical editing strings never contain grouping characters or currency symbols. */
-export function parseMoneyInput(text: string): string | null {
+export function moneyMaxIntegerDigits(max = 90_000_000_000): number {
+  if (!Number.isFinite(max) || max <= 0) return 11;
+  return Math.min(13, Math.max(1, String(Math.floor(max)).length));
+}
+
+export function moneyMaxFormattedLength(max = 90_000_000_000): number {
+  const intDigits = moneyMaxIntegerDigits(max);
+  const commas = Math.floor((intDigits - 1) / 3);
+  return intDigits + commas + 3; // includes ".00"
+}
+
+export function parseMoneyInput(text: string, maxIntegerDigits = 13): string | null {
   const raw = text.trim().replace(/^₱\s*/, '').replace(/,/g, '');
   if (!/^\d*(?:\.\d{0,2})?$/.test(raw)) return null;
-  return (raw.startsWith('.') ? `0${raw}` : raw).replace(/^0+(?=\d)/, '');
+  const normalized = (raw.startsWith('.') ? `0${raw}` : raw).replace(/^0+(?=\d)/, '');
+  const intPart = normalized.split('.')[0] || '';
+  if (intPart.length > maxIntegerDigits) return null;
+  return normalized;
 }
 export function formatMoneyInput(raw: string) {
   const [integer, fraction] = raw.split('.');

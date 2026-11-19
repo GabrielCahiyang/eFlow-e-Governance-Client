@@ -1,5 +1,6 @@
 // ─── Reusable Form Components ────────────────────────────────────
 import React from "react";
+import { defaultMaxLengthForInputType } from "../../shared/inputLimits";
 import { DateInput } from "./DateInput";
 
 interface FormFieldProps {
@@ -39,22 +40,25 @@ interface TextInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   hasError?: boolean;
 }
 
-export function TextInput({ hasError, className = "", type, value, ...props }: TextInputProps) {
+export function TextInput({ hasError, className = "", type, value, maxLength, ...props }: TextInputProps) {
   if (type === "date") {
     return (
       <DateInput
         hasError={hasError}
         className={className}
         value={typeof value === "string" ? value : ""}
+        maxLength={maxLength}
         {...props}
       />
     );
   }
   const invalid = hasError || props["aria-invalid"] === true || props["aria-invalid"] === "true";
+  const effectiveMaxLength = maxLength ?? defaultMaxLengthForInputType(type);
   return (
     <input
       type={type}
       value={value}
+      maxLength={effectiveMaxLength}
       className={`eflow-form-input h-10 w-full rounded-lg border bg-input-background px-3 text-[13px] font-normal text-foreground placeholder:text-muted-foreground outline-none transition-all ${
         invalid
           ? "border-destructive focus:border-destructive focus:ring-2 focus:ring-destructive/10"

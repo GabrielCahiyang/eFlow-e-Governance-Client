@@ -103,7 +103,10 @@ function OfficeBudgetRoute({ fiscalYear: suppliedYear, embedded = false, dataOwn
     return () => { window.removeEventListener("popstate", onPopState); window.removeEventListener(NAVIGATION_LOCATION_EVENT, onPopState); };
   }, [embedded]);
   useNotificationNavigationIntent(
-    intent => !embedded && intent.financialRecordType === 'office_petty_cash_staffing',
+    intent =>
+      !embedded &&
+      (intent.financialRecordType === 'office_petty_cash_staffing' ||
+        intent.financialRecordType === 'office_petty_cash'),
     intent => {
       if (!intent.financialRecordId) return 'unavailable';
       setFocusRequestId(intent.financialRecordId);

@@ -15,7 +15,7 @@ from dotenv import dotenv_values
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--phase', choices=('5','6','7','office-budget','account-lockout','unused-budget-log'), default='5')
+parser.add_argument('--phase', choices=('5','6','7','office-budget','account-lockout','unused-budget-log','rbac-governance','input-bounds'), default='5')
 parser.add_argument('--timeout', type=int, default=180)
 args = parser.parse_args()
 

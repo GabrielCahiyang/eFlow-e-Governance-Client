@@ -213,9 +213,9 @@ export function EditUserModal({
           resolvedRole.role !== initialBaseRole ||
           form.orgId !== (editUser.org_id || "")) &&
         !(await confirmation.confirm({
-          title: "Change account assignment?",
-          description: `${editUser.full_name}: ${currentRoleDisplay?.label || getRoleLabel(editUser.role)} → ${resolvedRole.label}. Office: ${organizations.find((org) => org.id === editUser.org_id)?.name || "Unassigned"} → ${organizations.find((org) => org.id === form.orgId)?.name || "Unassigned"}. This changes inherited access and any appointed leadership. Server protection still applies.`,
-          actionLabel: "Save assignment",
+          title: "Change account role?",
+          description: `${editUser.full_name}: ${currentRoleDisplay?.label || getRoleLabel(editUser.role)} → ${resolvedRole.label}. This changes inherited access and any appointed leadership. Server protection still applies.`,
+          actionLabel: "Save role",
         }))
       )
         return;
@@ -305,11 +305,12 @@ export function EditUserModal({
           <div className="space-y-4">
             <FormField label="Full Name" required>
               <TextInput
+                maxLength={160}
                 value={form.fullName}
                 onChange={(e) => setForm({ ...form, fullName: e.target.value })}
               />
             </FormField>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div>
               <FormField label="Role" error={leadershipConflict || undefined}>
                 <SelectInput
                   value={form.role}
@@ -325,9 +326,6 @@ export function EditUserModal({
                   }
                 />
               </FormField>
-              <FormField label="Office" description="External Office access is managed through project invitations.">
-                <TextInput value={organizations.find(office => office.id === form.orgId)?.name || 'Unassigned'} readOnly/>
-              </FormField>
             </div>
             {lastAdmin ? (
               <p className="rounded-lg border border-amber-100 bg-amber-50 px-3 py-2 text-[10.5px] text-amber-800">
@@ -337,8 +335,8 @@ export function EditUserModal({
             ) : null}
             {leadershipLocked ? (
               <p className="rounded-lg border border-blue-100 bg-blue-50 px-3 py-2 text-[10.5px] text-blue-800">
-                You can edit this leader’s name and skills. Leadership role,
-                organization, and account status are managed by the Admin.
+                You can edit this leader’s name and skills. Leadership role and
+                account status are managed by the Admin.
               </p>
             ) : null}
             <div className="rounded-lg border border-border bg-muted/30 p-3 flex flex-wrap items-center justify-between gap-3">

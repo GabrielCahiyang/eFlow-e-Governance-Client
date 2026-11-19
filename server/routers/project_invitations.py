@@ -9,7 +9,7 @@ router = APIRouter(prefix='/controlpanelEflow/api/project-invitations', tags=['p
 
 class DispatchRequest(BaseModel):
     model_config = ConfigDict(extra='forbid')
-    revision: int = Field(ge=1)
+    revision: int = Field(ge=1, le=100000)
     resend: bool = False
 
 @router.post('/validate', dependencies=[Depends(public_limit)])

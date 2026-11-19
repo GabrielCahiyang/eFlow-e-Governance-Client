@@ -92,6 +92,7 @@ export function BudgetLegislation() {
           </div>
           <div className="p-5">
             <textarea
+              maxLength={50000}
               value={editorText}
               onChange={(e) => setEditorText(e.target.value)}
               className={`w-full min-h-[520px] bg-transparent text-[13px] font-normal text-neutral-700 leading-relaxed outline-none resize-none ${

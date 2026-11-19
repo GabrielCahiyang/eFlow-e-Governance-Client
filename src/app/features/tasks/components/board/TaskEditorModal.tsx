@@ -1,6 +1,8 @@
 import { readableUiError } from '../../../../shared/userFacingError';
 import { Trash2, Users, X } from "lucide-react";
 import { Button } from "../../../../components/ui/button";
+import { FieldLengthHint } from "../../../../components/ui/FieldLengthHint";
+import { INPUT_LIMITS } from "../../../../shared/inputLimits";
 import type { Employee } from "../../../../services/employeeService";
 import type { Task } from "../../../../services/taskService";
 import { TaskEditorSubtasks,TaskEditorWorkOwner,TaskEditorRootPeople,TaskEditorSaveButton,type LegacyEditorStaffingScope } from "./TaskEditorSubtasks";
@@ -116,6 +118,7 @@ export function TaskEditorModal({
             </label>
             <input
               aria-label="Task title"
+              maxLength={INPUT_LIMITS.TASK_TITLE}
               value={draft.title}
               disabled={!titlePriorityWritable}
               onChange={(e) => onChange({ title: e.target.value })}
@@ -123,12 +126,16 @@ export function TaskEditorModal({
             />
           </div>
           <div className="md:col-span-2">
-            <label className="text-[10px] uppercase tracking-[0.12em] text-neutral-400">
-              Description
-            </label>
+            <div className="flex items-center justify-between gap-2">
+              <label className="text-[10px] uppercase tracking-[0.12em] text-neutral-400">
+                Description
+              </label>
+              <FieldLengthHint length={draft.description.length} max={INPUT_LIMITS.DESCRIPTION} />
+            </div>
             <textarea
               rows={3}
               aria-label="Task description"
+              maxLength={INPUT_LIMITS.DESCRIPTION}
               value={draft.description}
               disabled={!planningWritable}
               onChange={(e) => onChange({ description: e.target.value })}
@@ -140,13 +147,14 @@ export function TaskEditorModal({
               Due Date / Schedule
             </label>
             <input
+              maxLength={INPUT_LIMITS.SHORT_TAG}
               value={draft.deadline}
               disabled={!dueWritable}
               onChange={(e) => onChange({ deadline: e.target.value })}
               placeholder="e.g. 2026-07-15 or Month 1"
               className="mt-1 h-[40px] w-full rounded-xl border border-neutral-200 bg-white px-3 text-[13px] text-neutral-900 outline-none focus:border-neutral-400"
             />
-            {editState?.started && dueWritable && draft.deadline !== buildTaskEditorDraft(task).deadline && <label className="mt-2 block text-xs text-neutral-600">Reason for due-date change<input aria-label="Due-date change reason" value={changeReason} onChange={(event) => setChangeReason(event.target.value)} maxLength={1000} required className="mt-1 h-9 w-full rounded-lg border px-3" placeholder="Required when changing the due date" /></label>}
+            {editState?.started && dueWritable && draft.deadline !== buildTaskEditorDraft(task).deadline && <label className="mt-2 block text-xs text-neutral-600">Reason for due-date change<input aria-label="Due-date change reason" value={changeReason} onChange={(event) => setChangeReason(event.target.value)} maxLength={INPUT_LIMITS.REASON} required className="mt-1 h-9 w-full rounded-lg border px-3" placeholder="Required when changing the due date" /></label>}
           </div>
           <div>
             <label className="text-[10px] uppercase tracking-[0.12em] text-neutral-400">
@@ -172,6 +180,7 @@ export function TaskEditorModal({
               Tags
             </label>
             <input
+              maxLength={INPUT_LIMITS.TAGS_LIST}
               value={draft.tagsText}
               disabled={!planningWritable}
               onChange={(e) => onChange({ tagsText: e.target.value })}
@@ -185,6 +194,7 @@ export function TaskEditorModal({
             </label>
             <textarea
               rows={3}
+              maxLength={INPUT_LIMITS.DESCRIPTION}
               value={draft.acceptanceCriteriaText}
               disabled={!planningWritable}
               onChange={(event) =>
@@ -200,6 +210,7 @@ export function TaskEditorModal({
             </label>
             <textarea
               rows={2}
+              maxLength={INPUT_LIMITS.COMMENT}
               value={draft.definitionOfDone}
                 disabled={!planningWritable}
               onChange={(event) =>
@@ -346,6 +357,7 @@ export function TaskEditorModal({
               Proposal
             </label>
             <input
+              maxLength={INPUT_LIMITS.TITLE}
               value={draft.proposalTitle}
               disabled={!planningWritable}
               onChange={(e) => onChange({ proposalTitle: e.target.value })}
@@ -357,6 +369,7 @@ export function TaskEditorModal({
               Program
             </label>
             <input
+              maxLength={INPUT_LIMITS.TITLE}
               value={draft.programTitle}
               disabled={!planningWritable}
               onChange={(e) => onChange({ programTitle: e.target.value })}
@@ -368,6 +381,7 @@ export function TaskEditorModal({
               Project
             </label>
             <input
+              maxLength={INPUT_LIMITS.TITLE}
               value={draft.projectTitle}
               disabled={!planningWritable}
               onChange={(e) => onChange({ projectTitle: e.target.value })}
@@ -379,6 +393,7 @@ export function TaskEditorModal({
               Activity
             </label>
             <input
+              maxLength={INPUT_LIMITS.TITLE}
               value={draft.activityTitle}
               disabled={!planningWritable}
               onChange={(e) => onChange({ activityTitle: e.target.value })}
@@ -390,6 +405,7 @@ export function TaskEditorModal({
               Activity Schedule
             </label>
             <input
+              maxLength={INPUT_LIMITS.SHORT_TAG}
               value={draft.activitySchedule}
               disabled={!planningWritable}
               onChange={(e) => onChange({ activitySchedule: e.target.value })}

@@ -36,6 +36,8 @@ import type { ProjectTool } from "./project-command/ProjectToolsInspector";
 import {
   ALL_PROJECT_DEPARTMENTS,
   UNASSIGNED_PROJECT_DEPARTMENT,
+  canCreateOfficeProject,
+  canManageSpecificProject,
   matchesProjectDepartment,
   resolveProjectWorkspaceAccess,
   type ProjectScope,
@@ -138,9 +140,23 @@ export function ProjectsWorkspace({
   }, []);
   const openPlanning = useProjectPlanningLocation(restorePlanningView);
   const [templatesOpen, setTemplatesOpen] = React.useState(false);
-  const workspaceReadOnly = readOnly || !isHeadWorkspaceRole(userProfile?.role);
+  const isOperationalAccount = Boolean(
+    userProfile &&
+      userProfile.is_active !== false &&
+      userProfile.role !== "admin",
+  );
+  const workspaceReadOnly = readOnly || !isOperationalAccount;
+  const collaborationReadOnly = readOnly || !isHeadWorkspaceRole(userProfile?.role);
   const baseAccess = resolveProjectWorkspaceAccess(workspaceReadOnly, can);
-  const access = { ...baseAccess, canCreate: baseAccess.canCreate && isAppointedOfficeHead(userProfile, orgs) && (!workspaceScope || workspaceScope.workspace.office_id === (userProfile?.org_id || userProfile?.departmentId)) };
+  const access = {
+    ...baseAccess,
+    canCreate: canCreateOfficeProject(
+      userProfile,
+      orgs,
+      baseAccess.canCreate,
+      workspaceScope?.workspace.office_id,
+    ),
+  };
   const collaboration = useCollaborationDrafts();
   const activeCollaborationDrafts = React.useMemo(
     () => collaboration.drafts.filter(isActiveCollaborationDraft),
@@ -383,7 +399,7 @@ export function ProjectsWorkspace({
   return (
     <div className="eflow-ide-workspace">
       <div className="eflow-ide-workspace__content" hidden={!!completionTaskId}>
-      {activeTab.type !== "project" && <ProjectWorkspaceActions onAllProjects={() => { void requestNavigation(openIndex); }} disabledReason={baseAccess.canCreate && !access.canCreate ? workspaceScope && workspaceScope.workspace.office_id !== currentOrgId ? 'Return to your office to create a project.' : 'Only the appointed Office Head can create projects.' : undefined}
+      {activeTab.type !== "project" && <ProjectWorkspaceActions onAllProjects={() => { void requestNavigation(openIndex); }} disabledReason={baseAccess.canCreate && !access.canCreate ? workspaceScope && workspaceScope.workspace.office_id !== currentOrgId ? 'Return to your office to create a project.' : 'An active office assignment is required to create projects.' : undefined}
         onTemplates={() => setTemplatesOpen(true)}
         onSavedPlans={() => { void requestNavigation(() => openPlanning('drafts')); }}
         departmentFilter={scope.includeAllAccessibleWork ? { value: departmentFilter, options: departmentFilterOptions, onChange: value => { void requestNavigation(() => changeDepartmentFilter(value)); } } : undefined} />}
@@ -402,7 +418,7 @@ export function ProjectsWorkspace({
               onBack={() => { void requestNavigation(() => closeTab(activeTab.id)); }}
               onDeleted={() => closeTab(activeTab.id)}
               orgs={orgs}
-              canManage={access.canManage}
+              canManage={canManageSpecificProject(activeProject, userProfile, orgs, access.canManage)}
               canArchive={access.canArchive}
               canDelete={access.canDelete}
               canReviewTasks={access.canReviewTasks}
@@ -410,10 +426,10 @@ export function ProjectsWorkspace({
               favoriteContextId={workspaceScope?.workspace.id || currentOrgId || 'unassigned'}
               authorizedProjectIds={inScope.map(project => project.id)}
               lifecycleActions={{
-                complete: access.canManage && userProfile?.role === 'head' && userProfile.is_active !== false ? () => setCompleteTarget({ id: activeProject.id, title: activeProject.title }) : undefined,
+                complete: access.canManage && isAppointedOfficeHead(userProfile, orgs) && userProfile?.is_active !== false ? () => setCompleteTarget({ id: activeProject.id, title: activeProject.title }) : undefined,
                 archive: access.canArchive ? () => setArchiveTarget({ id: activeProject.id, title: activeProject.title, isArchived: false }) : undefined,
                 restore: access.canArchive ? () => setArchiveTarget({ id: activeProject.id, title: activeProject.title, isArchived: true }) : undefined,
-                delete: (access.canDelete || activeProject.publicationState==='draft'&&activeProject.projectLeadId===userProfile?.id) ? () => setDeleteTarget({ id: activeProject.id, title: activeProject.title, status: activeProject.status, publicationState: activeProject.publicationState }) : undefined,
+                delete: (access.canDelete || activeProject.publicationState==='draft'&&(activeProject.projectLeadId===userProfile?.id || activeProject.createdBy===userProfile?.id)) ? () => setDeleteTarget({ id: activeProject.id, title: activeProject.title, status: activeProject.status, publicationState: activeProject.publicationState }) : undefined,
               }}
               onOpenSourceGovernance={(draftId) => openProposal(draftId, "governance")}
             />
@@ -429,7 +445,7 @@ export function ProjectsWorkspace({
               profiles={profiles}
               operationalProjects={dbProjects}
               operationalTasks={tasks}
-              readOnly={workspaceReadOnly}
+              readOnly={collaborationReadOnly}
               initialTab={activeTab.initialCollaborationTab}
               onBack={() => closeTab(activeTab.id)}
               onCommitted={() => {

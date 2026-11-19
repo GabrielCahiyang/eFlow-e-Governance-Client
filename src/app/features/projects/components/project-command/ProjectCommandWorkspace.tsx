@@ -6,7 +6,7 @@ import { hasDirtyNavigation, requestNavigation } from '../../../../shared/naviga
 import { NAVIGATION_LOCATION_EVENT, pushNavigationHistory, replaceNavigationHistory } from '../../../../shared/navigationHistory';
 import { ProjectViewLoading } from "../../../../components/workflow/ProjectWorkspaceSkeleton";
 import { Button } from '@vibe/core';
-import { isAppointedOfficeHead } from '../../../../shared/officeAuthority';
+import { canManageSpecificProject } from "../model";
 import { isHeadWorkspaceRole } from '../../../../shared/roles';
 import type { Organization } from "../../../../types";
 import { useProfiles } from "../../../../hooks/useSupabaseData";
@@ -86,7 +86,10 @@ export function ProjectCommandWorkspace({
   const { profiles, loading: profilesLoading } = useProfiles();
   const { userProfile } = useAuth();
   const officeState = useProjectOffices(project.id);
-  const canManage = !flow.error && requestedManage && isAppointedOfficeHead(userProfile, orgs) && userProfile?.org_id === project.orgId;
+  const canManage =
+    !flow.error &&
+    (flow.data?.canConfigure === true ||
+      canManageSpecificProject(project, userProfile, orgs, requestedManage));
   const canPlan=canManage||!flow.error&&userProfile?.is_active!==false&&!!project.projectLeadId&&userProfile?.id===project.projectLeadId&&userProfile?.org_id===project.orgId&&!project.sourceCollaborationDraftId;
   const shared = officeState.offices.some(o => o.relationship_type !== 'lead');
   const ownOffice = officeState.offices.find(o => o.office_id === userProfile?.org_id);

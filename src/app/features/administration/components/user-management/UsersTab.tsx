@@ -165,7 +165,7 @@ export function UsersTab({
       if (
         !(await confirmation.confirm({
           title: `${profile.is_active ? "Deactivate" : "Activate"} account?`,
-          description: `${profile.full_name} · ${profile.email}. ${profile.is_active ? "This removes active access; work and audit history remain. Any leadership assignment is still protected by the server." : "This restores active access under the current role and Office scope."}`,
+          description: `${profile.full_name} · ${profile.email}. ${profile.is_active ? "This removes active access; work and audit history remain. Any leadership assignment is still protected by the server." : "This restores active access under the current role."}`,
           actionLabel: profile.is_active
             ? "Deactivate account"
             : "Activate account",
@@ -294,17 +294,6 @@ export function UsersTab({
       sortable: true,
       sortValue: (profile) => (profile.is_active ? 1 : 0),
       render: (profile) => <StatusBadge active={profile.is_active} />,
-    },
-    {
-      key: "organization",
-      header: "Organization",
-      sortable: true,
-      sortValue: (profile) => orgMap[profile.org_id || ""] || "",
-      render: (profile) => (
-        <span className="text-[13px] text-secondary-foreground">
-          {orgMap[profile.org_id || ""] || "—"}
-        </span>
-      ),
     },
     {
       key: "workload",
@@ -451,7 +440,7 @@ export function UsersTab({
           onClick={() => setFilters({ ...filters, status: "all" })}
         >
           <div>
-            <span>Total office accounts</span>
+            <span>Total LEDIPO accounts</span>
             <strong>{visibleProfiles.length}</strong>
           </div>
           <span className="eflow-admin-icon-chip" aria-hidden="true">
@@ -525,7 +514,6 @@ export function UsersTab({
       {inspected && (
         <AccountInspector
           profile={inspected}
-          office={orgMap[inspected.org_id || ""] || "Unassigned"}
           roleLabel={roleCatalog.length > 0 ? resolveRoleDisplay(inspected).label : undefined}
           protection={
             isLastActiveAdmin(inspected, profiles)
@@ -572,13 +560,12 @@ export function UsersTab({
           if (canEditProfile(profile)) setEditUser(profile);
         }}
         loading={loading}
-        searchPlaceholder="Search by name, email, role, or organization…"
+        searchPlaceholder="Search by name, email, or role…"
         viewState={tableViewState}
         onViewStateChange={onTableViewStateChange}
         searchFilter={(profile, query) =>
           profile.full_name.toLowerCase().includes(query) ||
           profile.email.toLowerCase().includes(query) ||
-          (orgMap[profile.org_id || ""] || "").toLowerCase().includes(query) ||
           profile.role.toLowerCase().includes(query) ||
           resolveRoleDisplay(profile).label.toLowerCase().includes(query)
         }

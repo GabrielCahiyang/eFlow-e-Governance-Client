@@ -13,7 +13,12 @@ from supabase.lib.client_options import SyncClientOptions
 from gateway_config import settings
 from services.recent_auth import is_recent_sign_in
 from services.administrative_roles import is_administrator
-from services.account_roles import normalize_account_role, ADMIN_PERMISSIONS
+from services.account_roles import (
+    normalize_account_role,
+    ADMIN_PERMISSIONS,
+    FALLBACK_ROLE_DEFAULTS,
+    PERMISSION_PREREQUISITES,
+)
 from services.database_transport import database_http_client
 
 
@@ -33,6 +38,7 @@ class AuthenticatedUser:
     role: str
     org_id: Optional[str]
     last_sign_in_at: Optional[str | datetime] = None
+    custom_role_key: Optional[str] = None
 
 
 def require_user(
@@ -62,7 +68,7 @@ def require_user(
     try:
         profile_result = (
             supabase_admin.table("profiles")
-            .select("id,email,role,org_id,is_active")
+            .select("id,email,role,custom_role_key,org_id,is_active")
             .eq("id", str(auth_user.id))
             .single()
             .execute()
@@ -85,12 +91,20 @@ def require_user(
     except ValueError as exc:
         raise HTTPException(status_code=403, detail="Unsupported account role. Ask an Admin to correct this account.") from exc
 
+    raw_custom_role = profile.get("custom_role_key")
+    custom_role_key = (
+        raw_custom_role.strip()
+        if isinstance(raw_custom_role, str) and raw_custom_role.strip()
+        else None
+    )
+
     return AuthenticatedUser(
         id=str(auth_user.id),
         email=profile.get("email") or getattr(auth_user, "email", "") or "",
         role=account_role,
         org_id=profile.get("org_id"),
         last_sign_in_at=getattr(auth_user, "last_sign_in_at", None),
+        custom_role_key=custom_role_key,
     )
 
 
@@ -109,9 +123,34 @@ def require_admin(
 require_super_admin = require_admin
 
 
-def _permission_allowed(user: AuthenticatedUser, permission: str) -> bool:
+def _resolve_role_target(user: AuthenticatedUser) -> tuple[str, str]:
+    """Return (role_permissions_key, fallback_base_role) honoring active custom_role_key."""
+    custom_key = (user.custom_role_key or "").strip()
+    if custom_key:
+        custom_result = (
+            supabase_admin.table("custom_roles")
+            .select("key,base_role")
+            .eq("key", custom_key)
+            .limit(1)
+            .execute()
+        )
+        custom_rows = custom_result.data or []
+        if custom_rows:
+            base_role = custom_rows[0].get("base_role") or user.role
+            return custom_key, str(base_role)
+    return user.role, user.role
+
+
+def _raw_permission_allowed(
+    user: AuthenticatedUser,
+    permission: str,
+    role_target: tuple[str, str],
+) -> bool:
     if is_administrator(user.role):
         return permission in ADMIN_PERMISSIONS
+
+    if permission in ADMIN_PERMISSIONS:
+        return False
 
     override_result = (
         supabase_admin.table("user_permission_overrides")
@@ -125,16 +164,38 @@ def _permission_allowed(user: AuthenticatedUser, permission: str) -> bool:
     if override_rows:
         return override_rows[0].get("allowed") is True
 
+    effective_role, fallback_role = role_target
     role_result = (
         supabase_admin.table("role_permissions")
         .select("allowed")
-        .eq("role", user.role)
+        .eq("role", effective_role)
         .eq("permission", permission)
         .limit(1)
         .execute()
     )
     role_rows = role_result.data or []
-    return bool(role_rows and role_rows[0].get("allowed") is True)
+    if role_rows:
+        return role_rows[0].get("allowed") is True
+
+    return permission in FALLBACK_ROLE_DEFAULTS.get(fallback_role, frozenset())
+
+
+def _permission_allowed(user: AuthenticatedUser, permission: str) -> bool:
+    if is_administrator(user.role):
+        return permission in ADMIN_PERMISSIONS
+
+    if permission in ADMIN_PERMISSIONS:
+        return False
+
+    role_target = _resolve_role_target(user)
+    if not _raw_permission_allowed(user, permission, role_target):
+        return False
+
+    for prerequisite in PERMISSION_PREREQUISITES.get(permission, ()):
+        if not _raw_permission_allowed(user, prerequisite, role_target):
+            return False
+
+    return True
 
 
 def require_user_manager(

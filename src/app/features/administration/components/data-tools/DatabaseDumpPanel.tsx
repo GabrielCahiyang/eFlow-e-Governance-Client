@@ -19,6 +19,7 @@ import {
   WSelect,
 } from "../../../../components/workflow/primitives";
 import { requestNavigation } from "../../../../shared/navigationGuard";
+import { INPUT_LIMITS } from "../../../../shared/inputLimits";
 import {
   DEFAULT_BACKUP_JOB_FILTERS,
   IMPORTANT_DATA_PRESETS,
@@ -447,6 +448,7 @@ export function DatabaseDumpPanel({
                 to confirm
               </span>
               <input
+                maxLength={INPUT_LIMITS.SHORT_DESCRIPTION}
                 value={confirmation}
                 onChange={(event) => onConfirmationChange(event.target.value)}
                 placeholder={expectedConfirmation}
@@ -460,6 +462,7 @@ export function DatabaseDumpPanel({
               </span>
               <input
                 type="password"
+                maxLength={INPUT_LIMITS.PASSWORD}
                 value={reauthPassword}
                 onChange={(event) => onReauthPasswordChange(event.target.value)}
                 autoComplete="current-password"

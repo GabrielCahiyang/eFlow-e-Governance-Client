@@ -10,6 +10,7 @@ import { FeedbackState } from '../../../../components/ui/FeedbackState';
 import { readLoginSecurity, saveLoginAttemptLimit, unlockLoginAccount, type LockedAccount, type LoginSecurity } from '../../services/loginSecurityService';
 import { useExplicitDraft } from '../../../../shared/useExplicitDraft';
 import { requestNavigation } from '../../../../shared/navigationGuard';
+import { blockInvalidNumberKey, maxDigitsForNumber } from '../../../../shared/inputLimits';
 
 export function LockedAccountsTab() {
   const {userProfile} = useAuth(), admin = isAdminRole(userProfile?.role);
@@ -78,7 +79,7 @@ export function LockedAccountsTab() {
       <div className="flex flex-wrap items-end gap-3">
         <label className="grid gap-1.5 text-sm font-medium text-[var(--eflow-text)]">
           Failed attempts before lockout
-          <input aria-label="Failed attempts before lockout" type="number" min="1" max="20" step="1" required value={limit} disabled={busy||!data} onChange={e=>setLimit(e.target.value)} className="h-10 w-28 rounded-lg border border-[var(--eflow-border)] px-3 text-sm"/>
+          <input aria-label="Failed attempts before lockout" type="number" min="1" max="20" step="1" required value={limit} disabled={busy||!data} onKeyDown={e=>blockInvalidNumberKey(e)} onChange={e=>{const raw=e.target.value;if(raw!==''){const intDigits=raw.replace(/^-/,'').split('.')[0].replace(/^0+(?=\d)/,'');if(intDigits.length>maxDigitsForNumber(20))return;}setLimit(raw);}} className="h-10 w-28 rounded-lg border border-[var(--eflow-border)] px-3 text-sm tabular-nums"/>
         </label>
         <Button type="submit" disabled={busy||!data||Number(limit)===data.max_attempts}>Save attempt limit</Button>
       </div>

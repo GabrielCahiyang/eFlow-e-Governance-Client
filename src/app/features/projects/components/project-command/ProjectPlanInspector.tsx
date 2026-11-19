@@ -1,5 +1,6 @@
 import { EmptyStateIllustration } from '../../../../components/ui/EmptyStateIllustration';
 import { DateInput } from '../../../../components/ui/DateInput';
+import { INPUT_LIMITS } from '../../../../shared/inputLimits';
 import { calendarMinDate, getPhilippineCalendarDate, scheduleRangeError, scheduledDateError } from '../../../../shared/calendarDates';
 import { useEffect, useRef, useState } from "react";
 import {
@@ -201,6 +202,7 @@ export function ProjectPlanInspector({
                 <div className="grid gap-2">
                   <TextField
                     value={newMilestone}
+                    maxLength={INPUT_LIMITS.TITLE}
                     onChange={setNewMilestone}
                     inputAriaLabel="New activity title"
                     placeholder="e.g. Environmental Impact Assessment..."
@@ -364,6 +366,7 @@ export function ProjectPlanInspector({
                 <Field label="Project Title">
                   <TextField
                     value={form.title}
+                    maxLength={INPUT_LIMITS.TITLE}
                     onChange={(value) => setForm({ ...form, title: value })}
                     inputAriaLabel="Project title"
                   />
@@ -372,6 +375,7 @@ export function ProjectPlanInspector({
                 <Field label="Description">
                   <TextArea
                     value={form.description}
+                    maxLength={INPUT_LIMITS.PROJECT_DESCRIPTION}
                     onChange={(event) =>
                       setForm({ ...form, description: event.target.value })
                     }
@@ -604,6 +608,7 @@ function ActivityInspectorCard({
           <Field label="Activity Title">
             <input
               disabled={disabled}
+              maxLength={INPUT_LIMITS.TITLE}
               value={title}
               onChange={(event) => setTitle(event.target.value)}
               className="eflow-control text-xs"

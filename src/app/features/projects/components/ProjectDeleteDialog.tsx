@@ -2,6 +2,8 @@ import { readableUiError } from '../../../shared/userFacingError';
 import * as React from "react";
 import * as Icons from "lucide-react";
 import { Modal } from "../../../components/ui/Modal";
+import { FieldLengthHint } from "../../../components/ui/FieldLengthHint";
+import { INPUT_LIMITS } from "../../../shared/inputLimits";
 import { Button } from "../../../components/ui/button";
 import { deleteProject } from "../services/projectService";
 import { fetchProjectDeletionBlockers } from "../services/projectLifecycleService";
@@ -157,11 +159,15 @@ export function ProjectDeleteDialog({
 
           {/* Reason for deletion */}
           <div className="flex flex-col gap-2">
-            <label htmlFor="delete-reason-input" className="text-xs font-semibold text-neutral-700">
-              Reason for deletion <span className="text-rose-500 font-bold">*</span>
-            </label>
+            <div className="flex items-center justify-between gap-2">
+              <label htmlFor="delete-reason-input" className="text-xs font-semibold text-neutral-700">
+                Reason for deletion <span className="text-rose-500 font-bold">*</span>
+              </label>
+              <FieldLengthHint length={reason.length} max={INPUT_LIMITS.REASON} />
+            </div>
             <textarea
               id="delete-reason-input"
+              maxLength={INPUT_LIMITS.REASON}
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               rows={3}
@@ -179,6 +185,7 @@ export function ProjectDeleteDialog({
             <input
               id="delete-confirm-input"
               type="text"
+              maxLength={INPUT_LIMITS.TITLE}
               value={confirmation}
               onChange={(e) => setConfirmation(e.target.value)}
               disabled={deleting}

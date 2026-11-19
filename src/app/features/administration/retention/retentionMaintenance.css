@@ -1,0 +1,167 @@
+.eflow-retention {
+  display: grid;
+  gap: var(--eflow-space-5, 1.25rem);
+  min-width: 0;
+}
+
+.eflow-retention-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
+  border: 1px solid var(--eflow-border);
+  border-radius: var(--eflow-radius-surface);
+  background: var(--eflow-surface);
+}
+
+.eflow-retention-metrics > div {
+  padding: var(--eflow-space-4);
+  display: grid;
+  gap: 0.25rem;
+}
+
+.eflow-retention-metrics > div + div {
+  border-inline-start: 1px solid var(--eflow-border);
+}
+
+.eflow-retention-metrics span {
+  font-size: var(--eflow-text-xs);
+  color: var(--eflow-text-muted);
+}
+
+.eflow-retention-metrics strong {
+  font-size: 1.25rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.eflow-retention-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  gap: var(--eflow-space-4);
+}
+
+.eflow-retention-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.eflow-retention-preset {
+  padding: 0.35rem 0.65rem;
+  border-radius: var(--eflow-radius-control);
+  border: 1px solid var(--eflow-border);
+  background: var(--eflow-surface);
+  font-size: var(--eflow-text-xs);
+  color: var(--eflow-text-secondary);
+  cursor: pointer;
+}
+
+.eflow-retention-preset.is-active {
+  border-color: var(--eflow-primary);
+  background: color-mix(in srgb, var(--eflow-primary) 10%, var(--eflow-surface));
+  color: var(--eflow-primary);
+  font-weight: 600;
+}
+
+.eflow-retention-table-wrap {
+  max-width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--eflow-border);
+  border-radius: var(--eflow-radius-surface);
+  background: var(--eflow-surface);
+}
+
+.eflow-retention-table {
+  width: 100%;
+  min-width: 780px;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: var(--eflow-text-sm);
+}
+
+.eflow-retention-table th,
+.eflow-retention-table td {
+  padding: var(--eflow-space-3);
+  border-bottom: 1px solid var(--eflow-border);
+  vertical-align: top;
+}
+
+.eflow-retention-table th {
+  background: var(--eflow-subtle);
+  color: var(--eflow-text-secondary);
+  font-weight: 600;
+  font-size: var(--eflow-text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.eflow-retention-table tr:last-child td {
+  border-bottom: 0;
+}
+
+.eflow-retention-sub {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: var(--eflow-text-xs);
+  color: var(--eflow-text-muted);
+}
+
+.eflow-retention-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.eflow-retention-split {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--eflow-space-4);
+}
+
+.eflow-retention-panel {
+  border: 1px solid var(--eflow-border);
+  border-radius: var(--eflow-radius-control);
+  padding: var(--eflow-space-3);
+  background: var(--eflow-subtle);
+  font-size: var(--eflow-text-xs);
+}
+
+.eflow-retention-panel h4 {
+  margin: 0 0 0.5rem;
+  font-size: var(--eflow-text-sm);
+  font-weight: 600;
+}
+
+.eflow-retention-panel--keep {
+  border-color: #a7f3d0;
+  background: #ecfdf5;
+  color: #065f46;
+}
+
+.eflow-retention-panel--purge {
+  border-color: #fecaca;
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+.eflow-retention-kv {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.25rem 0.75rem;
+  margin: 0;
+}
+
+.eflow-retention-kv dd {
+  margin: 0;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 720px) {
+  .eflow-retention-split {
+    grid-template-columns: 1fr;
+  }
+  .eflow-retention-metrics > div + div {
+    border-inline-start: 0;
+    border-top: 1px solid var(--eflow-border);
+  }
+}

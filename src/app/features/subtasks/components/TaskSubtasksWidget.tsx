@@ -1,6 +1,7 @@
 import { readableUiError } from '../../../shared/userFacingError';
 import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import { DateInput } from "../../../components/ui/DateInput";
+import { INPUT_LIMITS } from "../../../shared/inputLimits";
 import { getPhilippineCalendarDate, scheduledDateError } from '../../../shared/calendarDates';
 import { supportsNestedWork, isCurrentWorkSnapshot, WorkTree, type WorkNode, type WorkTreeSnapshot, type WorkTreeController } from '../../nested-work';
 import type {TaskInspectorOrigin} from '../../task-inspector';
@@ -454,6 +455,7 @@ function LegacyTaskSubtasksWidget({
 
       {canManage && <div className="mt-2 flex min-w-0 flex-wrap items-center gap-2 sm:flex-nowrap">
         <input
+          maxLength={INPUT_LIMITS.TITLE}
           value={newTitle}
           onChange={(e) => setNewTitle(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleAdd()}

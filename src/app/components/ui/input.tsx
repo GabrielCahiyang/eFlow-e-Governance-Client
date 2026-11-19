@@ -1,22 +1,26 @@
 import * as React from "react";
 
+import { defaultMaxLengthForInputType } from "../../shared/inputLimits";
 import { DateInput } from "./DateInput";
 import { cn } from "./utils";
 
-function Input({ className, type, value, ...props }: React.ComponentProps<"input">) {
+function Input({ className, type, value, maxLength, ...props }: React.ComponentProps<"input">) {
   if (type === "date") {
     return (
       <DateInput
         className={className}
         value={typeof value === "string" ? value : ""}
+        maxLength={maxLength}
         {...props}
       />
     );
   }
+  const effectiveMaxLength = maxLength ?? defaultMaxLengthForInputType(type);
   return (
     <input
       type={type}
       value={value}
+      maxLength={effectiveMaxLength}
       data-slot="input"
       className={cn(
         "file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-10 w-full min-w-0 rounded-md border px-3 py-1 text-base bg-input-background transition-[color,box-shadow] duration-120 outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-semibold disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",

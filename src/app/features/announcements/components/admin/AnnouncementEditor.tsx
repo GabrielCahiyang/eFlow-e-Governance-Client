@@ -3,6 +3,8 @@ import { useExplicitDraft } from "../../../../shared/useExplicitDraft";
 import {announcementExpiryError} from '../../../../shared/expiryDates';
 import {calendarMinDate,getPhilippineCalendarDate} from '../../../../shared/calendarDates';
 import { DateInput } from "../../../../components/ui/DateInput";
+import { FieldLengthHint } from "../../../../components/ui/FieldLengthHint";
+import { INPUT_LIMITS } from "../../../../shared/inputLimits";
 import { requestNavigation } from "../../../../shared/navigationGuard";
 import { FeedbackState } from "../../../../components/ui/FeedbackState";
 import { useAuth } from "../../../../contexts/AuthContext";
@@ -245,6 +247,7 @@ export function AnnouncementEditor({
                 </label>
                 <input
                   type="text"
+                  maxLength={100}
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="e.g. Executive Advisory: Office Hours Adjustment"
@@ -254,10 +257,14 @@ export function AnnouncementEditor({
 
               {/* Message Body */}
               <div>
-                <label className="text-[12px] font-medium text-neutral-700 mb-1.5 block">
-                  Announcement Message
-                </label>
+                <div className="mb-1.5 flex items-center justify-between gap-2">
+                  <label className="text-[12px] font-medium text-neutral-700 block">
+                    Announcement Message
+                  </label>
+                  <FieldLengthHint length={body.length} max={INPUT_LIMITS.DESCRIPTION} />
+                </div>
                 <textarea
+                  maxLength={INPUT_LIMITS.DESCRIPTION}
                   value={body}
                   onChange={(e) => setBody(e.target.value)}
                   rows={6}

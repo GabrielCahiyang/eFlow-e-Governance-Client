@@ -2,6 +2,8 @@ import * as React from "react";
 import { Avatar, Button } from "@vibe/core";
 import { MessageSquare, Send } from "lucide-react";
 import type { Organization, UserProfile } from "../../../types";
+import { FieldLengthHint } from "../../../components/ui/FieldLengthHint";
+import { INPUT_LIMITS } from "../../../shared/inputLimits";
 import type { CollaborationMessage } from "../types";
 
 export function CollaborationDiscussion({
@@ -131,23 +133,29 @@ export function CollaborationDiscussion({
       </div>
 
       {/* Input Box */}
-      <div className="flex items-end gap-3 border-t border-neutral-100 p-4 bg-neutral-50/50">
-        <textarea
-          value={message}
-          onChange={(event) => setMessage(event.target.value)}
-          onKeyDown={handleKeyDown}
-          rows={2}
-          placeholder="Write a message to all participating offices… (Press Enter to send)"
-          className="eflow-control min-w-0 flex-1 resize-none h-auto py-2 leading-relaxed"
-        />
-        <Button
-          size="small"
-          disabled={!message.trim() || sending}
-          onClick={() => void send()}
-        >
-          <Send size={14} className="mr-1.5" />
-          {sending ? "Sending…" : "Send"}
-        </Button>
+      <div className="border-t border-neutral-100 p-4 bg-neutral-50/50">
+        <div className="flex items-end gap-3">
+          <textarea
+            maxLength={INPUT_LIMITS.COMMENT}
+            value={message}
+            onChange={(event) => setMessage(event.target.value)}
+            onKeyDown={handleKeyDown}
+            rows={2}
+            placeholder="Write a message to all participating offices… (Press Enter to send)"
+            className="eflow-control min-w-0 flex-1 resize-none h-auto py-2 leading-relaxed"
+          />
+          <Button
+            size="small"
+            disabled={!message.trim() || sending}
+            onClick={() => void send()}
+          >
+            <Send size={14} className="mr-1.5" />
+            {sending ? "Sending…" : "Send"}
+          </Button>
+        </div>
+        <div className="mt-1 flex justify-end">
+          <FieldLengthHint length={message.length} max={INPUT_LIMITS.COMMENT} />
+        </div>
       </div>
     </section>
   );

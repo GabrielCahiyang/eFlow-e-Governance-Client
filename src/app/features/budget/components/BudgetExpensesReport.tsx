@@ -199,6 +199,7 @@ export function BudgetExpensesReport({
             />
             <Input
               aria-label="Search verified expenses"
+              maxLength={120}
               value={search}
               onChange={(event) => setSearch(event.target.value)}
               placeholder="Search proposal, work, member, or category…"

@@ -76,6 +76,9 @@ describe("PendingActivationsTable revoked invitation deletion", () => {
     render(<PendingActivationsTable actorId="admin-1" revision={0} onCountChange={onCountChange} />);
 
     await screen.findByText("Andres Manili");
+    expect(screen.getByRole("columnheader", { name: "Role" })).toBeTruthy();
+    expect(screen.queryByRole("columnheader", { name: "Role / Office" })).toBeNull();
+    expect(screen.queryByText("LEDIPO")).toBeNull();
 
     // Only the revoked row has Delete; pending row has Resend & Revoke
     const deleteButtons = screen.getAllByRole("button", { name: "Delete" });

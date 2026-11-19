@@ -49,7 +49,7 @@ export function AdministrationWorkspace({ activeSection = 'users', activePage }:
   const accessTab: UserManagementTab =
     subTab === 'user-access' ? 'user-access' : 'role-defaults';
   const systemTab: SystemIntegrationsTab =
-    subTab === 'statuses' || subTab === 'skills' ? subTab : 'general';
+    subTab === 'statuses' || subTab === 'skills' || subTab === 'retention' ? subTab : 'general';
 
   const contents = {
     'People & Accounts': <UserManagement initialTab={peopleTab} {...directoryProps} />,

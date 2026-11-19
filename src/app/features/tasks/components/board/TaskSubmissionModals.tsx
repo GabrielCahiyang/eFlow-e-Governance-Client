@@ -2,6 +2,8 @@ import { useRef, useState } from "react";
 import { CheckCircle2, RotateCcw, Upload } from "lucide-react";
 import { Button } from "../../../../components/ui/button";
 import { Textarea } from "../../../../components/ui/textarea";
+import { FieldLengthHint } from "../../../../components/ui/FieldLengthHint";
+import { INPUT_LIMITS } from "../../../../shared/inputLimits";
 import type { Task } from "../../../../services/taskService";
 import { RichTextEditor } from "../../../../components/ui/RichTextEditor";
 import { SimpleTableEditor } from "../../../../components/ui/SimpleTableEditor";
@@ -213,11 +215,15 @@ export function UndoCompletedModal({
             team with your reason.
           </div>
           <div>
-            <label className="text-[10px] uppercase tracking-[0.12em] text-neutral-400">
-              Undo reason (required)
-            </label>
+            <div className="flex items-center justify-between gap-2">
+              <label className="text-[10px] uppercase tracking-[0.12em] text-neutral-400">
+                Undo reason (required)
+              </label>
+              <FieldLengthHint length={reason.length} max={INPUT_LIMITS.REASON} />
+            </div>
             <Textarea
               rows={4}
+              maxLength={INPUT_LIMITS.REASON}
               value={reason}
               onChange={(e) => onReasonChange(e.target.value)}
               placeholder="Explain why this completed task needs to be reopened..."

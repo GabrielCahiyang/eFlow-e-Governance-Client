@@ -1,5 +1,6 @@
 import { CalendarDays } from "lucide-react";
 import { DateInput } from "../../../components/ui/DateInput";
+import { INPUT_LIMITS } from "../../../shared/inputLimits";
 import { Label } from "@vibe/core";
 import type { Organization } from "../../../types";
 import type {
@@ -63,6 +64,7 @@ export function CollaborationActivitySection({
               <div className="min-w-[240px] flex-1">
                 {editable ? (
                   <input
+                    maxLength={INPUT_LIMITS.TASK_TITLE}
                     value={task.title}
                     onChange={(event) =>
                       onPatchTask(task.key, { title: event.target.value })
@@ -80,6 +82,7 @@ export function CollaborationActivitySection({
                 </TaskDepartmentProvider>
                 {editable ? (
                   <textarea
+                    maxLength={INPUT_LIMITS.DESCRIPTION}
                     value={task.description}
                     onChange={(event) =>
                       onPatchTask(task.key, { description: event.target.value })

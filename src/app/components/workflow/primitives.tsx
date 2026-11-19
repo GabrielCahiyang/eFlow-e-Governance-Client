@@ -6,6 +6,7 @@ import {
   SelectItem,
 } from "../ui/select";
 import { workDay } from "../../shared/workCalendar";
+import { INPUT_LIMITS } from "../../shared/inputLimits";
 // Shared workflow composition contracts. These keep the existing public API
 // while delegating controls, states, typography, and progress to Vibe.
 
@@ -317,24 +318,32 @@ export function SearchInput({
   onChange,
   placeholder = "Search…",
   className = "",
+  maxLength = INPUT_LIMITS.SEARCH,
 }: {
   value: string;
   onChange: (v: string) => void;
   placeholder?: string;
   className?: string;
+  maxLength?: number;
 }) {
+  const wrapperRef = React.useRef<HTMLDivElement>(null);
+  React.useEffect(() => {
+    const input = wrapperRef.current?.querySelector("input");
+    if (input) input.maxLength = maxLength;
+  }, [maxLength]);
   return (
-    <VibeSearch
-      className={className}
-      clearIconLabel="Clear search"
-      inputAriaLabel={placeholder}
-      onChange={onChange}
-      onClear={() => onChange("")}
-      placeholder={placeholder}
-      showClearIcon
-      size="small"
-      value={value}
-    />
+    <div ref={wrapperRef} className={className}>
+      <VibeSearch
+        clearIconLabel="Clear search"
+        inputAriaLabel={placeholder}
+        onChange={(next) => onChange(next.slice(0, maxLength))}
+        onClear={() => onChange("")}
+        placeholder={placeholder}
+        showClearIcon
+        size="small"
+        value={value.slice(0, maxLength)}
+      />
+    </div>
   );
 }
 

@@ -1,5 +1,7 @@
 import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import { MoneyInput } from '../../../components/ui/MoneyInput';
+import { FieldLengthHint } from '../../../components/ui/FieldLengthHint';
+import { INPUT_LIMITS, blockInvalidNumberKey, maxDigitsForNumber } from '../../../shared/inputLimits';
 import type { ReactNode } from "react";
 import { Banknote, CircleDollarSign, Plus, Trash2 } from "lucide-react";
 import { createBudgetLine, PROPOSAL_EXPENSE_CLASSES, PROPOSAL_FUND_SOURCE } from "../constants";
@@ -67,7 +69,7 @@ export function TaskBudgetEditor({
       </div>
     </div>
 
-    {value.decision === "no_cost" && <label className="block"><span className="text-[10px] text-neutral-500">Why does this task require no funding?</span><textarea disabled={readOnly} value={value.noCostReason || ""} onChange={(event) => onChange({ ...value, noCostReason: event.target.value, lines: [] })} rows={3} className="mt-1 w-full rounded-xl border border-neutral-200 px-3 py-2 text-[11px] disabled:bg-neutral-50" placeholder="For example: completed using existing staff and equipment." /></label>}
+    {value.decision === "no_cost" && <label className="block"><span className="flex items-center justify-between gap-2"><span className="text-[10px] text-neutral-500">Why does this task require no funding?</span><FieldLengthHint length={(value.noCostReason || "").length} max={INPUT_LIMITS.REASON} /></span><textarea disabled={readOnly} maxLength={INPUT_LIMITS.REASON} value={value.noCostReason || ""} onChange={(event) => onChange({ ...value, noCostReason: event.target.value, lines: [] })} rows={3} className="mt-1 w-full rounded-xl border border-neutral-200 px-3 py-2 text-[11px] disabled:bg-neutral-50" placeholder="For example: completed using existing staff and equipment." /></label>}
 
     {value.decision === "funded" && <>
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3">
@@ -105,8 +107,8 @@ function ParticularRow({ line, readOnly, onPatch, onRemove }: { line: BudgetLine
   const issue=budgetLineError(line);
   return <div className="grid grid-cols-2 gap-2 p-3 md:grid-cols-[minmax(120px,1fr)_68px_64px_88px_88px_30px] md:items-end">
     <Field label="Particular"><input disabled={readOnly} value={line.particular} maxLength={200} onChange={(event) => onPatch({ particular: event.target.value })} placeholder="Exact item or service" className={inputClass} /></Field>
-    <Field label="Quantity"><input aria-invalid={!!issue} disabled={readOnly} type="number" min={.01} max={MAX_BUDGET_QUANTITY} step="0.01" value={Number.isNaN(line.quantity)?'':line.quantity ?? 1} onChange={(event) => onPatch({ quantity:event.target.value===''?NaN:Number(event.target.value), amount:0 })} className={inputClass} /></Field>
-    <Field label="Unit"><input disabled={readOnly} value={line.unit || "item"} onChange={(event) => onPatch({ unit: event.target.value })} className={inputClass} /></Field>
+    <Field label="Quantity"><input aria-invalid={!!issue} disabled={readOnly} type="number" min={.01} max={MAX_BUDGET_QUANTITY} step="0.01" value={Number.isNaN(line.quantity)?'':line.quantity ?? 1} onKeyDown={(event) => blockInvalidNumberKey(event, { allowDecimal: true })} onChange={(event) => { const raw = event.target.value; if (raw === '') { onPatch({ quantity: NaN, amount: 0 }); return; } const intDigits = raw.replace(/^-/, '').split('.')[0].replace(/^0+(?=\d)/, ''); if (intDigits.length > maxDigitsForNumber(MAX_BUDGET_QUANTITY)) return; onPatch({ quantity: Number(raw), amount: 0 }); }} className={inputClass} /></Field>
+    <Field label="Unit"><input disabled={readOnly} maxLength={INPUT_LIMITS.CODE} value={line.unit || "item"} onChange={(event) => onPatch({ unit: event.target.value })} className={inputClass} /></Field>
     <Field label="Unit cost"><MoneyInput disabled={readOnly} min={0.01} max={9999999999} step="0.01" value={line.unitCost || ""} onValueChange={raw => onPatch({ unitCost: Number(raw), amount: Number(line.quantity || 0) * Number(raw) })} className={`${inputClass} text-right`} /></Field>
     <Field label="Amount"><div className="flex h-9 items-center justify-end rounded-lg border border-neutral-200 bg-neutral-50 px-2.5 text-[10px] font-medium tabular-nums">{issue?'—':peso.format(amount)}</div></Field>
     {!readOnly && <WorkspaceTooltip content="Remove particular"><button type="button" onClick={onRemove} className="mb-0.5 rounded-lg p-2 text-neutral-400 hover:bg-rose-50 hover:text-rose-600" aria-label="Remove particular"><Trash2 size={12} /></button></WorkspaceTooltip>}

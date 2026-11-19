@@ -116,6 +116,7 @@ export function CommittedProposalBoard({
                 value={query}
                 onChange={setQuery}
                 placeholder="Search delivery tasks…"
+                maxLength={120}
                 inputAriaLabel="Search proposal tasks"
               />
             </div>

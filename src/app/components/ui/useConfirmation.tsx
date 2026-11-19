@@ -128,6 +128,7 @@ export function useConfirmation() {
             {options?.confirmationText && (
               <FormField label={`Type ${options.confirmationText} to confirm`}>
                 <TextInput
+                  maxLength={200}
                   value={typed}
                   onChange={(event) => setTyped(event.target.value)}
                   autoComplete="off"
@@ -137,6 +138,7 @@ export function useConfirmation() {
             {options?.reason && (
               <FormField label={options.reason.label} required>
                 <TextInput
+                  maxLength={1000}
                   value={reason}
                   onChange={(event) => {
                     setReason(event.target.value);

@@ -1,6 +1,8 @@
 import { readableUiError } from '../../../shared/userFacingError';
 import { MoneyInput } from '../../../components/ui/MoneyInput';
 import { DateInput } from '../../../components/ui/DateInput';
+import { FieldLengthHint } from '../../../components/ui/FieldLengthHint';
+import { INPUT_LIMITS } from '../../../shared/inputLimits';
 import { useRef, useState } from "react";
 import { Paperclip, Send } from "lucide-react";
 import type { PettyCashRequest, TaskFundingContext } from "../types";
@@ -148,8 +150,11 @@ export function CashRequestForm({
         </div>
       )}
       <label className="block">
-        <span className="text-[13px] text-neutral-500">Purpose</span>
-        <textarea value={purpose} onChange={(event) => setPurpose(event.target.value)} rows={3} placeholder="Example: Buy two boxes of ball pens for the registration desk" className="mt-1 w-full rounded-lg border border-neutral-200 px-2.5 py-2 text-[13px]" />
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-[13px] text-neutral-500">Purpose</span>
+          <FieldLengthHint length={purpose.length} max={INPUT_LIMITS.REASON} />
+        </div>
+        <textarea maxLength={INPUT_LIMITS.REASON} value={purpose} onChange={(event) => setPurpose(event.target.value)} rows={3} placeholder="Example: Buy two boxes of ball pens for the registration desk" className="mt-1 w-full rounded-lg border border-neutral-200 px-2.5 py-2 text-[13px]" />
       </label>
       <label className="block rounded-lg border border-dashed border-neutral-200 p-2.5">
         <span className="flex items-center gap-1 text-[13px] text-neutral-500"><Paperclip size={11} /> Optional quote or supporting file</span>
@@ -169,5 +174,5 @@ export function CashRequestForm({
 }
 
 function Field({ label, value, onChange, type = "text", min, max, invalid = false, onInvalidTextChange }: { label: string; value: string | number; onChange: (value: string) => void; type?: string; min?: string; max?: string; invalid?: boolean; onInvalidTextChange?: (invalid: boolean) => void }) {
-  return <label><span className="text-[13px] text-neutral-500">{label}</span>{type === "number" ? <MoneyInput min={0.01} value={value} onValueChange={onChange} className="mt-1 h-9 w-full rounded-lg border border-neutral-200 px-2.5 text-[13px]" /> : type === "date" ? <DateInput aria-invalid={invalid || undefined} min={min} max={max} onInvalidTextChange={onInvalidTextChange} value={typeof value === "string" ? value : ""} onChange={(event) => onChange(event.target.value)} className={`mt-1 h-9 w-full rounded-lg border px-2.5 text-[13px] ${invalid ? "border-rose-300 bg-rose-50" : "border-neutral-200"}`} /> : <input aria-invalid={invalid || undefined} type={type} min={min} value={value} onChange={(event) => onChange(event.target.value)} className={`mt-1 h-9 w-full rounded-lg border px-2.5 text-[13px] ${invalid ? "border-rose-300 bg-rose-50" : "border-neutral-200"}`} />}</label>;
+  return <label><span className="text-[13px] text-neutral-500">{label}</span>{type === "number" ? <MoneyInput min={0.01} max={INPUT_LIMITS.MONEY_MAX_BUDGET} value={value} onValueChange={onChange} className="mt-1 h-9 w-full rounded-lg border border-neutral-200 px-2.5 text-[13px]" /> : type === "date" ? <DateInput aria-invalid={invalid || undefined} min={min} max={max} onInvalidTextChange={onInvalidTextChange} value={typeof value === "string" ? value : ""} onChange={(event) => onChange(event.target.value)} className={`mt-1 h-9 w-full rounded-lg border px-2.5 text-[13px] ${invalid ? "border-rose-300 bg-rose-50" : "border-neutral-200"}`} /> : <input aria-invalid={invalid || undefined} type={type} min={min} maxLength={INPUT_LIMITS.TITLE} value={value} onChange={(event) => onChange(event.target.value)} className={`mt-1 h-9 w-full rounded-lg border px-2.5 text-[13px] ${invalid ? "border-rose-300 bg-rose-50" : "border-neutral-200"}`} />}</label>;
 }

@@ -125,6 +125,7 @@ export function AssignedSubtaskReviews({
           <input
             type="search"
             aria-label="Search reviews"
+            maxLength={120}
             placeholder="Search subtask or parent task…"
             value={query}
             onChange={event => setQuery(event.target.value)}

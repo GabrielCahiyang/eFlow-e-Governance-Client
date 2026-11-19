@@ -2,6 +2,7 @@ import { useGovernanceSafety } from "../hooks/useGovernanceSafety";
 import { useExplicitDraft } from "../../../shared/useExplicitDraft";
 import { requestNavigation } from "../../../shared/navigationGuard";
 import { FeedbackState } from "../../../components/ui/FeedbackState";
+import { INPUT_LIMITS } from "../../../shared/inputLimits";
 import * as React from "react";
 import { Button } from "@vibe/core";
 import { UserRoundCog } from "lucide-react";
@@ -229,6 +230,7 @@ export function GovernanceWorkspace({
             <div className="mt-4 grid gap-3 rounded-lg border border-blue-200 bg-blue-50/50 p-4 sm:grid-cols-[1fr_220px_auto]">
               <input
                 aria-label="Recusal reason"
+                maxLength={INPUT_LIMITS.REASON}
                 value={recusalReason}
                 onChange={(event) => setRecusalReason(event.target.value)}
                 placeholder="Required reason for conflict or recusal…"

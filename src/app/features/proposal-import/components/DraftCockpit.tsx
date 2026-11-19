@@ -1,5 +1,6 @@
 import { getPhilippineCalendarDate, scheduledDateError } from '../../../shared/calendarDates';
 import { DateInput } from '../../../components/ui/DateInput';
+import { INPUT_LIMITS } from '../../../shared/inputLimits';
 import { useMemo, useState } from "react";
 import {
   Check,
@@ -262,6 +263,7 @@ export function DraftCockpit({
                 </span>
                 <input
                   aria-label={`Program ${program.pi + 1} title`}
+                  maxLength={INPUT_LIMITS.TITLE}
                   aria-describedby={programError ? `manual-program-${program.pi}-error` : undefined}
                   aria-invalid={Boolean(programError)}
                   value={program.title}
@@ -312,6 +314,7 @@ export function DraftCockpit({
                       <span className="sr-only">Project name</span>
                       <input
                         aria-label={`Project ${project.pj + 1} title`}
+                        maxLength={INPUT_LIMITS.TITLE}
                         aria-describedby={projectError ? `manual-project-${program.pi}-${project.pj}-error` : undefined}
                         aria-invalid={Boolean(projectError)}
                         value={project.title}

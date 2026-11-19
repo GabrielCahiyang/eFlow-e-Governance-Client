@@ -15,7 +15,7 @@ export function NewMessageDialog({ onClose, onOpen }: { onClose: () => void; onO
   }, []);
 
   return <Modal isOpen onClose={() => { if (!busy) onClose(); }} title="New message" width="max-w-md">
-    <label className="messages-search"><Search size={17} /><input type="search" aria-label="Search people" placeholder="Search people in your office" value={query} onChange={event => setQuery(event.target.value)} /></label>
+    <label className="messages-search"><Search size={17} /><input type="search" maxLength={120} aria-label="Search people" placeholder="Search people in your office" value={query} onChange={event => setQuery(event.target.value)} /></label>
     {error && <p role="alert" className="messages-error">{error}</p>}
     <div className="messages-person-picker">
       {people?.filter(person => person.name?.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase())).map(person =>

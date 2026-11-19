@@ -1,4 +1,3 @@
-import { readableUiError } from '../../../../shared/userFacingError';
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "../../../../contexts/AuthContext";
 import {
@@ -20,13 +19,6 @@ import {
 } from "../../services/leadershipConstraints";
 import { getAssignableRoleOptions } from "./userManagementPrimitives";
 import { getRoleLabel } from "../../../../shared/roles";
-import {
-  parsePdsFile,
-  type ParsedPdsImport,
-  type PdsEmployeeNotes,
-} from "../../../members";
-import { FileSpreadsheet } from "lucide-react";
-import { PdsImportReview } from "./PdsImportReview";
 import { ledipoOffice } from '../../selectors/ledipoOffice';
 import { accountSkillsError, listActivationOffices, stageAccountActivation, type ActivationOffice, type ManagedAccountRole } from '../../../account-activation';
 import {
@@ -35,9 +27,9 @@ import {
   skillMapToList,
 } from "../../../../components/ui/SkillTagSelector";
 import { useSkillTags } from "../../../../shared/skillTags";
-
 import { useExplicitDraft } from "../../../../shared/useExplicitDraft";
 import { requestNavigation } from "../../../../shared/navigationGuard";
+
 export function CreateUserModal({
   isOpen,
   onClose,
@@ -67,7 +59,7 @@ export function CreateUserModal({
     setAuthorizedOffices([]); setOfficeError('');
     if (isOpen && userProfile?.role === 'admin') void listActivationOffices()
       .then(result => {
-        if (!Array.isArray(result.offices)) throw new Error('Could not load offices. Close this form and try again.');
+        if (!Array.isArray(result.offices)) throw new Error('Could not load LEDIPO workspace. Close this form and try again.');
         if (active) setAuthorizedOffices(result.offices);
       })
       .catch(reason => { if (active) setOfficeError(reason.message); });
@@ -78,7 +70,6 @@ export function CreateUserModal({
     authorizedOffices.find((o) => o.slug === 'ledipo')?.id ||
     authorizedOffices[0]?.id ||
     '';
-  const orgOptions = (mode === 'ledipo_create' ? authorizedOffices.filter(o => o.id === homeOfficeId) : authorizedOffices).map(o => ({ value: o.id, label: o.name }));
   const [form, setForm] = useState({
     fullName: "",
     email: "",
@@ -89,15 +80,9 @@ export function CreateUserModal({
   const savePending = useRef(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const [importingPds, setImportingPds] = useState(false);
-  const [pdsPreview, setPdsPreview] = useState<ParsedPdsImport | null>(null);
-  const [appliedPdsNotes, setAppliedPdsNotes] =
-    useState<PdsEmployeeNotes | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   // Skills tab state
-  const [activeTab, setActiveTab] = useState<"basic" | "skills" | "review">(
-    "basic",
-  );
+  const [activeTab, setActiveTab] = useState<"basic" | "skills">("basic");
   const [skills, setSkills] = useState<Record<string, boolean>>({});
   const { activeLabels: availableSkillTags, loading: loadingSkillTags } = useSkillTags(isOpen);
   const resolvedRole = resolveRoleSelection(form.role, roleCatalog);
@@ -126,8 +111,6 @@ export function CreateUserModal({
     setErrors({});
     setActiveTab("basic");
     setSkills({});
-    setPdsPreview(null);
-    setAppliedPdsNotes(null);
   };
 
   const draft = useExplicitDraft(
@@ -137,11 +120,9 @@ export function CreateUserModal({
         form.fullName ||
           form.email ||
           form.role !== "member" ||
-          Object.keys(skills).length ||
-          pdsPreview ||
-          appliedPdsNotes,
+          Object.keys(skills).length,
       ),
-    saving || importingPds,
+    saving,
     resetForm,
   );
   const close = () => {
@@ -151,72 +132,13 @@ export function CreateUserModal({
     });
   };
 
-  const importPds = async (file: File | undefined) => {
-    if (!file) return;
-    setImportingPds(true);
-    try {
-      const parsed = await parsePdsFile(file, orgOptions);
-      setPdsPreview(parsed);
-      setActiveTab("review");
-      toast(
-        "PDS extracted. Review the details before applying them.",
-        "success",
-      );
-    } catch (error) {
-      toast(
-        readableUiError(error, "Could not read the PDS workbook.", 'read'),
-        "error",
-      );
-    } finally {
-      setImportingPds(false);
-    }
-  };
-
-  const applyPdsImport = () => {
-    if (!pdsPreview) return;
-    const importedSkills={...skills,...Object.fromEntries(pdsPreview.employeeNotes.tags.map(skill=>[skill,true]))};
-    const skillIssue=accountSkillsError(importedSkills);if(skillIssue){setErrors(current=>({...current,skills:skillIssue}));toast(skillIssue,'error');return;}
-    setForm((current) => ({
-      ...current,
-      fullName: pdsPreview.profile.fullName || current.fullName,
-      email:
-        pdsPreview.details.personal.email ||
-        pdsPreview.profile.email ||
-        current.email,
-      orgId: mode === 'ledipo_create' ? homeOfficeId : '',
-      role: pdsPreview.profile.role,
-    }));
-    setSkills((current) => ({
-      ...current,
-      ...Object.fromEntries(
-        pdsPreview.employeeNotes.tags.map((skill) => [skill, true]),
-      ),
-    }));
-    setAppliedPdsNotes(pdsPreview.employeeNotes);
-    setPdsPreview(null);
-    setActiveTab("basic");
-    toast(
-      "PDS details applied. Review the account details and send an activation email.",
-      "success",
-    );
-  };
-
-  const discardPdsPreview = () => {
-    setPdsPreview(null);
-    setActiveTab("basic");
-  };
-
   const validate = () => {
     const errs: Record<string, string> = {};
     const targetOrgId = form.orgId || resolvedLedipoId;
     if (mode === 'ledipo_create' && !form.fullName.trim()) errs.fullName = "Required";
     if (!form.email.trim()) errs.email = "Required";
-    if (mode === 'ledipo_create') {
-      if (!orgOptions.some(o => o.value === targetOrgId) || targetOrgId !== homeOfficeId) {
-        errs.orgId = officeError || 'Choose an authorized active office.';
-      }
-    } else if (!targetOrgId || (authorizedOffices.length > 0 && !authorizedOffices.some(o => o.id === targetOrgId))) {
-      errs.orgId = officeError || 'LEDIPO office is unavailable.';
+    if (!targetOrgId || (authorizedOffices.length > 0 && !authorizedOffices.some(o => o.id === targetOrgId))) {
+      errs.orgId = officeError || 'LEDIPO workspace is unavailable. Close this form and try again.';
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) errs.email = 'Enter a valid email address.';
     if (mode === 'ledipo_create' && form.fullName.trim() && form.fullName.trim().length < 2) errs.fullName = 'Enter the full name.';
@@ -248,7 +170,7 @@ export function CreateUserModal({
         ...(resolvedRole.customRoleKey ? { custom_role_key: resolvedRole.customRoleKey } : {}),
         org_id: targetOrgId,
         skills: mode === 'ledipo_create' ? skills : {},
-        pds_notes: mode === 'ledipo_create' ? appliedPdsNotes : null,
+        pds_notes: null,
       };
       const fingerprint = JSON.stringify(values);
       if (request.current?.fingerprint !== fingerprint) request.current = { fingerprint, id: crypto.randomUUID() };
@@ -273,43 +195,34 @@ export function CreateUserModal({
   return (
     <Modal
       isOpen={isOpen}
-      preventClose={saving || importingPds}
+      preventClose={saving}
       className="eflow-foundation-surface"
       onClose={close}
       title={mode === 'ledipo_create' ? "Create LEDIPO User" : "Invite eFlow User"}
       width="max-w-2xl"
       footer={
-        activeTab === "review" && pdsPreview ? (
-          <>
-            <ModalButton onClick={discardPdsPreview}>Cancel import</ModalButton>
-            <ModalButton variant="primary" onClick={applyPdsImport}>
-              Use these details
-            </ModalButton>
-          </>
-        ) : (
-          <>
-            <ModalButton disabled={saving || importingPds} onClick={close}>
-              Cancel
-            </ModalButton>
-            <ModalButton
-              variant="primary"
-              onClick={handleSubmit}
-              pending={saving}
-            >
-              {saving ? "Saving invitation…" : "Send activation email"}
-            </ModalButton>
-          </>
-        )
+        <>
+          <ModalButton disabled={saving} onClick={close}>
+            Cancel
+          </ModalButton>
+          <ModalButton
+            variant="primary"
+            onClick={handleSubmit}
+            pending={saving}
+          >
+            {saving ? "Saving invitation…" : "Send activation email"}
+          </ModalButton>
+        </>
       }
     >
-      <fieldset className="m-0 min-w-0 border-0 p-0" aria-label="Account invitation" disabled={saving || importingPds}>
+      <fieldset className="m-0 min-w-0 border-0 p-0" aria-label="Account invitation" disabled={saving}>
         <FeedbackState tone="info" title="Email activation required">
           {mode === 'office_invite'
             ? 'The person will receive an activation link to enter their name, skills, and password. They cannot sign in before activation.'
             : 'The person will receive a link and choose their own password. They cannot sign in before activation.'}
         </FeedbackState>
-        {(officeError || (mode === 'office_invite' && errors.orgId)) && (
-          <FeedbackState tone="error" title="Office unavailable">
+        {(officeError || errors.orgId) && (
+          <FeedbackState tone="error" title="LEDIPO workspace unavailable">
             {officeError || errors.orgId}
           </FeedbackState>
         )}
@@ -318,37 +231,7 @@ export function CreateUserModal({
             {saveError} Your entries are kept. Retry to check the same request.
           </FeedbackState>
         )}
-        {mode === 'ledipo_create' && activeTab !== "review" && (
-          <label className="mb-4 flex cursor-pointer items-center justify-between gap-3 rounded-xl border border-dashed border-teal-200 bg-teal-50/60 px-3.5 py-3 text-teal-900 transition-colors hover:border-teal-300 hover:bg-teal-50">
-            <span className="flex items-center gap-2">
-              <FileSpreadsheet size={17} />
-              <span>
-                <span className="block text-[11px] font-semibold">
-                  Import from CSC Personal Data Sheet
-                </span>
-                <span className="block text-[9.5px] text-teal-700">
-                  Extract the workbook and review every matched detail before
-                  applying it.
-                </span>
-              </span>
-            </span>
-            <span className="shrink-0 text-[10px] font-semibold">
-              {importingPds ? "Reading…" : "Choose file"}
-            </span>
-            <input
-              type="file"
-              accept=".xls,.xlsx"
-              className="sr-only"
-              disabled={importingPds}
-              onChange={(event) => {
-                void importPds(event.target.files?.[0]);
-                event.currentTarget.value = "";
-              }}
-            />
-          </label>
-        )}
-
-        {mode === 'ledipo_create' && activeTab !== "review" && (
+        {mode === 'ledipo_create' && (
           <div className="flex border-b border-border mb-4 -mt-1">
             <button
               onClick={() => setActiveTab("basic")}
@@ -378,10 +261,6 @@ export function CreateUserModal({
           </div>
         )}
 
-        {activeTab === "review" && pdsPreview && (
-          <PdsImportReview parsed={pdsPreview} />
-        )}
-
         {activeTab === "basic" && (
           <div className="space-y-4">
             {mode === 'ledipo_create' && (
@@ -407,11 +286,10 @@ export function CreateUserModal({
                   hasError={!!errors.email}
                 />
               </FormField>
-
             </div>
             {(resolvedRole.role === 'admin' || resolvedRole.role === 'head') && <FeedbackState tone="info" title="Approval after activation">After this person verifies their email, Admin must approve their role from Pending activation before they can sign in.</FeedbackState>}
 
-            <div className={mode === 'ledipo_create' ? "grid grid-cols-1 gap-4 sm:grid-cols-2" : ""}>
+            <div>
               <FormField
                 label="Role"
                 error={errors.role || leadershipConflict || undefined}
@@ -426,11 +304,6 @@ export function CreateUserModal({
                   hasError={Boolean(errors.role || leadershipConflict)}
                 />
               </FormField>
-              {mode === 'ledipo_create' && (
-                <FormField label="Office" error={errors.orgId} description="This account belongs to LEDIPO." required>
-                  <TextInput value={homeOffice?.name || ''} readOnly placeholder="Loading LEDIPO…" hasError={!!errors.orgId}/>
-                </FormField>
-              )}
             </div>
             {resolvedRole.customRoleKey && resolvedRole.role !== 'head' && resolvedRole.role !== 'admin' && (
               <p className="text-[11.5px] text-muted-foreground">
@@ -447,7 +320,7 @@ export function CreateUserModal({
               availableTags={availableSkillTags}
               loading={loadingSkillTags}
               selected={skillMapToList(skills)}
-              disabled={saving || importingPds}
+              disabled={saving}
               title="Pre-select skills (optional)"
               description="Tap skill tags maintained by Admin so the invited user starts with matching tags."
               emptyMessage="No skill tags added yet. Add skills in System & Maintenance → Skill Tags."
@@ -462,5 +335,3 @@ export function CreateUserModal({
     </Modal>
   );
 }
-
-// ─── Edit User Modal ─────────────────────────────────────────────

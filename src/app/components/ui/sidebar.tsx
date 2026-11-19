@@ -320,12 +320,14 @@ function SidebarInset({ className, ...props }: React.ComponentProps<"main">) {
 
 function SidebarInput({
   className,
+  maxLength = 120,
   ...props
 }: React.ComponentProps<typeof Input>) {
   return (
     <Input
       data-slot="sidebar-input"
       data-sidebar="input"
+      maxLength={maxLength}
       className={cn("bg-background h-8 w-full shadow-none", className)}
       {...props}
     />

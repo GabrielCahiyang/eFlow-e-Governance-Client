@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { AlertCircle, Plus, Trash2 } from "lucide-react";
 import { MoneyInput } from "../../../components/ui/MoneyInput";
+import { INPUT_LIMITS, blockInvalidNumberKey, maxDigitsForNumber } from "../../../shared/inputLimits";
 import type { CashFundingLine, ReceiptItem } from "../types";
 import { peso } from "./budgetUi";
 import { MAX_RECEIPT_QUANTITY } from "../validation/financialValidation";
@@ -106,10 +107,18 @@ export function ReceiptItemEditor({
                   max={MAX_RECEIPT_QUANTITY}
                   step="0.001"
                   value={Number.isNaN(item.quantity) ? "" : item.quantity}
+                  onKeyDown={(e) => blockInvalidNumberKey(e, { allowDecimal: true })}
                   onBlur={() => markTouched(`${item.id}:quantity`)}
                   onChange={(e) => {
                     markTouched(`${item.id}:quantity`);
-                    patch(item.id, { quantity: e.target.value === "" ? NaN : Number(e.target.value) });
+                    const raw = e.target.value;
+                    if (raw === "") {
+                      patch(item.id, { quantity: NaN });
+                      return;
+                    }
+                    const intDigits = raw.replace(/^-/, "").split(".")[0].replace(/^0+(?=\d)/, "");
+                    if (intDigits.length > maxDigitsForNumber(MAX_RECEIPT_QUANTITY)) return;
+                    patch(item.id, { quantity: Number(raw) });
                   }}
                   className={`${inputClass(Boolean(qtyErr))} tabular-nums`}
                 />
@@ -121,6 +130,7 @@ export function ReceiptItemEditor({
                 <input
                   aria-invalid={Boolean(unitErr)}
                   disabled={disabled}
+                  maxLength={INPUT_LIMITS.CODE}
                   value={item.unit}
                   onBlur={() => markTouched(`${item.id}:unit`)}
                   onChange={(e) => {
@@ -138,6 +148,7 @@ export function ReceiptItemEditor({
                 <input
                   aria-invalid={Boolean(particularErr)}
                   disabled={disabled}
+                  maxLength={INPUT_LIMITS.TITLE}
                   value={item.particular}
                   onBlur={() => markTouched(`${item.id}:particular`)}
                   onChange={(e) => {
@@ -158,6 +169,7 @@ export function ReceiptItemEditor({
                     aria-invalid={Boolean(amountErr)}
                     disabled={disabled}
                     min="0.01"
+                    max={INPUT_LIMITS.MONEY_MAX_LINE}
                     step="0.01"
                     value={item.amount || ""}
                     onBlur={() => markTouched(`${item.id}:amount`)}
@@ -210,6 +222,7 @@ export function ReceiptItemEditor({
                 <input
                   aria-invalid={Boolean(purposeErr)}
                   disabled={disabled}
+                  maxLength={INPUT_LIMITS.REASON}
                   value={item.purpose}
                   onBlur={() => markTouched(`${item.id}:purpose`)}
                   onChange={(e) => {

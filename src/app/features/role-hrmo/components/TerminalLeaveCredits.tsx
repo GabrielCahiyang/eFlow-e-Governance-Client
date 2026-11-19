@@ -54,6 +54,7 @@ export function TerminalLeaveCredits() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search employee or department..."
+            maxLength={120}
             className="flex-1 text-[13px] font-normal bg-transparent outline-none placeholder:text-neutral-400"
           />
           <span className="text-[11px] font-normal text-neutral-400">{filtered.length} of {LEAVE_DATA.length}</span>

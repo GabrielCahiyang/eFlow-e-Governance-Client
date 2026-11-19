@@ -151,6 +151,7 @@ function ScopedAccountingWorkspace({ view: suppliedView, onNavigate }: Accountin
         ) : budget.error && !budget.summary && ["releases", "settlements", "audit"].includes(view) ? null : view === "overview" ? (
           <AccountingOverview
             budget={budget}
+            orgId={orgId}
             journalCount={journal.error || journal.loading ? undefined : journal.entries.length}
             onSettlements={can("navigation.accounting_releases") ? () => selectView("settlements") : undefined}
             onReleases={can('navigation.accounting_releases')?()=>selectView('releases'):undefined}

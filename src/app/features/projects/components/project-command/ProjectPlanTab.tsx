@@ -1,5 +1,6 @@
 import { calendarMinDate, getPhilippineCalendarDate, scheduleRangeError, scheduledDateError } from '../../../../shared/calendarDates';
 import { DateInput } from '../../../../components/ui/DateInput';
+import { INPUT_LIMITS } from '../../../../shared/inputLimits';
 import { useEffect, useState } from "react";
 import {
   Avatar,
@@ -191,6 +192,7 @@ export function ProjectPlanTab({
             <Field label="Title">
               <TextField
                 value={form.title}
+                maxLength={INPUT_LIMITS.TITLE}
                 onChange={(value) => setForm({ ...form, title: value })}
                 inputAriaLabel="Project title"
               />
@@ -198,6 +200,7 @@ export function ProjectPlanTab({
             <Field label="Description">
               <TextArea
                 value={form.description}
+                maxLength={INPUT_LIMITS.PROJECT_DESCRIPTION}
                 onChange={(event) =>
                   setForm({ ...form, description: event.target.value })
                 }
@@ -305,6 +308,7 @@ export function ProjectPlanTab({
           <div className="grid gap-2 border-b border-neutral-100 p-4 sm:grid-cols-[1fr_150px_auto]">
             <TextField
               value={newMilestone}
+              maxLength={INPUT_LIMITS.TITLE}
               onChange={setNewMilestone}
               inputAriaLabel="New activity title"
               placeholder="New activity title…"
@@ -415,6 +419,7 @@ function MilestoneRow({
     <div className="grid items-center gap-2 rounded-xl border border-neutral-200 p-3 md:grid-cols-[1fr_140px_130px_auto]">
       <input
         disabled={disabled}
+        maxLength={INPUT_LIMITS.TITLE}
         value={title}
         onChange={(event) => setTitle(event.target.value)}
         className="eflow-control"

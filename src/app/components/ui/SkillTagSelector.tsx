@@ -109,6 +109,7 @@ export function SkillTagSelector({
             disabled={disabled}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Filter skill tags…"
+            maxLength={120}
             aria-label="Filter skill tags"
             className="h-9 w-full rounded-lg border border-[var(--eflow-border,#e5e7eb)] bg-[var(--eflow-surface,#ffffff)] pl-8 pr-3 text-xs text-[var(--eflow-text,#111827)] placeholder:text-[var(--eflow-text-muted,#6b7280)]"
           />

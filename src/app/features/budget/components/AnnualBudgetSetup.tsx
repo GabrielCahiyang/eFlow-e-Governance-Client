@@ -1,4 +1,6 @@
 import { MoneyInput } from '../../../components/ui/MoneyInput';
+import { FieldLengthHint } from '../../../components/ui/FieldLengthHint';
+import { INPUT_LIMITS, blockInvalidNumberKey, maxDigitsForNumber } from '../../../shared/inputLimits';
 import {budgetSettingsError,fiscalYearError} from '../validation/financialValidation';
 import { useEffect, useRef, useState } from "react";
 import {
@@ -323,7 +325,7 @@ export function AnnualBudgetSetup({
             <BudgetSectionEditor fiscalYear={fiscalYear} scheduleEnabled={data.releaseScheduleAvailable===true} sections={sections} onChange={setSections} disabled={!writable || busy} />
           </>
         )}
-        {editingLocked && <label className="mt-4 block"><span className="text-[13px] font-medium">Reason for adjustment (required)</span><textarea disabled={busy || !writable} value={adjustmentReason} onChange={e => setAdjustmentReason(e.target.value)} className="mt-1 w-full rounded-[6px] border border-border bg-card p-3 text-[13px]" placeholder="Explain what changed and why." /><p className="mt-1 text-[12px] text-muted-foreground">Saving creates V{nextVersion}.</p></label>}
+        {editingLocked && <label className="mt-4 block"><span className="text-[13px] font-medium">Reason for adjustment (required)</span><textarea disabled={busy || !writable} maxLength={INPUT_LIMITS.FUNDING_REASON} value={adjustmentReason} onChange={e => setAdjustmentReason(e.target.value)} className="mt-1 w-full rounded-[6px] border border-border bg-card p-3 text-[13px]" placeholder="Explain what changed and why." /><div className="mt-1 flex items-center justify-between gap-2"><p className="text-[12px] text-muted-foreground">Saving creates V{nextVersion}.</p><FieldLengthHint length={adjustmentReason.length} max={INPUT_LIMITS.FUNDING_REASON} /></div></label>}
         <BudgetProtectionAlert protection={protection||saveError?.protection} error={saveError}/>
         {lockValidation && <p role="alert" className="mt-3 text-[12px] text-destructive">{lockValidation}</p>}
         </div>
@@ -347,6 +349,7 @@ export function AnnualBudgetSetup({
         <div className="mt-4 grid gap-3 grid-cols-[repeat(auto-fit,minmax(min(100%,13rem),1fr))]">
           <NumberField
             money
+            max={INPUT_LIMITS.MONEY_MAX_BUDGET}
             label="Daily cash release limit (₱)"
             hint="Max cash released per day across task requests."
             value={pettyLimit}
@@ -355,6 +358,7 @@ export function AnnualBudgetSetup({
           />
           <NumberField
             money
+            max={INPUT_LIMITS.MONEY_MAX_BUDGET}
             label="Single-receipt review limit (₱)"
             hint="Receipts above this amount need a written reason."
             value={requestLimit}
@@ -363,6 +367,7 @@ export function AnnualBudgetSetup({
           />
           <NumberField
             isDays
+            max={INPUT_LIMITS.DAYS_REVIEW_MAX}
             label="Days to submit receipts"
             hint="Days after receiving cash to turn in receipts and change."
             value={liquidationDueDays}
@@ -370,6 +375,7 @@ export function AnnualBudgetSetup({
             disabled={!canEdit || locked}
           />
           <NumberField
+            max={INPUT_LIMITS.PERCENT_MAX}
             label="Q4 budget spending goal (%)"
             hint="Target share of the annual budget to use by Q4."
             value={threshold}
@@ -397,11 +403,15 @@ export function AnnualBudgetSetup({
           </span>
         </label>
         <label className="mt-4 block">
-          <span className="text-[12px] font-medium text-neutral-700">
-            Budget notes (optional)
-          </span>
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-[12px] font-medium text-neutral-700">
+              Budget notes (optional)
+            </span>
+            <FieldLengthHint length={notes.length} max={INPUT_LIMITS.REASON} />
+          </div>
           <textarea
             disabled={!canEdit || locked}
+            maxLength={INPUT_LIMITS.REASON}
             value={notes}
             onChange={(event) => setNotes(event.target.value)}
             placeholder="Add context or reminders for this year's budget…"
@@ -456,15 +466,19 @@ function NumberField({
   disabled,
   money = false,
   isDays = false,
+  max,
 }: {
   label: string;
   hint?: string;
   money?: boolean;
   isDays?: boolean;
+  max?: number;
   value: number;
   onChange: (value: number) => void;
   disabled: boolean;
 }) {
+  const numericMax = max ?? (money ? INPUT_LIMITS.MONEY_MAX_BUDGET : isDays ? INPUT_LIMITS.DAYS_REVIEW_MAX : INPUT_LIMITS.PERCENT_MAX);
+  const maxDigits = maxDigitsForNumber(numericMax);
   return (
     <div className="flex flex-col">
       <label className="block">
@@ -472,6 +486,7 @@ function NumberField({
         {money ? (
           <MoneyInput
             min={0}
+            max={numericMax}
             step="0.01"
             disabled={disabled}
             value={value}
@@ -482,13 +497,21 @@ function NumberField({
           <input
             type="number"
             min={isDays ? 1 : 0}
-            max={isDays ? 90 : 100}
+            max={numericMax}
             step={isDays ? 1 : 0.01}
             disabled={disabled}
             value={Number.isNaN(value) ? "" : value}
-            onChange={(event) =>
-              onChange(event.target.value === "" ? NaN : Number(event.target.value))
-            }
+            onKeyDown={(event) => blockInvalidNumberKey(event, { allowDecimal: !isDays })}
+            onChange={(event) => {
+              const raw = event.target.value;
+              if (raw === "") {
+                onChange(NaN);
+                return;
+              }
+              const intDigits = raw.replace(/^-/, "").split(".")[0].replace(/^0+(?=\d)/, "");
+              if (intDigits.length > maxDigits) return;
+              onChange(Number(raw));
+            }}
             className="mt-1 h-10 w-full rounded-xl border border-neutral-200 px-3 text-[12px] tabular-nums disabled:bg-neutral-50"
           />
         )}

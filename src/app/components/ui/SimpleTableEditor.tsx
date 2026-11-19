@@ -1,6 +1,7 @@
 import { WorkspaceTooltip } from "./workspace/WorkspaceTooltip";
 import { useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
+import { INPUT_LIMITS } from "../../shared/inputLimits";
 
 export function escapeTableCellHtml(value: string): string {
   return value
@@ -63,6 +64,7 @@ export function SimpleTableEditor({ onChange }: { onChange: (html: string) => vo
                   <input
                     aria-label={`Row ${r + 1}, column ${c + 1}`}
                     value={cell}
+                    maxLength={INPUT_LIMITS.TITLE}
                     onChange={(e) => updateCell(r, c, e.target.value)}
                     className="w-full px-2 py-1.5 text-[12px] outline-none"
                   />

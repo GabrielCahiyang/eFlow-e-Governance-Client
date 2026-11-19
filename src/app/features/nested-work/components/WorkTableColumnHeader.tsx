@@ -98,6 +98,7 @@ export function AddSubtaskColumnButton({
           <Search size={16} aria-hidden="true" />
           <input
             aria-label="Search columns"
+            maxLength={120}
             placeholder="Search columns"
             value={query}
             onChange={event => setQuery(event.target.value)}

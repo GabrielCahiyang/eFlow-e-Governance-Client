@@ -111,7 +111,7 @@ export function ProjectOfficeDirectory({ projectId, leadOffice, canManage, organ
     <OfficeReadFeedback errors={[context.identityError, readError,peopleError]} onRetry={async () => { await Promise.all([context.refresh(), refresh()]); }} busy={busy || tableProps.removalBusy}/>
     {error && <p role="alert" className="po-error">{readableUiError(error, "We couldn't confirm the Office change. Reload the Office list before trying again.", "write")}</p>}
     {notice && <p role="status" className="po-help">{notice}</p>}
-    {freshLink && <label className="po-link">Fresh private invitation link<input readOnly value={freshLink} onFocus={event => event.target.select()}/><small>This replaces the previous link. Keep it private.</small></label>}
+    {freshLink && <label className="po-link">Fresh private invitation link<input readOnly maxLength={2048} value={freshLink} onFocus={event => event.target.select()}/><small>This replaces the previous link. Keep it private.</small></label>}
     {context.loading ? <ProjectOfficeTableSkeleton /> : rows.length ? <ProjectOfficeTable {...tableProps} rows={rows} removalBusy={tableProps.removalBusy || busy} identityActions={row => {
       const identity = row.identity;
       if (!identity || !includeNamed || identity.provenance.source === 'canonical_backfill') return null;

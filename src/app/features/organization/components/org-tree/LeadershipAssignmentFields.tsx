@@ -114,6 +114,7 @@ export function LeadershipAssignmentFields({
           />
           <TextInput
             id="leadership-candidate-search"
+            maxLength={120}
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             className="bg-white pl-9"

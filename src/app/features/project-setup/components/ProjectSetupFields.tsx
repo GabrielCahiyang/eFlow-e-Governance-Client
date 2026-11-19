@@ -1,4 +1,5 @@
 import type {UserProfile} from '../../../types';
+import {DateInput} from '../../../components/ui/DateInput';
 import {getPhilippineCalendarDate} from '../../../shared/calendarDates';
 export interface SetupDraft {title:string;description:string;scope:string;lead:string;start:string;end:string;noFunding:boolean}
 export function ProjectSetupFields({step,draft,update,profiles,disabled,readOnlyReason,settings=false}:{step:number;draft:SetupDraft;update:(key:keyof SetupDraft,value:string|boolean)=>void;profiles:UserProfile[];disabled:boolean;readOnlyReason?:string;officeName?:string;settings?:boolean;automaticLead?:boolean;originalStart?:string}){
@@ -9,8 +10,8 @@ export function ProjectSetupFields({step,draft,update,profiles,disabled,readOnly
   {step===2&&<>
    <div className="pf-section-heading"><p className="pf-eyebrow">TIMELINE</p><h2>When will the project run?</h2><p>Choose a start date of today or later.</p></div>
    <div className="pf-grid">
-    <label>Project start date *<input type="date" value={draft.start} min={getPhilippineCalendarDate()} max={draft.end||undefined} onChange={event=>update('start',event.target.value)}/></label>
-    <label>Project target date *<input type="date" value={draft.end} min={draft.start||undefined} onChange={event=>update('end',event.target.value)}/></label>
+    <label>Project start date *<DateInput value={draft.start} min={getPhilippineCalendarDate()} max={draft.end||undefined} disabled={disabled} onChange={event=>update('start',event.target.value)}/></label>
+    <label>Project target date *<DateInput value={draft.end} min={draft.start||undefined} disabled={disabled} onChange={event=>update('end',event.target.value)}/></label>
    </div>
   </>}
  </fieldset>;

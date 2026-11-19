@@ -295,13 +295,17 @@ export function RoleDefaultsTab() {
         const created = await createCustomRole({
           ...values,
           existingKeys: customRoles.map((r) => r.key),
+          existingRoles: roleCatalog,
         });
         await Promise.all([reloadCatalog(), fetchRolePermissions().then(setRows)]);
         setSelectedRoleKey(created.key);
         setModalMode(null);
         toast(`Created custom role "${created.label}".`, "success");
       } else if (modalMode === "edit" && editingRole) {
-        const updated = await updateCustomRole(editingRole.key, values);
+        const updated = await updateCustomRole(editingRole.key, {
+          ...values,
+          existingRoles: roleCatalog,
+        });
         await Promise.all([reloadCatalog(), fetchRolePermissions().then(setRows)]);
         setModalMode(null);
         toast(`Updated custom role "${updated.label}".`, "success");
@@ -537,6 +541,7 @@ export function RoleDefaultsTab() {
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       placeholder="Search permissions…"
+                      maxLength={120}
                       aria-label="Search permissions"
                       className="h-9 w-full rounded-lg border border-neutral-200 pl-8 pr-3 text-[13px] placeholder:text-neutral-400 focus:outline-none"
                     />
@@ -621,6 +626,7 @@ export function RoleDefaultsTab() {
         open={modalMode !== null}
         mode={modalMode || "create"}
         initialRole={editingRole}
+        existingRoles={roleCatalog}
         roleRows={rows}
         saving={modalSaving}
         error={modalError}

@@ -12,6 +12,8 @@ import {
 import type { Organization } from "../../../../types";
 import { useAuth } from "../../../../contexts/AuthContext";
 import { useToast } from "../../../../components/ui/Toast";
+import { FieldLengthHint } from "../../../../components/ui/FieldLengthHint";
+import { INPUT_LIMITS } from "../../../../shared/inputLimits";
 import { useCollaborationDraft } from "../../../interdepartment-collaboration/hooks/useCollaborationDraft";
 import {
   fetchMyCollaborationMemberships,
@@ -502,11 +504,15 @@ export function ProposalContextInspector({
                     </div>
                   ) : (
                     <div className="space-y-2 pt-2 border-t border-blue-200/60">
-                      <label className="block text-[11px] font-semibold text-neutral-700">
-                        Revision Request Notes:
-                      </label>
+                      <div className="flex items-center justify-between gap-2">
+                        <label className="block text-[11px] font-semibold text-neutral-700">
+                          Revision Request Notes:
+                        </label>
+                        <FieldLengthHint length={changeReason.length} max={INPUT_LIMITS.REASON} />
+                      </div>
                       <textarea
                         rows={3}
+                        maxLength={INPUT_LIMITS.REASON}
                         value={changeReason}
                         onChange={(e) => setChangeReason(e.target.value)}
                         placeholder="Describe the required changes for the originating office…"

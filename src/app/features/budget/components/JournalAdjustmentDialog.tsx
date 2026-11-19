@@ -2,6 +2,7 @@ import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTool
 import { getPhilippineCalendarDate, historicalDateError } from '../../../shared/calendarDates';
 import { MoneyInput } from '../../../components/ui/MoneyInput';
 import { DateInput } from '../../../components/ui/DateInput';
+import { INPUT_LIMITS } from '../../../shared/inputLimits';
 import * as m from "motion/react-m";
 import { useEffect, useRef, useState } from "react";
 import { AttentionBox, Button } from "@vibe/core";
@@ -356,6 +357,7 @@ export function JournalAdjustmentDialog({
                   <MoneyInput
                     aria-label={`Debit line ${index + 1}`}
                     min="0"
+                    max={INPUT_LIMITS.MONEY_MAX_BUDGET}
                     step="0.01"
                     placeholder="0.00"
                     value={line.debit || ""}
@@ -371,6 +373,7 @@ export function JournalAdjustmentDialog({
                   <MoneyInput
                     aria-label={`Credit line ${index + 1}`}
                     min="0"
+                    max={INPUT_LIMITS.MONEY_MAX_BUDGET}
                     step="0.01"
                     placeholder="0.00"
                     value={line.credit || ""}

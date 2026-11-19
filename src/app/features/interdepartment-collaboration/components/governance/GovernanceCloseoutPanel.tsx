@@ -1,5 +1,6 @@
 import { useExplicitDraft } from "../../../../shared/useExplicitDraft";
 import { DateInput } from "../../../../components/ui/DateInput";
+import { INPUT_LIMITS } from "../../../../shared/inputLimits";
 import * as React from "react";
 import {
   Archive,
@@ -151,6 +152,7 @@ export function GovernanceCloseoutPanel({
               Request final verification
             </div>
             <textarea
+              maxLength={INPUT_LIMITS.COMMENT}
               value={note}
               onChange={(event) => setNote(event.target.value)}
               rows={2}
@@ -182,6 +184,7 @@ export function GovernanceCloseoutPanel({
             </div>
             <div className="mt-2 grid gap-2 sm:grid-cols-2">
               <input
+                maxLength={INPUT_LIMITS.CODE}
                 value={resolution}
                 onChange={(event) => setResolution(event.target.value)}
                 placeholder="Board resolution number (optional)"
@@ -194,6 +197,7 @@ export function GovernanceCloseoutPanel({
               />
             </div>
             <textarea
+              maxLength={INPUT_LIMITS.REASON}
               value={reason}
               onChange={(event) => setReason(event.target.value)}
               rows={2}
@@ -310,6 +314,7 @@ function ActionBox({
       </div>
       <p className="mt-1 text-[9px] text-emerald-700">{description}</p>
       <textarea
+        maxLength={INPUT_LIMITS.REASON}
         value={value}
         onChange={(event) => onChange(event.target.value)}
         rows={2}

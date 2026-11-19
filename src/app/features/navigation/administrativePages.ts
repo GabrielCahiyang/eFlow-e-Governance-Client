@@ -40,6 +40,7 @@ export const administrativeSubPages = [
   { label: "Individual Access", kind: "People & Access", section: "users", page: "User Access", adminOnly: true },
   { label: "Work Statuses", kind: "System", section: "administration", page: "Status Maintenance", adminOnly: true },
   { label: "Skill Tags", kind: "System", section: "administration", page: "Skill Tags", adminOnly: true },
+  { label: "Archive & Retention", kind: "System", section: "administration", page: "Archive & Retention", adminOnly: true },
 ] as const;
 
 const ADMIN_ONLY_LEGACY_PAGES = new Set([
@@ -54,6 +55,7 @@ const ADMIN_ONLY_LEGACY_PAGES = new Set([
   "Status Maintenance",
   "Work Statuses",
   "Skill Tags",
+  "Archive & Retention",
 ]);
 
 /** Presentation order only; the authorized page contract remains above. */
@@ -108,6 +110,7 @@ const PAGE_TO_CANONICAL: Record<string, (typeof administrativePages)[number]["la
   "Status Maintenance": "System & Maintenance",
   "Work Statuses": "System & Maintenance",
   "Skill Tags": "System & Maintenance",
+  "Archive & Retention": "System & Maintenance",
   "Workspace Policy": "System & Maintenance",
   "Email & Integrations": "System & Maintenance",
   "Runtime / AI Health": "System & Maintenance",
@@ -134,6 +137,7 @@ export function resolveSupportSubTab(section: string, page?: string): string | u
   if (page === "User Access" || page === "Individual Access") return "user-access";
   if (page === "Status Maintenance" || page === "Work Statuses") return "statuses";
   if (page === "Skill Tags") return "skills";
+  if (page === "Archive & Retention") return "retention";
   if (page === "System Settings" || page === "Workspace Policy" || page === "System & Maintenance" || page === "System & Integrations" || page === "Email & Integrations" || page === "Runtime / AI Health" || page === "Email & Runtime Health" || section === "administration") return "general";
   if (page === "All Users" || page === "People & Accounts" || page === "Office Structure" || page === "Org Structure" || section === "users" || section === "org_tree") return "office";
   return undefined;

@@ -44,7 +44,7 @@ export function WorkLeadField({leadId,contributorIds,people,excludedLeadIds,prio
   {priority&&<div className="nw-staffing-search-block">
    <label className="nw-staffing-label" htmlFor={`${id}-search`}>Find a lead</label>
    <div className="nw-staffing-search-wrap"><Search size={15} className="nw-staffing-search-icon" aria-hidden="true"/>
-    <input id={`${id}-search`} className="nw-staffing-search" type="search" placeholder="Search eligible members by name" value={query} disabled={disabled} onChange={event=>setQuery(event.target.value)}/>
+    <input id={`${id}-search`} className="nw-staffing-search" type="search" maxLength={120} placeholder="Search eligible members by name" value={query} disabled={disabled} onChange={event=>setQuery(event.target.value)}/>
    </div>
   </div>}
   <label className="nw-staffing-label" htmlFor={id}>Appointed Lead</label>

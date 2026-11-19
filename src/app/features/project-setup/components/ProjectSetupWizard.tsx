@@ -47,7 +47,10 @@ export function ProjectSetupWizard({projectId,profiles,profilesLoading: _profile
  const [projectType,setProjectType]=useState('');
  const [manageTemplatesOpen,setManageTemplatesOpen]=useState(false);
  const [templateInitialCreate,setTemplateInitialCreate]=useState(false);
- const editable=!projectId||flow.data?.canAuthorize===true,locked=busy||fundingBusy||taskDraftBusy;
+ const editable=!projectId||flow.data?.canConfigure===true||flow.data?.canAuthorize===true,locked=busy||fundingBusy||taskDraftBusy;
+ const openFundingRequests=activeFlow?.fundingRequests??[];
+ const awaitingAccounting=openFundingRequests.some(item=>item.status==='pending_accounting');
+ const awaitingHead=openFundingRequests.some(item=>!item.status||item.status==='pending');
  const templateLibrary=useProjectTaskTemplates(editable&&!pdfMode);
  const selectedTemplate=templateLibrary.templates.find(template=>template.id===projectType);
  const dirty=JSON.stringify(draft)!==JSON.stringify(base?fields(base):{...empty,lead:creatorId||''});
@@ -123,7 +126,11 @@ export function ProjectSetupWizard({projectId,profiles,profilesLoading: _profile
   validate(0);validate(1);validate(datesStep);
   if(step===reviewStep){
    if(fundingDirty||uncertain)throw new Error('Save or remove the funding entries first.');
-   if(!draft.noFunding&&!(activeFlow&&activeFlow.total>0))throw new Error('Add project funding or select No funding required.');
+   if(!draft.noFunding&&!(activeFlow&&activeFlow.total>0)){
+    if(awaitingAccounting)throw new Error('Project funding is awaiting independent Accounting Staff certification. Save draft and close to continue once certified, or withdraw the request and choose No funding required.');
+    if(awaitingHead)throw new Error('Project funding request is awaiting Office Head endorsement and Accounting Staff certification. Save draft and close to continue once certified.');
+    throw new Error('Submit project funding for Accounting certification, or select No funding required.');
+   }
    const target=await persist();
    await projectFlowCall('finish_project_setup',{p_project:target});
    setReadyProjectId(target);
@@ -132,8 +139,12 @@ export function ProjectSetupWizard({projectId,profiles,profilesLoading: _profile
    window.dispatchEvent(new Event('eflow:project-setup'));
    return;
   }
-  if(fundingDirty||uncertain)throw new Error('Authorize the funding rows or clear the unsaved entries before continuing.');
-  if(!draft.noFunding&&!(activeFlow&&activeFlow.total>0))throw new Error('Authorize project funding, or explicitly choose No funding required.');
+  if(fundingDirty||uncertain)throw new Error('Submit the funding rows or clear the unsaved entries before continuing.');
+  if(!draft.noFunding&&!(activeFlow&&activeFlow.total>0)){
+   if(awaitingAccounting)throw new Error('Funding is awaiting independent Accounting Staff certification. Click "Save draft and close" and resume once Accounting certifies, or withdraw the request and choose No funding required.');
+   if(awaitingHead)throw new Error('Funding request sent. Click "Save draft and close" and resume after Office Head endorsement and Accounting Staff certification, or withdraw the request and choose No funding required.');
+   throw new Error('Submit project funding for Accounting certification, or explicitly choose No funding required.');
+  }
   if(dirty||!base){await persist();void flow.reload();}setStep(reviewStep);
   });
  };
@@ -210,7 +221,7 @@ export function ProjectSetupWizard({projectId,profiles,profilesLoading: _profile
     </div> : <ProjectSetupFields step={step} draft={draft} update={update} profiles={profiles} disabled={locked||!editable}/>}
     {step===0&&<ProjectOpeningPreview title={draft.title} selectedTemplate={selectedTemplate}/>}
    </div>}
-   <section hidden={step!==fundingStep} aria-label="Project funding step"><p className="pf-eyebrow">PROJECT FUNDING</p><h2>Set the funding sources</h2><p>Choose the Office Budget source and amount for the current fiscal year. The project total is calculated from those rows.</p><label className="pf-checkbox"><input type="checkbox" checked={draft.noFunding} disabled={!editable||!!activeFlow?.funds.length||locked||fundingDirty||uncertain} onChange={e=>update('noFunding',e.target.checked)}/>No funding required for this project</label>{!draft.noFunding&&!detailsComplete&&<p className="pf-warning">Complete Details, Scope and Dates before choosing funding.</p>}
+   <section hidden={step!==fundingStep} aria-label="Project funding step"><p className="pf-eyebrow">PROJECT FUNDING</p><h2>Set the funding sources</h2><p>Choose the Office Budget source and amount for the current fiscal year. Funded projects require independent Accounting Staff certification before funds are reserved.</p><label className="pf-checkbox"><input type="checkbox" checked={draft.noFunding} disabled={!editable||!!activeFlow?.funds.length||openFundingRequests.length>0||locked||fundingDirty||uncertain} onChange={e=>update('noFunding',e.target.checked)}/>No funding required for this project</label>{!draft.noFunding&&!detailsComplete&&<p className="pf-warning">Complete Details, Scope and Dates before choosing funding.</p>}
     {!draft.noFunding&&detailsComplete&&busy&&needsFundingDetails&&<p role="status">Saving project details…</p>}
     {!draft.noFunding&&detailsComplete&&!locked&&(needsFundingDetails&&error||flow.error)&&<button type="button" className="pf-funding-retry" onClick={needsFundingDetails?prepareFunding:()=>void perform(flow.reload)}>Retry loading funding sources</button>}
     {!draft.noFunding&&id&&base&&activeFlow?.project.id===id&&<fieldset disabled={busy||(!uncertain&&(dirty||!detailsComplete))} className="min-w-0"><ProjectFundingPanel key={id} wizard recoveryKey={fundingRecoveryKey} data={activeFlow} reload={flow.reload} onBusyChange={setFundingBusy} onDraftChange={setFundingDirty} onUncertainChange={setUncertain}/></fieldset>}</section>

@@ -203,6 +203,7 @@ export function DraggableAgendaRow({
             <div className="flex items-center gap-1.5 flex-1">
               <input
                 type="text"
+                maxLength={300}
                 autoFocus
                 value={editTitle}
                 onChange={(e) => setEditTitle(e.target.value)}

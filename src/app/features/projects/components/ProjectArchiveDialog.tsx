@@ -1,6 +1,8 @@
 import * as React from "react";
 import * as Icons from "lucide-react";
 import { Modal } from "../../../components/ui/Modal";
+import { FieldLengthHint } from "../../../components/ui/FieldLengthHint";
+import { INPUT_LIMITS } from "../../../shared/inputLimits";
 import { archiveProject, restoreProject } from "../services/projectService";
 import { useGuardedProjectDialog } from '../hooks/useGuardedProjectDialog';
 
@@ -116,11 +118,15 @@ export function ProjectArchiveDialog({
 
         {/* Reason field */}
         <div className="flex flex-col gap-2">
-          <label htmlFor="archive-reason-input" className="text-xs font-semibold text-neutral-700">
-            Reason for {isArchived ? "restoration" : "archiving"} <span className="font-normal text-neutral-400">(optional)</span>
-          </label>
+          <div className="flex items-center justify-between gap-2">
+            <label htmlFor="archive-reason-input" className="text-xs font-semibold text-neutral-700">
+              Reason for {isArchived ? "restoration" : "archiving"} <span className="font-normal text-neutral-400">(optional)</span>
+            </label>
+            <FieldLengthHint length={reason.length} max={INPUT_LIMITS.REASON} />
+          </div>
           <textarea
             id="archive-reason-input"
+            maxLength={INPUT_LIMITS.REASON}
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             rows={3}

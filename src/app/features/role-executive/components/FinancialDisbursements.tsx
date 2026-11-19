@@ -32,6 +32,7 @@ export function FinancialDisbursements() {
             <input
               type="text"
               placeholder="Search voucher number…"
+              maxLength={120}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="text-[12px] font-normal text-neutral-700 bg-transparent outline-none w-44 placeholder:text-neutral-400"

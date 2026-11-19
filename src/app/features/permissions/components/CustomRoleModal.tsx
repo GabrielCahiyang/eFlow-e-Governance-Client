@@ -7,6 +7,11 @@ import {
   type PermissionKey,
 } from "../constants";
 import { rolePermissionAllowed } from "../selectors";
+import {
+  cleanCustomRoleLabel,
+  validateCustomRoleName,
+  type ExistingRoleLabelEntry,
+} from "../validation/roleNameValidation";
 import type { BaseCustomRole, CustomRoleDefinition, RolePermissionRow } from "../types";
 
 const ALL_CAPABILITY_KEYS: readonly PermissionKey[] = [
@@ -32,6 +37,7 @@ export interface CustomRoleModalProps {
   open: boolean;
   mode: "create" | "edit";
   initialRole?: CustomRoleDefinition | null;
+  existingRoles?: readonly ExistingRoleLabelEntry[];
   roleRows?: RolePermissionRow[];
   saving: boolean;
   error: string | null;
@@ -120,11 +126,15 @@ function ModalPermissionGroup({
   );
 }
 
+const EMPTY_EXISTING_ROLES: readonly ExistingRoleLabelEntry[] = [];
+const EMPTY_ROLE_ROWS: RolePermissionRow[] = [];
+
 export function CustomRoleModal({
   open,
   mode,
   initialRole,
-  roleRows = [],
+  existingRoles = EMPTY_EXISTING_ROLES,
+  roleRows = EMPTY_ROLE_ROWS,
   saving,
   error,
   onClose,
@@ -135,6 +145,7 @@ export function CustomRoleModal({
   const [baseRole, setBaseRole] = useState<BaseCustomRole>("member");
   const [permissions, setPermissions] = useState<Record<string, boolean>>({});
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [labelTouched, setLabelTouched] = useState(false);
 
   useEffect(() => {
     if (!open) return;
@@ -149,6 +160,7 @@ export function CustomRoleModal({
       ),
     );
     setValidationError(null);
+    setLabelTouched(false);
   }, [open, initialRole, mode, roleRows]);
 
   useEffect(() => {
@@ -165,6 +177,15 @@ export function CustomRoleModal({
     [permissions],
   );
 
+  const liveNameError = useMemo(() => {
+    if (!label.trim()) return null;
+    return validateCustomRoleName(
+      label,
+      existingRoles,
+      mode === "edit" ? initialRole?.key : null,
+    );
+  }, [label, existingRoles, mode, initialRole?.key]);
+
   if (!open) return null;
 
   const handleTogglePermission = (permission: PermissionKey) => {
@@ -176,9 +197,15 @@ export function CustomRoleModal({
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
-    const cleanedLabel = label.trim().replace(/\s+/g, " ");
-    if (cleanedLabel.length < 2 || cleanedLabel.length > 60) {
-      setValidationError("Enter a role name between 2 and 60 characters.");
+    setLabelTouched(true);
+    const cleanedLabel = cleanCustomRoleLabel(label);
+    const nameError = validateCustomRoleName(
+      cleanedLabel,
+      existingRoles,
+      mode === "edit" ? initialRole?.key : null,
+    );
+    if (nameError) {
+      setValidationError(nameError);
       return;
     }
     setValidationError(null);
@@ -190,7 +217,8 @@ export function CustomRoleModal({
     });
   };
 
-  const displayError = validationError || error;
+  const inlineNameError = validationError || (labelTouched || label.trim().length >= 2 ? liveNameError : null);
+  const displayError = inlineNameError || error;
 
   return (
     <div
@@ -242,12 +270,24 @@ export function CustomRoleModal({
                     setLabel(e.target.value);
                     if (validationError) setValidationError(null);
                   }}
+                  onBlur={() => setLabelTouched(true)}
                   maxLength={60}
                   placeholder="e.g. Budget Reviewer"
                   autoFocus
                   disabled={saving}
-                  className="h-9 w-full rounded-lg border border-neutral-200 bg-white px-3 text-[13px] text-neutral-900 placeholder:text-neutral-400 focus:border-[#0d544f] focus:outline-none"
+                  aria-invalid={Boolean(inlineNameError)}
+                  aria-describedby={inlineNameError ? "custom-role-label-error" : undefined}
+                  className={`h-9 w-full rounded-lg border bg-white px-3 text-[13px] text-neutral-900 placeholder:text-neutral-400 focus:outline-none ${
+                    inlineNameError
+                      ? "border-red-400 focus:border-red-500"
+                      : "border-neutral-200 focus:border-[#0d544f]"
+                  }`}
                 />
+                {inlineNameError ? (
+                  <p id="custom-role-label-error" role="alert" className="mt-1 text-[11.5px] text-red-600">
+                    {inlineNameError}
+                  </p>
+                ) : null}
               </div>
 
               <div>
@@ -320,8 +360,8 @@ export function CustomRoleModal({
               />
             </div>
 
-            {displayError ? (
-              <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-[12px] text-red-700">
+            {error && !inlineNameError ? (
+              <div role="alert" className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-[12px] text-red-700">
                 {displayError}
               </div>
             ) : null}
@@ -338,7 +378,7 @@ export function CustomRoleModal({
             </button>
             <button
               type="submit"
-              disabled={saving}
+              disabled={saving || Boolean(inlineNameError)}
               className="inline-flex min-h-[36px] items-center rounded-lg bg-[#0d544f] px-4 text-[13px] font-medium text-white hover:bg-[#0b4642] disabled:opacity-60"
             >
               {saving ? "Saving…" : mode === "create" ? "Create role" : "Save changes"}

@@ -75,6 +75,7 @@ export function AdjournFrictionModal({
             </p>
             <input
               type="text"
+              maxLength={50}
               value={typedText}
               onChange={(e) => setTypedText(e.target.value)}
               placeholder="Type ADJOURN to unlock…"

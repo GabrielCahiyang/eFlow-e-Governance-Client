@@ -50,7 +50,7 @@ export function WorkContributorsField({leadId,contributorIds,people,priority,con
    <label className="nw-staffing-label" htmlFor={id}>Find people</label>
    <div className="nw-staffing-search-wrap">
     <Search size={15} className="nw-staffing-search-icon" aria-hidden="true"/>
-    <input id={id} className="nw-staffing-search" type="search" placeholder="Search eligible members by name" value={query} disabled={disabled} aria-describedby={disabled?`${id}-reason`:undefined} onChange={event=>setQuery(event.target.value)}/>
+    <input id={id} className="nw-staffing-search" type="search" maxLength={120} placeholder="Search eligible members by name" value={query} disabled={disabled} aria-describedby={disabled?`${id}-reason`:undefined} onChange={event=>setQuery(event.target.value)}/>
    </div>
   </div>
   <div className="nw-staffing-available" aria-label="Available project contributors">

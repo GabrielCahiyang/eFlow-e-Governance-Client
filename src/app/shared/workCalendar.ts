@@ -1,7 +1,7 @@
 /** Date-only values keep their calendar day; instants are displayed in the workspace timezone. */
 export function workDay(
   value: string | Date | number | undefined | null,
-  timezone = "Asia/Singapore",
+  timezone = "Asia/Manila",
 ): number | null {
   if (value == null || value === "") return null;
   if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) {

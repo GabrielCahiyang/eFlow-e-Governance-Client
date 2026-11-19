@@ -146,6 +146,7 @@ export function FocusReader({
           {showNoteInput && (
             <div className="flex gap-2 mb-3">
               <input
+                maxLength={1000}
                 value={newNote}
                 onChange={(e) => setNewNote(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && addNote()}

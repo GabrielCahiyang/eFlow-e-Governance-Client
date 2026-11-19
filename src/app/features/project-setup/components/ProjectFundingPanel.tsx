@@ -3,6 +3,7 @@ import {useEffect,useId,useRef,useState} from 'react';
 import {useNavigationBlocker} from '../../../shared/navigationGuard';
 import {Plus,Wallet,Check,Trash2,Undo2} from 'lucide-react';
 import {MoneyInput} from '../../../components/ui/MoneyInput';
+import {INPUT_LIMITS} from '../../../shared/inputLimits';
 import {DecisionModal} from '../../../components/ui/DecisionModal';
 import { getPhilippineCalendarDate } from '../../../shared/calendarDates';
 import { decimalError } from '../../../shared/numericValidation';
@@ -21,8 +22,9 @@ export function ProjectFundingPanel({data,reload,wizard=false,allowFundingEntry=
  const [decision,setDecision]=useState<FundingDecision>(),[decisionReason,setDecisionReason]=useState('');
  const total=lines.reduce((sum,line)=>sum+line.amount,0);
  const currentYear=Number(getPhilippineCalendarDate().slice(0,4));
+ const canConfigure=data.canConfigure===true||data.canAuthorize===true;
  const sources=data.sources.filter(source=>source.available>0&&(!wizard||source.year===currentYear));
- const entryAllowed=data.canAllocate&&(!wizard||data.canAuthorize);
+ const entryAllowed=data.canAllocate&&(data.canAuthorize||canConfigure||!wizard);
  const entryHintId=useId();
  const entryIssue=wizard&&lines.some(line=>!!line.partitionId&&!!decimalError(line.amount,'Amount',0.01,90_000_000_000,2))
   ?'Enter an amount from ₱0.01 to ₱90,000,000,000 with up to two decimal places.'
@@ -43,8 +45,11 @@ export function ProjectFundingPanel({data,reload,wizard=false,allowFundingEntry=
   attempt.current??={id:crypto.randomUUID(),operation};
   storeFundingDraft(recoveryKey,{lines,reason,request:attempt.current});
   try{
-   const receipt=await projectFlowCall<{authorized:number}>(operation,{p_project:data.project.id,p_lines:lines,p_reason:reason.trim(),p_key:attempt.current.id});
-   if(wizard&&(!Number.isFinite(receipt?.authorized)||receipt.authorized<=0))throw new Error('Could not confirm the authorization. Verify the saved funding request.');
+   const receipt=await projectFlowCall<{authorized?:number;requested?:number;status?:string}>(operation,{p_project:data.project.id,p_lines:lines,p_reason:reason.trim(),p_key:attempt.current.id});
+   if(wizard&&operation==='authorize_project_funding'){
+    const confirmedAmount=Number(receipt?.authorized||0)+Number(receipt?.requested||0);
+    if(!Number.isFinite(confirmedAmount)||confirmedAmount<=0)throw new Error('Could not confirm the funding submission. Verify the saved funding request.');
+   }
   }
   catch(e){
    if(e instanceof ProjectFlowError&&!uncertain){attempt.current=undefined;storeFundingDraft(recoveryKey,{lines,reason});}
@@ -52,13 +57,15 @@ export function ProjectFundingPanel({data,reload,wizard=false,allowFundingEntry=
    throw e;
   }
   attempt.current=undefined;storeFundingDraft(recoveryKey);setUncertain(false);setLines([{partitionId:'',amount:0}]);setReason('');
- },data.canAuthorize?(wizard?'Project funding authorized.':'Project budget updated.'):'Funding request sent to the Head.');
+ },data.canAuthorize?'Submitted to Accounting Staff for independent funding certification.':'Funding request sent to the Office Head for endorsement and Accounting certification.');
+ const hasPendingAccounting=data.fundingRequests.some(request=>request.status==='pending_accounting');
  return <section className="pf-panel" aria-label="Project budget">
- <header><div><h2><Wallet size={20}/> Project budget</h2><p>Authorize funding from named Office Budget sources{wizard?` for FY ${currentYear}`:''}. Tasks divide this funding; they do not charge Office Budget again.</p></div><span className="pf-status-badge" data-tone={data.project.funding_not_required?'neutral':data.total>0?'positive':data.fundingRequests.length?'warning':'attention'}>{data.project.funding_not_required?'Funding not required':data.total>0?'Funding authorized':data.fundingRequests.length?'Funding request pending':'Funding required · no funding authorized'}</span></header>
- <div className="pf-summary">{[['Authorized budget',data.total],['Allocated to tasks',data.allocated],['Unallocated',data.unallocated],['Cash released',data.released],['Actual spent',data.spent],['Cash returned',data.returned??0],['Outstanding advances',data.outstanding??0]].map(([label,value])=><div key={String(label)}><small>{label}</small><strong>{money(Number(value))}</strong></div>)}</div>
- {data.funds.length>0&&<div className="pf-table-scroll"><table><thead><tr><th>Funding source</th><th>Fiscal year</th><th>Authorized</th><th>Unallocated</th>{data.canAuthorize&&<th>Closeout</th>}</tr></thead><tbody>{data.funds.map(source=><tr key={source.id}><td>{source.name}</td><td>FY {source.fiscal_year}</td><td>{money(source.amount)}</td><td>{money(source.available)}</td>{data.canAuthorize&&<td><button className="pf-closeout-button" disabled={busy||source.available<=0} onClick={()=>{const requestId=crypto.randomUUID();confirmDecision({title:'Return unused funding to Office Budget',description:'Only the unallocated amount is returned to Office Budget. Task allocations and cash records stay recorded. '+source.name+' · '+money(source.available),label:'Return to Office Budget',action:reason=>projectFlowCall('release_project_funding',{p_project:data.project.id,p_source:source.id,p_amount:source.available,p_reason:reason,p_key:requestId}),success:'Unused funding returned to Office Budget with an audit record.'});}}><Undo2 size={14}/>Return to Office Budget</button></td>}</tr>)}</tbody></table></div>}
- {wizard&&!data.canAuthorize&&<p className="pf-warning">Only the appointed Office Head can authorize project funding.</p>}
- {allowFundingEntry&&entryAllowed&&!data.project.funding_not_required&&!['completed','archived'].includes(data.project.status)&&<fieldset disabled={busy||uncertain} className="min-w-0 space-y-4"><h3>{data.canAuthorize?'Add authorized funding':'Request additional project funding'}</h3>
+ <header><div><h2><Wallet size={20}/> Project budget</h2><p>Submit funding from named Office Budget sources{wizard?` for FY ${currentYear}`:''}. Independent Accounting Staff must certify fund availability before funds are reserved.</p></div><span className="pf-status-badge" data-tone={data.project.funding_not_required?'neutral':data.total>0?'positive':data.fundingRequests.length?'warning':'attention'}>{data.project.funding_not_required?'Funding not required':data.total>0?'Funding certified':hasPendingAccounting?'Awaiting Accounting certification':data.fundingRequests.length?'Awaiting Head endorsement':'Funding required · not yet certified'}</span></header>
+ <div className="pf-summary">{[['Certified budget',data.total],['Allocated to tasks',data.allocated],['Unallocated',data.unallocated],['Cash released',data.released],['Actual spent',data.spent],['Cash returned',data.returned??0],['Outstanding advances',data.outstanding??0]].map(([label,value])=><div key={String(label)}><small>{label}</small><strong>{money(Number(value))}</strong></div>)}</div>
+ {data.funds.length>0&&<div className="pf-table-scroll"><table><thead><tr><th>Funding source</th><th>Fiscal year</th><th>Certified</th><th>Unallocated</th>{data.canAuthorize&&<th>Closeout</th>}</tr></thead><tbody>{data.funds.map(source=><tr key={source.id}><td>{source.name}</td><td>FY {source.fiscal_year}</td><td>{money(source.amount)}</td><td>{money(source.available)}</td>{data.canAuthorize&&<td><button className="pf-closeout-button" disabled={busy||source.available<=0} onClick={()=>{const requestId=crypto.randomUUID();confirmDecision({title:'Return unused funding to Office Budget',description:'Only the unallocated amount is returned to Office Budget. Task allocations and cash records stay recorded. '+source.name+' · '+money(source.available),label:'Return to Office Budget',action:reason=>projectFlowCall('release_project_funding',{p_project:data.project.id,p_source:source.id,p_amount:source.available,p_reason:reason,p_key:requestId}),success:'Unused funding returned to Office Budget with an audit record.'});}}><Undo2 size={14}/>Return to Office Budget</button></td>}</tr>)}</tbody></table></div>}
+ {wizard&&!data.canAuthorize&&<p className="pf-warning">You can request Office Budget funding below (requires Office Head endorsement and Accounting Staff certification), or select No funding required above.</p>}
+ {wizard&&data.canAuthorize&&<p className="pf-warning">Anti-corruption check: Head-submitted funding requires independent Accounting Staff certification before funds are locked.</p>}
+ {allowFundingEntry&&entryAllowed&&!data.project.funding_not_required&&!['completed','archived'].includes(data.project.status)&&<fieldset disabled={busy||uncertain} className="min-w-0 space-y-4"><h3>{data.canAuthorize?'Submit project funding for Accounting certification':'Request project funding'}</h3>
  {!sources.length&&<p className="pf-warning">{wizard?`No FY ${currentYear} Office Budget sources with available balances yet. Check the Office Budget balances first.`:'No funding is available from Office Budget. Check the Office Budget balances first.'}</p>}
  {lines.map((line,index)=>{
   const sourceList=uncertain?data.sources.filter(source=>!wizard||source.year===currentYear):sources;
@@ -68,7 +75,7 @@ export function ProjectFundingPanel({data,reload,wizard=false,allowFundingEntry=
     setLines(rows=>rows.map((row,i)=>i===index?{...row,partitionId}:row));
    }}><option value="">{wizard?`Select a FY ${currentYear} Office Budget source`:'Select fiscal year and account'}</option>
    {sourceList.map(source=><option key={source.id} value={source.id} disabled={lines.some((row,i)=>i!==index&&row.partitionId===source.id)}>FY {source.year} · {source.name} · {money(source.available)} available</option>)}</select></label>
-   <label>Amount<MoneyInput min="0" step="0.01" value={line.amount||''} onValueChange={value=>setLines(rows=>rows.map((row,i)=>i===index?{...row,amount:Number(value)}:row))}/></label>
+   <label>Amount<MoneyInput min="0" max={INPUT_LIMITS.MONEY_MAX_BUDGET} step="0.01" value={line.amount||''} onValueChange={value=>setLines(rows=>rows.map((row,i)=>i===index?{...row,amount:Number(value)}:row))}/></label>
    <WorkspaceTooltip content={`Remove funding row ${index+1}`}><button type="button" className="pf-remove-funding" aria-label={`Remove funding row ${index+1}`} disabled={lines.length===1} onClick={()=>{
     setLines(rows=>rows.filter((_,i)=>i!==index));
    }}><Trash2 size={16}/></button></WorkspaceTooltip>
@@ -77,8 +84,30 @@ export function ProjectFundingPanel({data,reload,wizard=false,allowFundingEntry=
  <button type="button" disabled={lines.length>=sources.length} onClick={()=>setLines(rows=>rows.length>=sources.length?rows:[...rows,{partitionId:'',amount:0}])}><Plus size={16}/>Add funding source</button>
  <label>Reason / approved authority reference<textarea value={reason} maxLength={3000} onChange={e=>setReason(e.target.value)}/></label>
  {entryIssue&&<p id={entryHintId}>{entryIssue}</p>}
- <div className="pf-actions"><strong>Additional funding total: {money(total)}</strong><button type="button" className="pf-primary disabled:cursor-not-allowed disabled:opacity-50" aria-describedby={entryIssue?entryHintId:undefined} disabled={!!entryIssue||busy} onClick={save}><Check size={16}/>{busy?'Saving…':data.canAuthorize?'Authorize project funding':'Request funding'}</button></div></fieldset>}
- {data.fundingRequests.map(request=><article key={request.id} className="pf-warning"><strong>Pending funding request</strong><p>{request.reason}</p>{data.canAuthorize&&<div className="pf-actions"><button disabled={busy} className="pf-primary" onClick={()=>void run(()=>projectFlowCall('decide_project_funding',{p_request:request.id,p_approve:true,p_reason:'Authorized project funding request'}),'Funding request authorized.')}>Authorize</button><button disabled={busy} onClick={()=>{confirmDecision({title:'Decline funding request',description:request.reason,label:'Decline funding request',action:reason=>projectFlowCall('decide_project_funding',{p_request:request.id,p_approve:false,p_reason:reason}),success:'Funding request declined.'});}}>Decline</button></div>}</article>)}
+ <div className="pf-actions"><strong>Additional funding total: {money(total)}</strong><button type="button" className="pf-primary disabled:cursor-not-allowed disabled:opacity-50" aria-describedby={entryIssue?entryHintId:undefined} disabled={!!entryIssue||busy} onClick={save}><Check size={16}/>{busy?'Saving…':data.canAuthorize?'Submit for Accounting certification':'Request funding'}</button></div></fieldset>}
+ {data.fundingRequests.map(request=>{
+  const isAccountingStage=request.status==='pending_accounting';
+  const requestTotal=typeof request.totalAmount==='number'?request.totalAmount:request.lines.reduce((sum,item)=>sum+Number(item?.amount||0),0);
+  const canEndorse=request.canEndorse??(data.canAuthorize&&!isAccountingStage);
+  const canCertify=request.canCertify===true;
+  const canCancel=request.canCancel===true;
+  return <article key={request.id} className="pf-warning">
+   <strong>{isAccountingStage?'Head-endorsed · Awaiting Accounting Staff certification':'Pending Office Head endorsement'} · {money(requestTotal)}</strong>
+   <p>{request.reason}</p>
+   {request.actorName&&<p className="text-xs opacity-80">Requested by {request.actorName}{request.headApprovedByName?` · Endorsed by ${request.headApprovedByName}`:''}</p>}
+   <div className="pf-actions">
+    {canEndorse&&<>
+     <button type="button" disabled={busy} className="pf-primary" onClick={()=>void run(()=>projectFlowCall('decide_project_funding',{p_request:request.id,p_approve:true,p_reason:'Endorsed by Office Head for Accounting certification'}),'Endorsed and forwarded to Accounting Staff for certification.')}>Endorse for Accounting</button>
+     <button type="button" disabled={busy} onClick={()=>{confirmDecision({title:'Decline funding request',description:request.reason,label:'Decline funding request',action:reason=>projectFlowCall('decide_project_funding',{p_request:request.id,p_approve:false,p_reason:reason}),success:'Funding request declined.'});}}>Decline</button>
+    </>}
+    {canCertify&&<>
+     <button type="button" disabled={busy} className="pf-primary" onClick={()=>void run(()=>projectFlowCall('certify_project_funding',{p_request:request.id,p_approve:true,p_reason:'Certified fund availability by Accounting Staff'}),'Project funding certified and reserved.')}>Certify & reserve funds</button>
+     <button type="button" disabled={busy} onClick={()=>{confirmDecision({title:'Decline funding certification',description:request.reason,label:'Decline certification',action:reason=>projectFlowCall('certify_project_funding',{p_request:request.id,p_approve:false,p_reason:reason}),success:'Funding certification declined.'});}}>Decline</button>
+    </>}
+    {canCancel&&<button type="button" disabled={busy} onClick={()=>{confirmDecision({title:'Withdraw funding request',description:`Withdraw ${money(requestTotal)} request so you can revise funding or choose No funding required.`,label:'Withdraw request',action:reason=>projectFlowCall('cancel_project_funding_request',{p_request:request.id,p_reason:reason}),success:'Funding request withdrawn.'});}}>Withdraw request</button>}
+   </div>
+  </article>;
+ })}
  {data.canAllocate&&data.taskFunding?.length>0&&<section><h3>Task allocations</h3>{data.taskFunding.map(line=><div key={line.id} className="pf-actions py-2"><span>{line.task} · {line.source} · {money(line.amount)} allocated · {money(line.available)} unused</span><button disabled={busy||line.available<=0} onClick={()=>{const requestId=crypto.randomUUID();confirmDecision({title:'Return unused task funding',description:line.task+' · '+money(line.available),label:'Return unused funding',action:reason=>projectFlowCall('release_project_task_funding',{p_line:line.id,p_amount:line.available,p_reason:reason,p_key:requestId}),success:'Unused task funding returned to the project.'});}}>Return unused to project</button></div>)}</section>}
  {data.liquidations?.filter(item=>item.canReview).map(item=><section key={item.id}><h3>Receipt endorsement · {item.purpose}</h3><p>Declared spent: {money(item.spent)}. Verify receipts in the cash record before endorsing.</p><div className="pf-actions"><button disabled={busy} className="pf-primary" onClick={()=>void run(()=>projectFlowCall('decide_petty_cash_liquidation_leader_review',{p_liquidation_id:item.id,p_approve:true,p_reason:'Project reviewer endorsed receipt package'}),'Receipt package endorsed for Accounting settlement.')}>Endorse receipts</button><button disabled={busy} onClick={()=>{confirmDecision({title:'Request receipt corrections',description:item.purpose,label:'Request changes',action:reason=>projectFlowCall('decide_petty_cash_liquidation_leader_review',{p_liquidation_id:item.id,p_approve:false,p_reason:reason}),success:'Receipt package returned for changes.'});}}>Request changes</button></div></section>)}
  {data.requests.length>0&&<section><h3>Project cash requests</h3>{data.requests.map(request=><article key={request.id} className="border-b py-3"><strong>{request.purpose} · {money(request.amount)}</strong><p>{request.requester} · {request.status.replace(/_/g,' ')}</p>{request.canReview&&<div className="pf-actions"><button className="pf-primary" disabled={busy} onClick={()=>void run(()=>projectFlowCall('decide_petty_cash_request',{p_request_id:request.id,p_approve:true,p_reason:'Reviewed by project reviewer'}),'Cash request approved for Accounting release.')}>Approve cash request</button><button disabled={busy} onClick={()=>{confirmDecision({title:'Decline cash request',description:request.purpose,label:'Decline cash request',action:reason=>projectFlowCall('decide_petty_cash_request',{p_request_id:request.id,p_approve:false,p_reason:reason}),success:'Cash request declined.'});}}>Decline request</button></div>}</article>)}</section>}

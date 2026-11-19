@@ -149,6 +149,7 @@ function AggregatedHealthLayout() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder='Search "Eco-Park" or "PRJ-2026-014"…'
+            maxLength={120}
             className="flex-1 bg-transparent px-2 text-[11.5px] font-normal text-neutral-800 placeholder:text-neutral-400 focus:outline-none"
           />
           {query && (

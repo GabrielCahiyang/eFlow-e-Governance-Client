@@ -72,7 +72,7 @@ export function ProfessionalProfilePanel({ userId, projectRequestId, availableSk
           />
         </div>
       ) : (
-        <label key={field}>{labels[field]}<textarea rows={3} value={draft[field].join('\n')} placeholder="One entry per line" onChange={event => setDraft(current => ({ ...current, [field]: event.target.value.split('\n') }))} /></label>
+        <label key={field}>{labels[field]}<textarea rows={3} maxLength={4000} value={draft[field].join('\n')} placeholder="One entry per line" onChange={event => setDraft(current => ({ ...current, [field]: event.target.value.split('\n') }))} /></label>
       ))}
       <label>Professional summary<textarea rows={3} maxLength={1500} value={draft.competency_summary} onChange={event => setDraft(current => ({ ...current, competency_summary: event.target.value }))} /></label>
       <div className="flex gap-4"><button type="submit" className="eflow-primary-button" disabled={busy}>Save changes</button><button type="button" className="eflow-text-button" onClick={() => void requestNavigation(() => setEditing(false))}>Cancel</button></div>

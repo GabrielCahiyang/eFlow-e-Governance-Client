@@ -1,4 +1,6 @@
 import { MoneyInput } from '../../../components/ui/MoneyInput';
+import { FieldLengthHint } from '../../../components/ui/FieldLengthHint';
+import { INPUT_LIMITS } from '../../../shared/inputLimits';
 import { useRef, useState } from "react";
 import { Archive, History, PencilLine } from "lucide-react";
 import type { DepartmentBudgetBundle } from "../types";
@@ -165,6 +167,7 @@ export function LockedBudgetControls({
                 </span>
                 <MoneyInput
                   min={summary.committedAmount}
+                  max={INPUT_LIMITS.MONEY_MAX_BUDGET}
                   step="0.01"
                   value={amount || ""}
                   onValueChange={raw => setAmount(Number(raw))}
@@ -178,10 +181,14 @@ export function LockedBudgetControls({
             </label>
           )}
           <label className="mt-3 block">
-            <span className="text-[9.5px] text-neutral-500">
-              Required reason
+            <span className="flex items-center justify-between gap-2">
+              <span className="text-[9.5px] text-neutral-500">
+                Required reason
+              </span>
+              <FieldLengthHint length={reason.length} max={INPUT_LIMITS.FUNDING_REASON} />
             </span>
             <textarea
+              maxLength={INPUT_LIMITS.FUNDING_REASON}
               value={reason}
               onChange={(event) => setReason(event.target.value)}
               rows={3}

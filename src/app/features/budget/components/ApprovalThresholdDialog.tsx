@@ -1,4 +1,5 @@
 import { MoneyInput } from '../../../components/ui/MoneyInput';
+import { INPUT_LIMITS } from '../../../shared/inputLimits';
 import { useState } from "react";
 import { AttentionBox, Button } from "@vibe/core";
 import * as m from "motion/react-m";
@@ -70,6 +71,7 @@ export function ApprovalThresholdDialog({
               </span>
               <MoneyInput
                 min={1}
+                max={INPUT_LIMITS.MONEY_MAX_BUDGET}
                 step={100}
                 value={value || ""}
                 onValueChange={raw => {

@@ -15,6 +15,11 @@ import {
   PERMISSIONS_CHANGED_STORAGE_KEY,
   VISIBLE_PAGE_PERMISSION_KEYS,
 } from "../constants";
+import {
+  cleanCustomRoleLabel,
+  validateCustomRoleName,
+  type ExistingRoleLabelEntry,
+} from "../validation/roleNameValidation";
 
 const ALL_MANAGED_PERMISSIONS = [...VISIBLE_PAGE_PERMISSION_KEYS, ...ACTION_PERMISSION_KEYS];
 
@@ -187,16 +192,19 @@ export async function createCustomRole(input: {
   baseRole?: BaseCustomRole;
   description?: string;
   existingKeys?: Iterable<string>;
+  existingRoles?: readonly ExistingRoleLabelEntry[];
   permissions?: Record<string, boolean>;
 }): Promise<CustomRoleDefinition> {
-  const label = input.label.trim().replace(/\s+/g, " ");
-  if (label.length < 2 || label.length > 60) {
-    throw new Error("Role name must be between 2 and 60 characters.");
+  const label = cleanCustomRoleLabel(input.label);
+  const existingRoles = input.existingRoles ?? (await fetchCustomRoles());
+  const nameError = validateCustomRoleName(label, existingRoles);
+  if (nameError) {
+    throw new Error(nameError);
   }
   const description = (input.description || "").trim().slice(0, 240);
   const currentKeys = input.existingKeys
     ? Array.from(input.existingKeys)
-    : (await fetchCustomRoles()).map((r) => r.key);
+    : existingRoles.map((r) => r.key);
   const key = buildCustomRoleKey(label, currentKeys);
   const baseRole = input.baseRole ?? "member";
   const { data, error } = await supabase
@@ -205,7 +213,7 @@ export async function createCustomRole(input: {
     .select("*")
     .single();
   if (error) {
-    if (error.code === "23505") throw new Error("A custom role with that name already exists.");
+    if (error.code === "23505") throw new Error("A role with that name already exists. Choose a different role name.");
     throw error;
   }
   if (input.permissions) {
@@ -221,12 +229,15 @@ export async function updateCustomRole(
     label: string;
     description?: string;
     baseRole?: BaseCustomRole;
+    existingRoles?: readonly ExistingRoleLabelEntry[];
     permissions?: Record<string, boolean>;
   },
 ): Promise<CustomRoleDefinition> {
-  const label = input.label.trim().replace(/\s+/g, " ");
-  if (label.length < 2 || label.length > 60) {
-    throw new Error("Role name must be between 2 and 60 characters.");
+  const label = cleanCustomRoleLabel(input.label);
+  const existingRoles = input.existingRoles ?? (await fetchCustomRoles());
+  const nameError = validateCustomRoleName(label, existingRoles, key);
+  if (nameError) {
+    throw new Error(nameError);
   }
   const description = (input.description || "").trim().slice(0, 240);
   const patch: Record<string, unknown> = {
@@ -242,7 +253,7 @@ export async function updateCustomRole(
     .select("*")
     .single();
   if (error) {
-    if (error.code === "23505") throw new Error("A custom role with that name already exists.");
+    if (error.code === "23505") throw new Error("A role with that name already exists. Choose a different role name.");
     throw error;
   }
   const updated = mapCustomRoleRow(data as Record<string, any>);

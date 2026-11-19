@@ -2,6 +2,7 @@ import { getPhilippineLocalDateTime } from '../../../shared/calendarDates';
 import { useExplicitDraft } from "../../../shared/useExplicitDraft";
 import {MAX_RECURRENCE_INTERVAL,RECURRING_TEXT_LIMITS,recurringTemplateError} from '../validation/recurringValidation';
 import {integerError} from '../../../shared/numericValidation';
+import {blockInvalidNumberKey, maxDigitsForNumber} from '../../../shared/inputLimits';
 import { useReviewedMutation } from "../../../shared/useReviewedMutation";
 import { FeedbackState } from "../../../components/ui/FeedbackState";
 import { useState } from "react";
@@ -190,9 +191,17 @@ export function RecurringTemplateForm({
           aria-label="Repeat interval"
           aria-invalid={!!intervalIssue}
           value={Number.isNaN(interval)?'':interval}
-          onChange={(event) =>
-            setInterval(event.target.value===''?NaN:Number(event.target.value))
-          }
+          onKeyDown={(event) => blockInvalidNumberKey(event)}
+          onChange={(event) => {
+            const raw = event.target.value;
+            if (raw === '') {
+              setInterval(NaN);
+              return;
+            }
+            const intDigits = raw.replace(/^-/, '').split('.')[0].replace(/^0+(?=\d)/, '');
+            if (intDigits.length > maxDigitsForNumber(MAX_RECURRENCE_INTERVAL)) return;
+            setInterval(Number(raw));
+          }}
           className={inputClass}
           title="Repeat interval"
         />

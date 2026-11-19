@@ -242,6 +242,7 @@ export function OrgModal({
       <div className="space-y-4">
         <FormField label="Name" error={errors.name} required>
           <TextInput
+            maxLength={200}
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
             placeholder="e.g. LEDIPO"
@@ -271,6 +272,7 @@ export function OrgModal({
         </div>
         <FormField label="Description">
           <TextInput
+            maxLength={240}
             value={form.description}
             onChange={(e) => setForm({ ...form, description: e.target.value })}
             placeholder="Brief description..."

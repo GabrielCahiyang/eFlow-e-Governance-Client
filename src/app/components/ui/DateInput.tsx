@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Calendar as CalendarIcon } from 'lucide-react';
+import { INPUT_LIMITS } from '../../shared/inputLimits';
 import { Calendar } from './calendar';
 import { Popover, PopoverContent, PopoverTrigger } from './popover';
 
@@ -62,6 +63,7 @@ export function DateInput({
   value = '',
   min,
   max,
+  maxLength,
   disabled,
   hasError,
   className = '',
@@ -105,6 +107,7 @@ export function DateInput({
         ref={inputRef}
         type="text"
         inputMode="numeric"
+        maxLength={maxLength ?? INPUT_LIMITS.DATE_TEXT_MAX}
         placeholder={placeholder}
         disabled={disabled}
         value={text}

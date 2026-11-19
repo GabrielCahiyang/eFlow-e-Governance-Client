@@ -406,6 +406,7 @@ export function ImportantDataExplorer({
                 </label>
                 <input
                   type="text"
+                  maxLength={120}
                   disabled={filterCol === "__none__"}
                   value={filterVal}
                   onChange={(event) => setFilterVal(event.target.value)}

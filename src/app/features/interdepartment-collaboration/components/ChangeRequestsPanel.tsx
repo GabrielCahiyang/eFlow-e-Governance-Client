@@ -2,6 +2,8 @@ import * as React from "react";
 import { Button, Label } from "@vibe/core";
 import { AlertTriangle, Check, Plus } from "lucide-react";
 import type { Organization, UserProfile } from "../../../types";
+import { FieldLengthHint } from "../../../components/ui/FieldLengthHint";
+import { INPUT_LIMITS } from "../../../shared/inputLimits";
 import type {
   CollaborationChangeRequest,
   CollaborationTargetType,
@@ -102,6 +104,7 @@ export function ChangeRequestsPanel({
                   Target identifier or item name
                 </label>
                 <input
+                  maxLength={INPUT_LIMITS.TITLE}
                   value={targetKey}
                   onChange={(event) => setTargetKey(event.target.value)}
                   placeholder="e.g. Activity 1 / Task title"
@@ -110,10 +113,14 @@ export function ChangeRequestsPanel({
               </div>
 
               <div className="sm:col-span-2">
-                <label className="block text-xs font-semibold text-neutral-700 mb-1">
-                  Reason for required change
-                </label>
+                <div className="mb-1 flex items-center justify-between gap-2">
+                  <label className="block text-xs font-semibold text-neutral-700">
+                    Reason for required change
+                  </label>
+                  <FieldLengthHint length={reason.length} max={INPUT_LIMITS.REASON} />
+                </div>
                 <textarea
+                  maxLength={INPUT_LIMITS.REASON}
                   value={reason}
                   onChange={(event) => setReason(event.target.value)}
                   rows={3}

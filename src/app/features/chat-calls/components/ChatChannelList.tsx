@@ -68,7 +68,7 @@ export function ChatChannelList({ selected, onSelect, onCompose }: {
   return <aside className="messages-list" aria-label="Conversations">
     <header className="messages-list-header">
       <div className="messages-list-title"><h1>Messages</h1><WorkspaceTooltip content="New message"><button type="button" className="messages-icon-button messages-compose-new" onClick={onCompose} aria-label="New message"><SquarePen size={19} /></button></WorkspaceTooltip></div>
-      <label className="messages-search"><Search size={17} /><input type="search" aria-label="Search conversations" placeholder="Search conversations" value={search} onChange={event => setSearch(event.target.value)} /></label>
+      <label className="messages-search"><Search size={17} /><input type="search" maxLength={120} aria-label="Search conversations" placeholder="Search conversations" value={search} onChange={event => setSearch(event.target.value)} /></label>
       <div className="messages-filters" role="group" aria-label="Conversation filters">
         {filters.map(([key, label]) => <button type="button" key={key} aria-pressed={currentFilter === key} onClick={() => setFilter(key)}>
           {label}

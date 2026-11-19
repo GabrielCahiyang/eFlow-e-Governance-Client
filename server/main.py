@@ -23,7 +23,9 @@ from routers.login_security import router as login_security_router
 from routers.help_assistant import router as help_assistant_router
 from routers.project_seals import router as project_seals_router
 from routers.process_mining import router as process_mining_router
+from routers.admin_retention import router as admin_retention_router
 from pds.worker import start_worker
+from services.retention_service import start_retention_worker
 
 
 logging.basicConfig(
@@ -34,7 +36,9 @@ logging.basicConfig(
 @asynccontextmanager
 async def lifespan(_app):
     worker_stop = start_worker()
+    retention_stop = start_retention_worker()
     yield
+    retention_stop.set()
     worker_stop.set()
 
 app = FastAPI(title="eFlow Control Gateway", lifespan=lifespan)
@@ -69,6 +73,7 @@ app.include_router(login_security_router)
 app.include_router(help_assistant_router)
 app.include_router(project_seals_router)
 app.include_router(process_mining_router)
+app.include_router(admin_retention_router)
 
 
 if __name__ == "__main__":

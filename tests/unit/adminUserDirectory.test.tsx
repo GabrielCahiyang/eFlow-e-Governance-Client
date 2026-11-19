@@ -31,7 +31,12 @@ vi.mock("../../src/app/features/administration/components/user-management/Create
 vi.mock("../../src/app/features/administration/components/user-management/EditUserModal", () => ({ EditUserModal: ({ user }: { user: UserProfile | null }) => user ? <div data-testid="editing-user">{user.full_name}</div> : null }));
 vi.mock("../../src/app/features/administration/components/user-management/UserDirectoryFiltersBar", () => ({ UserDirectoryFiltersBar: () => null }));
 vi.mock("../../src/app/components/ui/DataTable", () => ({
-  DataTable: ({ data, columns }: any) => <div>{data.map((item: UserProfile) => <div data-testid={`row-${item.id}`} key={item.id}><span>{item.full_name}</span>{columns.find((column: any) => column.key === "actions").render(item)}</div>)}</div>,
+  DataTable: ({ data, columns }: any) => (
+    <div>
+      <div data-testid="table-headers">{columns.map((column: any) => column.header).filter(Boolean).join("|")}</div>
+      {data.map((item: UserProfile) => <div data-testid={`row-${item.id}`} key={item.id}><span>{item.full_name}</span>{columns.find((column: any) => column.key === "actions").render(item)}</div>)}
+    </div>
+  ),
 }));
 
 import { UsersTab } from "../../src/app/features/administration/components/user-management/UsersTab";
@@ -49,6 +54,7 @@ describe("Admin user directory", () => {
 
     expect(screen.getByRole('button', { name: 'Create LEDIPO User' })).toBeTruthy();
     expect(screen.queryByRole('button', { name: /Invite (External|eFlow) User/ })).toBeNull();
+    expect(screen.getByTestId("table-headers").textContent).toBe("Name|Role|Status|Workload");
     expect(screen.getByText("Andres Manili")).toBeTruthy();
     const ownRow = screen.getByTestId("row-admin-current");
     fireEvent.keyDown(within(ownRow).getByRole("button", { name: /More actions/ }), { key: "Enter" });

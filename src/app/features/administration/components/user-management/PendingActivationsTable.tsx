@@ -55,7 +55,7 @@ export function PendingActivationsTable({
       confirmation: operation === 'resend' ? undefined : {
         title: `${label}?`, actionLabel: label, danger: operation === 'revoke',
         description: operation === 'approve'
-          ? `Give ${row.full_name || row.email} the ${activationRoleLabel(row.requested_privileged_role || row.account_role)} role in ${row.office_name}?`
+          ? `Give ${row.full_name || row.email} the ${activationRoleLabel(row.requested_privileged_role || row.account_role)} role?`
           : `${row.full_name || row.email} will no longer be able to use this activation link.`,
       },
       operation: async () => {
@@ -114,12 +114,12 @@ export function PendingActivationsTable({
         <span className="sr-only">Loading invitations…</span>
         <div className="eflow-pending-scroll" aria-hidden="true">
           <table aria-label="Account activation invitations">
-            <thead><tr><th>Person</th><th>Role / Office</th><th>Status</th><th>Email</th><th>Link expires</th><th>Actions</th></tr></thead>
+            <thead><tr><th>Person</th><th>Role</th><th>Status</th><th>Email</th><th>Link expires</th><th>Actions</th></tr></thead>
             <tbody>
               {[0, 1, 2].map((index) => (
                 <tr key={index}>
                   <td><div className="h-3.5 w-28 animate-pulse rounded bg-neutral-200/80" /><div className="mt-1 h-2.5 w-36 animate-pulse rounded bg-neutral-100" /></td>
-                  <td><div className="h-3.5 w-24 animate-pulse rounded bg-neutral-200/80" /><div className="mt-1 h-2.5 w-20 animate-pulse rounded bg-neutral-100" /></td>
+                  <td><div className="h-3.5 w-24 animate-pulse rounded bg-neutral-200/80" /></td>
                   <td><div className="h-5 w-24 animate-pulse rounded-full bg-neutral-100" /></td>
                   <td><div className="h-3 w-16 animate-pulse rounded bg-neutral-100" /></td>
                   <td><div className="h-3 w-24 animate-pulse rounded bg-neutral-100" /></td>
@@ -130,10 +130,10 @@ export function PendingActivationsTable({
           </table>
         </div>
       </div>
-    ) : !rows.length ? <EmptyState illustration="inbox" size="compact" title="No pending invitations or role approvals."/> : <div className="eflow-pending-scroll"><table aria-label="Account activation invitations"><thead><tr><th>Person</th><th>Role / Office</th><th>Status</th><th>Email</th><th>Link expires</th><th>Actions</th></tr></thead><tbody>{rows.map(row => {
+    ) : !rows.length ? <EmptyState illustration="inbox" size="compact" title="No pending invitations or role approvals."/> : <div className="eflow-pending-scroll"><table aria-label="Account activation invitations"><thead><tr><th>Person</th><th>Role</th><th>Status</th><th>Email</th><th>Link expires</th><th>Actions</th></tr></thead><tbody>{rows.map(row => {
       const pending = row.status === 'pending' || row.status === 'expired';
       const revoked = row.status === 'revoked';
-      return <tr key={row.invitation_id}><td>{row.full_name || row.email}<small>{row.full_name ? row.email : 'Name entered at activation'}</small></td><td>{activationRoleLabel(row.requested_privileged_role || row.account_role)}<small>{row.office_name}</small></td><td><span className="eflow-activation-status">{activationLabel(row)}</span>{row.needs_reconciliation && <small>Contact support before resending this invitation.</small>}{pending&&row.requires_reinvite&&<small>Revoke this invitation, then send a new one from your Admin account.</small>}</td><td>{deliveryLabel(row.email_delivery_status)}</td><td className="eflow-tabular">{new Date(row.expires_at).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })}</td><td><div className="eflow-pending-actions">{pending && <><Button variant="outline" size="sm" disabled={busy || row.needs_reconciliation || row.requires_reinvite} onClick={() => void manage(row, 'resend')}><Mail size={13} aria-hidden="true" />Resend</Button><Button variant="ghost" size="sm" className="text-[var(--eflow-negative-text)]" disabled={busy} onClick={() => void manage(row, 'revoke')}><XCircle size={13} aria-hidden="true" />Revoke</Button></>}{revoked && !row.awaiting_authority && <Button variant="ghost" size="sm" className="text-[var(--eflow-negative-text)]" disabled={busy} onClick={() => void deleteRevoked(row)}><Trash2 size={13} aria-hidden="true" />Delete</Button>}{row.awaiting_authority && <Button size="sm" disabled={busy} onClick={() => void manage(row, 'approve')}><ShieldCheck size={13} aria-hidden="true" />Approve role</Button>}</div></td></tr>;
+      return <tr key={row.invitation_id}><td>{row.full_name || row.email}<small>{row.full_name ? row.email : 'Name entered at activation'}</small></td><td>{activationRoleLabel(row.requested_privileged_role || row.account_role)}</td><td><span className="eflow-activation-status">{activationLabel(row)}</span>{row.needs_reconciliation && <small>Contact support before resending this invitation.</small>}{pending&&row.requires_reinvite&&<small>Revoke this invitation, then send a new one from your Admin account.</small>}</td><td>{deliveryLabel(row.email_delivery_status)}</td><td className="eflow-tabular">{new Date(row.expires_at).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })}</td><td><div className="eflow-pending-actions">{pending && <><Button variant="outline" size="sm" disabled={busy || row.needs_reconciliation || row.requires_reinvite} onClick={() => void manage(row, 'resend')}><Mail size={13} aria-hidden="true" />Resend</Button><Button variant="ghost" size="sm" className="text-[var(--eflow-negative-text)]" disabled={busy} onClick={() => void manage(row, 'revoke')}><XCircle size={13} aria-hidden="true" />Revoke</Button></>}{revoked && !row.awaiting_authority && <Button variant="ghost" size="sm" className="text-[var(--eflow-negative-text)]" disabled={busy} onClick={() => void deleteRevoked(row)}><Trash2 size={13} aria-hidden="true" />Delete</Button>}{row.awaiting_authority && <Button size="sm" disabled={busy} onClick={() => void manage(row, 'approve')}><ShieldCheck size={13} aria-hidden="true" />Approve role</Button>}</div></td></tr>;
     })}</tbody></table></div>}
   </section>;
 }

@@ -88,6 +88,7 @@ export function ArchivedMinutes() {
               <Search size={18} className="text-neutral-400 shrink-0" />
               <input
                 type="text"
+                maxLength={120}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder='e.g. "Arguments about the coastal cleanup"'

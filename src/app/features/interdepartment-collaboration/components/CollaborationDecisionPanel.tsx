@@ -3,6 +3,8 @@ import * as React from "react";
 import { Button } from "@vibe/core";
 import { CheckCircle2, Clock3, XCircle } from "lucide-react";
 import type { Organization } from "../../../types";
+import { FieldLengthHint } from "../../../components/ui/FieldLengthHint";
+import { INPUT_LIMITS } from "../../../shared/inputLimits";
 import { PARTICIPATION_ROLE_LABELS } from "../constants";
 import type { CollaborationDecision, CollaborationParticipant } from "../types";
 
@@ -99,14 +101,18 @@ export function CollaborationDecisionPanel({
         {error && <p role="alert" className="mt-3 text-xs text-red-700">{error}</p>}
         {decision && (
           <div className="mt-4 rounded-lg border border-neutral-200 bg-neutral-50/70 p-4">
-            <div className="text-xs font-semibold text-neutral-900 mb-2">
-              {decision === "approved"
-                ? "Approval note (optional)"
-                : "Why are updates needed or participation declined?"}
+            <div className="mb-2 flex items-center justify-between gap-2">
+              <div className="text-xs font-semibold text-neutral-900">
+                {decision === "approved"
+                  ? "Approval note (optional)"
+                  : "Why are updates needed or participation declined?"}
+              </div>
+              <FieldLengthHint length={reason.length} max={INPUT_LIMITS.REASON} />
             </div>
             <p className="mb-2 text-xs text-neutral-600">{decision === "approved" ? "Confirm that your office agrees to its responsibilities and assigned staff in this saved work plan." : "The lead office will receive your decision and explanation."}</p>
             <textarea
               aria-label="Decision explanation"
+              maxLength={INPUT_LIMITS.REASON}
               value={reason}
               onChange={(event) => setReason(event.target.value)}
               rows={3}

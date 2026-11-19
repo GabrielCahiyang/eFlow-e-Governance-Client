@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { phase2Request } from "../../app/shared/phase2Api";
+import { INPUT_LIMITS } from "../../app/shared/inputLimits";
 import {
   Heading,
   TextField,
@@ -348,6 +349,7 @@ export function Login() {
                           title="Email address"
                           inputAriaLabel="Email address"
                           type="email"
+                          maxLength={INPUT_LIMITS.EMAIL}
                           size="large"
                           autoComplete="email"
                           value={forgotEmail}
@@ -442,6 +444,7 @@ export function Login() {
                     title="Email address"
                     inputAriaLabel="Email address"
                     type="email"
+                    maxLength={INPUT_LIMITS.EMAIL}
                     size="large"
                     autoComplete="username"
                     value={email}
@@ -473,6 +476,7 @@ export function Login() {
                       title="Password"
                       inputAriaLabel="Password"
                       type={showPassword ? "text" : "password"}
+                      maxLength={INPUT_LIMITS.PASSWORD}
                       size="large"
                       autoComplete="current-password"
                       value={password}

@@ -107,6 +107,7 @@ export function PettyCashVoucherRegister({ data }: { data: DepartmentBudgetBundl
           />
           <Input
             aria-label="Find voucher"
+            maxLength={120}
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Find PCV, request, purpose or recipient"

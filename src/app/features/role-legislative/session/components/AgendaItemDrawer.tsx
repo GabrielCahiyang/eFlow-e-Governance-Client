@@ -68,6 +68,7 @@ export function AgendaItemDrawer(props: AgendaItemDrawerProps) {
             <div className="relative">
               <input
                 type="text"
+                maxLength={50}
                 value={drawerRef}
                 onChange={(e) => setDrawerRef(e.target.value)}
                 placeholder="e.g. ORD-2026-049"
@@ -82,6 +83,7 @@ export function AgendaItemDrawer(props: AgendaItemDrawerProps) {
           <div>
             <label className="text-[11px] font-medium text-neutral-700 block mb-1.5">Title / Description</label>
             <textarea
+              maxLength={1000}
               value={drawerTitle}
               onChange={(e) => setDrawerTitle(e.target.value)}
               placeholder="Full title of the agenda item…"
@@ -116,6 +118,7 @@ export function AgendaItemDrawer(props: AgendaItemDrawerProps) {
             <label className="text-[11px] font-medium text-neutral-700 block mb-1.5">Estimated Duration</label>
             <input
               type="text"
+              maxLength={50}
               value={drawerDuration}
               onChange={(e) => setDrawerDuration(e.target.value)}
               placeholder="e.g. 15 mins"

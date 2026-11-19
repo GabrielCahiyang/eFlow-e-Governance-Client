@@ -228,6 +228,7 @@ function ProjectFileLibraryContent({ projectId, taskId, readOnly = false }: { pr
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 type="search"
+                maxLength={120}
                 placeholder="Search by file name or uploader…"
               />
             </span>

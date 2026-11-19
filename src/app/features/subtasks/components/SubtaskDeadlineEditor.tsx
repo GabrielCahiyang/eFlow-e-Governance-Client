@@ -5,6 +5,8 @@ import type { Task } from "../../../services/taskService";
 import { setSubtaskDueDate, type Subtask } from "../../../services/subtaskService";
 import { useToast } from "../../../components/ui/Toast";
 import { DateInput } from "../../../components/ui/DateInput";
+import { FieldLengthHint } from "../../../components/ui/FieldLengthHint";
+import { INPUT_LIMITS } from "../../../shared/inputLimits";
 import { formatDate } from "../../../components/workflow/primitives";
 import { getSubtaskDeadlineState, parentTaskDueDate } from "../selectors/deadlines";
 
@@ -88,8 +90,12 @@ export function SubtaskDeadlineEditor({
           {parentDue && <p className="mt-1 text-[9px] opacity-70">Must be on or before the parent task deadline: {formatDate(parentDue)}.</p>}
           {requiresReason && (
             <div className="mt-2">
-              <label className="flex items-center gap-1 text-[9.5px] font-medium"><AlertTriangle size={10} /> Reason required because work has started</label>
+              <div className="flex items-center justify-between gap-2">
+                <label className="flex items-center gap-1 text-[9.5px] font-medium"><AlertTriangle size={10} /> Reason required because work has started</label>
+                <FieldLengthHint length={reason.length} max={INPUT_LIMITS.REASON} />
+              </div>
               <textarea
+                maxLength={INPUT_LIMITS.REASON}
                 value={reason}
                 onChange={(event) => setReason(event.target.value)}
                 placeholder="Explain why this deadline is changing…"

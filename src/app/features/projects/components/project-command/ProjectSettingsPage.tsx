@@ -7,6 +7,8 @@ import {
   SelectInput,
 } from "../../../../components/ui/FormField";
 import { calendarMinDate } from "../../../../shared/calendarDates";
+import { INPUT_LIMITS } from "../../../../shared/inputLimits";
+import { FieldLengthHint } from "../../../../components/ui/FieldLengthHint";
 import { ProjectReadinessPanel } from "../../../project-readiness";
 import type { Project, ProjectPriority } from "../../services/types";
 import type { ProjectCommandTab } from "./types";
@@ -181,6 +183,7 @@ function SettingsForm({
               <textarea
                 className="eflow-form-input"
                 rows={4}
+                maxLength={INPUT_LIMITS.PROJECT_DESCRIPTION}
                 value={draft.description}
                 disabled={!editable || pending}
                 onChange={(e) =>
@@ -188,6 +191,9 @@ function SettingsForm({
                 }
               />
             </FormField>
+            <div className="-mt-2 flex justify-end">
+              <FieldLengthHint length={draft.description.length} max={INPUT_LIMITS.PROJECT_DESCRIPTION} />
+            </div>
             <FormField label="Priority">
               <SelectInput
                 value={draft.priority}

@@ -22,7 +22,7 @@ def read_onboarding(user=Depends(require_user)):
 
 class ProgressUpdate(BaseModel):
     model_config = ConfigDict(extra='forbid')
-    status: str | None = None
+    status: str | None = Field(default=None, max_length=40)
     current_step: str | None = Field(default=None, max_length=100)
     completed_steps: list[str] | None = Field(default=None, max_length=20)
     interests: list[str] | None = Field(default=None, max_length=10)

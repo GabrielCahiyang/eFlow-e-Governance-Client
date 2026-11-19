@@ -35,24 +35,25 @@ export function ProjectDefinitionPanel({projectId,profiles,profilesLoading,organ
  const dirty=!!baseDraft&&JSON.stringify(draft)!==JSON.stringify(baseDraft);
  const closed=p?['completed','archived'].includes(p.status):false;
  const planning=!p?.status||p.status==='planning';
- const editable=!!flow.data?.ready&&planning&&!closed&&flow.data.canAuthorize===true&&section!=='funding';
+ const canConfigure=flow.data?.canConfigure===true||flow.data?.canAuthorize===true;
+ const editable=!!flow.data?.ready&&planning&&!closed&&canConfigure&&section!=='funding';
 
  useEffect(()=>{
   if(!p)return;
   const sig=`${p.id}:${p.updated_at}`;
   if(syncedRef.current!==sig){
    syncedRef.current=sig;
-   setDraft({...toDraft(p),lead:flow.data?.canAuthorize&&user?.id?user.id:p.project_lead_id||''});
+   setDraft({...toDraft(p),lead:canConfigure&&user?.id&&!p.project_lead_id?user.id:p.project_lead_id||''});
    setError('');
   }
- },[p?.id,p?.updated_at,flow.data?.canAuthorize,user?.id]);
+ },[p?.id,p?.updated_at,canConfigure,user?.id]);
 
  useNavigationBlocker({
   label:'Project settings',
   identity:projectId,
   dirty:editable&&dirty,
   pending:busy,
-  onDiscard:()=>{if(baseDraft)setDraft({...baseDraft,lead:flow.data?.canAuthorize&&user?.id?user.id:baseDraft.lead});setError('');setNotice('');},
+  onDiscard:()=>{if(baseDraft)setDraft({...baseDraft,lead:canConfigure&&user?.id&&!baseDraft.lead?user.id:baseDraft.lead});setError('');setNotice('');},
  });
 
  if(!flow.data)return <section className="pf-panel"><h2>{section==='funding'?'Project budget':'Project settings'}</h2>{flow.error?<FlowError error={flow.error}/>:<p role="status">{section==='funding'?'Loading project budget…':'Loading project settings…'}</p>}</section>;
@@ -92,7 +93,7 @@ export function ProjectDefinitionPanel({projectId,profiles,profilesLoading,organ
  }
 
  async function toggleNoFunding(nextNoFunding:boolean){
-  if(fundingModeBusy||!planning||closed||!data.canAuthorize||data.total>0||data.fundingRequests.length>0)return;
+  if(fundingModeBusy||!planning||closed||!canConfigure||data.total>0||data.fundingRequests.length>0)return;
   if(!navigator.onLine){setError('Reconnect before updating project funding settings.');return;}
   setFundingModeBusy(true);setError('');setNotice('');
   try{
@@ -116,12 +117,12 @@ export function ProjectDefinitionPanel({projectId,profiles,profilesLoading,organ
   ?'Completed and archived project settings are read-only.'
   :!planning
    ?'Project settings are read-only once planning ends.'
-   :'Only the appointed lead Office Head can edit project settings.';
+   :'Only the Office Head or owning project creator can edit project settings.';
  const readOnlyDetail=closed
   ?`This project is ${project.status}. Completed and archived project details cannot be edited.`
   :!planning
    ?`Editing is locked because this project is ${project.status==='active'?'active':project.status.replace(/_/g,' ')}. Project details and scope can only be changed while the project is in planning.`
-   :'Only the appointed Lead Office Head can edit project settings.';
+   :'Only the Office Head or owning project creator can edit project settings.';
 
  return <div className="space-y-5">{section!=='funding'&&(data.ready?<form className="pf-panel pf-settings-form" aria-label="Project definition" onSubmit={e=>{void saveInline(e);}}>
   <header>
@@ -134,18 +135,18 @@ export function ProjectDefinitionPanel({projectId,profiles,profilesLoading,organ
   <dl className="pf-definition-summary"><div><dt>Timeline</dt><dd>{project.start_date&&project.target_date?`${project.start_date} → ${project.target_date}`:'Set automatically from tasks and subtasks'}</dd></div></dl>
   {error&&<FlowError error={error}/>}
   {notice&&<p role="status" className="pf-success">{notice}</p>}
-  {editable&&<div className="pf-actions">
-   <button type="submit" className="pf-primary" disabled={!dirty||busy}><Check size={16}/>{busy?'Saving…':'Save changes'}</button>
-   <button type="button" disabled={!dirty||busy} onClick={()=>{if(baseDraft)setDraft({...baseDraft,lead:flow.data?.canAuthorize&&user?.id?user.id:baseDraft.lead});setError('');setNotice('');}}><RotateCcw size={15}/>Discard changes</button>
-   <span role="status" className="text-xs text-muted-foreground">{dirty?'Unsaved changes':'All changes saved'}</span>
-  </div>}
- </form>:<section className="pf-panel" aria-label="Project definition"><header><div><h2><ClipboardList size={21}/>Project details</h2><p>Complete each section in the setup dialog before adding work or people.</p></div>{planning&&!closed&&<button className="pf-primary" onClick={()=>launch(0)}>Continue project setup<ArrowRight size={16}/></button>}</header><dl className="pf-definition-summary"><div><dt>Project</dt><dd>{project.title}</dd></div><div><dt>Project lead</dt><dd>{profiles.find(person=>person.id===project.project_lead_id)?.full_name||'Not selected'}</dd></div><div><dt>Timeline</dt><dd>{project.start_date&&project.target_date?`${project.start_date} → ${project.target_date}`:'Set automatically from tasks and subtasks'}</dd></div><div><dt>Scope</dt><dd>{project.scope||'Not defined'}</dd></div></dl></section>)}
- {section!=='details'&&(section==='funding'?<>
-  {planning&&!closed&&data.canAuthorize&&data.total===0&&data.fundingRequests.length===0&&<section className="pf-panel" aria-label="Funding requirement">
-   <label className="pf-checkbox"><input type="checkbox" checked={project.funding_not_required} disabled={fundingModeBusy} onChange={e=>{void toggleNoFunding(e.target.checked);}}/>No funding required for this project</label>
-   {error&&<FlowError error={error}/>}
-  </section>}
-  <ProjectFundingPanel data={data} reload={flow.reload} allowFundingEntry={planning||!project.funding_not_required} recoveryKey={projectId?`budget:${projectId}`:''}/>
- </>:<><ProjectFundingPanel data={data} reload={flow.reload} allowFundingEntry={false}/>{planning&&!closed&&data.canAllocate&&<div className="pf-actions"><button className="pf-primary" onClick={()=>launch(3)}><Wallet size={16}/>Manage project funding</button></div>}</>)}
- {open&&<ProjectSetupWizard projectId={projectId} creatorId={data.canAuthorize?user?.id:undefined} profiles={profiles} profilesLoading={profilesLoading} organizations={organizations} tasks={tasks} governed={governed} initialStep={initialStep} onClose={()=>{setOpen(false);void flow.reload();}} onFinish={()=>{setOpen(false);void flow.reload();onReady?.();}}/>}</div>;
+   {editable&&<div className="pf-actions">
+    <button type="submit" className="pf-primary" disabled={!dirty||busy}><Check size={16}/>{busy?'Saving…':'Save changes'}</button>
+    <button type="button" disabled={!dirty||busy} onClick={()=>{if(baseDraft)setDraft({...baseDraft,lead:canConfigure&&user?.id&&!baseDraft.lead?user.id:baseDraft.lead});setError('');setNotice('');}}><RotateCcw size={15}/>Discard changes</button>
+    <span role="status" className="text-xs text-muted-foreground">{dirty?'Unsaved changes':'All changes saved'}</span>
+   </div>}
+  </form>:<section className="pf-panel" aria-label="Project definition"><header><div><h2><ClipboardList size={21}/>Project details</h2><p>Complete each section in the setup dialog before adding work or people.</p></div>{planning&&!closed&&canConfigure&&<button className="pf-primary" onClick={()=>launch(0)}>Continue project setup<ArrowRight size={16}/></button>}</header><dl className="pf-definition-summary"><div><dt>Project</dt><dd>{project.title}</dd></div><div><dt>Project lead</dt><dd>{profiles.find(person=>person.id===project.project_lead_id)?.full_name||'Not selected'}</dd></div><div><dt>Timeline</dt><dd>{project.start_date&&project.target_date?`${project.start_date} → ${project.target_date}`:'Set automatically from tasks and subtasks'}</dd></div><div><dt>Scope</dt><dd>{project.scope||'Not defined'}</dd></div></dl></section>)}
+  {section!=='details'&&(section==='funding'?<>
+   {planning&&!closed&&canConfigure&&data.total===0&&data.fundingRequests.length===0&&<section className="pf-panel" aria-label="Funding requirement">
+    <label className="pf-checkbox"><input type="checkbox" checked={project.funding_not_required} disabled={fundingModeBusy} onChange={e=>{void toggleNoFunding(e.target.checked);}}/>No funding required for this project</label>
+    {error&&<FlowError error={error}/>}
+   </section>}
+   <ProjectFundingPanel data={data} reload={flow.reload} allowFundingEntry={planning||!project.funding_not_required} recoveryKey={projectId?`budget:${projectId}`:''}/>
+  </>:<><ProjectFundingPanel data={data} reload={flow.reload} allowFundingEntry={false}/>{planning&&!closed&&(data.canAllocate||canConfigure)&&<div className="pf-actions"><button className="pf-primary" onClick={()=>launch(3)}><Wallet size={16}/>Manage project funding</button></div>}</>)}
+  {open&&<ProjectSetupWizard projectId={projectId} creatorId={canConfigure?user?.id:undefined} profiles={profiles} profilesLoading={profilesLoading} organizations={organizations} tasks={tasks} governed={governed} initialStep={initialStep} onClose={()=>{setOpen(false);void flow.reload();}} onFinish={()=>{setOpen(false);void flow.reload();onReady?.();}}/>}</div>;
 }

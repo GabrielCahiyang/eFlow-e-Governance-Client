@@ -1,5 +1,7 @@
 import { readableUiError } from '../../../shared/userFacingError';
 import { MoneyInput } from '../../../components/ui/MoneyInput';
+import { FieldLengthHint } from '../../../components/ui/FieldLengthHint';
+import { INPUT_LIMITS } from '../../../shared/inputLimits';
 import { useRef, useState } from "react";
 import type { Task } from "../../tasks";
 import type { DepartmentBudgetBundle } from "../types";
@@ -49,11 +51,11 @@ export function DirectWorkFunding({ data,tasks,onChanged }: { data:DepartmentBud
     <label className="mt-3 block text-[12px]">Work<select disabled={busy} value={taskId} onChange={e=>setTaskId(e.target.value)} className="mt-1 h-10 w-full rounded-lg border px-3"><option value="">Select unfunded work</option>{availableTasks.map(t=><option key={t.id} value={t.id}>{t.title}</option>)}</select></label>
     {lines.map((l,i)=><div key={i} className="mt-3 grid grid-cols-[minmax(0,1fr)_auto] gap-2 border-t pt-3">
       <label className="col-span-full min-w-0 text-xs">Annual account<select disabled={busy} value={l.partitionId} onChange={e=>setLines(current=>current.map((x,j)=>j===i?{...x,partitionId:e.target.value}:x))} className="mt-1 h-10 w-full min-w-0 rounded-lg border px-2"><option value="">Choose account</option>{leaves.map(s=><option key={s.id} value={s.id}>{s.name} · {peso.format(s.amount-s.heldAmount-(s.committedAmount||0))} available</option>)}</select></label>
-      <label className="text-[12px]">Approved amount<MoneyInput disabled={busy} min="0" step="0.01"  value={l.amount||""} onValueChange={raw => setLines(current=>current.map((x,j)=>j===i?{...x,amount:Number(raw)}:x))} className="mt-1 h-10 w-full rounded-lg border px-3 text-right" /></label>
+      <label className="text-[12px]">Approved amount<MoneyInput disabled={busy} min="0" max={INPUT_LIMITS.MONEY_MAX_BUDGET} step="0.01"  value={l.amount||""} onValueChange={raw => setLines(current=>current.map((x,j)=>j===i?{...x,amount:Number(raw)}:x))} className="mt-1 h-10 w-full rounded-lg border px-3 text-right" /></label>
       <button type="button" disabled={busy} onClick={()=>setLines(current=>current.filter((_,j)=>j!==i))} className="self-end rounded-lg border p-2 text-[12px]">Remove</button>
     </div>)}
     <button type="button" disabled={busy} onClick={()=>setLines(current=>[...current,{partitionId:"",amount:0,particular:""}])} className="mt-3 rounded-lg border px-3 py-2 text-[12px]">Add funding account</button>
-    <label className="mt-3 block text-[12px]">Reason / approved authority reference<textarea disabled={busy} value={reason} onChange={e=>setReason(e.target.value)} className="mt-1 w-full rounded-lg border p-3" /></label>
+    <label className="mt-3 block text-[12px]"><span className="flex items-center justify-between gap-2"><span>Reason / approved authority reference</span><FieldLengthHint length={reason.length} max={INPUT_LIMITS.FUNDING_REASON} /></span><textarea disabled={busy} maxLength={INPUT_LIMITS.FUNDING_REASON} value={reason} onChange={e=>setReason(e.target.value)} className="mt-1 w-full rounded-lg border p-3" /></label>
     <div className="mt-3 flex flex-wrap items-center justify-between gap-3"><strong className="text-[14px]">Funding total: {peso.format(total)}</strong><button disabled={busy||!valid} onClick={()=>void submit()} className="rounded-lg bg-primary px-4 py-2 text-[12px] text-primary-foreground disabled:opacity-40">Authorize work funding</button></div>
     {message&&<p role="status" className="mt-3 text-[12px]">{message}</p>}
   </section>;

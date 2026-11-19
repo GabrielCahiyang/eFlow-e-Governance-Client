@@ -59,7 +59,7 @@ export function WorkFilters({
   return <>
     <div className="r10-toolbar">
       <label className="r10-search"><span className="sr-only">Search work</span><Search size={17} aria-hidden="true" />
-        <input id="personal-work-search" aria-label="Search personal work" type="search" placeholder="Search tasks, subtasks, or projects…" value={filters.query} onChange={event => onChange({ query: event.target.value })} />
+        <input id="personal-work-search" aria-label="Search personal work" type="search" maxLength={120} placeholder="Search tasks, subtasks, or projects…" value={filters.query} onChange={event => onChange({ query: event.target.value })} />
         {filters.query && <WorkspaceTooltip content="Clear search"><button type="button" aria-label="Clear search" onClick={() => onChange({ query: '' })}><X size={16} aria-hidden="true" /></button></WorkspaceTooltip>}
       </label>
       <div className="r10-inline-controls">

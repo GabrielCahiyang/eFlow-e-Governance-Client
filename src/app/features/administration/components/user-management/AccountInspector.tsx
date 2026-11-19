@@ -1,13 +1,12 @@
 import { useState } from "react";
 import { WorkspaceTooltip } from "../../../../components/ui/workspace/WorkspaceTooltip";
-import { Building2, Check, Copy, KeyRound, Mail, Pencil, X } from "lucide-react";
+import { Check, Copy, KeyRound, Mail, Pencil, X } from "lucide-react";
 import type { UserProfile } from "../../../../types";
 import { InspectorPanel } from "../../../../shared/motion";
 import { Button } from "../../../../components/ui/button";
 import { RoleBadge, StatusBadge } from "./userManagementPrimitives";
 export function AccountInspector({
   profile,
-  office,
   roleLabel,
   protection,
   onClose,
@@ -17,7 +16,6 @@ export function AccountInspector({
   resettingPassword = false,
 }: {
   profile: UserProfile;
-  office: string;
   roleLabel?: string;
   protection: string;
   onClose: () => void;
@@ -72,13 +70,6 @@ export function AccountInspector({
             <div className="min-w-0">
               <dt className="text-xs text-[var(--eflow-text-muted)]">Email address</dt>
               <dd className="break-all font-medium text-[var(--eflow-text)]">{profile.email}</dd>
-            </div>
-          </div>
-          <div className="flex items-start gap-3 rounded-lg border border-[var(--eflow-border)] bg-[var(--eflow-subtle)] p-3.5">
-            <Building2 size={16} aria-hidden="true" className="mt-0.5 text-[var(--eflow-primary)]" />
-            <div className="min-w-0">
-              <dt className="text-xs text-[var(--eflow-text-muted)]">Assigned Office</dt>
-              <dd className="font-medium text-[var(--eflow-text)]">{office}</dd>
             </div>
           </div>
         </dl>

@@ -13,7 +13,7 @@ export function AddColumnButton({ columns, onAdd }: { columns: ProjectColumn[]; 
     trigger={<button type="button" className="pt-add-column-button" aria-label="Add column"><Plus size={17}/></button>}>
     <section className="pt-column-catalogue" aria-label="Supported columns">
       <strong>Add column</strong>
-      <label className="pt-column-search"><Search size={16} aria-hidden="true"/><input aria-label="Search columns" placeholder="Search columns" value={query} onChange={event => setQuery(event.target.value)}/></label>
+      <label className="pt-column-search"><Search size={16} aria-hidden="true"/><input aria-label="Search columns" maxLength={120} placeholder="Search columns" value={query} onChange={event => setQuery(event.target.value)}/></label>
       {allVisible && <p role="status">All supported columns are visible. Use Columns to hide a field.</p>}
       <div className="pt-column-options">{matches.map(column => {
         const Icon = icons[column.id], visible = columns.includes(column.id), label = column.id === 'timeline' ? 'Timeline / Due date' : column.label;

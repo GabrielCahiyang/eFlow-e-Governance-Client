@@ -2,6 +2,7 @@ import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTool
 import { CalendarDays, CheckCircle2, Plus, Trash2 } from "lucide-react";
 import { MoneyInput } from "../../../components/ui/MoneyInput";
 import { DateInput } from "../../../components/ui/DateInput";
+import { INPUT_LIMITS } from "../../../shared/inputLimits";
 import type { BudgetScheduledRelease, BudgetSection } from "../types";
 import { accountReleaseSchedule, pendingReleaseAmount } from "../selectors/budgetReleaseSchedule";
 import { peso } from "./budgetUi";
@@ -51,6 +52,7 @@ export function BudgetReleaseScheduleEditor({
             Amount
             <MoneyInput
               aria-label={`Release ${index + 1} amount for ${account.name}`}
+              max={INPUT_LIMITS.MONEY_MAX_BUDGET}
               value={row.amount || ""}
               disabled={disabled || row.status === "confirmed"}
               onValueChange={(value) => patch(row.id, { amount: Number(value) })}

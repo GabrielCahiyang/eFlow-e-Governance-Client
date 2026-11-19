@@ -1,4 +1,5 @@
 import { readableUiError } from '../../../shared/userFacingError';
+import { INPUT_LIMITS } from '../../../shared/inputLimits';
 import { useRef, useState } from "react";
 import { AttentionBox, Button } from "@vibe/core";
 import * as m from "motion/react-m";
@@ -100,6 +101,7 @@ export function VoucherConfirmDialog({
             <div className="relative mt-1">
               <input
                 type="text"
+                maxLength={INPUT_LIMITS.CODE}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 disabled={busy}
