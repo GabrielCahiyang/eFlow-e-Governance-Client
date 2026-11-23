@@ -5,6 +5,7 @@ import { DecisionModal } from "../../../components/ui/DecisionModal";
 import { FeedbackState } from "../../../components/ui/FeedbackState";
 import { useToast } from "../../../components/ui/Toast";
 import { WorkspaceHeader } from "../../../components/ui/workspace";
+import { INPUT_LIMITS } from "../../../shared/inputLimits";
 import { DispositionHistoryPanel } from "./DispositionHistoryPanel";
 import { RetentionPolicyCard } from "./RetentionPolicyCard";
 import { RetentionPurgeDialog } from "./RetentionPurgeDialog";
@@ -256,8 +257,14 @@ export function ArchiveRetentionMaintenance({ embedded = false }: { embedded?: b
               : "Legal hold reason (minimum 5 characters)"
           }
           requireReason
+          minReasonLength={5}
+          maxReasonLength={INPUT_LIMITS.REASON}
           busy={holdBusy}
-          disabled={holdReason.trim().length < 5}
+          warningTooltip={
+            holdTarget.legalHold.active
+              ? "Releasing this legal hold restores scheduled and manual purging for this archived project."
+              : "Places a legal hold freezing automatic and manual purging until an Admin explicitly releases it."
+          }
           error={holdError}
           confirmLabel={holdTarget.legalHold.active ? "Release Legal Hold" : "Place Legal Hold"}
           onCancel={() => setHoldTarget(null)}

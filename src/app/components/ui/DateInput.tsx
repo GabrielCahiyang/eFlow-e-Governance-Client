@@ -1,7 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useId, useRef, useState } from 'react';
 import { Calendar as CalendarIcon } from 'lucide-react';
+import { getPhilippineCalendarDate } from '../../shared/calendarDates';
 import { INPUT_LIMITS } from '../../shared/inputLimits';
 import { Calendar } from './calendar';
+import { FieldValidationTooltip } from './FieldValidationTooltip';
 import { Popover, PopoverContent, PopoverTrigger } from './popover';
 
 function isValidYmd(year: number, month: number, day: number): boolean {
@@ -56,6 +58,7 @@ function dateToIso(date: Date): string {
 export interface DateInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type' | 'value' | 'defaultValue'> {
   value?: string;
   hasError?: boolean;
+  errorMessage?: string;
   onInvalidTextChange?: (invalid: boolean) => void;
 }
 
@@ -66,26 +69,43 @@ export function DateInput({
   maxLength,
   disabled,
   hasError,
+  errorMessage,
   className = '',
-  placeholder = 'mm/dd/yyyy',
+  placeholder = 'MM/DD/YYYY',
   onChange,
   onBlur,
+  onFocus,
+  onMouseEnter,
+  onMouseLeave,
   onInvalidTextChange,
   ...props
 }: DateInputProps) {
   const [text, setText] = useState(() => formatIsoToUsDate(value));
   const [open, setOpen] = useState(false);
+  const [focused, setFocused] = useState(false);
+  const [hovered, setHovered] = useState(false);
+  const [invalidTextError, setInvalidTextError] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
+  const tooltipId = useId();
 
   useEffect(() => {
     setText(formatIsoToUsDate(value));
+    setInvalidTextError('');
   }, [value]);
 
-  const invalid = hasError || props['aria-invalid'] === true || props['aria-invalid'] === 'true';
+  const effectiveError = invalidTextError || errorMessage || '';
+  const invalid =
+    Boolean(effectiveError) ||
+    Boolean(hasError) ||
+    props['aria-invalid'] === true ||
+    props['aria-invalid'] === 'true';
+
+  const phTodayDate = isoToLocalNoonDate(getPhilippineCalendarDate());
   const minDate = typeof min === 'string' ? isoToLocalNoonDate(min) : undefined;
   const selectedDate = isoToLocalNoonDate(value);
 
   const emitChange = (nextIso: string) => {
+    setInvalidTextError('');
     onInvalidTextChange?.(false);
     if (!onChange) return;
     const node = inputRef.current;
@@ -101,6 +121,8 @@ export function DateInput({
     } as React.ChangeEvent<HTMLInputElement>);
   };
 
+  const showTooltip = Boolean(effectiveError) && (focused || hovered || Boolean(invalidTextError));
+
   return (
     <div className="eflow-date-input-wrap relative inline-flex w-full min-w-0 items-center">
       <input
@@ -111,8 +133,24 @@ export function DateInput({
         placeholder={placeholder}
         disabled={disabled}
         value={text}
+        min={min}
+        max={max}
         data-min={min}
         data-max={max}
+        aria-invalid={invalid || undefined}
+        aria-describedby={showTooltip ? tooltipId : props['aria-describedby']}
+        onFocus={(event) => {
+          setFocused(true);
+          onFocus?.(event);
+        }}
+        onMouseEnter={(event) => {
+          setHovered(true);
+          onMouseEnter?.(event);
+        }}
+        onMouseLeave={(event) => {
+          setHovered(false);
+          onMouseLeave?.(event);
+        }}
         onChange={(event) => {
           const raw = event.target.value;
           const parsed = parseDateInputToIso(raw);
@@ -134,31 +172,55 @@ export function DateInput({
             if (digitsOnly.length > 4) formatted = `${digitsOnly.slice(0, 2)}/${digitsOnly.slice(2, 4)}/${digitsOnly.slice(4)}`;
             setText(formatted);
             const reparsed = parseDateInputToIso(formatted);
-            if (reparsed) emitChange(reparsed);
-            else if (reparsed === null) onInvalidTextChange?.(true);
+            if (reparsed) {
+              emitChange(reparsed);
+            } else if (reparsed === null) {
+              onInvalidTextChange?.(true);
+              if (digitsOnly.length === 8) {
+                setInvalidTextError('Enter a valid calendar date in MM/DD/YYYY format.');
+              } else {
+                setInvalidTextError('');
+              }
+            }
             return;
           }
           setText(raw);
+          setInvalidTextError('Use MM/DD/YYYY format (numbers and slashes only).');
           onInvalidTextChange?.(true);
         }}
         onBlur={(event) => {
+          setFocused(false);
           const parsed = parseDateInputToIso(text);
           if (parsed === null) {
-            if (onInvalidTextChange) onInvalidTextChange(true);
-            else setText(formatIsoToUsDate(value));
+            if (onInvalidTextChange) {
+              setInvalidTextError('Enter a valid date in MM/DD/YYYY format.');
+              onInvalidTextChange(true);
+            } else {
+              setInvalidTextError('');
+              setText(formatIsoToUsDate(value));
+            }
           } else if (parsed !== value) {
             setText(formatIsoToUsDate(parsed));
             emitChange(parsed);
+          } else {
+            setInvalidTextError('');
           }
           onBlur?.(event);
         }}
         className={`eflow-form-input h-10 w-full rounded-lg border bg-input-background pl-3 pr-9 text-[13px] font-normal text-foreground placeholder:text-muted-foreground outline-none transition-all ${
           invalid
-            ? 'border-destructive focus:border-destructive focus:ring-2 focus:ring-destructive/10'
+            ? 'eflow-field-invalid border-destructive focus:border-destructive focus:ring-2 focus:ring-destructive/10'
             : 'border-border hover:border-neutral-400 focus:border-ring focus:ring-2 focus:ring-ring/15'
         } ${className}`}
         style={{ paddingRight: '2.25rem' }}
         {...props}
+      />
+      <FieldValidationTooltip
+        id={tooltipId}
+        anchorRef={inputRef}
+        message={effectiveError}
+        open={showTooltip}
+        tone="error"
       />
       <Popover open={open && !disabled} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
@@ -181,8 +243,9 @@ export function DateInput({
         <PopoverContent className="eflow-workspace-popover w-auto p-0" align="start">
           <Calendar
             mode="single"
+            today={phTodayDate}
             selected={selectedDate}
-            defaultMonth={selectedDate || minDate}
+            defaultMonth={selectedDate || minDate || phTodayDate}
             disabled={(day) => {
               const iso = dateToIso(day);
               if (typeof min === 'string' && min && iso < min) return true;

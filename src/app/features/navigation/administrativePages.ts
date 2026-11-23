@@ -40,6 +40,7 @@ export const administrativeSubPages = [
   { label: "Individual Access", kind: "People & Access", section: "users", page: "User Access", adminOnly: true },
   { label: "Work Statuses", kind: "System", section: "administration", page: "Status Maintenance", adminOnly: true },
   { label: "Skill Tags", kind: "System", section: "administration", page: "Skill Tags", adminOnly: true },
+  { label: "Workload & Overload", kind: "System", section: "administration", page: "Workload & Overload", adminOnly: true },
   { label: "Archive & Retention", kind: "System", section: "administration", page: "Archive & Retention", adminOnly: true },
 ] as const;
 
@@ -55,6 +56,8 @@ const ADMIN_ONLY_LEGACY_PAGES = new Set([
   "Status Maintenance",
   "Work Statuses",
   "Skill Tags",
+  "Workload & Overload",
+  "Workload Maintenance",
   "Archive & Retention",
 ]);
 
@@ -110,6 +113,8 @@ const PAGE_TO_CANONICAL: Record<string, (typeof administrativePages)[number]["la
   "Status Maintenance": "System & Maintenance",
   "Work Statuses": "System & Maintenance",
   "Skill Tags": "System & Maintenance",
+  "Workload & Overload": "System & Maintenance",
+  "Workload Maintenance": "System & Maintenance",
   "Archive & Retention": "System & Maintenance",
   "Workspace Policy": "System & Maintenance",
   "Email & Integrations": "System & Maintenance",
@@ -137,6 +142,7 @@ export function resolveSupportSubTab(section: string, page?: string): string | u
   if (page === "User Access" || page === "Individual Access") return "user-access";
   if (page === "Status Maintenance" || page === "Work Statuses") return "statuses";
   if (page === "Skill Tags") return "skills";
+  if (page === "Workload & Overload" || page === "Workload Maintenance") return "workload";
   if (page === "Archive & Retention") return "retention";
   if (page === "System Settings" || page === "Workspace Policy" || page === "System & Maintenance" || page === "System & Integrations" || page === "Email & Integrations" || page === "Runtime / AI Health" || page === "Email & Runtime Health" || section === "administration") return "general";
   if (page === "All Users" || page === "People & Accounts" || page === "Office Structure" || page === "Org Structure" || section === "users" || section === "org_tree") return "office";

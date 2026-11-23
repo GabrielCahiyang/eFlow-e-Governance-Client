@@ -1,90 +1,45 @@
-import { useEffect, useRef, useState } from 'react';
-import { formatManilaDate } from '../../../shared/calendarDisplay';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  AlertTriangle,
-  Bell,
-  CalendarClock,
   CheckCheck,
-  ClipboardCheck,
   ExternalLink,
-  FolderKanban,
-  MessageSquare,
-  RefreshCw,
-  UserPlus,
-  Wallet,
+  Search,
+  Volume2,
+  VolumeX,
+  X,
 } from 'lucide-react';
 import { useAuth } from '../../../contexts/AuthContext';
 import {
   markAllNotificationsRead,
   markRecentNotificationRead,
   type Notification,
-  type NotificationType,
 } from '../../../services/notificationService';
-import { useNotificationInbox, NOTIFICATION_CATEGORIES, DEFAULT_NOTIFICATION_FILTERS, getNotificationDetail, resolveNotificationDestination, type NotificationInboxFilters } from '../../notifications';
+import {
+  useNotificationInbox,
+  NOTIFICATION_CATEGORIES,
+  DEFAULT_NOTIFICATION_FILTERS,
+  getNotificationDetail,
+  resolveNotificationDestination,
+  type NotificationInboxFilters,
+} from '../../notifications';
+import {
+  formatNotificationExactManila,
+  formatNotificationRelativeTime,
+  getNotificationVisual,
+  groupNotificationsByManilaDate,
+  ICON_TONE_CLASSES,
+} from '../../notifications/visuals';
+import { playNotificationChime } from '../../notifications/notificationSound';
 import { Button } from '../../../components/ui/button';
+import { BoundedTextInput } from '../../../components/ui/BoundedInput';
 import { FeedbackState } from '../../../components/ui/FeedbackState';
 import { EmptyState } from '../../../components/ui/EmptyState';
-import { readPersonalSettings } from '../../settings/personalSettingsStore';
-
-interface TypeVisual {
-  icon: typeof Bell;
-  categoryLabel: string;
-  tone: 'neutral' | 'warning' | 'danger' | 'info' | 'positive';
-}
-
-const VISUAL_BY_TYPE: Partial<Record<NotificationType, TypeVisual>> = {
-  reminder: { icon: CalendarClock, categoryLabel: 'Deadline', tone: 'warning' },
-  overdue: { icon: AlertTriangle, categoryLabel: 'Overdue', tone: 'danger' },
-  burnout_warning: { icon: AlertTriangle, categoryLabel: 'Workload', tone: 'warning' },
-  assignment: { icon: UserPlus, categoryLabel: 'Assignment', tone: 'info' },
-  reassignment: { icon: UserPlus, categoryLabel: 'Reassignment', tone: 'info' },
-  status_change: { icon: RefreshCw, categoryLabel: 'Status update', tone: 'neutral' },
-  undo: { icon: RefreshCw, categoryLabel: 'Reverted', tone: 'warning' },
-  comment: { icon: MessageSquare, categoryLabel: 'Message', tone: 'info' },
-  collaboration_message: { icon: MessageSquare, categoryLabel: 'Message', tone: 'info' },
-  approval_needed: { icon: ClipboardCheck, categoryLabel: 'Review needed', tone: 'warning' },
-  completed: { icon: ClipboardCheck, categoryLabel: 'Approved', tone: 'positive' },
-  petty_cash_leader_review: { icon: Wallet, categoryLabel: 'Funding review', tone: 'warning' },
-  petty_cash_department_approval: { icon: Wallet, categoryLabel: 'Funding review', tone: 'warning' },
-  petty_cash_decision: { icon: Wallet, categoryLabel: 'Funding', tone: 'info' },
-  petty_cash_liquidation: { icon: Wallet, categoryLabel: 'Liquidation', tone: 'info' },
-  petty_cash_changes: { icon: Wallet, categoryLabel: 'Funding', tone: 'warning' },
-  petty_cash_liquidation_changes: { icon: Wallet, categoryLabel: 'Liquidation', tone: 'warning' },
-  petty_cash_liquidation_overdue: { icon: AlertTriangle, categoryLabel: 'Overdue', tone: 'danger' },
-  petty_cash_settlement_blocked: { icon: AlertTriangle, categoryLabel: 'Blocked', tone: 'danger' },
-  petty_cash_request_expired: { icon: AlertTriangle, categoryLabel: 'Expired', tone: 'danger' },
-  collaboration_request: { icon: FolderKanban, categoryLabel: 'Collaboration', tone: 'info' },
-  collaboration_change: { icon: FolderKanban, categoryLabel: 'Collaboration', tone: 'neutral' },
-  collaboration_revision: { icon: FolderKanban, categoryLabel: 'Collaboration', tone: 'warning' },
-  collaboration_approved: { icon: ClipboardCheck, categoryLabel: 'Collaboration', tone: 'positive' },
-  collaboration_declined: { icon: FolderKanban, categoryLabel: 'Collaboration', tone: 'danger' },
-  collaboration_ready: { icon: FolderKanban, categoryLabel: 'Collaboration', tone: 'positive' },
-  project_archive_reminder: { icon: FolderKanban, categoryLabel: 'Project', tone: 'warning' },
-  project_archive_blocked: { icon: AlertTriangle, categoryLabel: 'Project', tone: 'danger' },
-  project_seal_confirmed: { icon: ClipboardCheck, categoryLabel: 'Project', tone: 'positive' },
-};
-
-const ICON_TONE_CLASSES: Record<TypeVisual['tone'], string> = {
-  neutral: 'border-[var(--eflow-border)] bg-[var(--eflow-subtle)] text-[var(--eflow-text-secondary)]',
-  info: 'border-[color-mix(in_srgb,var(--eflow-info-text)_24%,var(--eflow-border))] bg-[var(--eflow-info-bg)] text-[var(--eflow-info-text)]',
-  positive: 'border-[color-mix(in_srgb,var(--eflow-positive-text)_24%,var(--eflow-border))] bg-[var(--eflow-positive-bg)] text-[var(--eflow-positive-text)]',
-  warning: 'border-[color-mix(in_srgb,var(--eflow-warning-text)_24%,var(--eflow-border))] bg-[var(--eflow-warning-bg)] text-[var(--eflow-warning-text)]',
-  danger: 'border-[color-mix(in_srgb,var(--eflow-negative-text)_24%,var(--eflow-border))] bg-[var(--eflow-negative-bg)] text-[var(--eflow-negative-text)]',
-};
+import {
+  PERSONAL_SETTINGS_CHANGED_EVENT,
+  readPersonalSettings,
+  savePersonalSettings,
+} from '../../settings/personalSettingsStore';
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50] as const;
-
-function formatTimeAgo(timestamp: number): string {
-  const diffMs = Math.max(0, Date.now() - timestamp);
-  const minutes = Math.floor(diffMs / 60000);
-  if (minutes < 1) return 'Just now';
-  if (minutes < 60) return `${minutes}m ago`;
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.floor(hours / 24);
-  if (days < 7) return `${days}d ago`;
-  return formatManilaDate(timestamp, '');
-}
 
 function UpdatesFeedSkeleton() {
   const pulse = 'animate-pulse rounded bg-muted';
@@ -119,6 +74,8 @@ export function UpdatesFeed({ onOpen }: { onOpen: (notification: Notification) =
       period: DEFAULT_NOTIFICATION_FILTERS.period,
     };
   });
+  const [searchDraft, setSearchDraft] = useState('');
+  const [soundEnabled, setSoundEnabled] = useState(() => readPersonalSettings(user?.id).notificationSoundEnabled);
   const feed = useNotificationInbox(user?.id, filters);
   const filter = filters.unreadOnly ? 'unread' : 'all';
   const [readIds, setReadIds] = useState<string[]>([]);
@@ -138,17 +95,39 @@ export function UpdatesFeed({ onOpen }: { onOpen: (notification: Notification) =
     pendingRef.current = false;
     setPending(null);
     setError('');
+    setSearchDraft('');
+    setSoundEnabled(saved.notificationSoundEnabled);
     setFilters({
       category: saved.defaultNotificationCategory,
       unreadOnly: saved.defaultNotificationTab === 'unread',
       period: DEFAULT_NOTIFICATION_FILTERS.period,
     });
     setPage(1);
+    const syncPrefs = () => setSoundEnabled(readPersonalSettings(user?.id).notificationSoundEnabled);
+    window.addEventListener(PERSONAL_SETTINGS_CHANGED_EVENT, syncPrefs);
+    return () => window.removeEventListener(PERSONAL_SETTINGS_CHANGED_EVENT, syncPrefs);
   }, [user?.id]);
+
+  // Debounce server search while omitting `query` when empty to keep default filter shape clean
+  useEffect(() => {
+    const trimmed = searchDraft.trim();
+    const timer = window.setTimeout(() => {
+      setFilters(current => {
+        const currentQuery = current.query || '';
+        if (currentQuery === trimmed) return current;
+        if (!trimmed) {
+          const { query: _removed, ...rest } = current;
+          return rest;
+        }
+        return { ...current, query: trimmed };
+      });
+    }, 250);
+    return () => window.clearTimeout(timer);
+  }, [searchDraft]);
 
   useEffect(() => {
     setPage(1);
-  }, [filters.category, filters.period, filters.unreadOnly, pageSize]);
+  }, [filters.category, filters.period, filters.unreadOnly, filters.query, pageSize]);
 
   const isRead = (item: Notification) => item.read || readIds.includes(item.id);
   const unreadCount = feed.rows.filter(item => !isRead(item)).length;
@@ -157,10 +136,32 @@ export function UpdatesFeed({ onOpen }: { onOpen: (notification: Notification) =
   const safePage = Math.min(page, totalPages);
   const startIndex = (safePage - 1) * pageSize;
   const pageRows = rows.slice(startIndex, startIndex + pageSize);
+  const groupedPageRows = useMemo(() => groupNotificationsByManilaDate(pageRows), [pageRows]);
+  const hasFilters = Boolean(
+    filters.category !== 'all' ||
+      filters.period !== 'all' ||
+      filters.unreadOnly ||
+      filters.query ||
+      searchDraft.trim(),
+  );
 
   useEffect(() => {
     if (safePage !== page) setPage(safePage);
   }, [safePage, page]);
+
+  const toggleSound = () => {
+    const next = !soundEnabled;
+    const saved = savePersonalSettings(user?.id, { notificationSoundEnabled: next });
+    setSoundEnabled(saved.notificationSoundEnabled);
+    if (next) {
+      playNotificationChime('normal', { volume: saved.notificationSoundVolume, force: true });
+    }
+  };
+
+  const clearAllFilters = () => {
+    setSearchDraft('');
+    setFilters(DEFAULT_NOTIFICATION_FILTERS);
+  };
 
   const markRead = async (id: string) => {
     const recipient = user?.id;
@@ -170,13 +171,19 @@ export function UpdatesFeed({ onOpen }: { onOpen: (notification: Notification) =
     setError('');
     try {
       await markRecentNotificationRead(recipient, id);
-      if (scopeRef.current === recipient) { setReadIds(current => [...current, id]); feed.retry(); }
+      if (scopeRef.current === recipient) {
+        setReadIds(current => [...current, id]);
+        feed.retry();
+      }
     } catch {
       if (scopeRef.current === recipient) {
         setError('We couldn’t mark this notification as read. Try again.');
       }
     } finally {
-      if (scopeRef.current === recipient) { pendingRef.current = false; setPending(null); }
+      if (scopeRef.current === recipient) {
+        pendingRef.current = false;
+        setPending(null);
+      }
     }
   };
 
@@ -250,27 +257,84 @@ export function UpdatesFeed({ onOpen }: { onOpen: (notification: Notification) =
         </div>
 
         <div className="flex flex-wrap items-center gap-2" aria-label="Notification filters">
+          <div className="relative min-w-[200px] flex-1 sm:w-64 sm:flex-initial">
+            <Search
+              size={14}
+              aria-hidden="true"
+              className="pointer-events-none absolute left-3 top-[11px] z-10 text-[var(--eflow-text-muted)]"
+            />
+            <BoundedTextInput
+              value={searchDraft}
+              maxLength={120}
+              compact
+              showCounter={false}
+              type="search"
+              aria-label="Search notifications"
+              placeholder="Search title, task, person…"
+              className="h-9 w-full rounded-lg border border-[var(--eflow-border)] bg-[var(--eflow-surface)] pl-8 pr-8 text-[12.5px] text-[var(--eflow-text)] focus:border-[var(--eflow-primary)] focus:outline-none [&::-webkit-search-cancel-button]:appearance-none [&::-webkit-search-decoration]:appearance-none"
+              onChange={event => setSearchDraft(event.target.value)}
+            />
+            {searchDraft && (
+              <button
+                type="button"
+                aria-label="Clear search"
+                onClick={() => setSearchDraft('')}
+                className="absolute right-2 top-[7px] inline-flex size-6 items-center justify-center rounded-md text-[var(--eflow-text-muted)] hover:bg-[var(--eflow-subtle)] hover:text-[var(--eflow-text)]"
+              >
+                <X size={13} aria-hidden="true" />
+              </button>
+            )}
+          </div>
           <select
             aria-label="Activity type"
             className="h-9 rounded-lg border border-[var(--eflow-border)] bg-[var(--eflow-surface)] px-3 text-[12.5px] text-[var(--eflow-text)]"
             value={filters.category}
-            onChange={event => setFilters(current => ({ ...current, category: event.target.value as NotificationInboxFilters['category'] }))}
+            onChange={event =>
+              setFilters(current => ({
+                ...current,
+                category: event.target.value as NotificationInboxFilters['category'],
+              }))
+            }
           >
-            {NOTIFICATION_CATEGORIES.map(category => <option key={category.value} value={category.value}>{category.label}</option>)}
+            {NOTIFICATION_CATEGORIES.map(category => (
+              <option key={category.value} value={category.value}>
+                {category.label}
+              </option>
+            ))}
           </select>
           <select
             aria-label="Time period"
             className="h-9 rounded-lg border border-[var(--eflow-border)] bg-[var(--eflow-surface)] px-3 text-[12.5px] text-[var(--eflow-text)]"
             value={filters.period}
-            onChange={event => setFilters(current => ({ ...current, period: event.target.value as NotificationInboxFilters['period'] }))}
+            onChange={event =>
+              setFilters(current => ({
+                ...current,
+                period: event.target.value as NotificationInboxFilters['period'],
+              }))
+            }
           >
             <option value="all">All time</option>
+            <option value="today">Today (PH)</option>
             <option value="7">Last 7 days</option>
             <option value="30">Last 30 days</option>
           </select>
-          {(filters.category !== 'all' || filters.period !== 'all' || filters.unreadOnly) && (
-            <Button variant="ghost" size="sm" onClick={() => setFilters(DEFAULT_NOTIFICATION_FILTERS)}>Clear filters</Button>
+          {hasFilters && (
+            <Button variant="ghost" size="sm" onClick={clearAllFilters}>
+              Clear filters
+            </Button>
           )}
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            aria-label={soundEnabled ? 'Mute notification sound' : 'Unmute notification sound'}
+            aria-pressed={!soundEnabled}
+            title={soundEnabled ? 'Mute bell chime' : 'Unmute bell chime'}
+            onClick={toggleSound}
+          >
+            {soundEnabled ? <Volume2 size={14} aria-hidden="true" /> : <VolumeX size={14} aria-hidden="true" />}
+            <span className="hidden sm:inline">{soundEnabled ? 'Sound on' : 'Muted'}</span>
+          </Button>
           <Button variant="ghost" size="sm" disabled={feed.loading || feed.refreshing} onClick={feed.retry}>
             {feed.refreshing ? 'Refreshing…' : 'Refresh'}
           </Button>
@@ -288,7 +352,10 @@ export function UpdatesFeed({ onOpen }: { onOpen: (notification: Notification) =
       </div>
 
       <p className="text-[12px] text-[var(--eflow-text-muted)]" role="status">
-        {feed.unreadCount === null ? 'Checking unread notifications…' : `${feed.unreadCount} unread across your inbox`}
+        {feed.unreadCount === null
+          ? 'Checking unread notifications…'
+          : `${feed.unreadCount} unread across your inbox`}
+        {filters.query ? ` · Searching "${filters.query}"` : ''}
       </p>
 
       {error && (
@@ -312,102 +379,133 @@ export function UpdatesFeed({ onOpen }: { onOpen: (notification: Notification) =
         !feed.error && (
           <EmptyState
             fill
-            illustration={filter === 'unread' ? 'complete' : 'inbox'}
-            title={filter === 'unread' ? 'No unread notifications' : filters.category !== 'all' || filters.period !== 'all' ? 'No matching notifications' : 'No notifications yet'}
+            illustration={filters.query ? 'search' : filter === 'unread' ? 'complete' : 'inbox'}
+            title={
+              filters.query
+                ? 'No matching notifications'
+                : filter === 'unread'
+                  ? 'No unread notifications'
+                  : filters.category !== 'all' || filters.period !== 'all'
+                    ? 'No matching notifications'
+                    : 'No notifications yet'
+            }
             description={
-              filter === 'unread'
-                ? 'No unread notifications match these filters.'
-                : filters.category !== 'all' || filters.period !== 'all'
-                  ? 'Try another activity type or time period.'
-                  : 'Assignments, reviews, work changes, and mentions will appear here.'
+              filters.query
+                ? `No notifications matched "${filters.query}". Try a different term or clear your filters.`
+                : filter === 'unread'
+                  ? 'No unread notifications match these filters.'
+                  : filters.category !== 'all' || filters.period !== 'all'
+                    ? 'Try another activity type or time period.'
+                    : 'Assignments, reviews, work changes, and mentions will appear here.'
+            }
+            action={
+              hasFilters ? (
+                <Button variant="outline" size="sm" onClick={clearAllFilters}>
+                  Clear search &amp; filters
+                </Button>
+              ) : undefined
             }
           />
         )
       ) : (
         <div className="overflow-hidden rounded-xl border border-[var(--eflow-border)] bg-[var(--eflow-surface)]">
-          <ul className="divide-y divide-[var(--eflow-border)]">
-            {pageRows.map(item => {
-              const detail = getNotificationDetail(item);
-              const destination = resolveNotificationDestination(item, userProfile?.role || '');
-              const read = isRead(item);
-              const visual = VISUAL_BY_TYPE[item.type] ?? {
-                icon: Bell,
-                categoryLabel: 'Notification',
-                tone: 'neutral' as const,
-              };
-              const Icon = visual.icon;
-              return (
-                <li
-                  key={item.id}
-                  className={`flex flex-col gap-3 px-4 py-3.5 transition-colors sm:flex-row sm:items-center ${
-                    read ? 'bg-[var(--eflow-surface)]' : 'bg-[color-mix(in_srgb,var(--eflow-selected)_38%,var(--eflow-surface))]'
-                  }`}
-                >
-                  <span
-                    aria-hidden="true"
-                    className={`flex size-9 shrink-0 items-center justify-center rounded-lg border ${ICON_TONE_CLASSES[visual.tone]}`}
-                  >
-                    <Icon size={16} />
-                  </span>
-
-                  <div className="min-w-0 flex-1 space-y-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      {!read && (
-                        <span
-                          className="size-2 shrink-0 rounded-full bg-[var(--eflow-primary)]"
-                          aria-label="Unread"
-                        />
-                      )}
-                      <h2 className="text-[13.5px] font-semibold text-[var(--eflow-text)] break-words">
-                        {item.title}
-                      </h2>
-                      <span className="rounded-[5px] border border-[var(--eflow-border)] bg-[var(--eflow-subtle)] px-1.5 py-0.5 text-[10.5px] font-medium text-[var(--eflow-text-muted)]">
-                        {visual.categoryLabel}
-                      </span>
-                      <time className="text-[11.5px] text-[var(--eflow-text-muted)] sm:ml-1">
-                        · {formatTimeAgo(item.createdAt)}
-                      </time>
-                    </div>
-                    <p className="text-[13px] leading-5 text-[var(--eflow-text-secondary)] break-words">
-                      {item.message}
-                    </p>
-                    {item.taskTitle && (
-                      <p className="text-[12px] text-[var(--eflow-text-muted)] break-words">
-                        Task: {item.taskTitle}
-                      </p>
-                    )}
-                    {detail && (
-                      <p className="text-[12px] leading-5 text-[var(--eflow-text-secondary)] break-words">
-                        <strong>{detail.label}:</strong> {detail.text}
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
-                    <Button
-                      data-update-id={item.id}
-                      variant="outline"
-                      size="sm"
-                      onClick={() => openItem(item)}
+          {groupedPageRows.map(group => (
+            <section key={group.id} aria-label={group.label} className="border-b border-[var(--eflow-border)] last:border-b-0">
+              <header className="flex items-center justify-between gap-2 border-b border-[var(--eflow-border)] bg-[var(--eflow-subtle)] px-4 py-2">
+                <h2 className="text-[11px] font-bold uppercase tracking-wider text-[var(--eflow-text-secondary)]">
+                  {group.label}
+                </h2>
+                <span className="rounded-[4px] border border-[var(--eflow-border)] bg-[var(--eflow-surface)] px-1.5 py-0.5 text-[11px] font-semibold tabular-nums text-[var(--eflow-text-muted)]">
+                  {group.items.length}
+                </span>
+              </header>
+              <ul className="divide-y divide-[var(--eflow-border)]">
+                {group.items.map(item => {
+                  const detail = getNotificationDetail(item);
+                  const destination = resolveNotificationDestination(item, userProfile?.role || '');
+                  const read = isRead(item);
+                  const visual = getNotificationVisual(item.type);
+                  const Icon = visual.icon;
+                  const exactManila = formatNotificationExactManila(item.createdAt);
+                  return (
+                    <li
+                      key={item.id}
+                      className={`flex flex-col gap-3 px-4 py-3.5 transition-colors sm:flex-row sm:items-center ${
+                        read
+                          ? 'bg-[var(--eflow-surface)]'
+                          : 'bg-[color-mix(in_srgb,var(--eflow-selected)_38%,var(--eflow-surface))]'
+                      }`}
                     >
-                      <span>{destination?.label || 'Open'}</span>
-                      <ExternalLink size={12} aria-hidden="true" />
-                    </Button>
-                    {!read && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        disabled={pending !== null || markingAll}
-                        onClick={() => void markRead(item.id)}
+                      <span
+                        aria-hidden="true"
+                        className={`flex size-9 shrink-0 items-center justify-center rounded-lg border ${ICON_TONE_CLASSES[visual.tone]}`}
                       >
-                        {pending === item.id ? 'Saving…' : 'Mark read'}
-                      </Button>
-                    )}
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
+                        <Icon size={16} />
+                      </span>
+
+                      <div className="min-w-0 flex-1 space-y-1">
+                        <div className="flex flex-wrap items-center gap-2">
+                          {!read && (
+                            <span
+                              className="size-2 shrink-0 rounded-[2px] bg-[var(--eflow-primary)]"
+                              aria-label="Unread"
+                            />
+                          )}
+                          <h3 className="text-[13.5px] font-semibold text-[var(--eflow-text)] break-words">
+                            {item.title}
+                          </h3>
+                          <span className="rounded-[5px] border border-[var(--eflow-border)] bg-[var(--eflow-subtle)] px-1.5 py-0.5 text-[10.5px] font-medium text-[var(--eflow-text-muted)]">
+                            {visual.categoryLabel}
+                          </span>
+                          <time
+                            className="text-[11.5px] text-[var(--eflow-text-muted)] sm:ml-1"
+                            title={exactManila || undefined}
+                          >
+                            · {formatNotificationRelativeTime(item.createdAt)}
+                          </time>
+                        </div>
+                        <p className="text-[13px] leading-5 text-[var(--eflow-text-secondary)] break-words">
+                          {item.message}
+                        </p>
+                        {item.taskTitle && (
+                          <p className="text-[12px] text-[var(--eflow-text-muted)] break-words">
+                            Task: {item.taskTitle}
+                          </p>
+                        )}
+                        {detail && (
+                          <p className="text-[12px] leading-5 text-[var(--eflow-text-secondary)] break-words">
+                            <strong>{detail.label}:</strong> {detail.text}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+                        <Button
+                          data-update-id={item.id}
+                          variant="outline"
+                          size="sm"
+                          onClick={() => openItem(item)}
+                        >
+                          <span>{destination?.label || 'Open'}</span>
+                          <ExternalLink size={12} aria-hidden="true" />
+                        </Button>
+                        {!read && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            disabled={pending !== null || markingAll}
+                            onClick={() => void markRead(item.id)}
+                          >
+                            {pending === item.id ? 'Saving…' : 'Mark read'}
+                          </Button>
+                        )}
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            </section>
+          ))}
           <footer
             className="flex flex-wrap items-center justify-between gap-3 border-t border-[var(--eflow-border)] bg-[color-mix(in_srgb,var(--eflow-subtle)_45%,var(--eflow-surface))] px-4 py-2.5 text-[12px] text-[var(--eflow-text-secondary)]"
             aria-label="Notifications pagination"

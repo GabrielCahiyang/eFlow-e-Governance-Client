@@ -8,7 +8,7 @@ import type { Project } from '../services/types';
 const groups = [
   { title: 'Work and evidence', kinds: ['work', 'task', 'subtask'], icon: ClipboardCheck },
   { title: 'Finance', kinds: ['cash', 'funding'], icon: Landmark },
-  { title: 'Governance', kinds: ['governance'], icon: ShieldCheck },
+  { title: 'Governance & sign-off', kinds: ['governance', 'lead_review'], icon: ShieldCheck },
 ];
 const detail = (blocker: ProjectCompletionBlocker) => blocker.kind === 'cash' && blocker.status === 'pending_department_settlement'
   ? 'Settle this advance in Accounting → Settlements. If no independent Accounting Officer is available, the Office Head can approve and post it in Reviews → Budget.' : blocker.detail;

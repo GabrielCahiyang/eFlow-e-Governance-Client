@@ -1,6 +1,7 @@
 import { supabase } from '../../../../lib/supabase';
 import { rowToNotif, type Notification } from '../../../services/notificationService';
 import { CATEGORY_TYPES, type NotificationInboxFilters } from '../inboxFilters';
+import { sanitizePostgrestSearch } from '../visuals';
 
 export interface NotificationCursor { createdAt: string; id: string }
 export interface NotificationPage { rows: Notification[]; next: NotificationCursor | null }
@@ -19,9 +20,20 @@ export async function fetchNotificationPage(
   if (filters.category !== 'all') {
     // Decisions use status_change too; include them without including unrelated work changes.
     if (filters.category === 'reviews') {
-      query = query.or('type.in.(approval_needed,completed,petty_cash_leader_review,petty_cash_department_approval,petty_cash_changes,petty_cash_liquidation_changes),and(type.eq.status_change,status_to.in.(changes_requested,completed)),entity_type.in.(m7_work_proposal,m7_personal_work_proposal)');
-    } else if (filters.category === 'finance') query = query.or('type.like.petty_cash_*,type.like.budget_*');
-    else query = query.in('type', [...CATEGORY_TYPES[filters.category]]);
+      query = query.or(
+        'type.in.(approval_needed,completed,project_approval_request,project_funding_request,project_funding_certification,budget_approval,petty_cash_request,petty_cash_leader_review,petty_cash_department_approval,petty_cash_changes,petty_cash_liquidation_leader_review,petty_cash_liquidation_department_review,petty_cash_liquidation_accounting_review,petty_cash_liquidation_changes,petty_cash_return_received,petty_cash_return_approved),and(type.eq.status_change,status_to.in.(changes_requested,completed)),entity_type.in.(m7_work_proposal,m7_personal_work_proposal,project_approval,project_completion_review)',
+      );
+    } else if (filters.category === 'finance') {
+      query = query.or('type.like.petty_cash_*,type.like.budget_*,type.like.project_funding_*');
+    } else {
+      query = query.in('type', [...CATEGORY_TYPES[filters.category]]);
+    }
+  }
+  const search = filters.query ? sanitizePostgrestSearch(filters.query) : '';
+  if (search) {
+    query = query.or(
+      `title.ilike.*${search}*,message.ilike.*${search}*,task_title.ilike.*${search}*,actor_name.ilike.*${search}*,reason.ilike.*${search}*`,
+    );
   }
   if (since) query = query.gte('created_at', since);
   if (cursor) {

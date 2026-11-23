@@ -1,16 +1,15 @@
 import {supportsNestedWork,WorkRootOwner,type WorkTreeController} from '../../nested-work';
-import { User, Building2, Pencil, UsersRound } from 'lucide-react';
+import { User, Building2, UsersRound } from 'lucide-react';
 import { TaskTeamMemberList, getTaskTeamMemberIds, type Task } from '../../tasks';
 import { TaskSubtasksWidget } from '../../subtasks';
 import type { UserProfile } from '../../../types';
 import { InspectorField as Field } from './InspectorSummary';
 import type {TaskInspectorOrigin} from '../types';
-export function InspectorTeam({task, profiles, projectLeadId, canManageTaskTeam, canManageSubtasks, currentUserIsLead, onManage,readOnly=false,subtaskReadOnly=false,controller,presentation='drawer',onInspect}: {task: Task; profiles: UserProfile[]; projectTitle?: string; projectLeadId?: string; canManageTaskTeam: boolean; canManageSubtasks: boolean; currentUserIsLead: boolean; onManage: () => void;readOnly?:boolean;subtaskReadOnly?:boolean;controller?:WorkTreeController;presentation?:'drawer'|'page'|'dialog';onInspect?:(id:string,section:'work'|'review',origin:TaskInspectorOrigin)=>void}) {
+export function InspectorTeam({task, profiles, projectLeadId, canManageTaskTeam: _canManageTaskTeam, canManageSubtasks, currentUserIsLead, onManage: _onManage,readOnly=false,subtaskReadOnly=false,controller,presentation='drawer',onInspect}: {task: Task; profiles: UserProfile[]; projectTitle?: string; projectLeadId?: string; canManageTaskTeam: boolean; canManageSubtasks: boolean; currentUserIsLead: boolean; onManage: () => void;readOnly?:boolean;subtaskReadOnly?:boolean;controller?:WorkTreeController;presentation?:'drawer'|'page'|'dialog';onInspect?:(id:string,section:'work'|'review',origin:TaskInspectorOrigin)=>void}) {
  const wide = presentation === 'page' || presentation === 'dialog';
  const legacyTeam=(<section className="rounded-xl border border-neutral-200 bg-neutral-50/70 p-3">
                 <div className="flex items-center justify-between gap-2">
                   <div className="inline-flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-wide text-neutral-500"><UsersRound size={12} /> Task members · {getTaskTeamMemberIds(task).length}</div>
-                  {canManageTaskTeam && !readOnly && !supportsNestedWork(task) && <button type="button" onClick={() => onManage()} className="inline-flex items-center gap-1 rounded-lg border border-neutral-200 bg-white px-2.5 py-1.5 text-[9.5px] font-medium text-neutral-600 hover:text-neutral-900"><Pencil size={10} /> Manage</button>}
                 </div>
                 <div className="mt-2 flex flex-wrap gap-1.5"><TaskTeamMemberList task={task} profiles={profiles} /></div>
               </section>);

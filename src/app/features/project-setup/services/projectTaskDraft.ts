@@ -1,4 +1,5 @@
 import { readAiText, requestAiChat } from '../../ai';
+import { getPhilippineCalendarDate } from '../../../shared/calendarDates';
 import { reviewedImportPayload, type ProjectImportDraft } from '../../project-import';
 import { parseProjectTaskGroups, type ProjectTaskGroup } from '../../work-templates';
 
@@ -37,14 +38,10 @@ export async function generateProjectTaskGroups(project: ProjectDescription) {
   }
 }
 
-function manilaTodayIso(): string {
-  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Manila' }).format(new Date());
-}
-
 function defaultDraftSchedule(schedule?: { startDate?: string; targetDate?: string }) {
   const startRaw = schedule?.startDate?.trim() || '';
   const targetRaw = schedule?.targetDate?.trim() || '';
-  const today = manilaTodayIso();
+  const today = getPhilippineCalendarDate();
   const startDate = startRaw && startRaw >= today ? startRaw : today;
   if (!targetRaw) return { startDate, dueDate: startDate };
   if (targetRaw < today || startDate > targetRaw) return { startDate: '', dueDate: '' };

@@ -52,7 +52,7 @@ describe('notification pages and delivery', () => {
     expect(db.calls).toContainEqual(['notifications', 'in', 'type', ['assignment', 'reassignment']]);
     expect(db.calls).toContainEqual(['notifications', 'gte', 'created_at', '2026-11-10T00:00:00.000Z']);
     await fetchNotificationPage(id(90), { ...filters, category: 'finance' });
-    expect(db.calls).toContainEqual(['notifications', 'or', 'type.like.petty_cash_*,type.like.budget_*']);
+    expect(db.calls).toContainEqual(['notifications', 'or', 'type.like.petty_cash_*,type.like.budget_*,type.like.project_funding_*']);
   });
   it('does not request another page when there is no lookahead', async () => {
     db.rows = [row(1)]; expect((await fetchNotificationPage(id(90), filters)).next).toBeNull();

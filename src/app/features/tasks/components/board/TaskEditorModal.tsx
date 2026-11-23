@@ -1,17 +1,18 @@
 import { readableUiError } from '../../../../shared/userFacingError';
 import { Trash2, Users, X } from "lucide-react";
 import { Button } from "../../../../components/ui/button";
-import { FieldLengthHint } from "../../../../components/ui/FieldLengthHint";
-import { INPUT_LIMITS } from "../../../../shared/inputLimits";
+import { BoundedTextInput, BoundedTextarea } from "../../../../components/ui/BoundedInput";
+import { WorkspaceTooltip } from "../../../../components/ui/workspace/WorkspaceTooltip";
+import { INPUT_LIMITS, textLengthError } from "../../../../shared/inputLimits";
 import type { Employee } from "../../../../services/employeeService";
 import type { Task } from "../../../../services/taskService";
-import { TaskEditorSubtasks,TaskEditorWorkOwner,TaskEditorRootPeople,TaskEditorSaveButton,type LegacyEditorStaffingScope } from "./TaskEditorSubtasks";
-import {supportsNestedWork} from '../../../nested-work';
+import { TaskEditorSubtasks, TaskEditorWorkOwner, TaskEditorRootPeople, TaskEditorSaveButton, type LegacyEditorStaffingScope } from "./TaskEditorSubtasks";
+import { supportsNestedWork } from '../../../nested-work';
 import { TaskBoardDialog } from "./TaskBoardDialog";
 import { TaskChatSection } from "./TaskChatSection";
 import { TaskChatLink } from '../../../chat-calls';
 import { buildTaskEditorDraft, type TaskEditorDraft } from "./model";
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { fetchTaskDetailEditState, type TaskDetailEditState } from "../../services/taskDetailEditService";
 
 // ─── Draft Task Row ───────────────────────────────────────────────
@@ -38,7 +39,7 @@ export function TaskEditorModal({
   draft: TaskEditorDraft | null;
   onChange: (patch: Partial<TaskEditorDraft>) => void;
   onClose: () => void;
-  onSave: (legacy?:LegacyEditorStaffingScope, reason?: string) => void;
+  onSave: (legacy?: LegacyEditorStaffingScope, reason?: string) => void;
   onDelete: () => void;
   onOpenTeamEditor: () => void;
   saving: boolean;
@@ -49,27 +50,79 @@ export function TaskEditorModal({
   currentUserId?: string;
   currentUserName?: string;
 }) {
+  const titleId = useId();
+  const descriptionId = useId();
+  const dueDateId = useId();
+  const changeReasonId = useId();
+  const priorityId = useId();
+  const tagsId = useId();
+  const acceptanceId = useId();
+  const dodId = useId();
+  const dependenciesId = useId();
+  const proposalId = useId();
+  const programId = useId();
+  const projectId = useId();
+  const activityId = useId();
+  const scheduleId = useId();
+
   const [editState, setEditState] = useState<TaskDetailEditState | null>(null);
   const [editStateError, setEditStateError] = useState("");
   const [editStateLoading, setEditStateLoading] = useState(false);
   const [changeReason, setChangeReason] = useState("");
+  const [titleTouched, setTitleTouched] = useState(false);
+  const [reasonTouched, setReasonTouched] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+
   useEffect(() => {
     if (!open || !task) return;
     let active = true;
-    setEditState(null); setEditStateError(""); setChangeReason(""); setEditStateLoading(true);
+    setEditState(null);
+    setEditStateError("");
+    setChangeReason("");
+    setTitleTouched(false);
+    setReasonTouched(false);
+    setSubmitted(false);
+    setEditStateLoading(true);
     void fetchTaskDetailEditState(task.id).then((state) => {
       if (active) setEditState(state);
-    }).catch((error) => {
-      if (active) setEditStateError(readableUiError(error, "Task editing access could not be verified.", 'write'));
+    }).catch((err) => {
+      if (active) setEditStateError(readableUiError(err, "Task editing access could not be verified.", 'write'));
     }).finally(() => { if (active) setEditStateLoading(false); });
     return () => { active = false; };
   }, [open, task?.id]);
+
   const verified = !editStateLoading && !editStateError && !!editState;
   const detailsWritable = verified && !!editState?.details;
   const planningWritable = detailsWritable && !!editState?.planning;
   const titlePriorityWritable = detailsWritable;
   const dueWritable = detailsWritable && !!editState?.due;
   if (!open || !task || !draft) return null;
+
+  const initialDeadline = buildTaskEditorDraft(task).deadline;
+  const requiresChangeReason = Boolean(editState?.started && dueWritable && draft.deadline !== initialDeadline);
+  const titleError = titlePriorityWritable
+    ? textLengthError(draft.title, "Task title", { required: true, max: INPUT_LIMITS.TASK_TITLE })
+    : "";
+  const visibleTitleError = titleTouched || submitted || !draft.title.trim() ? titleError : "";
+
+  const reasonError = requiresChangeReason
+    ? textLengthError(changeReason, "Reason for due-date change", { required: true, min: 5, max: INPUT_LIMITS.REASON })
+    : "";
+  const visibleReasonError = requiresChangeReason && (reasonTouched || submitted || changeReason.trim().length > 0)
+    ? reasonError
+    : "";
+
+  const saveDisabledReason = editStateLoading
+    ? "Checking current task editing access…"
+    : editStateError || !verified
+      ? (editStateError || "Task editing access could not be verified.")
+      : !detailsWritable
+        ? "Task details are read-only for your current authority or workflow state."
+        : titleError
+          ? titleError
+          : reasonError
+            ? reasonError
+            : "";
 
   const teamMembers = draft.teamMemberIds
     .map((id) => employeeById[id])
@@ -79,8 +132,13 @@ export function TaskEditorModal({
     teamMembers[0]?.name ||
     "Unassigned";
   const reviewerCandidates = employees.filter(
-    (employee) => employee.id !== (supportsNestedWork(task)?task.assigneeId:draft.leadMemberId),
+    (employee) => employee.id !== (supportsNestedWork(task) ? task.assigneeId : draft.leadMemberId),
   );
+
+  const inputClass = "mt-1 h-[40px] w-full rounded-xl border border-neutral-200 bg-white px-3 text-[13px] text-neutral-900 outline-none focus:border-neutral-400";
+  const compactInputClass = "mt-1 h-[38px] w-full rounded-xl border border-neutral-200 bg-white px-3 text-[12px] text-neutral-900 outline-none focus:border-neutral-400";
+  const textareaClass = "mt-1 w-full resize-none rounded-xl border border-neutral-200 bg-white px-3 py-2.5 text-[12px] text-neutral-900 outline-none focus:border-neutral-400";
+
   return (
     <TaskEditorWorkOwner task={task}><TaskBoardDialog
       eyebrow="Task editor"
@@ -91,16 +149,29 @@ export function TaskEditorModal({
       footer={
         <div className="flex flex-col-reverse justify-between gap-3 sm:flex-row sm:items-center">
           <div className="flex flex-wrap items-center gap-2">
-            <Button onClick={onDelete} size="sm" variant="destructive">
-              <Trash2 />
-              Delete task
-            </Button>
+            <WorkspaceTooltip content="Permanently deletes this task and its subtasks. You will be asked to confirm.">
+              <Button type="button" onClick={onDelete} size="sm" variant="destructive">
+                <Trash2 />
+                Delete task
+              </Button>
+            </WorkspaceTooltip>
           </div>
           <div className="flex items-center justify-end gap-2">
-            <Button onClick={onClose} variant="outline">
+            <Button type="button" onClick={onClose} variant="outline">
               Cancel
             </Button>
-            <TaskEditorSaveButton task={task} saving={saving || !verified || !detailsWritable} onSave={(legacy) => changeReason ? onSave(legacy, changeReason) : onSave(legacy)}/>
+            <TaskEditorSaveButton
+              task={task}
+              saving={saving}
+              disabled={Boolean(saveDisabledReason)}
+              disabledReason={saveDisabledReason}
+              onSave={(legacy) => {
+                setSubmitted(true);
+                if (saveDisabledReason) return;
+                if (changeReason.trim()) onSave(legacy, changeReason.trim());
+                else onSave(legacy);
+              }}
+            />
           </div>
         </div>
       }
@@ -109,30 +180,32 @@ export function TaskEditorModal({
         {editStateLoading && <p role="status" className="rounded-lg bg-neutral-50 px-3 py-2 text-xs text-neutral-600">Checking current task editing access…</p>}
         {editStateError && <p role="alert" className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">{editStateError} Editing is unavailable until access can be verified.</p>}
         {editState?.started && <p role="status" className="rounded-lg border border-sky-200 bg-sky-50 px-3 py-2 text-xs text-sky-900">Work is already in progress. Start date and prerequisites cannot be changed. Authorized editors can correct the title and priority; due-date changes require supervising authority and a reason.</p>}
-        {editState&&!editState.details&&<p role="status" className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">Task details are read-only for your current authority or workflow state.</p>}
+        {editState && !editState.details && <p role="status" className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">Task details are read-only for your current authority or workflow state.</p>}
         {error && <div role="alert" className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-[12px] text-red-700">{error}</div>}
         <div className="grid gap-3 md:grid-cols-2">
           <div className="md:col-span-2">
-            <label className="text-[10px] uppercase tracking-[0.12em] text-neutral-400">
-              Task Title
+            <label htmlFor={titleId} className="text-[10px] uppercase tracking-[0.12em] text-neutral-400">
+              Task Title <span className="text-[var(--eflow-negative-text)]" aria-hidden="true">*</span>
             </label>
-            <input
+            <BoundedTextInput
+              id={titleId}
               aria-label="Task title"
+              aria-required="true"
               maxLength={INPUT_LIMITS.TASK_TITLE}
               value={draft.title}
+              error={visibleTitleError || undefined}
               disabled={!titlePriorityWritable}
+              onBlur={() => setTitleTouched(true)}
               onChange={(e) => onChange({ title: e.target.value })}
-              className="mt-1 h-[40px] w-full rounded-xl border border-neutral-200 bg-white px-3 text-[13px] text-neutral-900 outline-none focus:border-neutral-400"
+              className={inputClass}
             />
           </div>
           <div className="md:col-span-2">
-            <div className="flex items-center justify-between gap-2">
-              <label className="text-[10px] uppercase tracking-[0.12em] text-neutral-400">
-                Description
-              </label>
-              <FieldLengthHint length={draft.description.length} max={INPUT_LIMITS.DESCRIPTION} />
-            </div>
-            <textarea
+            <label htmlFor={descriptionId} className="text-[10px] uppercase tracking-[0.12em] text-neutral-400">
+              Description
+            </label>
+            <BoundedTextarea
+              id={descriptionId}
               rows={3}
               aria-label="Task description"
               maxLength={INPUT_LIMITS.DESCRIPTION}
@@ -143,24 +216,45 @@ export function TaskEditorModal({
             />
           </div>
           <div>
-            <label className="text-[10px] uppercase tracking-[0.12em] text-neutral-400">
+            <label htmlFor={dueDateId} className="text-[10px] uppercase tracking-[0.12em] text-neutral-400">
               Due Date / Schedule
             </label>
-            <input
+            <BoundedTextInput
+              id={dueDateId}
               maxLength={INPUT_LIMITS.SHORT_TAG}
               value={draft.deadline}
               disabled={!dueWritable}
               onChange={(e) => onChange({ deadline: e.target.value })}
               placeholder="e.g. 2026-07-15 or Month 1"
-              className="mt-1 h-[40px] w-full rounded-xl border border-neutral-200 bg-white px-3 text-[13px] text-neutral-900 outline-none focus:border-neutral-400"
+              className={inputClass}
             />
-            {editState?.started && dueWritable && draft.deadline !== buildTaskEditorDraft(task).deadline && <label className="mt-2 block text-xs text-neutral-600">Reason for due-date change<input aria-label="Due-date change reason" value={changeReason} onChange={(event) => setChangeReason(event.target.value)} maxLength={INPUT_LIMITS.REASON} required className="mt-1 h-9 w-full rounded-lg border px-3" placeholder="Required when changing the due date" /></label>}
+            {requiresChangeReason && (
+              <div className="mt-2">
+                <label htmlFor={changeReasonId} className="block text-xs text-neutral-600">
+                  Reason for due-date change <span className="text-[var(--eflow-negative-text)]" aria-hidden="true">*</span>
+                </label>
+                <BoundedTextarea
+                  id={changeReasonId}
+                  aria-label="Due-date change reason"
+                  aria-required="true"
+                  rows={2}
+                  value={changeReason}
+                  maxLength={INPUT_LIMITS.REASON}
+                  error={visibleReasonError || undefined}
+                  onBlur={() => setReasonTouched(true)}
+                  onChange={(event) => setChangeReason(event.target.value)}
+                  className="mt-1 w-full resize-none rounded-lg border border-neutral-200 bg-white px-3 py-2 text-[12px] text-neutral-900 outline-none focus:border-neutral-400"
+                  placeholder="Required when changing the due date (min. 5 characters)"
+                />
+              </div>
+            )}
           </div>
           <div>
-            <label className="text-[10px] uppercase tracking-[0.12em] text-neutral-400">
+            <label htmlFor={priorityId} className="text-[10px] uppercase tracking-[0.12em] text-neutral-400">
               Priority
             </label>
             <select
+              id={priorityId}
               value={draft.priority}
               disabled={!titlePriorityWritable}
               onChange={(e) =>
@@ -168,7 +262,7 @@ export function TaskEditorModal({
                   priority: e.target.value as "low" | "medium" | "high",
                 })
               }
-              className="mt-1 h-[40px] w-full rounded-xl border border-neutral-200 bg-white px-3 text-[13px] text-neutral-900 outline-none focus:border-neutral-400"
+              className={inputClass}
             >
               <option value="low">Low</option>
               <option value="medium">Medium</option>
@@ -176,23 +270,25 @@ export function TaskEditorModal({
             </select>
           </div>
           <div className="md:col-span-2">
-            <label className="text-[10px] uppercase tracking-[0.12em] text-neutral-400">
+            <label htmlFor={tagsId} className="text-[10px] uppercase tracking-[0.12em] text-neutral-400">
               Tags
             </label>
-            <input
+            <BoundedTextInput
+              id={tagsId}
               maxLength={INPUT_LIMITS.TAGS_LIST}
               value={draft.tagsText}
               disabled={!planningWritable}
               onChange={(e) => onChange({ tagsText: e.target.value })}
               placeholder="comma-separated tags"
-              className="mt-1 h-[40px] w-full rounded-xl border border-neutral-200 bg-white px-3 text-[13px] text-neutral-900 outline-none focus:border-neutral-400"
+              className={inputClass}
             />
           </div>
           <div className="md:col-span-2">
-            <label className="text-[10px] uppercase tracking-[0.12em] text-neutral-400">
+            <label htmlFor={acceptanceId} className="text-[10px] uppercase tracking-[0.12em] text-neutral-400">
               Acceptance Criteria
             </label>
-            <textarea
+            <BoundedTextarea
+              id={acceptanceId}
               rows={3}
               maxLength={INPUT_LIMITS.DESCRIPTION}
               value={draft.acceptanceCriteriaText}
@@ -201,30 +297,32 @@ export function TaskEditorModal({
                 onChange({ acceptanceCriteriaText: event.target.value })
               }
               placeholder="One testable criterion per line"
-              className="mt-1 w-full resize-none rounded-xl border border-neutral-200 bg-white px-3 py-2.5 text-[12px] text-neutral-900 outline-none focus:border-neutral-400"
+              className={textareaClass}
             />
           </div>
           <div className="md:col-span-2">
-            <label className="text-[10px] uppercase tracking-[0.12em] text-neutral-400">
+            <label htmlFor={dodId} className="text-[10px] uppercase tracking-[0.12em] text-neutral-400">
               Definition of Done
             </label>
-            <textarea
+            <BoundedTextarea
+              id={dodId}
               rows={2}
               maxLength={INPUT_LIMITS.COMMENT}
               value={draft.definitionOfDone}
-                disabled={!planningWritable}
+              disabled={!planningWritable}
               onChange={(event) =>
                 onChange({ definitionOfDone: event.target.value })
               }
               placeholder="Evidence, approval, or quality standard required for completion"
-              className="mt-1 w-full resize-none rounded-xl border border-neutral-200 bg-white px-3 py-2.5 text-[12px] text-neutral-900 outline-none focus:border-neutral-400"
+              className={textareaClass}
             />
           </div>
           <div className="md:col-span-2">
-            <label className="text-[10px] uppercase tracking-[0.12em] text-neutral-400">
+            <label htmlFor={dependenciesId} className="text-[10px] uppercase tracking-[0.12em] text-neutral-400">
               Dependencies
             </label>
             <select
+              id={dependenciesId}
               value=""
               disabled={!planningWritable}
               onChange={(event) => {
@@ -283,30 +381,38 @@ export function TaskEditorModal({
 
         <div className="rounded-[14px] border border-border bg-muted/50 p-3">
           <TaskEditorRootPeople task={task} readOnly={saving} fallback={
-          <div className="flex items-center justify-between gap-2">
-            <div>
-              <div className="text-[10px] uppercase tracking-[0.12em] text-neutral-400">
-                Team Assignment
+            <div className="flex items-center justify-between gap-2">
+              <div>
+                <div className="text-[10px] uppercase tracking-[0.12em] text-neutral-400">
+                  Team Assignment
+                </div>
+                <div className="text-[12px] text-neutral-700 mt-0.5">
+                  Lead: {leadName}
+                </div>
+                <div className="text-[11px] text-neutral-500 mt-0.5">
+                  {teamMembers.length > 0
+                    ? `Team of ${teamMembers.length}: ${teamMembers.map((member) => member.name).join(", ")}`
+                    : "No team members assigned yet."}
+                </div>
               </div>
-              <div className="text-[12px] text-neutral-700 mt-0.5">
-                Lead: {leadName}
-              </div>
-              <div className="text-[11px] text-neutral-500 mt-0.5">
-                {teamMembers.length > 0
-                  ? `Team of ${teamMembers.length}: ${teamMembers.map((member) => member.name).join(", ")}`
-                  : "No team members assigned yet."}
-              </div>
+              <WorkspaceTooltip
+                content={employees.length === 0 ? "No office employees are available to assign." : ""}
+                disabled={employees.length > 0}
+              >
+                <span className="inline-flex">
+                  <button
+                    type="button"
+                    onClick={onOpenTeamEditor}
+                    disabled={employees.length === 0}
+                    className="inline-flex items-center gap-1 h-8 px-3 rounded-full border border-neutral-200 bg-white text-[11px] font-medium text-neutral-700 hover:bg-neutral-100 disabled:opacity-50 transition"
+                  >
+                    <Users size={11} />
+                    Edit Team
+                  </button>
+                </span>
+              </WorkspaceTooltip>
             </div>
-            <button
-              onClick={onOpenTeamEditor}
-              disabled={employees.length === 0}
-              className="inline-flex items-center gap-1 h-8 px-3 rounded-full border border-neutral-200 bg-white text-[11px] font-medium text-neutral-700 hover:bg-neutral-100 disabled:opacity-50 transition"
-            >
-              <Users size={11} />
-              Edit Team
-            </button>
-          </div>
-          }/>
+          } />
           <div className="mt-3 grid gap-3 border-t border-neutral-200 pt-3 md:grid-cols-2">
             <label className="text-[10px] uppercase tracking-[0.12em] text-neutral-400">
               Primary Reviewer
@@ -353,63 +459,68 @@ export function TaskEditorModal({
 
         <div className="grid gap-3 md:grid-cols-2">
           <div>
-            <label className="text-[10px] uppercase tracking-[0.12em] text-neutral-400">
+            <label htmlFor={proposalId} className="text-[10px] uppercase tracking-[0.12em] text-neutral-400">
               Proposal
             </label>
-            <input
+            <BoundedTextInput
+              id={proposalId}
               maxLength={INPUT_LIMITS.TITLE}
               value={draft.proposalTitle}
               disabled={!planningWritable}
               onChange={(e) => onChange({ proposalTitle: e.target.value })}
-              className="mt-1 h-[38px] w-full rounded-xl border border-neutral-200 bg-white px-3 text-[12px] text-neutral-900 outline-none focus:border-neutral-400"
+              className={compactInputClass}
             />
           </div>
           <div>
-            <label className="text-[10px] uppercase tracking-[0.12em] text-neutral-400">
+            <label htmlFor={programId} className="text-[10px] uppercase tracking-[0.12em] text-neutral-400">
               Program
             </label>
-            <input
+            <BoundedTextInput
+              id={programId}
               maxLength={INPUT_LIMITS.TITLE}
               value={draft.programTitle}
               disabled={!planningWritable}
               onChange={(e) => onChange({ programTitle: e.target.value })}
-              className="mt-1 h-[38px] w-full rounded-xl border border-neutral-200 bg-white px-3 text-[12px] text-neutral-900 outline-none focus:border-neutral-400"
+              className={compactInputClass}
             />
           </div>
           <div>
-            <label className="text-[10px] uppercase tracking-[0.12em] text-neutral-400">
+            <label htmlFor={projectId} className="text-[10px] uppercase tracking-[0.12em] text-neutral-400">
               Project
             </label>
-            <input
+            <BoundedTextInput
+              id={projectId}
               maxLength={INPUT_LIMITS.TITLE}
               value={draft.projectTitle}
               disabled={!planningWritable}
               onChange={(e) => onChange({ projectTitle: e.target.value })}
-              className="mt-1 h-[38px] w-full rounded-xl border border-neutral-200 bg-white px-3 text-[12px] text-neutral-900 outline-none focus:border-neutral-400"
+              className={compactInputClass}
             />
           </div>
           <div>
-            <label className="text-[10px] uppercase tracking-[0.12em] text-neutral-400">
+            <label htmlFor={activityId} className="text-[10px] uppercase tracking-[0.12em] text-neutral-400">
               Activity
             </label>
-            <input
+            <BoundedTextInput
+              id={activityId}
               maxLength={INPUT_LIMITS.TITLE}
               value={draft.activityTitle}
               disabled={!planningWritable}
               onChange={(e) => onChange({ activityTitle: e.target.value })}
-              className="mt-1 h-[38px] w-full rounded-xl border border-neutral-200 bg-white px-3 text-[12px] text-neutral-900 outline-none focus:border-neutral-400"
+              className={compactInputClass}
             />
           </div>
           <div className="md:col-span-2">
-            <label className="text-[10px] uppercase tracking-[0.12em] text-neutral-400">
+            <label htmlFor={scheduleId} className="text-[10px] uppercase tracking-[0.12em] text-neutral-400">
               Activity Schedule
             </label>
-            <input
+            <BoundedTextInput
+              id={scheduleId}
               maxLength={INPUT_LIMITS.SHORT_TAG}
               value={draft.activitySchedule}
               disabled={!planningWritable}
               onChange={(e) => onChange({ activitySchedule: e.target.value })}
-              className="mt-1 h-[38px] w-full rounded-xl border border-neutral-200 bg-white px-3 text-[12px] text-neutral-900 outline-none focus:border-neutral-400"
+              className={compactInputClass}
             />
           </div>
         </div>

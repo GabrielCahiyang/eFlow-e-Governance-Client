@@ -1,6 +1,7 @@
 import { useId, useState } from 'react';
 import { Button } from '@vibe/core';
 import { Upload } from '@vibe/icons';
+import { WorkspaceTooltip } from '../../../components/ui/workspace/WorkspaceTooltip';
 import type { ProposalImportOptions } from '../types';
 
 const taskOptions = [
@@ -9,17 +10,24 @@ const taskOptions = [
   { key: 'assignPeople', label: 'Suggest people', hint: 'Match eligible staff to tasks using skills and workload.' },
 ] as const;
 
-export function ProposalPdfForm({ options, onOptionsChange, onStart, allowDocumentOnly = false, hint, disabled = false, budgetDisabledReason = '' }: {
+export function ProposalPdfForm({ options, onOptionsChange, onStart, allowDocumentOnly = false, hint, disabled = false, disabledReason = '', budgetDisabledReason = '' }: {
   options: ProposalImportOptions;
   onOptionsChange: (options: ProposalImportOptions) => void;
   onStart: (file: File) => void;
   allowDocumentOnly?: boolean;
   hint: string;
   disabled?: boolean;
+  disabledReason?: string;
   budgetDisabledReason?: string;
 }) {
   const id = useId();
   const [file, setFile] = useState<File | null>(null);
+  const startDisabled = disabled || !file;
+  const startTip = !startDisabled
+    ? ''
+    : disabled
+      ? disabledReason || 'Complete the required schedule settings above before starting import.'
+      : 'Choose or drop a government proposal PDF file before starting import.';
 
   return <fieldset disabled={disabled} className="min-w-0 border-0 p-0">
     <fieldset className="mb-5 rounded-xl border border-neutral-200 p-4">
@@ -66,7 +74,11 @@ export function ProposalPdfForm({ options, onOptionsChange, onStart, allowDocume
       />
     </label>
     <div className="mt-4 flex justify-end">
-      <Button kind="primary" disabled={disabled || !file} onClick={() => { if (file) onStart(file); }}>Start import</Button>
+      <WorkspaceTooltip content={startTip} disabled={!startTip}>
+        <span className="inline-flex">
+          <Button kind="primary" disabled={startDisabled} onClick={() => { if (file) onStart(file); }}>Start import</Button>
+        </span>
+      </WorkspaceTooltip>
     </div>
   </fieldset>;
 }

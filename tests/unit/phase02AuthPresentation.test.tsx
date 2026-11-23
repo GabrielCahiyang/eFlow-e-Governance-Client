@@ -63,7 +63,7 @@ describe("Phase 02 auth presentation", () => {
     expect(screen.getByText("Government work, connected.")).toBeTruthy();
   });
 
-  it("renders separate client (/) and admin (/admin) portal headers without Usage scenarios", () => {
+  it("renders separate client (/) and admin (/admin) portal headers with portal-scoped Usage scenarios", () => {
     window.history.replaceState({}, "", "/");
     const { unmount } = render(
       <EflowVibeThemeProvider preference="light">
@@ -72,8 +72,15 @@ describe("Phase 02 auth presentation", () => {
     );
 
     expect(screen.getByRole("heading", { name: "Sign in to eFlow" })).toBeTruthy();
-    expect(screen.queryByRole("button", { name: /Choose a development account|Usage scenarios/i })).toBeNull();
-    expect(document.querySelector("#quick-login-picker")).toBeNull();
+    const clientPicker = screen.getByRole("button", { name: /Choose a development account/i });
+    expect(clientPicker).toBeTruthy();
+    expect(document.querySelector("#quick-login-picker")).toBeTruthy();
+    fireEvent.click(clientPicker);
+    expect(screen.getByRole("menuitem", { name: /jamessdrian12@gmail\.com/i })).toBeTruthy();
+    expect(screen.getByRole("menuitem", { name: /gabzcah@gmail\.com/i })).toBeTruthy();
+    expect(screen.getByRole("menuitem", { name: /kurtditch@gmail\.com/i })).toBeTruthy();
+    expect(screen.getByRole("menuitem", { name: /gabzcahv2@gmail\.com/i })).toBeTruthy();
+    expect(screen.queryByRole("menuitem", { name: /admin@gmail\.com/i })).toBeNull();
     unmount();
 
     window.history.replaceState({}, "", "/admin");
@@ -84,8 +91,12 @@ describe("Phase 02 auth presentation", () => {
     );
 
     expect(screen.getByRole("heading", { name: "Sign in to eFlow Admin" })).toBeTruthy();
-    expect(screen.queryByRole("button", { name: /Choose a development account|Usage scenarios/i })).toBeNull();
-    expect(document.querySelector("#quick-login-picker")).toBeNull();
+    const adminPicker = screen.getByRole("button", { name: /Choose a development account/i });
+    expect(adminPicker).toBeTruthy();
+    expect(document.querySelector("#quick-login-picker")).toBeTruthy();
+    fireEvent.click(adminPicker);
+    expect(screen.getByRole("menuitem", { name: /admin@gmail\.com/i })).toBeTruthy();
+    expect(screen.queryByRole("menuitem", { name: /jamessdrian12@gmail\.com/i })).toBeNull();
     window.history.replaceState({}, "", "/");
   });
 });

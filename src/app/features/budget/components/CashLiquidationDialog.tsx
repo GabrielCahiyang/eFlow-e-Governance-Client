@@ -1,13 +1,11 @@
-import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
-import { formatManilaDate } from "../../../shared/calendarDisplay";
-import { MoneyInput } from "../../../components/ui/MoneyInput";
-import { FieldLengthHint } from "../../../components/ui/FieldLengthHint";
-import { INPUT_LIMITS } from "../../../shared/inputLimits";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { AttentionBox, Button } from "@vibe/core";
 import { AlertCircle, CheckCircle2, FileText, Plus, RefreshCw, Trash2, Upload, X } from "lucide-react";
+import { BoundedTextarea, BoundedTextInput } from "../../../components/ui/BoundedInput";
+import { DateInput } from "../../../components/ui/DateInput";
 import { Input } from "../../../components/ui/input";
-import { Textarea } from "../../../components/ui/textarea";
+import { MoneyInput } from "../../../components/ui/MoneyInput";
+import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import {
   Dialog,
   DialogContent,
@@ -16,8 +14,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../../../components/ui/dialog";
+import { formatManilaDate } from "../../../shared/calendarDisplay";
+import { diffCentavos, exceedsCentavos, sumCentavos } from "../../../shared/currency";
+import { INPUT_LIMITS } from "../../../shared/inputLimits";
 import type { PettyCashRequest, ReceiptDraft } from "../types";
 import { findSavedLiquidation, submitPettyCashLiquidation, type LiquidationAttempt } from "../services/budgetService";
+import { fetchRequestAssignmentReceipts } from "../services/workCashAssignmentService";
 import { useAuth } from "../../../contexts/AuthContext";
 import { usePendingAction } from "../../../shared/usePendingAction";
 import { isCommandId, pendingActionKey, withPendingActionLock } from "../../../shared/pendingActionStore";
@@ -89,12 +91,16 @@ export function CashLiquidationDialog({
   const [clearanceError, setClearanceError] = useState("");
   const [attemptedSubmit, setAttemptedSubmit] = useState(false);
   const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const [invalidDates, setInvalidDates] = useState<Record<string, boolean>>({});
+  const noteId = useId();
   const clearanceRun = useRef(0);
   const inFlight = useRef(false);
 
   const markTouched = (key: string) =>
     setTouched((prev) => (prev[key] ? prev : { ...prev, [key]: true }));
   const showFieldError = (key: string) => attemptedSubmit || Boolean(touched[key]);
+  const setDateInvalid = (key: string, invalid: boolean) =>
+    setInvalidDates((prev) => (Boolean(prev[key]) === invalid ? prev : { ...prev, [key]: invalid }));
 
   const loadClearance = useCallback(async () => {
     const run = ++clearanceRun.current;
@@ -123,6 +129,61 @@ export function CashLiquidationDialog({
     }
   }, [request.id]);
 
+  const [rolledUpCount, setRolledUpCount] = useState(0);
+
+  useEffect(() => {
+    let active = true;
+    void fetchRequestAssignmentReceipts(request.id)
+      .then((rows) => {
+        if (!active || !rows.length) return;
+        const mapped: ReceiptDraft[] = rows.map((row) => {
+          const originLabel = row.subtaskTitle
+            ? `Subtask: ${row.subtaskTitle}${row.uploadedByName ? ` · ${row.uploadedByName}` : ""}`
+            : `This task${row.uploadedByName ? ` · ${row.uploadedByName}` : ""}`;
+          const fallbackItems =
+            itemized && (!row.items || row.items.length === 0) && sources.length > 0
+              ? [
+                  {
+                    id: crypto.randomUUID(),
+                    allocationLineId: sources[0].allocationLineId,
+                    quantity: 1,
+                    unit: "lot",
+                    particular: row.description || row.vendor,
+                    purpose: `${originLabel} — ${row.description || row.vendor}`.slice(0, 200),
+                    amount: row.amount,
+                  },
+                ]
+              : row.items;
+          return {
+            id: row.id || crypto.randomUUID(),
+            vendor: row.vendor,
+            receiptNumber: row.receiptNumber || "",
+            receiptDate: row.receiptDate || getPhilippineCalendarDate(),
+            description: row.description || "",
+            amount: row.amount,
+            existingFile: {
+              fileName: row.fileName,
+              filePath: row.filePath,
+              mimeType: row.mimeType,
+              fileSize: row.fileSize,
+            },
+            originLabel,
+            ...(itemized ? { items: fallbackItems } : {}),
+          };
+        });
+        setRolledUpCount(mapped.length);
+        setReceipts(mapped);
+        if (!itemized) {
+          const total = mapped.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+          setSpent(Math.round(total * 100) / 100);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, [request.id, itemized, sources]);
+
   useEffect(() => {
     void loadClearance();
     return () => {
@@ -140,7 +201,7 @@ export function CashLiquidationDialog({
     !clearanceError &&
     clearance?.canSubmit === true;
 
-  const receiptTotal = receipts.reduce((sum, receipt) => sum + (Number(receipt.amount) || 0), 0);
+  const receiptTotal = sumCentavos(receipts.map((receipt) => Number(receipt.amount) || 0));
   const spent = itemized ? receiptTotal : enteredSpent;
   const overdue = isLiquidationCurrentlyOverdue(request);
 
@@ -159,6 +220,10 @@ export function CashLiquidationDialog({
     [approved, itemized, sources, spent, receipts, refundReceiptNumber, refundDate, note],
   );
 
+  const hasInvalidDateText =
+    receipts.some((receipt) => Boolean(invalidDates[`${receipt.id}:date`])) ||
+    (validation.requiresCashReturn && Boolean(invalidDates.refundDate));
+
   const update = (id: string, patch: Partial<ReceiptDraft>) => {
     if (!editable) return;
     setError("");
@@ -170,6 +235,10 @@ export function CashLiquidationDialog({
     if (!recovery.value) {
       if (!editable) return;
       setAttemptedSubmit(true);
+      if (hasInvalidDateText) {
+        setError("Enter valid dates in MM/DD/YYYY format before submitting.");
+        return;
+      }
       if (!validation.isValid) {
         setError(validation.blockingErrors[0] || "Fix the highlighted fields before submitting.");
         return;
@@ -263,12 +332,45 @@ export function CashLiquidationDialog({
     ? formatManilaDate(request.liquidationDueAt, `${liquidationDueDays} days after full release`)
     : `${liquidationDueDays} days after full release`;
 
-  const unusedCash = Math.max(0, approved - spent);
+  const unusedCash = Math.max(0, diffCentavos(approved, spent));
   const submitDisabled =
     saved ||
     busy ||
     !recovery.ready ||
-    (!recovery.value && (!editable || validation.overLimitBlocked));
+    (!recovery.value && (!editable || validation.overLimitBlocked || hasInvalidDateText));
+
+  const submitTooltip = submitDisabled
+    ? busy
+      ? "Submitting liquidation…"
+      : saved
+        ? "Liquidation has already been submitted."
+        : !recovery.ready
+          ? "Checking saved liquidation state…"
+          : clearanceLoading
+            ? "Checking receipt submission clearance…"
+            : clearanceError
+              ? clearanceError
+              : !clearance?.workAccepted
+                ? "Work must be completed and accepted before submitting receipts."
+                : !editable
+                  ? "Receipt submission is currently locked."
+                  : hasInvalidDateText
+                    ? "Enter valid dates in MM/DD/YYYY format before submitting."
+                    : validation.overLimitBlocked
+                      ? validation.releasedError ||
+                        (validation.exceededSources[0]
+                          ? `${validation.exceededSources[0].label} exceeds its approved funding by ${peso.format(validation.exceededSources[0].overByAmount)}.`
+                          : "Spending exceeds the available cash limit.")
+                      : ""
+    : "";
+
+  const addReceiptTooltip = !editable
+    ? clearanceLoading
+      ? "Checking receipt submission clearance…"
+      : !clearance?.workAccepted
+        ? "Complete and get work accepted before adding receipts."
+        : "Receipt editing is currently locked."
+    : "";
 
   return (
     <Dialog open onOpenChange={(open) => { if (!open) onClose(); }}>
@@ -397,6 +499,7 @@ export function CashLiquidationDialog({
                   type="number"
                   disabled={!editable}
                   value={enteredSpent}
+                  availableMax={approved}
                   onBlur={() => markTouched("spent")}
                   onChange={(value) => {
                     markTouched("spent");
@@ -470,19 +573,43 @@ export function CashLiquidationDialog({
           )}
 
           {/* Receipts */}
+          {rolledUpCount > 0 && (
+            <div
+              role="status"
+              className="rounded-xl border border-emerald-200 bg-emerald-50/70 px-3.5 py-2.5 text-[12px] text-emerald-950"
+            >
+              <strong>
+                {rolledUpCount} pre-logged {rolledUpCount === 1 ? "receipt" : "receipts"} rolled up
+              </strong>{" "}
+              from assigned task/subtask cash. Their uploaded files are already attached — add any remaining receipts
+              below or submit directly.
+            </div>
+          )}
           <div className="space-y-3">
             {receipts.map((receipt, index) => {
               const rErr = validation.receipts[index];
               const vendorErr = showFieldError(`${receipt.id}:vendor`) ? rErr?.vendor || "" : "";
-              const dateErr = showFieldError(`${receipt.id}:date`) ? rErr?.receiptDate || "" : "";
+              const dateInvalid = Boolean(invalidDates[`${receipt.id}:date`]);
+              const dateErr = dateInvalid
+                ? "Enter a valid receipt date in MM/DD/YYYY format."
+                : showFieldError(`${receipt.id}:date`)
+                  ? rErr?.receiptDate || ""
+                  : "";
+              const amountOverApproved = exceedsCentavos(receipt.amount, approved);
               const amountErr =
-                (!itemized && rErr?.amount && receipt.amount > approved)
+                !itemized && rErr?.amount && amountOverApproved
                   ? rErr.amount
                   : showFieldError(`${receipt.id}:amount`)
                     ? rErr?.amount || ""
                     : "";
               const descErr = showFieldError(`${receipt.id}:desc`) ? rErr?.description || "" : "";
               const fileErr = showFieldError(`${receipt.id}:file`) ? rErr?.file || "" : "";
+              const removeReceiptDisabled = !editable || receipts.length === 1;
+              const removeReceiptTooltip = !editable
+                ? "Editing is locked."
+                : receipts.length === 1
+                  ? "At least one receipt is required."
+                  : `Remove receipt ${index + 1} from this liquidation draft.`;
 
               return (
                 <article
@@ -490,22 +617,36 @@ export function CashLiquidationDialog({
                   className="rounded-xl border border-border bg-card p-4 shadow-[0_2px_4px_-3px_rgba(0,0,0,0.12)]"
                 >
                   <div className="flex items-center justify-between border-b border-border/70 pb-2.5">
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                       <span className="text-[13px] font-semibold text-foreground">Receipt {index + 1}</span>
                       <span className="rounded-md bg-muted px-2 py-0.5 text-[11.5px] font-semibold tabular-nums text-foreground">
                         {peso.format(receipt.amount || 0)}
                       </span>
+                      {receipt.originLabel && (
+                        <span className="rounded-md bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-900">
+                          {receipt.originLabel}
+                        </span>
+                      )}
                     </div>
-                    <WorkspaceTooltip content={`Remove receipt ${index + 1}`}>
-                      <button
-                        type="button"
-                        aria-label={`Remove receipt ${index + 1}`}
-                        disabled={!editable || receipts.length === 1}
-                        onClick={() => setReceipts((current) => current.filter((item) => item.id !== receipt.id))}
-                        className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:opacity-30"
-                      >
-                        <Trash2 size={14} aria-hidden="true" />
-                      </button>
+                    <WorkspaceTooltip content={removeReceiptTooltip} disabled={!removeReceiptTooltip}>
+                      <span className="inline-flex">
+                        <button
+                          type="button"
+                          aria-label={`Remove receipt ${index + 1}`}
+                          disabled={removeReceiptDisabled}
+                          onClick={() => {
+                            setInvalidDates((prev) => {
+                              const next = { ...prev };
+                              delete next[`${receipt.id}:date`];
+                              return next;
+                            });
+                            setReceipts((current) => current.filter((item) => item.id !== receipt.id));
+                          }}
+                          className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:opacity-30"
+                        >
+                          <Trash2 size={14} aria-hidden="true" />
+                        </button>
+                      </span>
                     </WorkspaceTooltip>
                   </div>
 
@@ -542,6 +683,7 @@ export function CashLiquidationDialog({
                       max={getPhilippineCalendarDate()}
                       value={receipt.receiptDate}
                       error={dateErr}
+                      onInvalidTextChange={(invalid) => setDateInvalid(`${receipt.id}:date`, invalid)}
                       onBlur={() => markTouched(`${receipt.id}:date`)}
                       onChange={(value) => {
                         markTouched(`${receipt.id}:date`);
@@ -554,7 +696,7 @@ export function CashLiquidationDialog({
                         <span className="text-[11px] font-medium text-muted-foreground">Receipt total (auto-summed)</span>
                         <output
                           className={`mt-0.5 block text-[14px] font-semibold tabular-nums ${
-                            receipt.amount > approved ? "text-destructive" : "text-foreground"
+                            amountOverApproved ? "text-destructive" : "text-foreground"
                           }`}
                         >
                           {peso.format(receipt.amount)}
@@ -567,6 +709,7 @@ export function CashLiquidationDialog({
                         type="number"
                         disabled={!editable}
                         value={receipt.amount || ""}
+                        availableMax={approved}
                         error={amountErr}
                         onBlur={() => markTouched(`${receipt.id}:amount`)}
                         onChange={(value) => {
@@ -577,16 +720,10 @@ export function CashLiquidationDialog({
                       />
                     )}
 
-                    <label className="block sm:col-span-2">
-                      <span
-                        className={`text-[11.5px] font-medium text-foreground ${
-                          !itemized ? "after:ml-0.5 after:text-destructive after:content-['*']" : ""
-                        }`}
-                      >
-                        {itemized ? "Expense description (optional)" : "Expense description"}
-                      </span>
-                      <Input
-                        aria-invalid={Boolean(descErr)}
+                    <div className="sm:col-span-2">
+                      <Field
+                        label={itemized ? "Expense description (optional)" : "Expense description"}
+                        required={!itemized}
                         disabled={!editable}
                         maxLength={INPUT_LIMITS.TITLE}
                         value={receipt.description}
@@ -595,15 +732,14 @@ export function CashLiquidationDialog({
                             ? "Optional summary — purchased item details are listed below"
                             : "What was purchased with this receipt?"
                         }
+                        error={descErr}
                         onBlur={() => markTouched(`${receipt.id}:desc`)}
-                        onChange={(event) => {
+                        onChange={(value) => {
                           markTouched(`${receipt.id}:desc`);
-                          update(receipt.id, { description: event.target.value });
+                          update(receipt.id, { description: value });
                         }}
-                        className={descErr ? FIELD_ERROR_CLASS : FIELD_CLASS}
                       />
-                      {descErr && <p role="alert" className="mt-1 text-[11px] text-destructive">{descErr}</p>}
-                    </label>
+                    </div>
 
                     <div className="sm:col-span-2">
                       <label className="block">
@@ -614,7 +750,7 @@ export function CashLiquidationDialog({
                           className={`mt-1 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-dashed px-3 py-2.5 transition-colors ${
                             fileErr
                               ? "border-destructive bg-destructive/5"
-                              : receipt.file
+                              : receipt.file || receipt.existingFile?.filePath
                                 ? "border-primary/40 bg-primary/5"
                                 : "border-[var(--eflow-border,#cbd5e1)] bg-muted/20 hover:border-primary/50"
                           }`}
@@ -629,6 +765,13 @@ export function CashLiquidationDialog({
                                     ({formatFileSize(receipt.file.size)})
                                   </span>
                                 ) : null}
+                              </span>
+                            ) : receipt.existingFile?.filePath ? (
+                              <span className="truncate font-medium text-emerald-900">
+                                {receipt.existingFile.fileName}
+                                <span className="ml-1.5 font-normal text-emerald-700">
+                                  (Already uploaded · replace optional)
+                                </span>
                               </span>
                             ) : (
                               <span className="text-muted-foreground">Choose a JPG, PNG, WEBP, or PDF receipt file</span>
@@ -648,17 +791,21 @@ export function CashLiquidationDialog({
                               className="h-auto w-[195px] cursor-pointer border-0 bg-transparent p-0 text-[11.5px] shadow-none file:mr-2 file:cursor-pointer file:rounded-md file:border file:border-border file:bg-background file:px-2.5 file:py-1 file:text-[11.5px] file:font-medium file:text-foreground hover:file:bg-muted"
                             />
                             {receipt.file && editable && (
-                              <button
-                                type="button"
-                                aria-label={`Remove file for receipt ${index + 1}`}
-                                onClick={() => {
-                                  markTouched(`${receipt.id}:file`);
-                                  update(receipt.id, { file: undefined });
-                                }}
-                                className="rounded-md p-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-                              >
-                                <X size={13} aria-hidden="true" />
-                              </button>
+                              <WorkspaceTooltip content={`Remove attached file for receipt ${index + 1}.`}>
+                                <span className="inline-flex">
+                                  <button
+                                    type="button"
+                                    aria-label={`Remove file for receipt ${index + 1}`}
+                                    onClick={() => {
+                                      markTouched(`${receipt.id}:file`);
+                                      update(receipt.id, { file: undefined });
+                                    }}
+                                    className="rounded-md p-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                                  >
+                                    <X size={13} aria-hidden="true" />
+                                  </button>
+                                </span>
+                              </WorkspaceTooltip>
                             )}
                           </div>
                         </div>
@@ -694,19 +841,23 @@ export function CashLiquidationDialog({
             })}
           </div>
 
-          <Button
-            kind="secondary"
-            size="small"
-            disabled={!editable}
-            onClick={() =>
-              setReceipts((current) => [
-                ...current,
-                { ...blankReceipt(0), ...(itemized ? { items: [] } : {}) },
-              ])
-            }
-          >
-            <Plus size={13} className="mr-1" aria-hidden="true" /> Add receipt
-          </Button>
+          <WorkspaceTooltip content={addReceiptTooltip} disabled={!addReceiptTooltip}>
+            <span className="inline-flex">
+              <Button
+                kind="secondary"
+                size="small"
+                disabled={!editable}
+                onClick={() =>
+                  setReceipts((current) => [
+                    ...current,
+                    { ...blankReceipt(0), ...(itemized ? { items: [] } : {}) },
+                  ])
+                }
+              >
+                <Plus size={13} className="mr-1" aria-hidden="true" /> Add receipt
+              </Button>
+            </span>
+          </WorkspaceTooltip>
 
           {/* Cash return section when unused cash remains */}
           {validation.requiresCashReturn && (
@@ -738,7 +889,14 @@ export function CashLiquidationDialog({
                 disabled={!editable}
                 max={getPhilippineCalendarDate()}
                 value={refundDate}
-                error={showFieldError("refundDate") ? validation.refundDateError : ""}
+                error={
+                  invalidDates.refundDate
+                    ? "Enter a valid cash return date in MM/DD/YYYY format."
+                    : showFieldError("refundDate")
+                      ? validation.refundDateError
+                      : ""
+                }
+                onInvalidTextChange={(invalid) => setDateInvalid("refundDate", invalid)}
                 onBlur={() => markTouched("refundDate")}
                 onChange={(val) => {
                   markTouched("refundDate");
@@ -753,18 +911,20 @@ export function CashLiquidationDialog({
           )}
 
           {/* Liquidation note */}
-          <label className="block">
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-[11.5px] font-medium text-foreground after:ml-0.5 after:text-destructive after:content-['*']">
-                Liquidation note
+          <div>
+            <label htmlFor={noteId} className="block text-[11.5px] font-medium text-foreground">
+              Liquidation note{" "}
+              <span className="text-[var(--eflow-negative-text)]" aria-hidden="true">
+                *
               </span>
-              <FieldLengthHint length={note.length} max={INPUT_LIMITS.REASON} />
-            </div>
-            <Textarea
-              aria-invalid={Boolean(showFieldError("note") && validation.noteError)}
+            </label>
+            <BoundedTextarea
+              id={noteId}
               disabled={!editable}
+              aria-required="true"
               maxLength={INPUT_LIMITS.REASON}
               value={note}
+              error={showFieldError("note") ? validation.noteError || undefined : undefined}
               onBlur={() => markTouched("note")}
               onChange={(event) => {
                 markTouched("note");
@@ -772,18 +932,9 @@ export function CashLiquidationDialog({
               }}
               rows={3}
               placeholder="Summarize what was purchased and confirm any unused cash returned."
-              className={`mt-1 min-h-[78px] rounded-lg border px-3 py-2 text-[12.5px] ${
-                showFieldError("note") && validation.noteError
-                  ? "border-destructive bg-destructive/5 focus:border-destructive"
-                  : "border-[var(--eflow-border,#cbd5e1)] bg-background focus:border-primary"
-              }`}
+              className="mt-1 min-h-[78px] w-full rounded-lg border border-[var(--eflow-border,#cbd5e1)] bg-background px-3 py-2 text-[12.5px] text-foreground outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/15 disabled:opacity-60"
             />
-            {showFieldError("note") && validation.noteError && (
-              <p role="alert" className="mt-1 text-[11px] text-destructive">
-                {validation.noteError}
-              </p>
-            )}
-          </label>
+          </div>
 
           {attemptedSubmit && !validation.isValid && !validation.overLimitBlocked && (
             <div
@@ -849,16 +1000,20 @@ export function CashLiquidationDialog({
             <Button kind="secondary" size="small" onClick={onClose} disabled={busy}>
               Cancel
             </Button>
-            <Button
-              kind="primary"
-              size="small"
-              disabled={submitDisabled}
-              loading={busy}
-              onClick={() => void submit()}
-            >
-              <FileText size={13} className="mr-1" aria-hidden="true" />{" "}
-              {recovery.value ? "Check saved liquidation" : "Submit liquidation"}
-            </Button>
+            <WorkspaceTooltip content={submitTooltip} disabled={!submitTooltip}>
+              <span className="inline-flex">
+                <Button
+                  kind="primary"
+                  size="small"
+                  disabled={submitDisabled}
+                  loading={busy}
+                  onClick={() => void submit()}
+                >
+                  <FileText size={13} className="mr-1" aria-hidden="true" />{" "}
+                  {recovery.value ? "Check saved liquidation" : "Submit liquidation"}
+                </Button>
+              </span>
+            </WorkspaceTooltip>
           </div>
         </DialogFooter>
       </DialogContent>
@@ -882,8 +1037,10 @@ function Field({
   value,
   onChange,
   onBlur,
+  onInvalidTextChange,
   type = "text",
   max,
+  availableMax,
   maxLength,
   placeholder,
   required = false,
@@ -895,8 +1052,10 @@ function Field({
   value: string | number;
   onChange: (value: string) => void;
   onBlur?: () => void;
+  onInvalidTextChange?: (invalid: boolean) => void;
   type?: string;
   max?: string;
+  availableMax?: number;
   maxLength?: number;
   placeholder?: string;
   required?: boolean;
@@ -904,41 +1063,69 @@ function Field({
   disabled?: boolean;
   inputClassName?: string;
 }) {
+  const fieldId = useId();
   return (
-    <label className="block">
-      <span
-        className={`text-[11.5px] font-medium text-foreground ${
-          required ? "after:ml-0.5 after:text-destructive after:content-['*']" : ""
-        }`}
-      >
+    <div className="block">
+      <label htmlFor={fieldId} className="block text-[11.5px] font-medium text-foreground">
         {label}
-      </span>
+        {required && (
+          <span className="ml-0.5 text-[var(--eflow-negative-text)]" aria-hidden="true">
+            *
+          </span>
+        )}
+      </label>
       {type === "number" ? (
         <MoneyInput
+          id={fieldId}
           min={0}
-          max={INPUT_LIMITS.MONEY_MAX_LINE}
-          aria-invalid={Boolean(error)}
+          max={INPUT_LIMITS.MONEY_MAX_BUDGET}
+          availableMax={availableMax}
+          showCeilingHint
+          externalError={error || undefined}
+          aria-required={required || undefined}
           disabled={disabled}
           value={value}
           onBlur={onBlur}
           onValueChange={onChange}
           className={`${error ? FIELD_ERROR_CLASS : FIELD_CLASS} ${inputClassName}`}
         />
+      ) : type === "date" ? (
+        <>
+          <div className="mt-1">
+            <DateInput
+              id={fieldId}
+              max={max}
+              value={String(value ?? "")}
+              disabled={disabled}
+              aria-required={required || undefined}
+              hasError={Boolean(error)}
+              errorMessage={error || undefined}
+              onInvalidTextChange={onInvalidTextChange}
+              onBlur={onBlur}
+              onChange={(event) => onChange(event.target.value)}
+              className={`h-9 text-[12.5px] ${inputClassName}`}
+            />
+          </div>
+          {error && (
+            <p role="alert" className="mt-1 text-[11px] text-destructive">
+              {error}
+            </p>
+          )}
+        </>
       ) : (
-        <Input
-          type={type}
-          max={max}
-          maxLength={type === "date" ? maxLength : (maxLength ?? INPUT_LIMITS.TITLE)}
+        <BoundedTextInput
+          id={fieldId}
+          maxLength={maxLength ?? INPUT_LIMITS.TITLE}
           placeholder={placeholder}
-          aria-invalid={Boolean(error)}
+          aria-required={required || undefined}
           disabled={disabled}
-          value={value}
+          value={String(value ?? "")}
+          error={error || undefined}
           onBlur={onBlur}
           onChange={(event) => onChange(event.target.value)}
           className={`${error ? FIELD_ERROR_CLASS : FIELD_CLASS} ${inputClassName}`}
         />
       )}
-      {error && <p role="alert" className="mt-1 text-[11px] text-destructive">{error}</p>}
-    </label>
+    </div>
   );
 }

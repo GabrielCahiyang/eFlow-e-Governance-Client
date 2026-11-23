@@ -2,7 +2,8 @@ import { readableUiError } from '../../../shared/userFacingError';
 import * as React from "react";
 import * as Icons from "lucide-react";
 import { Modal } from "../../../components/ui/Modal";
-import { FieldLengthHint } from "../../../components/ui/FieldLengthHint";
+import { BoundedTextInput, BoundedTextarea } from "../../../components/ui/BoundedInput";
+import { FieldValidationTooltip } from "../../../components/ui/FieldValidationTooltip";
 import { INPUT_LIMITS } from "../../../shared/inputLimits";
 import { Button } from "../../../components/ui/button";
 import { deleteProject } from "../services/projectService";
@@ -10,6 +11,8 @@ import { fetchProjectDeletionBlockers } from "../services/projectLifecycleServic
 import type { ProjectStatus } from "../services/types";
 import { projectFlowCall } from '../../project-setup';
 import { useGuardedProjectDialog } from '../hooks/useGuardedProjectDialog';
+
+const MIN_DELETE_REASON_LENGTH = 5;
 
 export function ProjectDeleteDialog({
   projectId,
@@ -32,18 +35,41 @@ export function ProjectDeleteDialog({
 }) {
   const [confirmation, setConfirmation] = React.useState("");
   const [reason, setReason] = React.useState("");
+  const [reasonTouched, setReasonTouched] = React.useState(false);
+  const [confirmTouched, setConfirmTouched] = React.useState(false);
+  const [actionTipOpen, setActionTipOpen] = React.useState(false);
   const [deleting, setDeleting] = React.useState(false);
   const [error, setError] = React.useState("");
   const [check, setCheck] = React.useState<{ blockers?: string[]; error?: string; retryable?: boolean }>({});
   const [checkVersion, retryCheck] = React.useReducer((version: number) => version + 1, 0);
   const inFlight = React.useRef(false);
+  const reasonRef = React.useRef<HTMLTextAreaElement | null>(null);
+  const confirmRef = React.useRef<HTMLInputElement | null>(null);
+  const actionAnchorRef = React.useRef<HTMLSpanElement | null>(null);
+  const actionTooltipId = React.useId();
   const eligible = check.blockers?.length === 0;
-  const close = useGuardedProjectDialog({ open, dirty: eligible && Boolean(reason.trim() || confirmation.trim()), pending: deleting, pendingCheck: () => inFlight.current, label: 'Delete project', onClose, onDiscard: () => { setReason(''); setConfirmation(''); } });
+  const close = useGuardedProjectDialog({
+    open,
+    dirty: eligible && Boolean(reason.trim() || confirmation.trim()),
+    pending: deleting,
+    pendingCheck: () => inFlight.current,
+    label: draft ? 'Discard project draft' : 'Delete project',
+    onClose,
+    onDiscard: () => {
+      setReason('');
+      setConfirmation('');
+      setReasonTouched(false);
+      setConfirmTouched(false);
+    },
+  });
 
   React.useEffect(() => {
     if (open) {
       setConfirmation("");
       setReason("");
+      setReasonTouched(false);
+      setConfirmTouched(false);
+      setActionTipOpen(false);
       setError("");
     }
   }, [open, projectId]);
@@ -52,7 +78,10 @@ export function ProjectDeleteDialog({
     if (!open) return;
     let current = true;
     setCheck({});
-    if(draft) { setCheck({blockers:[]}); return; }
+    if (draft) {
+      setCheck({ blockers: [] });
+      return;
+    }
     void fetchProjectDeletionBlockers(projectId).then((blockers) => {
       if (!current) return;
       setCheck(blockers ? { blockers } : { error: "Only the Head responsible for this project can delete it." });
@@ -62,16 +91,77 @@ export function ProjectDeleteDialog({
     return () => { current = false; };
   }, [open, projectId, checkVersion, draft]);
 
-  const canDelete = eligible && confirmation.trim() === projectTitle.trim() && reason.trim().length >= 5;
+  const trimmedReason = reason.trim();
+  const expectedTitle = projectTitle.trim();
+  const trimmedConfirm = confirmation.trim();
+  const reasonValid = trimmedReason.length >= MIN_DELETE_REASON_LENGTH;
+  const confirmValid = trimmedConfirm === expectedTitle;
+  const canDelete = eligible && confirmValid && reasonValid;
+
+  const missingChars = Math.max(0, MIN_DELETE_REASON_LENGTH - trimmedReason.length);
+  const showReasonError = reasonTouched || reason.length > 0;
+  const reasonError = !showReasonError
+    ? ""
+    : trimmedReason.length === 0
+      ? `Reason for deletion is required (minimum ${MIN_DELETE_REASON_LENGTH} characters).`
+      : trimmedReason.length < MIN_DELETE_REASON_LENGTH
+        ? `Enter at least ${MIN_DELETE_REASON_LENGTH} characters (${missingChars} more needed).`
+        : "";
+
+  const showConfirmError = confirmTouched || confirmation.length > 0;
+  const confirmError = !showConfirmError
+    ? ""
+    : trimmedConfirm.length === 0
+      ? `Type "${expectedTitle}" to confirm.`
+      : !confirmValid
+        ? `Must match "${expectedTitle}" exactly.`
+        : "";
+
+  const actionTooltipMessage = deleting
+    ? ""
+    : !canDelete
+      ? !reasonValid && !confirmValid
+        ? `Enter a reason (min. ${MIN_DELETE_REASON_LENGTH} characters) and type "${expectedTitle}" to enable ${draft ? "discarding" : "deletion"}.`
+        : !reasonValid
+          ? trimmedReason.length === 0
+            ? `Enter a reason for deletion (minimum ${MIN_DELETE_REASON_LENGTH} characters).`
+            : `Deletion reason needs ${missingChars} more character${missingChars === 1 ? "" : "s"} (minimum ${MIN_DELETE_REASON_LENGTH}).`
+          : `Type "${expectedTitle}" exactly to confirm before ${draft ? "discarding this draft" : "deleting this project"}.`
+      : draft
+        ? `Warning: Permanently discards "${expectedTitle}". This action cannot be undone.`
+        : `Warning: Permanently deletes "${expectedTitle}". This action cannot be undone.`;
+
+  const revealInvalidField = () => {
+    setReasonTouched(true);
+    setConfirmTouched(true);
+    setActionTipOpen(true);
+    if (!reasonValid) {
+      reasonRef.current?.focus();
+    } else if (!confirmValid) {
+      confirmRef.current?.focus();
+    }
+  };
 
   const handleDelete = async () => {
-    if (!canDelete || inFlight.current) return;
+    if (!canDelete) {
+      revealInvalidField();
+      return;
+    }
+    if (inFlight.current) return;
     inFlight.current = true;
     setDeleting(true);
+    setActionTipOpen(false);
     setError("");
     try {
-      if(draft)await projectFlowCall('discard_private_project',{p_project:projectId,p_title:confirmation,p_reason:reason});
-      else await deleteProject(projectId, confirmation, reason);
+      if (draft) {
+        await projectFlowCall('discard_private_project', {
+          p_project: projectId,
+          p_title: trimmedConfirm,
+          p_reason: trimmedReason,
+        });
+      } else {
+        await deleteProject(projectId, trimmedConfirm, trimmedReason);
+      }
       onDeleted();
     } catch (caught) {
       setError(
@@ -89,7 +179,7 @@ export function ProjectDeleteDialog({
     <Modal
       isOpen={open}
       onClose={deleting ? () => {} : close}
-      title={draft?'Discard project draft':'Permanently delete project'}
+      title={draft ? 'Discard project draft' : 'Permanently delete project'}
       width="max-w-lg"
       footer={
         <div className="flex items-center justify-end gap-3 w-full">
@@ -101,15 +191,37 @@ export function ProjectDeleteDialog({
           >
             {eligible ? "Cancel" : "Close"}
           </button>
-          {eligible && <button
-            type="button"
-            onClick={() => void handleDelete()}
-            disabled={!canDelete || deleting}
-            className="inline-flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-semibold text-white bg-rose-600 hover:bg-rose-700 active:bg-rose-800 shadow-sm transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {deleting && <Icons.Loader2 size={16} className="animate-spin" />}
-            {deleting ? "Deleting…" : draft ? "Discard draft" : "Delete permanently"}
-          </button>}
+          {eligible && (
+            <span
+              ref={actionAnchorRef}
+              className={`inline-flex ${!canDelete || deleting ? "cursor-not-allowed" : ""}`}
+              onMouseEnter={() => setActionTipOpen(true)}
+              onMouseLeave={() => setActionTipOpen(false)}
+              onClick={() => {
+                if (!canDelete && !deleting) revealInvalidField();
+              }}
+            >
+              <button
+                type="button"
+                aria-describedby={actionTipOpen && actionTooltipMessage ? actionTooltipId : undefined}
+                onFocus={() => setActionTipOpen(true)}
+                onBlur={() => setActionTipOpen(false)}
+                onClick={() => void handleDelete()}
+                disabled={!canDelete || deleting}
+                className="inline-flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-semibold text-white bg-rose-600 hover:bg-rose-700 active:bg-rose-800 shadow-sm transition-all cursor-pointer disabled:opacity-50 disabled:pointer-events-none"
+              >
+                {deleting && <Icons.Loader2 size={16} className="animate-spin" />}
+                {deleting ? "Deleting…" : draft ? "Discard draft" : "Delete permanently"}
+              </button>
+              <FieldValidationTooltip
+                id={actionTooltipId}
+                anchorRef={actionAnchorRef}
+                message={actionTooltipMessage}
+                open={actionTipOpen && Boolean(actionTooltipMessage)}
+                tone="warning"
+              />
+            </span>
+          )}
           {check.blockers && !eligible && onArchive && (
             <Button onClick={onArchive}><Icons.Archive size={16} />Archive project</Button>
           )}
@@ -159,21 +271,26 @@ export function ProjectDeleteDialog({
 
           {/* Reason for deletion */}
           <div className="flex flex-col gap-2">
-            <div className="flex items-center justify-between gap-2">
-              <label htmlFor="delete-reason-input" className="text-xs font-semibold text-neutral-700">
-                Reason for deletion <span className="text-rose-500 font-bold">*</span>
-              </label>
-              <FieldLengthHint length={reason.length} max={INPUT_LIMITS.REASON} />
-            </div>
-            <textarea
+            <label htmlFor="delete-reason-input" className="text-xs font-semibold text-neutral-700">
+              Reason for deletion <span className="text-rose-500 font-bold">*</span>
+            </label>
+            <BoundedTextarea
+              ref={reasonRef}
               id="delete-reason-input"
               maxLength={INPUT_LIMITS.REASON}
               value={reason}
               onChange={(e) => setReason(e.target.value)}
+              onBlur={() => setReasonTouched(true)}
               rows={3}
               disabled={deleting}
-              placeholder="Explain why this project must be permanently removed (minimum 5 characters)…"
-              className="w-full px-3.5 py-2.5 text-sm text-neutral-900 bg-white border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 placeholder:text-neutral-400 transition-all resize-none"
+              error={reasonError || undefined}
+              hint={
+                !reasonError
+                  ? `Minimum ${MIN_DELETE_REASON_LENGTH} characters. Recorded in the permanent audit log.`
+                  : undefined
+              }
+              placeholder={`Explain why this ${draft ? "draft" : "project"} must be permanently removed (minimum ${MIN_DELETE_REASON_LENGTH} characters)…`}
+              className="w-full px-3.5 py-2.5 text-sm text-neutral-900 bg-white border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--eflow-primary)]/20 focus:border-[var(--eflow-primary)] placeholder:text-neutral-400 transition-all resize-none"
             />
           </div>
 
@@ -182,15 +299,19 @@ export function ProjectDeleteDialog({
             <label htmlFor="delete-confirm-input" className="text-xs font-semibold text-neutral-700">
               Type <span className="px-1.5 py-0.5 rounded bg-neutral-100 border border-neutral-200 font-bold text-neutral-900">{projectTitle}</span> to confirm <span className="text-rose-500 font-bold">*</span>
             </label>
-            <input
+            <BoundedTextInput
+              ref={confirmRef}
               id="delete-confirm-input"
               type="text"
-              maxLength={INPUT_LIMITS.TITLE}
+              maxLength={Math.max(INPUT_LIMITS.TITLE, projectTitle.length)}
               value={confirmation}
               onChange={(e) => setConfirmation(e.target.value)}
+              onBlur={() => setConfirmTouched(true)}
               disabled={deleting}
+              error={confirmError || undefined}
+              hint={confirmValid ? "Project title confirmed." : undefined}
               placeholder={`Type "${projectTitle}" to confirm`}
-              className="w-full px-3.5 py-2.5 text-sm text-neutral-900 bg-white border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 placeholder:text-neutral-400 transition-all"
+              className="w-full px-3.5 py-2.5 text-sm text-neutral-900 bg-white border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--eflow-primary)]/20 focus:border-[var(--eflow-primary)] placeholder:text-neutral-400 transition-all"
             />
           </div>
         </>}

@@ -53,7 +53,7 @@ export function useWorkEditorDraft({data,edit,context,refreshPending,reload,onCa
  const latest=useRef({fields,authorized,data,context,scopeMatches});latest.current={fields,authorized,data,context,scopeMatches};
  const update=<K extends keyof WorkEditorFields>(key:K,value:WorkEditorFields[K])=>{if(!locked&&!guard.pendingRef.current)setFields(current=>({...current,[key]:value}));};
 
- const canReviewLatest=scopeMatches&&!busy&&!uncertain&&!saved&&!refreshPending&&capability.allowed
+ const canReviewLatest=scopeMatches&&!busy&&(!uncertain||staleRecovery)&&!saved&&!refreshPending&&capability.allowed
   &&(staleRecovery||outcome.kind==='stale_revision'||outcome.kind==='revoked_authority')
   &&(!rejectedSnapshot.current||rejectedSnapshot.current!==data);
  function reviewLatest(){
@@ -70,6 +70,8 @@ export function useWorkEditorDraft({data,edit,context,refreshPending,reload,onCa
   }
   recovery.clear(baseline);
   request.current=undefined;
+  unresolved.current=false;
+  rejectedSnapshot.current=undefined;
   setFields(reviewed);setRebased(current);setOutcome({kind:'idle'});
  }
  const receiptRequest=uncertain&&!busy&&!saved&&!refreshPending&&scopeMatches&&request.current;
@@ -151,6 +153,7 @@ export function useWorkEditorDraft({data,edit,context,refreshPending,reload,onCa
     // uncertain retry cannot prove the original attempt never committed.
     const failure=request.current?workRequestFailure(reason):new WorkRequestFailure('confirmed_failure',reason instanceof Error?reason.message:'Could not prepare the work request.');
     if(failure.kind==='unknown_result')unresolved.current=true;
+    else if(failure.kind==='stale_revision')unresolved.current=false;
     const kind=unresolved.current&&failure.kind==='confirmed_failure'?'unknown_result':failure.kind;
     if(kind==='stale_revision'||kind==='revoked_authority')rejectedSnapshot.current=latest.current.data;
     setOutcome({kind,message:failure.message});

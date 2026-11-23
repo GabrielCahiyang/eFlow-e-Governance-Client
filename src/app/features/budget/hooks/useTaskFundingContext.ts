@@ -51,8 +51,15 @@ export function useTaskFundingContext(taskId: string, subtaskId?: string, versio
       const detail = (event as CustomEvent<{ taskId?: string }>).detail;
       if (!detail?.taskId || detail.taskId === taskId) void refresh();
     };
+    const onOfficePettyChanged = () => {
+      void refresh();
+    };
     window.addEventListener(SUBTASK_BUDGET_CHANGED_EVENT, onBudgetChanged);
-    return () => window.removeEventListener(SUBTASK_BUDGET_CHANGED_EVENT, onBudgetChanged);
+    window.addEventListener("eflow:office-petty", onOfficePettyChanged);
+    return () => {
+      window.removeEventListener(SUBTASK_BUDGET_CHANGED_EVENT, onBudgetChanged);
+      window.removeEventListener("eflow:office-petty", onOfficePettyChanged);
+    };
   }, [refresh, taskId]);
 
   const readLatest = useCallback(async () => {

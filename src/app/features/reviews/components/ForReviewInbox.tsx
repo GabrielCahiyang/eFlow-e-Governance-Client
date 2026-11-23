@@ -54,6 +54,8 @@ import { SubtaskReviewInbox } from "./SubtaskReviewInbox";
 import { ReviewKindSwitch, type ReviewKind } from "./ReviewKindSwitch";
 import { TaskSubtaskEvidenceSection } from "./TaskSubtaskEvidenceSection";
 import { ReadyToCompleteInbox } from "./ReadyToCompleteInbox";
+import { ProjectCompletionReviewQueue } from "./ProjectCompletionReviewQueue";
+import { PendingProjectApprovalsQueue } from "./PendingProjectApprovalsQueue";
 import { useReadyToCompleteTasks } from "../hooks/useReadyToCompleteTasks";
 import { useTaskReviewEvidence } from "../hooks/useTaskReviewEvidence";
 import {
@@ -168,7 +170,8 @@ export interface ForReviewInboxProps {
 }
 
 export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
-  const { user, userProfile } = useAuth();
+  const { user, userProfile, can } = useAuth();
+  const canVerifyTasks = typeof can === "function" ? can("tasks.verify") : true;
   const { tasks, loading: tasksLoading } = useTasks();
   const { includeAllAccessibleWork } = useScopedOrgIds();
   const { projects, loading: projectsLoading } = useProjectsData();
@@ -186,6 +189,8 @@ export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
   const [subtaskFocus, setSubtaskFocus] = useState<NotificationNavigationIntent | null>(null);
   const [budgetFocus, setBudgetFocus] = useState<NotificationNavigationIntent | null>(null);
   const [cashReviewFocus, setCashReviewFocus] = useState<CashReviewFocus | null>(null);
+  const [projectApprovalFocusId, setProjectApprovalFocusId] = useState<string | undefined>();
+  const [completionReviewFocusId, setCompletionReviewFocusId] = useState<string | undefined>();
 
   const canReviewBudget = canOpenBudgetReviewWorkspace(scope, userProfile?.role);
 
@@ -194,7 +199,7 @@ export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
     setReviewKindState(view);
     if (typeof window === "undefined") return;
     const url = new URL(window.location.href);
-    writeNavigationLocation('reviews', 'For Review', 'push', { parameters: { ...Object.fromEntries(url.searchParams), view } });
+    writeNavigationLocation('reviews', scope === 'leading' ? 'Leader Reviews' : 'For Review', 'push', { parameters: { ...Object.fromEntries(url.searchParams), view } });
   }); };
 
   useEffect(() => {
@@ -295,9 +300,21 @@ export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
     (intent) =>
       intent.kind === "task_review" ||
       intent.kind === "subtask_review" ||
-      intent.kind === "budget",
+      intent.kind === "budget" ||
+      intent.kind === "project_approval" ||
+      intent.kind === "project_completion_review",
     (intent) => {
       if (tasksLoading || projectsLoading) return false;
+      if (intent.kind === "project_approval") {
+        setProjectApprovalFocusId(intent.projectId);
+        setCompletionReviewFocusId(undefined);
+        return true;
+      }
+      if (intent.kind === "project_completion_review") {
+        setCompletionReviewFocusId(intent.projectId);
+        setProjectApprovalFocusId(undefined);
+        return true;
+      }
       if (intent.kind === "budget" && canReviewBudget) {
         setCashReviewFocus(null);
         setBudgetFocus(intent);
@@ -319,6 +336,7 @@ export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
 
   const canReviewSelected = Boolean(
     selected &&
+      canVerifyTasks &&
       canUserReviewTask(selected, user?.id, userProfile?.role),
   );
 
@@ -356,6 +374,21 @@ export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
                 </div>
         ) : undefined}
       />
+
+      {scope === "department" && userProfile?.role === "head" && userProfile.org_id && (
+        <>
+          <PendingProjectApprovalsQueue
+            orgId={userProfile.org_id}
+            projects={projects}
+            focusProjectId={projectApprovalFocusId}
+          />
+          <ProjectCompletionReviewQueue
+            orgId={userProfile.org_id}
+            projects={projects}
+            focusProjectId={completionReviewFocusId}
+          />
+        </>
+      )}
 
       <div className="mb-4 min-w-0">
         <ReviewKindSwitch active={reviewKind} includeBudget={canReviewBudget} counts={reviewCounts} onChange={setReviewKind} />

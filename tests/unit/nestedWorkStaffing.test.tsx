@@ -30,13 +30,19 @@ const baseline:StaffingBaseline={actorId:'actor',rootId:'root',projectId:'projec
 beforeEach(()=>{sessionStorage.clear();vi.clearAllMocks();});afterEach(()=>cleanup());
 
 describe('canonical staffing dialog capability and commands',()=>{
- it.each(['branch','child'])('groups %s by its parent team and assigns an eligible specialist only to that subtask',async nodeId=>{
+ it.each(['branch','child'])('scopes %s to its assigned task/parent team without showing other eligible members',async nodeId=>{
   const raw=tree();raw.nodes=raw.nodes.filter(node=>node.id!=='completed');
+  raw.root.people=['actor','member','next'];
+  const branch=raw.nodes.find(node=>node.id==='branch')!;
+  branch.assigned_to_ids=['actor','member','next'];
   const target=raw.nodes.find(node=>node.id===nodeId)!;target.status='todo';
+  if(nodeId==='branch')target.assigned_to_ids=['actor','member'];
   const data=await verified(raw),rootBefore=structuredClone(data.root),ctrl=controller(data);
   render(<WorkStaffingDialog controller={ctrl} nodeId={nodeId} onClose={vi.fn()} onChanged={vi.fn()}/>);
-  expect(screen.getAllByRole('group',{name:nodeId==='child'?'On parent subtask':'On this task'}).length).toBeGreaterThan(0);
-  fireEvent.click(within(screen.getAllByRole('group',{name:'Other eligible members'}).at(-1)!).getByRole('button',{name:'Add contributor Replacement Lead'}));
+  const groupName=nodeId==='child'?'On parent subtask':'On this task';
+  expect(screen.getAllByRole('group',{name:groupName}).length).toBeGreaterThan(0);
+  expect(screen.queryByRole('group',{name:'Other eligible members'})).toBeNull();
+  fireEvent.click(within(screen.getAllByRole('group',{name:groupName}).at(-1)!).getByRole('button',{name:'Add contributor Replacement Lead'}));
   fireEvent.click(saveButton());
   await waitFor(()=>expect(ctrl.save).toHaveBeenCalledOnce());
   expect(ctrl.save.mock.calls[0][0]).toMatchObject({command:'staff',payload:{id:nodeId,lead:target.lead_id,people:[...target.assigned_to_ids,'next']}});
@@ -81,12 +87,13 @@ describe('canonical staffing dialog capability and commands',()=>{
   expect(changed).toHaveBeenCalledWith(data);expect(screen.queryByRole('alertdialog')).toBeNull();
  });
  it('lets an own Subtask Lead edit contributors but never replace itself',async()=>{
-  const data=await verified(),ctrl=controller(data);render(<WorkStaffingDialog controller={ctrl} nodeId="branch" onClose={vi.fn()} onChanged={vi.fn()}/>);
+  const raw=tree();raw.root.people=['actor','member','next'];
+  const data=await verified(raw),ctrl=controller(data);render(<WorkStaffingDialog controller={ctrl} nodeId="branch" onClose={vi.fn()} onChanged={vi.fn()}/>);
   expect((leadControl() as HTMLSelectElement).disabled).toBe(true);fireEvent.click(screen.getByRole('button',{name:'Add contributor Replacement Lead'}));fireEvent.click(saveButton());
   await waitFor(()=>expect(ctrl.save).toHaveBeenCalledOnce());expect(ctrl.save.mock.calls[0][0]).toMatchObject({command:'staff',payload:{id:'branch',lead:'actor',people:['actor','member','next']}});
  });
  it('allows an eligible ancestor to transfer a descendant, discloses exact clearing and preserves workers',async()=>{
-  const raw=tree();raw.nodes[0].capabilities!.appoint_lead=allow;const data=await verified(raw),ctrl=controller(data);render(<WorkStaffingDialog controller={ctrl} nodeId="branch" onClose={vi.fn()} onChanged={vi.fn()}/>);
+  const raw=tree();raw.root.people=['actor','member','next'];raw.nodes[0].capabilities!.appoint_lead=allow;const data=await verified(raw),ctrl=controller(data);render(<WorkStaffingDialog controller={ctrl} nodeId="branch" onClose={vi.fn()} onChanged={vi.fn()}/>);
   fireEvent.change(leadControl(),{target:{value:'next'}});fireEvent.click(saveButton());const impact=await screen.findByRole('alertdialog');
   expect(impact.textContent).toContain('2 subtasks will need a new lead:');expect(impact.textContent).toContain('Parent branch / Child work — Existing Contributor');expect(impact.textContent).toContain('completed work is kept');
   expect(impact.textContent).toContain('Also on this task: Current Lead, Existing Contributor');expect(impact.textContent).toContain('Pending reviews will be checked again.');expect(impact.textContent).not.toContain('Other branch · other');expect(ctrl.save).not.toHaveBeenCalled();

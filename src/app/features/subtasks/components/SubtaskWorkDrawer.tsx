@@ -1,31 +1,91 @@
-import {supportsNestedWork,useWorkTree,type WorkTreeController} from '../../nested-work';
-import {useAuth} from '../../../contexts/AuthContext';
-import type {TaskInspectorOrigin} from '../../task-inspector';
-import {LegacySubtaskWorkDrawer} from './LegacySubtaskWorkDrawer';
-import {SubitemInspector, type SubitemInspectorProps} from './SubitemInspector';
+import { useWorkTree, type WorkTreeController } from '../../nested-work';
+import { Modal } from '../../../components/ui/Modal';
+import { Button } from '../../../components/ui/button';
+import { FeedbackState } from '../../../components/ui/FeedbackState';
+import { requestNavigation } from '../../../shared/navigationGuard';
+import type { Subtask } from '../../../services/subtaskService';
+import type { Task } from '../../../services/taskService';
+import type { TaskInspectorOrigin } from '../../task-inspector';
+import { SubitemInspector, type SubitemInspectorProps } from './SubitemInspector';
 
-export type SubtaskWorkDrawerProps=Parameters<typeof LegacySubtaskWorkDrawer>[0]&{
- controller?:WorkTreeController;origin?:TaskInspectorOrigin;executionBlocked?:boolean;onChanged?:()=>void;
- initialSection?:'work'|'activity'|'review';
- presentation?:SubitemInspectorProps['presentation'];
+export type SubtaskWorkDrawerProps = {
+  subtask: Subtask | null;
+  parentTask?: Task;
+  prerequisite?: Subtask | null;
+  readOnly?: boolean;
+  canManageDeadline?: boolean;
+  currentReviewerId?: string;
+  onClose: () => void;
+  controller?: WorkTreeController;
+  origin?: TaskInspectorOrigin;
+  executionBlocked?: boolean;
+  onChanged?: () => void;
+  initialSection?: 'work' | 'activity' | 'review';
+  presentation?: SubitemInspectorProps['presentation'];
 };
-/** Retained public facade; excluded work keeps the original workflow. */
-export function SubtaskWorkDrawer(props:SubtaskWorkDrawerProps){
- if(!props.subtask)return null;
- if(!props.parentTask||!supportsNestedWork(props.parentTask))return <LegacySubtaskWorkDrawer {...props}/>;
- return props.controller?<SupportedSubtaskWorkDrawer {...props} controller={props.controller}/>:<ConnectedSubtaskWorkDrawer key={props.parentTask.id} {...props}/>;
+
+/**
+ * Canonical subtask detail modal entrypoint.
+ * Never falls back to a legacy right-side drawer; all subtask detail views use
+ * the standard centered eFlow modal via SubitemInspector.
+ */
+export function SubtaskWorkDrawer(props: SubtaskWorkDrawerProps) {
+  if (!props.subtask) return null;
+
+  if (!props.parentTask) {
+    const close = () => void requestNavigation(props.onClose);
+    return (
+      <Modal
+        isOpen
+        title={props.subtask.title || 'Subtask unavailable'}
+        description="Parent task context could not be verified."
+        width="max-w-md"
+        onClose={close}
+        footer={
+          <div className="flex justify-end">
+            <Button variant="outline" size="sm" onClick={close}>
+              Close
+            </Button>
+          </div>
+        }
+      >
+        <FeedbackState tone="warning" title="Open from the parent task">
+          Subtask details require the parent task context. Open this subtask from its project or task view to manage work, reviews, and contributors.
+        </FeedbackState>
+      </Modal>
+    );
+  }
+
+  return props.controller ? (
+    <SupportedSubtaskWorkDrawer {...props} parentTask={props.parentTask} controller={props.controller} />
+  ) : (
+    <ConnectedSubtaskWorkDrawer key={props.parentTask.id} {...props} parentTask={props.parentTask} />
+  );
 }
-function ConnectedSubtaskWorkDrawer(props:SubtaskWorkDrawerProps){
- const controller=useWorkTree(props.parentTask!.id);
- return <SupportedSubtaskWorkDrawer {...props} controller={controller}/>;
+
+function ConnectedSubtaskWorkDrawer(props: SubtaskWorkDrawerProps & { parentTask: Task }) {
+  const controller = useWorkTree(props.parentTask.id);
+  return <SupportedSubtaskWorkDrawer {...props} controller={controller} />;
 }
-function SupportedSubtaskWorkDrawer(props:SubtaskWorkDrawerProps&{controller:WorkTreeController}){
- const {user}=useAuth(),controller=props.controller;
- // This compatibility handoff requires the current owner's checked missing-RPC
- // result. Stale actor/root state and all other failures stay in the Inspector.
- if(user?.id&&controller.actorId===user.id&&controller.rootId===props.parentTask!.id&&props.subtask!.taskId===controller.rootId&&controller.unavailable)
-  return <LegacySubtaskWorkDrawer {...props}/>;
- return <SubitemInspector rootTask={props.parentTask!} itemId={props.subtask!.id} readOnly={props.readOnly}
-  canManageDeadline={props.canManageDeadline} currentReviewerId={props.currentReviewerId} prerequisite={props.prerequisite}
-  controller={props.controller} origin={props.origin} initialSection={props.initialSection} presentation={props.presentation} executionBlocked={props.executionBlocked} onClose={props.onClose} onChanged={props.onChanged}/>;
+
+function SupportedSubtaskWorkDrawer(
+  props: SubtaskWorkDrawerProps & { parentTask: Task; controller: WorkTreeController },
+) {
+  return (
+    <SubitemInspector
+      rootTask={props.parentTask}
+      itemId={props.subtask!.id}
+      readOnly={props.readOnly}
+      canManageDeadline={props.canManageDeadline}
+      currentReviewerId={props.currentReviewerId}
+      prerequisite={props.prerequisite}
+      controller={props.controller}
+      origin={props.origin}
+      initialSection={props.initialSection}
+      presentation={props.presentation || 'dialog'}
+      executionBlocked={props.executionBlocked}
+      onClose={props.onClose}
+      onChanged={props.onChanged}
+    />
+  );
 }

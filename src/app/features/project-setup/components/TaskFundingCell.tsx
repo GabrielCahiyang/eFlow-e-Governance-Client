@@ -2,6 +2,7 @@ import {useCallback,useRef,useState} from 'react';
 import {Lock, WalletCards} from 'lucide-react';
 import {Modal,ModalButton} from '../../../components/ui/Modal';
 import {WorkspaceTooltip} from '../../../components/ui/workspace/WorkspaceTooltip';
+import {sumCentavos} from '../../../shared/currency';
 import {useProjectFlow} from '../useProjectFlow';
 import {TaskProjectFunding,type TaskFundingActionState} from './TaskProjectFunding';
 import {FlowError} from './FlowError';
@@ -19,16 +20,23 @@ export function TaskFundingCell({projectId,taskId,title,taskStatus}:{projectId:s
  const setAllocationBusy=useCallback((value:boolean)=>setLock('allocate',value),[setLock]);
  const lines = (flow.data?.taskFunding ?? []).filter(line => line.taskId === taskId && line.amount > 0);
  const returned = useReturnedBudget(taskId, taskClosed).task;
- const total = lines.reduce((sum, line) => sum + line.amount, 0);
+ const total = sumCentavos(lines.map(line => line.amount));
  // Finished work keeps showing the budget the Head authorised; the unused part
  // has already gone back to the project and is explained in the dialog.
- const shownBudget = total + returned;
+ const shownBudget = sumCentavos([total, returned]);
  const protectedCents = lines.reduce((sum, line) => sum + Math.max(0, Math.round((line.amount - line.available) * 100)), 0);
  const protectedAmount = protectedCents / 100;
  const hasUnusedFunding = lines.some(line => line.available > 0);
  const protectionReason = 'Cash requests lock funds as soon as they’re submitted. Subtask allocations and recorded expenses can also lock funds.';
  const returnGuidance = hasUnusedFunding ? 'Only the unused balance can be returned.' : 'There’s no unused balance to return.';
  const tooltip = `${peso(protectedAmount)} of this task’s budget is locked. ${protectionReason} ${returnGuidance}`;
+ const lockedByOtherAction = locks.some(id => id !== 'allocate');
+ const actionDisabled = lockedByOtherAction || Boolean(actionState?.disabled);
+ const actionTooltip = !actionDisabled || actionState?.pending
+  ? ''
+  : lockedByOtherAction
+   ? 'Wait for the ongoing funding cancellation to finish before allocating more budget.'
+   : actionState?.disabledReason || '';
  if(!flow.data)return <span>{flow.error?'Funding data unavailable':'Loading funding…'}</span>;
  if(flow.data.project.funding_not_required&&!lines.length)return <span>Funding not required</span>;
  return <>
@@ -51,10 +59,10 @@ export function TaskFundingCell({projectId,taskId,title,taskStatus}:{projectId:s
    preventClose={busy}
    footer={<>
     <ModalButton disabled={busy} onClick={() => setOpen(false)}>Close</ModalButton>
-    {!taskClosed && actionState && <ModalButton
-     variant="primary" pending={actionState.pending} disabled={locks.some(id => id !== 'allocate')}
+    {!taskClosed && actionState && <WorkspaceTooltip content={actionTooltip} disabled={!actionTooltip}><span className="inline-flex"><ModalButton
+     variant="primary" pending={actionState.pending} disabled={actionDisabled}
      onClick={() => submitRef.current?.()}
-    >{actionState.label}</ModalButton>}
+    >{actionState.label}</ModalButton></span></WorkspaceTooltip>}
    </>}
    width="max-w-3xl"
   >

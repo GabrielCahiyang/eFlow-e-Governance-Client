@@ -19,6 +19,21 @@ export interface OfficeReceipt {
   amount: number;
   path: string;
   description?: string;
+  originLabel?: string;
+}
+
+export interface OfficeAssignmentReceipt {
+  id: string;
+  assignmentId: string;
+  taskTitle: string;
+  subtaskTitle?: string | null;
+  vendor: string;
+  number: string;
+  date: string;
+  amount: number;
+  path: string;
+  description?: string;
+  uploadedByName?: string;
 }
 
 export interface OfficeCashRequest {
@@ -29,6 +44,8 @@ export interface OfficeCashRequest {
   amount: number;
   spent?: number;
   returned_amount?: number;
+  assignedAmount?: number;
+  assignmentReceipts?: OfficeAssignmentReceipt[];
   status: string;
   receipts: OfficeReceipt[];
   created_at?: string;

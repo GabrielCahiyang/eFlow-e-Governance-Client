@@ -17,6 +17,11 @@ import httpx
 from gateway_config import settings
 from gateway_dependencies import AuthenticatedUser, internal_ai_key, supabase_admin
 from services.deadline_workload import deadline_workload_signal
+from services.workload_scoring import (
+    compute_member_workload,
+    fetch_auxiliary_workload_rows,
+    load_office_thresholds,
+)
 
 
 def _rows(table: str, fields: str = "*") -> Any:
@@ -59,21 +64,37 @@ def _candidate_context(participants: list[dict[str, Any]]) -> list[dict[str, Any
     notes = _rows("employee_notes", "profile_id,strengths,weaknesses,notes,tags").in_("profile_id", ids).execute().data or [] if ids else []
     note_by_id = {str(note["profile_id"]): note for note in notes}
     active_tasks = (
-        _rows("tasks", "assigned_to,team_member_ids,status,deadline,due_date,percent_complete,archived_at,deleted_at")
+        _rows("tasks", "id,assigned_to,team_member_ids,status,deadline,due_date,percent_complete,linked_project_id,archived_at,deleted_at")
         .in_("status", ["pending_assignment", "todo", "in_progress", "for_review", "changes_requested"])
         .execute().data or []
     )
+    projects, subtasks = fetch_auxiliary_workload_rows(supabase_admin, ids, org_ids)
+    thresholds_by_org = {oid: load_office_thresholds(supabase_admin, oid) for oid in set(org_ids)}
     result: list[dict[str, Any]] = []
     for profile in profiles:
         candidate_id = str(profile["id"])
+        candidate_org = str(profile.get("org_id"))
         intelligence = note_by_id.get(candidate_id, {})
+        unified_load = compute_member_workload(
+            candidate_id,
+            tasks=active_tasks,
+            projects=projects,
+            subtasks=subtasks,
+            thresholds=thresholds_by_org.get(candidate_org),
+        )
         result.append({
             "employee_id": candidate_id,
             "name": profile.get("full_name"),
-            "organization_id": str(profile.get("org_id")),
+            "organization_id": candidate_org,
             "role": profile.get("role"),
             "skills": [key for key, enabled in (profile.get("skills") or {}).items() if enabled],
             "workload": deadline_workload_signal(active_tasks, candidate_id),
+            "load_points": unified_load["loadPoints"],
+            "workload_tier": unified_load["workloadTier"],
+            "is_overloaded": unified_load["isOverloaded"],
+            "active_projects_led": unified_load["activeProjectsLed"],
+            "overdue_count": unified_load["overdueCount"],
+            "overload_reasons": unified_load["overloadReasons"],
             "burnout": profile.get("burnout_level") or "low",
             "strengths": intelligence.get("strengths") or "",
             "weaknesses": intelligence.get("weaknesses") or "",
@@ -111,23 +132,36 @@ def _deterministic_recommendations(tasks: list[dict[str, Any]], candidates: list
             skills = {str(skill).lower() for skill in candidate.get("skills", []) + candidate.get("tags", [])}
             match = len(required & skills) / max(1, len(required))
             workload = int(candidate.get("workload", 0))
-            score = round(max(0, min(100, 55 + match * 35 - workload * 0.25)))
+            overload_penalty = 25 if candidate.get("is_overloaded") else (10 if candidate.get("workload_tier") == "heavy" else 0)
+            score = round(max(0, min(100, 55 + match * 35 - workload * 0.25 - overload_penalty)))
             ranked.append((score, candidate))
-        ranked.sort(key=lambda item: (-item[0], item[1]["workload"], item[1]["name"] or ""))
+        ranked.sort(
+            key=lambda item: (
+                bool(item[1].get("is_overloaded")),
+                -item[0],
+                float(item[1].get("load_points", 0.0)),
+                item[1]["workload"],
+                item[1]["name"] or "",
+            )
+        )
         # Do not impose an arbitrary team-size ceiling. A genuinely broad LGU
         # task may need every suitable participating office, while a focused
         # task may remain a one-person assignment. The manager still approves
         # the proposal before any assignment becomes operational.
-        selected = [item for item in ranked if item[0] >= 60]
+        selected = [item for item in ranked if item[0] >= 60 and not item[1].get("is_overloaded")]
+        if not selected:
+            selected = [item for item in ranked if item[0] >= 60]
         if not selected and ranked:
             selected = [ranked[0]]
         for index, (score, candidate) in enumerate(selected):
+            tier = candidate.get("workload_tier") or "available"
+            pts = float(candidate.get("load_points", 0.0))
             recommendations.append({
                 "taskKey": task.get("key"),
                 "employeeId": candidate["employee_id"],
                 "organizationId": candidate["organization_id"],
                 "recommendationScore": score,
-                "fitReason": f"Balanced skill fit and {candidate['workload']}% current workload signal.",
+                "fitReason": f"Balanced skill fit with {tier} workload ({pts:.1f} pts, {candidate['workload']}% deadline signal).",
                 "workload": candidate["workload"],
                 "recommendedRole": "lead" if index == 0 else "support",
             })
@@ -144,7 +178,7 @@ async def recommend_assignments(user: AuthenticatedUser, draft_id: str, task_key
     if not tasks or not candidates:
         return []
     prompt = {
-        "instruction": "Recommend a justified mixed team for each task. Do not invent IDs. Prefer skill fit, then lower workload and burnout. A task may be solo or use every eligible candidate when genuinely necessary. Return only JSON with recommendations containing taskKey, employeeId, recommendationScore 0-100, fitReason, workload, recommendedRole lead|support, organizationId.",
+        "instruction": "Recommend a justified mixed team for each task. Do not invent IDs. Strongly avoid candidates where is_overloaded is true whenever lighter-loaded eligible candidates exist. Prefer skill fit, then lower load_points, workload, and burnout. A task may be solo or use every eligible candidate when genuinely necessary. Return only JSON with recommendations containing taskKey, employeeId, recommendationScore 0-100, fitReason, workload, recommendedRole lead|support, organizationId.",
         "tasks": tasks,
         "candidates": candidates,
     }

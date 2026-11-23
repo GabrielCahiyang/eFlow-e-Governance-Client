@@ -1,6 +1,6 @@
 import {supabase} from '../../../../lib/supabase';
 import {isQueryAccessDenied,isQueryConnectionFailure} from '../../../shared/queryAccess';
-import type {ProjectFlow} from '../types';
+import type {OfficeFundingSourcesPreview,ProjectFlow} from '../types';
 
 export class ProjectFlowError extends Error {
  constructor(message:string,public code?:string,public status?:number){super(message);}
@@ -57,6 +57,7 @@ export function projectFlowCall<T=unknown>(name:string,args:Record<string,unknow
 
 export const readProjectFlow=(id:string)=>projectFlowCall<ProjectFlow>('project_flow_snapshot',{p_project:id});
 export const refreshProjectFlow=(id:string)=>projectFlowCall<ProjectFlow>('project_flow_snapshot',{p_project:id},{fresh:true});
+export const readOfficeFundingSourcesPreview=()=>projectFlowCall<OfficeFundingSourcesPreview>('office_funding_sources_preview',{});
 
 /** Subscribe to Realtime updates that can affect a project's setup or funding snapshot. */
 export function subscribeProjectFlowChanges(projectId:string,onChanged:()=>void):()=>void{

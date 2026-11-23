@@ -1,8 +1,10 @@
 import { ProjectsWorkspace } from "./ProjectsWorkspace";
 
 /**
- * Employees use the same operational project workspace as management. Supabase
- * RLS limits the query to projects they own, belong to, lead, or work on.
+ * Employees and custom member roles use the same operational project workspace
+ * as management. Supabase RLS limits visible projects, and Roles & Access
+ * (`projects.create`, `projects.archive`, `projects.delete`, `tasks.verify`,
+ * `reports.export`) controls every create/manage/lifecycle action.
  */
 export function EmployeeProjectsWorkspace() {
   return (
@@ -10,7 +12,6 @@ export function EmployeeProjectsWorkspace() {
       scope={{ includeAllAccessibleWork: false, scopedOrgIds: [] }}
       eyebrow="My Workspace · Projects"
       proposalGrouping={false}
-      readOnly
     />
   );
 }

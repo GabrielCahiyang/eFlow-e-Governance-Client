@@ -1,6 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useId, useState } from 'react';
+import { BoundedTextInput } from '../../../components/ui/BoundedInput';
 import { DateInput } from '../../../components/ui/DateInput';
 import { MoneyInput } from '../../../components/ui/MoneyInput';
+import { WorkspaceTooltip } from '../../../components/ui/workspace/WorkspaceTooltip';
+import { exceedsCentavos } from '../../../shared/currency';
+import { INPUT_LIMITS } from '../../../shared/inputLimits';
 import { uploadOfficeReceipt } from '../services/officeCash';
 import {
   OFFICE_PETTY_MAX_RECEIPTS,
@@ -25,6 +29,7 @@ interface OfficeReceiptsFormProps {
   onRefundDateChange: (value: string) => void;
   onUploadingChange: (uploading: boolean) => void;
   onUploadError: (message: string) => void;
+  onInvalidDateChange?: (invalid: boolean) => void;
 }
 
 export function OfficeReceiptsForm({
@@ -40,14 +45,46 @@ export function OfficeReceiptsForm({
   onRefundDateChange,
   onUploadingChange,
   onUploadError,
+  onInvalidDateChange,
 }: OfficeReceiptsFormProps) {
+  const idPrefix = useId();
   const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const [invalidDates, setInvalidDates] = useState<Record<string, boolean>>({});
   const markTouched = (field: string) => setTouched((prev) => (prev[field] ? prev : { ...prev, [field]: true }));
+  const setDateInvalid = (key: string, invalid: boolean) => {
+    setInvalidDates((prev) => {
+      if (Boolean(prev[key]) === invalid) return prev;
+      return { ...prev, [key]: invalid };
+    });
+  };
   const dueStatus = getLiquidationDueStatus(request.liquidation_due_at);
+
+  useEffect(() => {
+    if (!onInvalidDateChange) return;
+    const anyReceiptDateInvalid = receipts.some((_, idx) => Boolean(invalidDates[`r:${idx}:date`]));
+    const refundDateInvalid = validation.requiresCashReturn && Boolean(invalidDates.refundDate);
+    onInvalidDateChange(anyReceiptDateInvalid || refundDateInvalid);
+  }, [invalidDates, receipts, validation.requiresCashReturn, onInvalidDateChange]);
 
   const updateReceipt = (index: number, patch: Partial<OfficeReceipt>) => {
     onReceiptsChange(receipts.map((item, idx) => (idx === index ? { ...item, ...patch } : item)));
   };
+
+  const addDisabled = locked || receipts.length >= OFFICE_PETTY_MAX_RECEIPTS;
+  const addTooltip = locked
+    ? 'Wait for the current action or upload to finish.'
+    : receipts.length >= OFFICE_PETTY_MAX_RECEIPTS
+      ? `Maximum of ${OFFICE_PETTY_MAX_RECEIPTS} receipts reached.`
+      : '';
+
+  const refundNumberId = `${idPrefix}-refund-number`;
+  const refundDateId = `${idPrefix}-refund-date`;
+  const refundNumberError = touched.refundNumber ? validation.refundReceiptNumberError || undefined : undefined;
+  const refundDateError = invalidDates.refundDate
+    ? 'Enter a valid cash return date in MM/DD/YYYY format.'
+    : touched.refundDate || Boolean(refundDate && refundDate > transactionDate)
+      ? validation.refundDateError || ''
+      : '';
 
   return (
     <div className="opc-receipts-section">
@@ -86,96 +123,161 @@ export function OfficeReceiptsForm({
 
       {receipts.map((receipt, index) => {
         const itemError = validation.receipts[index];
+        const vendorId = `${idPrefix}-r-${index}-vendor`;
+        const numberId = `${idPrefix}-r-${index}-number`;
+        const dateId = `${idPrefix}-r-${index}-date`;
+        const amountId = `${idPrefix}-r-${index}-amount`;
+        const descId = `${idPrefix}-r-${index}-desc`;
+        const fileId = `${idPrefix}-r-${index}-file`;
+
+        const vendorErr = touched[`r:${index}:vendor`] ? itemError?.vendor || undefined : undefined;
+        const numberErr = touched[`r:${index}:number`] ? itemError?.number || undefined : undefined;
+        const dateInvalid = Boolean(invalidDates[`r:${index}:date`]);
+        const dateErr = dateInvalid
+          ? 'Enter a valid receipt date in MM/DD/YYYY format.'
+          : touched[`r:${index}:date`] || Boolean(receipt.date && receipt.date > transactionDate)
+            ? itemError?.date || ''
+            : '';
+        const overReceiptLimit = exceedsCentavos(receipt.amount, OFFICE_PETTY_RECEIPT_LIMIT);
+        const amountErr =
+          touched[`r:${index}:amount`] || overReceiptLimit ? itemError?.amount || undefined : undefined;
+        const fileErr = touched[`r:${index}:path`] ? itemError?.path || '' : '';
+        const removeTooltip = locked
+          ? 'Wait for the current action or upload to finish.'
+          : `Remove receipt ${index + 1} from this liquidation draft.`;
+
         return (
           <fieldset key={index} className={itemError?.duplicate ? 'opc-fieldset--error' : undefined}>
-            <legend>Receipt {index + 1}</legend>
+            <legend>
+              Receipt {index + 1}
+              {receipt.originLabel ? ` · From ${receipt.originLabel}` : ''}
+            </legend>
             {itemError?.duplicate && (
               <p className="opc-field-error" role="alert">
                 {itemError.duplicate}
               </p>
             )}
             <div className="opc-grid-2">
-              <label>
-                Vendor
-                <input
+              <div className="opc-field">
+                <label htmlFor={vendorId}>
+                  Vendor{' '}
+                  <span className="opc-required" aria-hidden="true">
+                    *
+                  </span>
+                </label>
+                <BoundedTextInput
+                  id={vendorId}
                   value={receipt.vendor}
                   maxLength={200}
                   disabled={locked}
-                  aria-invalid={Boolean(touched[`r:${index}:vendor`] && itemError?.vendor)}
+                  aria-required="true"
+                  error={vendorErr}
                   onBlur={() => markTouched(`r:${index}:vendor`)}
                   onChange={(event) => {
                     markTouched(`r:${index}:vendor`);
                     updateReceipt(index, { vendor: event.target.value });
                   }}
                 />
-                {touched[`r:${index}:vendor`] && itemError?.vendor && (
-                  <span className="opc-field-error">{itemError.vendor}</span>
-                )}
-              </label>
-              <label>
-                Receipt number
-                <input
+              </div>
+              <div className="opc-field">
+                <label htmlFor={numberId}>
+                  Receipt number{' '}
+                  <span className="opc-required" aria-hidden="true">
+                    *
+                  </span>
+                </label>
+                <BoundedTextInput
+                  id={numberId}
                   value={receipt.number}
                   maxLength={100}
                   disabled={locked}
-                  aria-invalid={Boolean(touched[`r:${index}:number`] && itemError?.number)}
+                  aria-required="true"
+                  error={numberErr}
                   onBlur={() => markTouched(`r:${index}:number`)}
                   onChange={(event) => {
                     markTouched(`r:${index}:number`);
                     updateReceipt(index, { number: event.target.value });
                   }}
                 />
-                {touched[`r:${index}:number`] && itemError?.number && (
-                  <span className="opc-field-error">{itemError.number}</span>
-                )}
-              </label>
-              <label>
-                Date
+              </div>
+              <div className="opc-field">
+                <label htmlFor={dateId}>
+                  Date{' '}
+                  <span className="opc-required" aria-hidden="true">
+                    *
+                  </span>
+                </label>
                 <DateInput
+                  id={dateId}
                   max={transactionDate}
                   value={receipt.date}
                   disabled={locked}
+                  aria-required="true"
+                  hasError={Boolean(dateErr)}
+                  errorMessage={dateErr || undefined}
+                  onInvalidTextChange={(invalid) => setDateInvalid(`r:${index}:date`, invalid)}
+                  onBlur={() => markTouched(`r:${index}:date`)}
                   onChange={(event) => {
                     markTouched(`r:${index}:date`);
                     updateReceipt(index, { date: event.target.value });
                   }}
                 />
-                {touched[`r:${index}:date`] && itemError?.date && (
-                  <span className="opc-field-error">{itemError.date}</span>
+                {dateErr && (
+                  <span className="opc-field-error" role="alert">
+                    {dateErr}
+                  </span>
                 )}
-              </label>
-              <label>
-                Amount (maximum ₱5,000)
+              </div>
+              <div className="opc-field">
+                <label htmlFor={amountId}>
+                  Amount (maximum ₱5,000){' '}
+                  <span className="opc-required" aria-hidden="true">
+                    *
+                  </span>
+                </label>
                 <MoneyInput
+                  id={amountId}
                   value={receipt.amount}
+                  max={INPUT_LIMITS.MONEY_MAX_LINE}
+                  availableMax={OFFICE_PETTY_RECEIPT_LIMIT}
+                  showCeilingHint
+                  externalError={amountErr}
                   disabled={locked}
+                  aria-required="true"
+                  onBlur={() => markTouched(`r:${index}:amount`)}
                   onValueChange={(value) => {
                     markTouched(`r:${index}:amount`);
                     updateReceipt(index, { amount: Number(value) });
                   }}
                 />
-                {(touched[`r:${index}:amount`] || receipt.amount > OFFICE_PETTY_RECEIPT_LIMIT) && itemError?.amount && (
-                  <span className="opc-field-error">{itemError.amount}</span>
-                )}
-              </label>
+              </div>
             </div>
-            <label>
-              Expense description (optional)
-              <input
+            <div className="opc-field">
+              <label htmlFor={descId}>Expense description (optional)</label>
+              <BoundedTextInput
+                id={descId}
                 value={receipt.description ?? ''}
                 maxLength={300}
                 placeholder="e.g. Bond paper and printer ink"
                 disabled={locked}
+                error={itemError?.description || undefined}
                 onChange={(event) => updateReceipt(index, { description: event.target.value })}
               />
-              {itemError?.description && <span className="opc-field-error">{itemError.description}</span>}
-            </label>
-            <label>
-              {receipt.path ? 'Receipt attached' : 'Attach receipt · PDF / image, up to 10 MB'}
+            </div>
+            <div className="opc-field">
+              <label htmlFor={fileId}>
+                {receipt.path ? 'Receipt attached' : 'Attach receipt · PDF / image, up to 10 MB'}{' '}
+                <span className="opc-required" aria-hidden="true">
+                  *
+                </span>
+              </label>
               <input
+                id={fileId}
                 type="file"
                 accept="application/pdf,image/jpeg,image/png,image/webp"
                 disabled={locked}
+                aria-required="true"
+                aria-invalid={Boolean(fileErr) || undefined}
                 onChange={async (event) => {
                   const file = event.target.files?.[0];
                   if (!file) return;
@@ -192,36 +294,53 @@ export function OfficeReceiptsForm({
                   }
                 }}
               />
-              {touched[`r:${index}:path`] && itemError?.path && (
-                <span className="opc-field-error">{itemError.path}</span>
+              {fileErr && (
+                <span className="opc-field-error" role="alert">
+                  {fileErr}
+                </span>
               )}
-            </label>
+            </div>
             <div>
-              <button
-                type="button"
-                disabled={locked}
-                onClick={() => onReceiptsChange(receipts.filter((_, idx) => idx !== index))}
-              >
-                Remove receipt
-              </button>
+              <WorkspaceTooltip content={removeTooltip} disabled={!removeTooltip}>
+                <span className="inline-flex">
+                  <button
+                    type="button"
+                    disabled={locked}
+                    onClick={() => {
+                      setInvalidDates((prev) => {
+                        const next = { ...prev };
+                        delete next[`r:${index}:date`];
+                        return next;
+                      });
+                      onReceiptsChange(receipts.filter((_, idx) => idx !== index));
+                    }}
+                  >
+                    Remove receipt
+                  </button>
+                </span>
+              </WorkspaceTooltip>
             </div>
           </fieldset>
         );
       })}
 
       <div>
-        <button
-          type="button"
-          disabled={locked || receipts.length >= OFFICE_PETTY_MAX_RECEIPTS}
-          onClick={() =>
-            onReceiptsChange([
-              ...receipts,
-              { vendor: '', number: '', date: transactionDate, amount: 0, path: '', description: '' },
-            ])
-          }
-        >
-          Add receipt
-        </button>
+        <WorkspaceTooltip content={addTooltip} disabled={!addTooltip}>
+          <span className="inline-flex">
+            <button
+              type="button"
+              disabled={addDisabled}
+              onClick={() =>
+                onReceiptsChange([
+                  ...receipts,
+                  { vendor: '', number: '', date: transactionDate, amount: 0, path: '', description: '' },
+                ])
+              }
+            >
+              Add receipt
+            </button>
+          </span>
+        </WorkspaceTooltip>
       </div>
 
       {validation.requiresCashReturn && (
@@ -231,39 +350,56 @@ export function OfficeReceiptsForm({
             <span>Required when spending is less than released cash</span>
           </div>
           <div className="opc-grid-2">
-            <label>
-              Official refund receipt number
-              <input
+            <div className="opc-field">
+              <label htmlFor={refundNumberId}>
+                Official refund receipt number{' '}
+                <span className="opc-required" aria-hidden="true">
+                  *
+                </span>
+              </label>
+              <BoundedTextInput
+                id={refundNumberId}
                 value={refundReceiptNumber}
                 maxLength={100}
                 placeholder="e.g. OR-REF-2026-01"
                 disabled={locked}
-                aria-invalid={Boolean(touched.refundNumber && validation.refundReceiptNumberError)}
+                aria-required="true"
+                error={refundNumberError}
                 onBlur={() => markTouched('refundNumber')}
                 onChange={(event) => {
                   markTouched('refundNumber');
                   onRefundReceiptNumberChange(event.target.value);
                 }}
               />
-              {touched.refundNumber && validation.refundReceiptNumberError && (
-                <span className="opc-field-error">{validation.refundReceiptNumberError}</span>
-              )}
-            </label>
-            <label>
-              Cash return date
+            </div>
+            <div className="opc-field">
+              <label htmlFor={refundDateId}>
+                Cash return date{' '}
+                <span className="opc-required" aria-hidden="true">
+                  *
+                </span>
+              </label>
               <DateInput
+                id={refundDateId}
                 max={transactionDate}
                 value={refundDate}
                 disabled={locked}
+                aria-required="true"
+                hasError={Boolean(refundDateError)}
+                errorMessage={refundDateError || undefined}
+                onInvalidTextChange={(invalid) => setDateInvalid('refundDate', invalid)}
+                onBlur={() => markTouched('refundDate')}
                 onChange={(event) => {
                   markTouched('refundDate');
                   onRefundDateChange(event.target.value);
                 }}
               />
-              {touched.refundDate && validation.refundDateError && (
-                <span className="opc-field-error">{validation.refundDateError}</span>
+              {refundDateError && (
+                <span className="opc-field-error" role="alert">
+                  {refundDateError}
+                </span>
               )}
-            </label>
+            </div>
           </div>
           <p className="opc-hint">
             Returning <strong>{peso.format(validation.unusedCash)}</strong> requires Accounting to acknowledge physical

@@ -73,7 +73,14 @@ export function canOpenNavigationSection(
   contextualLeadershipAccess = false,
 ): boolean {
   if (!ENTITLEMENT_ROLES.has(role)) return false;
-  if (role === "admin" && !isAdministrativeNavigationSection(section) && section !== "permissions" && section !== "settings") return false;
+  if (
+    role === "admin" &&
+    !isAdministrativeNavigationSection(section) &&
+    section !== "permissions" &&
+    section !== "settings" &&
+    section !== "announcements"
+  )
+    return false;
   if (role !== "admin" && (isAdministrativeNavigationSection(section) || section === "permissions")) return false;
   if (section === "inbox") return true;
   // Task leadership is assigned operationally, not through a permanent

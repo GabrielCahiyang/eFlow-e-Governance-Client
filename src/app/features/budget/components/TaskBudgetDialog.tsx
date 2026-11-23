@@ -1,9 +1,11 @@
 import { FeatureDialog } from "../../../components/ui/FeatureDialog";
+import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import type { BudgetLineInput, TaskBudgetDecision } from "../types";
 import { TaskBudgetEditor } from "./TaskBudgetEditor";
 import { useDepartmentBudget } from "../hooks/useDepartmentBudget";
 import { sectionLeaves } from "../selectors/budgetSections";
 import { getCurrentFiscalYear } from "../constants";
+import { budgetLineError } from "../validation/financialValidation";
 
 export function TaskBudgetDialog({
   open,
@@ -32,7 +34,26 @@ export function TaskBudgetDialog({
   onChange: (patch: { budgetDecision: TaskBudgetDecision; budgetNoCostReason?: string; budgetLines: BudgetLineInput[] }) => void;
   onClose: () => void;
 }) {
-  const annual=useDepartmentBudget(open ? fundingOrgId : undefined,fiscalYear);
+  const annual = useDepartmentBudget(open ? fundingOrgId : undefined, fiscalYear);
+  const partitions = sectionLeaves(annual.sections || []);
+  const doneWarning = readOnly
+    ? ""
+    : decision === "missing"
+      ? "Task budget decision is still incomplete — choose Budget assigned or No cost required."
+      : decision === "no_cost" && !(noCostReason || "").trim()
+        ? "No-cost reason is still empty — add a justification before submitting the proposal."
+        : decision === "funded" &&
+            (lines.length === 0 ||
+              lines.some(
+                (line) =>
+                  !line.category?.trim() ||
+                  !line.particular?.trim() ||
+                  Boolean(budgetLineError(line)) ||
+                  (partitions.length > 0 && !line.budgetPartitionId),
+              ))
+          ? "One or more budget lines are incomplete or have validation issues."
+          : "";
+
   return (
     <FeatureDialog
       open={open}
@@ -64,7 +85,7 @@ export function TaskBudgetDialog({
             fundingSource={fundingSource}
             readOnly={readOnly}
             value={{ decision, noCostReason, lines }}
-            partitions={sectionLeaves(annual.sections||[])}
+            partitions={partitions}
             onChange={(next) =>
               onChange({
                 budgetDecision: next.decision,
@@ -75,13 +96,17 @@ export function TaskBudgetDialog({
           />
         </div>
         <footer className="flex justify-end border-t border-neutral-200 bg-white px-5 py-3 shrink-0">
-          <button
-            type="button"
-            onClick={onClose}
-            className="h-9 rounded-lg bg-primary px-5 text-[10.5px] font-medium text-primary-foreground transition hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-          >
-            Done
-          </button>
+          <WorkspaceTooltip content={doneWarning} disabled={!doneWarning}>
+            <span className="inline-flex">
+              <button
+                type="button"
+                onClick={onClose}
+                className="h-9 rounded-lg bg-primary px-5 text-[10.5px] font-medium text-primary-foreground transition hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+              >
+                Done
+              </button>
+            </span>
+          </WorkspaceTooltip>
         </footer>
       </section>
     </FeatureDialog>

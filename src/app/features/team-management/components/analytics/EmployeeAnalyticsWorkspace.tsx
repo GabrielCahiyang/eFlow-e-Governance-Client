@@ -74,7 +74,9 @@ export function EmployeeAnalyticsWorkspace({
 }) {
   const { user, userProfile, can } = useAuth();
   if (
-    userProfile?.role !== "head" ||
+    !userProfile ||
+    userProfile.role === "admin" ||
+    userProfile.is_active === false ||
     (!can("navigation.team_supervision") &&
       !can("navigation.team_intelligence"))
   )

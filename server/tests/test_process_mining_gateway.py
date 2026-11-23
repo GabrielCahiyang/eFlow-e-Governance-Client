@@ -51,6 +51,46 @@ class ProcessMiningGatewayTests(unittest.TestCase):
             res = TestClient(app).post("/controlpanelEflow/api/process-mining/jobs", json={})
         self.assertEqual(res.status_code, 403)
 
+        # Admin rejected even if permission helper were true
+        app.dependency_overrides[dependencies.require_user] = lambda: make_user(role="admin")
+        with patch.object(pm_router_mod, "_permission_allowed", return_value=True):
+            res = TestClient(app).post("/controlpanelEflow/api/process-mining/jobs", json={})
+        self.assertEqual(res.status_code, 403)
+
+    def test_authorized_member_custom_role_with_team_intelligence_is_allowed(self):
+        app = FastAPI()
+        app.include_router(pm_router_mod.router)
+        app.dependency_overrides[dependencies.require_user] = lambda: dependencies.AuthenticatedUser(
+            id="user-ojt",
+            email="ojt@example.test",
+            role="member",
+            org_id="office-1",
+            custom_role_key="ojt",
+        )
+        app.dependency_overrides[dependencies.bearer] = lambda: SimpleNamespace(
+            credentials="ojt-jwt"
+        )
+
+        with (
+            patch.object(pm_router_mod, "_permission_allowed", return_value=True),
+            patch.object(
+                pm_router_mod,
+                "_proxy",
+                new=AsyncMock(
+                    return_value=Response(
+                        content='{"job_id":"ojt-job","status":"processing"}',
+                        status_code=202,
+                        media_type="application/json",
+                    )
+                ),
+            ),
+        ):
+            res = TestClient(app).post(
+                "/controlpanelEflow/api/process-mining/jobs",
+                json={"include_completed": True},
+            )
+        self.assertEqual(res.status_code, 202)
+
     def test_authorized_head_forwards_session_token_to_private_backend(self):
         app = FastAPI()
         app.include_router(pm_router_mod.router)

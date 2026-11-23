@@ -4,7 +4,7 @@ export function readinessResolution(key: string, governed: boolean): { view: Rea
   if (governed && ['structure', 'dates', 'budget'].includes(key)) return { view: 'proposal_context', label: 'Open proposal review' };
   if (['office_identity', 'invitations', 'responsibilities'].includes(key)) return { view: 'offices', label: 'Resolve in Project Offices' };
   if (['structure', 'work', 'staffing'].includes(key)) return { view: 'tasks', label: 'Review in Main table' };
-  if (['dates', 'schedule'].includes(key)) return { view: 'gantt', label: 'Review schedule in Gantt' };
+  if (['dates', 'schedule', 'start_date_reached'].includes(key)) return { view: 'gantt', label: 'Review schedule in Gantt' };
   if (key === 'budget' || key === 'project_setup' || key === 'funding_certification') {
     return {
       view: 'budget',

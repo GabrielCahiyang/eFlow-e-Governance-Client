@@ -15,8 +15,7 @@ export function groupWorkAssignmentPeople(people:readonly WorkPerson[],priority?
  const eligible=eligibleWorkPeople(people).filter(person=>resolveWorkPersonName(people,person.id).toLocaleLowerCase().includes(query.trim().toLocaleLowerCase()));
  if(!priority)return [{label:'Eligible members',people:eligible}];
  const ids=new Set(priority.ids);
- return [{label:priority.label,people:eligible.filter(person=>ids.has(person.id))},
-  {label:'Other eligible members',people:eligible.filter(person=>!ids.has(person.id))}];
+ return [{label:priority.label,people:eligible.filter(person=>ids.has(person.id))}];
 }
 
 /** Preserve canonical IDs and their order; never mutate a stored worker list. */

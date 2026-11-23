@@ -1,9 +1,9 @@
-import { MoneyInput } from '../../../components/ui/MoneyInput';
-import { INPUT_LIMITS } from '../../../shared/inputLimits';
-import { useState } from "react";
+import { useId, useState } from "react";
 import { AttentionBox, Button } from "@vibe/core";
 import * as m from "motion/react-m";
 import { Check, RotateCcw } from "lucide-react";
+import { MoneyInput } from "../../../components/ui/MoneyInput";
+import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import { BxSliderAlt, BxsBolt, BxsCheckShield } from "../../../components/ui/boxicons";
 import {
   Dialog,
@@ -13,6 +13,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../../../components/ui/dialog";
+import { exceedsCentavos, formatPeso, toCentavos } from "../../../shared/currency";
+import { INPUT_LIMITS } from "../../../shared/inputLimits";
 import { motionTransition } from "../../../shared/motion/motionTokens";
 import { peso } from "./budgetUi";
 
@@ -29,14 +31,23 @@ export function ApprovalThresholdDialog({
   onClose: () => void;
   onSave: (amount: number) => void;
 }) {
+  const inputId = useId();
   const [value, setValue] = useState(currentThreshold);
-  const [error, setError] = useState("");
+  const [touched, setTouched] = useState(false);
+
+  const overBudgetMax = Number.isFinite(value) && exceedsCentavos(value, INPUT_LIMITS.MONEY_MAX_BUDGET);
+  const validationError =
+    !Number.isFinite(value) || toCentavos(value) < 100
+      ? "Enter a valid amount of at least ₱1.00."
+      : overBudgetMax
+        ? `Amount cannot exceed ${formatPeso(INPUT_LIMITS.MONEY_MAX_BUDGET)}.`
+        : "";
+  const visibleError = touched || overBudgetMax ? validationError : "";
+  const saveDisabled = Boolean(validationError);
 
   const handleSave = () => {
-    if (value <= 0 || !Number.isFinite(value)) {
-      setError("Please enter a valid amount greater than ₱0.");
-      return;
-    }
+    setTouched(true);
+    if (validationError) return;
     onSave(value);
     onClose();
   };
@@ -62,27 +73,38 @@ export function ApprovalThresholdDialog({
         >
           {/* Amount input */}
           <div>
-            <label className="text-[11px] font-medium text-neutral-700">
-              Maximum amount for quick approval
+            <label htmlFor={inputId} className="text-[11px] font-medium text-neutral-700">
+              Maximum amount for quick approval{" "}
+              <span className="text-[var(--eflow-negative-text)]" aria-hidden="true">
+                *
+              </span>
             </label>
             <div className="relative mt-1">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[12px] font-semibold text-neutral-400">
+              <span
+                className="pointer-events-none absolute left-3 top-5 -translate-y-1/2 text-[12px] font-semibold text-neutral-400"
+                aria-hidden="true"
+              >
                 ₱
               </span>
               <MoneyInput
+                id={inputId}
                 min={1}
                 max={INPUT_LIMITS.MONEY_MAX_BUDGET}
+                availableMax={INPUT_LIMITS.MONEY_MAX_BUDGET}
+                showCeilingHint
+                externalError={visibleError || undefined}
+                aria-required="true"
                 step={100}
                 value={value || ""}
-                onValueChange={raw => {
-                  setError("");
-                  setValue(Number(raw));
+                onBlur={() => setTouched(true)}
+                onValueChange={(raw) => {
+                  setTouched(true);
+                  setValue(raw === "" ? 0 : Number(raw));
                 }}
                 className="h-10 w-full rounded-xl border border-neutral-200 pl-8 pr-3 text-[13px] font-medium text-neutral-900 outline-none focus:border-neutral-900"
                 placeholder="1000"
               />
             </div>
-            {error && <p className="mt-1 text-[10.5px] text-rose-600">{error}</p>}
           </div>
 
           {/* Preset buttons */}
@@ -96,7 +118,7 @@ export function ApprovalThresholdDialog({
                   key={preset}
                   type="button"
                   onClick={() => {
-                    setError("");
+                    setTouched(true);
                     setValue(preset);
                   }}
                   className={`inline-flex h-7 items-center rounded-lg px-2.5 text-[10.5px] font-medium transition ${
@@ -152,7 +174,7 @@ export function ApprovalThresholdDialog({
             size="small"
             onClick={() => {
               setValue(defaultThreshold);
-              setError("");
+              setTouched(false);
             }}
           >
             <RotateCcw size={11} className="mr-1" />
@@ -166,14 +188,19 @@ export function ApprovalThresholdDialog({
             >
               Cancel
             </Button>
-            <Button
-              kind="primary"
-              size="small"
-              onClick={handleSave}
-            >
-              <Check size={12} className="mr-1" />
-              Save limit
-            </Button>
+            <WorkspaceTooltip content={validationError} disabled={!saveDisabled}>
+              <span className="inline-flex">
+                <Button
+                  kind="primary"
+                  size="small"
+                  disabled={saveDisabled}
+                  onClick={handleSave}
+                >
+                  <Check size={12} className="mr-1" />
+                  Save limit
+                </Button>
+              </span>
+            </WorkspaceTooltip>
           </div>
         </DialogFooter>
       </DialogContent>

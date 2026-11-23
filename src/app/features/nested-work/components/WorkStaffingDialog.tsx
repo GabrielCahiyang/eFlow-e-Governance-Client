@@ -2,19 +2,34 @@ import {useEffect,useRef,useState} from 'react';
 import {useAuth} from '../../../contexts/AuthContext';
 import {FeatureDialog} from '../../../components/ui/FeatureDialog';
 import {Modal} from '../../../components/ui/Modal';
+import {WorkspaceTooltip} from '../../../components/ui/workspace/WorkspaceTooltip';
 import {useWorkImpactConfirmation} from '../hooks/useWorkImpactConfirmation';
 import {useExplicitDraft} from '../../../shared/useExplicitDraft';
 import {WorkPeoplePicker} from './WorkPeoplePicker';
 import {captureStaffingBaseline,clearedStaffingAppointments,createStaffingRequest,scopedInvitationRequestAllowed,staffingCapabilities,staffingDraftError,staffingNodePath} from '../selectors/staffing';
-import {compatibilityWorkWorkerIds,displayedWorkContributorIds,resolveWorkPersonName,workAssignmentPriority} from '../selectors/people';
+import {compatibilityWorkWorkerIds,deduplicateWorkPersonIds,displayedWorkContributorIds,resolveWorkPersonName,workAssignmentPriority} from '../selectors/people';
 import type {WorkCapabilityContext,WorkRequest,WorkTreeSnapshot,WorkTreeController} from '../types';
 import '../nestedWork.css';
 import {captureWorkEditorBaseline} from '../selectors/editorDraft';
 import {workRequestFailure} from '../services/workRequestOutcome';
 import {useWorkDraftRecovery} from '../hooks/useWorkDraftRecovery';
 import {isCurrentWorkSnapshot} from '../selectors/capabilities';
-import {AutoAssignTaskButton} from '../../staffing';
+import {useProjectOfficeContext} from '../../project-offices';
+import {fetchMembers} from '../../project-members';
+import {ACCESS_CHANGED_EVENT} from '../../project-access';
 import {fetchWorkTree,hasWorkCommandReceipt} from '../services/workTreeService';
+import {
+ EMPTY_OVERLOAD_OVERRIDE,
+ invalidateWorkloadCache,
+ MemberWorkloadModal,
+ OverloadMitigationPanel,
+ overloadOverrideValidationError,
+ projectMemberWorkload,
+ recordWorkloadOverloadOverride,
+ useOfficeWorkload,
+ type OverloadOverrideState,
+ type ProposedAssignmentRole,
+} from '../../workload';
 
 /** Narrow compatibility input for historical standalone callers.
  * The existing owner supplies its own snapshot/save/loading and current identity.
@@ -53,7 +68,55 @@ function WorkStaffingDialogContent({controller,nodeId,readOnly=false,executionBl
  const recovery=useWorkDraftRecovery(data,context,captured,contributorsOnly?'staffing_contributors':'staffing'),draftBaseline=recovery.baseline;
  const baseline=useRef({...captureStaffingBaseline(data,nodeId,context),revision:draftBaseline.revision,leadId:draftBaseline.fields.lead||null,workerIds:draftBaseline.fields.people}).current;
  const [lead,setLead]=useState<string|null>(recovery.initial?.fields.lead||safePreselectedLeadId||baseline.leadId),[workers,setWorkers]=useState(recovery.initial?.fields.people||baseline.workerIds);
- const [busy,setBusy]=useState(false),[aiBusy,setAiBusy]=useState(false),[error,setError]=useState(''),[saved,setSaved]=useState(false);
+ const [busy,setBusy]=useState(false),[error,setError]=useState(''),[saved,setSaved]=useState(false);
+ const officeState=useProjectOfficeContext();
+ const [resolvedMemberIds,setResolvedMemberIds]=useState<string[]|null>(null);
+ useEffect(()=>{
+  if(data.root.kind!=='office'||!data.root.project){setResolvedMemberIds(null);return;}
+  let live=true;
+  const load=()=>{
+   void fetchMembers(data.root.project)
+    .then(snap=>{if(live)setResolvedMemberIds(snap.members.filter(m=>!m.office||m.office===data.root.office).map(m=>m.user_id));})
+    .catch(()=>{if(live)setResolvedMemberIds(null);});
+  };
+  load();
+  window.addEventListener(ACCESS_CHANGED_EVENT,load);
+  return()=>{live=false;window.removeEventListener(ACCESS_CHANGED_EVENT,load);};
+ },[data.root.kind,data.root.project,data.root.office]);
+ const officeRow=officeState.offices.find(office=>office.office_id===data.root.office);
+ const fallbackMemberIds=officeState.members.filter(member=>!officeRow||member.project_office_id===officeRow.id).map(member=>member.user_id);
+ const projectMemberIds=new Set(resolvedMemberIds??fallbackMemberIds);
+ const hasProjectRoster=resolvedMemberIds!==null||(!officeState.loading&&!officeState.error&&officeState.offices.length>0);
+ const scopedPeople=data.root.kind==='office'&&hasProjectRoster
+  ? data.people.filter(person=>projectMemberIds.has(person.id)||person.id===baseline.leadId||baseline.workerIds.includes(person.id))
+  : data.people;
+ const [leadOverride,setLeadOverride]=useState<OverloadOverrideState>(EMPTY_OVERLOAD_OVERRIDE);
+ const [contributorOverride,setContributorOverride]=useState<OverloadOverrideState>(EMPTY_OVERLOAD_OVERRIDE);
+ const [attemptedSubmit,setAttemptedSubmit]=useState(false);
+ const [inspectUserId,setInspectUserId]=useState<string|null>(null);
+ const workload=useOfficeWorkload(data.root.office,data.root.kind==='office'&&!readOnly);
+ const leadRole:ProposedAssignmentRole=nodeId?'subtask_lead':'task_lead';
+ const contributorRole:ProposedAssignmentRole=nodeId?'subtask_contributor':'task_contributor';
+ const leadSummary=!contributorsOnly&&lead?workload.byUserId.get(lead):undefined;
+ const leadAlreadyAssigned=Boolean(lead&&lead===baseline.leadId);
+ const leadProjection=projectMemberWorkload(leadSummary,leadRole,workload.thresholds,{alreadyAssignedInRole:leadAlreadyAssigned});
+ const newlyAddedOverloadedContributors=workers
+  .filter(id=>id!==lead&&!baseline.workerIds.includes(id))
+  .map(id=>({
+   id,
+   summary:workload.byUserId.get(id),
+   projection:projectMemberWorkload(workload.byUserId.get(id),contributorRole,workload.thresholds,{alreadyAssignedInRole:false}),
+  }))
+  .filter(item=>item.projection?.projectedTier==='overloaded');
+ const primaryOverloadedContributor=newlyAddedOverloadedContributors[0];
+ const primaryOverloadedContributorId=primaryOverloadedContributor?.id||'';
+ useEffect(()=>{setLeadOverride(EMPTY_OVERLOAD_OVERRIDE);setAttemptedSubmit(false);},[lead]);
+ useEffect(()=>{setContributorOverride(EMPTY_OVERLOAD_OVERRIDE);setAttemptedSubmit(false);},[primaryOverloadedContributorId]);
+ const leadOverloadError=overloadOverrideValidationError(leadProjection,leadOverride);
+ const contributorOverloadError=primaryOverloadedContributor
+  ? overloadOverrideValidationError(primaryOverloadedContributor.projection,contributorOverride)
+  : '';
+ const overloadError=leadOverloadError||contributorOverloadError;
  const request=useRef<WorkRequest|undefined>(recovery.initial?.request),confirmed=useRef(false),active=useRef(true),closed=useRef(false);
  useEffect(()=>{active.current=true;return()=>{active.current=false;};},[]);
  const caps=staffingCapabilities(data,nodeId,context,contributorsOnly?undefined:lead);
@@ -66,14 +129,20 @@ function WorkStaffingDialogContent({controller,nodeId,readOnly=false,executionBl
  const closeOwner=()=>{recovery.clear();if(!closed.current){closed.current=true;onClose();}};
  const guard=useExplicitDraft('Task/subtask people changes',dirty&&!saved,busy,closeOwner,`${controller.actorId}:${controller.rootId}:${nodeId}:${contributorsOnly?'contributors':'staffing'}`);
  const confirmation=useWorkImpactConfirmation(controller.rootId),locked=busy||!!request.current||saved||!!controller.verificationFailed;
- const lockReason=busy?(aiBusy?'AI is choosing the team…':'Saving…'):saved?'Team saved.':request.current?'The last save was not confirmed. Press Try again.':'Refresh this task to edit its team.';
+ const lockReason=busy?'Saving…':saved?'Team saved.':request.current?'The last save was not confirmed. Press Try again.':'Refresh this task to edit its team.';
  const persist=()=>recovery.persist({baseline:draftBaseline,fields:{...draftBaseline.fields,lead:lead||'',people:workers},request:request.current});
  useEffect(()=>{if(!saved){if(dirty)persist();else recovery.clear();}},[lead,workers,busy,error,saved]);
- const latest=useRef({controller,context,lead,workers,draftError,onChanged});latest.current={controller,context,lead,workers,draftError,onChanged};
+ const latest=useRef({controller,context,lead,workers,draftError,overloadError,leadProjection,leadOverride,primaryOverloadedContributor,contributorOverride,onChanged});
+ latest.current={controller,context,lead,workers,draftError,overloadError,leadProjection,leadOverride,primaryOverloadedContributor,contributorOverride,onChanged};
  const close=()=>{if(!guard.pendingRef.current)void guard.requestClose(closeOwner);};
 
  async function submit(){
   if(guard.pendingRef.current||confirmed.current||!request.current&&latest.current.draftError)return;
+  setAttemptedSubmit(true);
+  if(!request.current&&latest.current.overloadError){
+   setError('');
+   return;
+  }
   guard.pendingRef.current=true;setBusy(true);setError('');
   let receipt:WorkTreeSnapshot|undefined;
   try{
@@ -129,6 +198,41 @@ function WorkStaffingDialogContent({controller,nodeId,readOnly=false,executionBl
    receipt=await latest.current.controller.save(request.current);
    if(!active.current)return;
    confirmed.current=true;recovery.clear();setSaved(true);guard.markClean();
+   const savedState=latest.current;
+   if(savedState.leadProjection?.requiresOverride&&savedState.lead){
+    void recordWorkloadOverloadOverride({
+     targetUserId:savedState.lead,
+     contextType:nodeId?'subtask':'task',
+     entityId:nodeId||controller.rootId,
+     proposedRole:leadRole,
+     reason:savedState.leadOverride.reason,
+     snapshot:{
+      currentPoints:savedState.leadProjection.currentPoints,
+      projectedPoints:savedState.leadProjection.projectedPoints,
+      addedPoints:savedState.leadProjection.addedPoints,
+      projectedTier:savedState.leadProjection.projectedTier,
+      reasons:savedState.leadProjection.reasons,
+     },
+    });
+   }
+   if(savedState.primaryOverloadedContributor?.projection?.requiresOverride){
+    const cp=savedState.primaryOverloadedContributor.projection;
+    void recordWorkloadOverloadOverride({
+     targetUserId:savedState.primaryOverloadedContributor.id,
+     contextType:nodeId?'subtask':'task',
+     entityId:nodeId||controller.rootId,
+     proposedRole:contributorRole,
+     reason:savedState.contributorOverride.reason,
+     snapshot:{
+      currentPoints:cp.currentPoints,
+      projectedPoints:cp.projectedPoints,
+      addedPoints:cp.addedPoints,
+      projectedTier:cp.projectedTier,
+      reasons:cp.reasons,
+     },
+    });
+   }
+   invalidateWorkloadCache();
   }catch(reason){if(active.current){
    const failure=workRequestFailure(reason);
    // A confirmed rollback has no saved receipt to retry. Keep the fields editable.
@@ -143,13 +247,47 @@ function WorkStaffingDialogContent({controller,nodeId,readOnly=false,executionBl
  }
  const title=nodeId?'Subtask Lead and contributors':'Task lead and contributors';
  const showDraftAlert=!!draftError&&!busy&&(dirty||!!request.current||!!controller.verificationFailed||!caps.appointment.allowed);
- return <Modal isOpen title={title} description={nodeId?'Assign the subtask lead and contributors responsible for this step.':'Choose the primary Task Lead and optional contributors directly from eligible Office members.'} onClose={close} preventClose={busy} width="max-w-2xl">
+ return <Modal isOpen title={title} description={nodeId?'Assign the subtask lead and contributors responsible for this step.':'Choose the primary Task Lead and optional contributors from project members.'} onClose={close} preventClose={busy} width="max-w-3xl">
   <form className="nw-staffing-form" aria-label="Task/subtask people changes" onSubmit={event=>{event.preventDefault();void submit();}}>
-   {!nodeId&&data.root.kind==='office'&&data.can_transfer&&caps.appointment.allowed&&!baseline.leadId&&!contributorsOnly&&!readOnly&&<AutoAssignTaskButton snapshot={data} disabled={locked||dirty||executionBlocked} onBusyChange={value=>{guard.pendingRef.current=value;setAiBusy(value);setBusy(value);}} onAssigned={async receipt=>{confirmed.current=true;recovery.clear();setSaved(true);guard.markClean();await latest.current.onChanged(receipt);}}/>}
-   <WorkPeoplePicker people={data.people} lead={lead||''} excludedLeadIds={excludedLeadIds} selected={workers} onLead={setLead} onSelected={setWorkers}
+   <WorkPeoplePicker people={scopedPeople} lead={lead||''} excludedLeadIds={excludedLeadIds} selected={workers} onLead={setLead} onSelected={setWorkers}
     priority={nodeId?workAssignmentPriority(data,data.nodes.find(node=>node.id===nodeId)?.parent_subtask_id||null):undefined}
     appointmentCapability={contributorsOnly?{allowed:false,reason_code:'read_only',disabledReason:'Change the lead from the Lead menu.'}:caps.appointment} contributorCapability={caps.contributors} disabled={locked} disabledReason={lockReason}
+    workloadByUser={workload.byUserId}
+    onInspectWorkload={userId=>setInspectUserId(userId)}
     invite={!readOnly&&!locked?{project:data.root.project,office:data.root.office,root:controller.rootId,node:nodeId||undefined,canRequest:scopedInvitationRequestAllowed(data,nodeId,context)}:undefined}/>
+   {!readOnly&&!contributorsOnly&&lead&&leadSummary&&leadProjection&&(leadProjection.projectedTier==='overloaded'||leadProjection.projectedTier==='heavy')&&(
+    <OverloadMitigationPanel
+     userId={lead}
+     orgId={data.root.office}
+     summary={leadSummary}
+     thresholds={workload.thresholds}
+     proposedRole={leadRole}
+     alreadyAssignedInRole={leadAlreadyAssigned}
+     excludedAlternativeIds={excludedLeadIds}
+     override={leadOverride}
+     onOverrideChange={next=>{setLeadOverride(next);setError('');}}
+     onSwitchMember={nextUserId=>{setLead(nextUserId);setError('');}}
+     showValidation={attemptedSubmit}
+    />
+   )}
+   {!readOnly&&primaryOverloadedContributor?.summary&&(
+    <OverloadMitigationPanel
+     userId={primaryOverloadedContributor.id}
+     orgId={data.root.office}
+     summary={primaryOverloadedContributor.summary}
+     thresholds={workload.thresholds}
+     proposedRole={contributorRole}
+     alreadyAssignedInRole={false}
+     excludedAlternativeIds={[...(lead?[lead]:[]),...workers]}
+     override={contributorOverride}
+     onOverrideChange={next=>{setContributorOverride(next);setError('');}}
+     onSwitchMember={nextUserId=>{
+      setWorkers(prev=>deduplicateWorkPersonIds([...prev.filter(id=>id!==primaryOverloadedContributor.id),nextUserId]));
+      setError('');
+     }}
+     showValidation={attemptedSubmit}
+    />
+   )}
    {selfLeadReviewerRisk&&<div role="status" className="nw-staffing-banner nw-staffing-banner--warn">Heads up: assigning yourself as both Office Head and Task Lead means you cannot review your own task submission. Unless an independent Project Lead is assigned on the project, final review submission will be blocked.</div>}
    {!nodeId&&data.root.kind==='office'&&!data.root.due&&Boolean(lead)&&<div role="status" className="nw-staffing-banner nw-staffing-banner--warn">Set a due date in the Due date column. Tasks without a due date will not be shown to the assigned leader.</div>}
    {showDraftAlert&&<p role="alert" className="nw-staffing-banner nw-staffing-banner--error">{draftError}</p>}
@@ -158,9 +296,22 @@ function WorkStaffingDialogContent({controller,nodeId,readOnly=false,executionBl
    {recovery.recovered&&<p role="status" className="nw-staffing-banner nw-staffing-banner--info">{recovery.stale?"Task details changed after this team draft was saved. Review the current Lead and contributors before saving.":'People draft recovered after current access verification.'}</p>}
    {recovery.storageFailed&&<p role="alert" className="nw-staffing-banner nw-staffing-banner--error">Draft recovery could not be stored in this tab. Keep the editor open to retain your changes.</p>}
    <div className="nw-staffing-footer"><button type="button" className="nw-staffing-btn nw-staffing-btn--secondary" disabled={busy} onClick={close}>{saved?'Close':'Cancel changes'}</button>
-    {!saved&&<button type="submit" className="nw-staffing-btn nw-staffing-btn--primary" disabled={busy||!request.current&&!!draftError}>{busy?(aiBusy?'Choosing team…':'Saving…'):request.current?'Try again':'Save changes'}</button>}
+    {!saved&&(()=>{
+     const submitDisabled=busy||(!request.current&&!!draftError);
+     const submitTooltip=busy?'Saving changes…':!request.current&&draftError?draftError:'';
+     return <WorkspaceTooltip content={submitTooltip} disabled={!submitTooltip}><span className="inline-flex"><button type="submit" className="nw-staffing-btn nw-staffing-btn--primary" disabled={submitDisabled}>{busy?'Saving…':request.current?'Try again':'Save changes'}</button></span></WorkspaceTooltip>;
+    })()}
    </div>
    {confirmation.dialog}
+   {inspectUserId&&(
+    <MemberWorkloadModal
+     open
+     userId={inspectUserId}
+     userName={resolveWorkPersonName(data.people,inspectUserId)}
+     orgId={data.root.office}
+     onClose={()=>setInspectUserId(null)}
+    />
+   )}
   </form>
  </Modal>;
 }

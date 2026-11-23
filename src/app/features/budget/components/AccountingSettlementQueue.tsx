@@ -1,8 +1,9 @@
 import { EmptyState } from '../../../components/ui/EmptyState';
 import { FieldLengthHint } from '../../../components/ui/FieldLengthHint';
 import { INPUT_LIMITS } from '../../../shared/inputLimits';
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AttentionBox, Button, Label } from "@vibe/core";
+import { useNotificationNavigationIntent } from "../../notifications";
 import { AnimatePresence } from "motion/react";
 import * as m from "motion/react-m";
 import {
@@ -69,6 +70,39 @@ export function AccountingSettlementQueue({
     data.summary?.id || "",
     DEFAULT_BUDGET_PAGE_SIZE,
   );
+  const [focusId, setFocusId] = useState<string>("");
+  const cardRefs = useRef<Record<string, HTMLElement | null>>({});
+
+  useNotificationNavigationIntent(
+    (intent) =>
+      intent.kind === "budget" &&
+      Boolean(intent.financialRecordId) &&
+      intent.financialRecordType !== "project_funding" &&
+      intent.financialRecordType !== "office_petty_cash",
+    (intent) => {
+      const target = intent.financialRecordId || "";
+      const index = items.findIndex(
+        (item) => item.id === target || item.requestId === target,
+      );
+      if (index >= 0) {
+        const matched = items[index];
+        setFocusId(matched.id);
+        pagination.setPage(Math.floor(index / pagination.pageSize) + 1);
+      } else {
+        setFocusId(target);
+      }
+      return true;
+    },
+    [items, pagination.pageSize, pagination.setPage],
+  );
+
+  useEffect(() => {
+    if (!focusId) return;
+    const node = cardRefs.current[focusId];
+    if (node && typeof node.scrollIntoView === "function") {
+      node.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [focusId, pagination.page]);
   const [busy, setBusy] = useState("");
   const [rejecting, setRejecting] = useState("");
   const [reason, setReason] = useState("");
@@ -292,12 +326,21 @@ export function AccountingSettlementQueue({
               );
               const review = independent.contexts[item.id];
               const canDecide = canSettle && !ownFunds && Boolean(review && independentReviewAllowsPosting(review, userProfile?.id || ''));
+              const isFocused = Boolean(focusId && (item.id === focusId || item.requestId === focusId));
               return (
                 <m.article
                   layout
                   exit={{ opacity: 0, height: 0 }}
                   key={item.id}
-                  className="rounded-[10px] border border-border bg-card p-4"
+                  ref={(node) => {
+                    cardRefs.current[item.id] = node;
+                  }}
+                  data-focused={isFocused ? "true" : undefined}
+                  className={`rounded-[10px] border bg-card p-4 transition-shadow ${
+                    isFocused
+                      ? "border-[var(--eflow-primary)] ring-2 ring-[var(--eflow-primary)]/25"
+                      : "border-border"
+                  }`}
                 >
                   <div className="flex flex-col gap-3 lg:flex-row lg:items-start">
                     <div className="min-w-0 flex-1">

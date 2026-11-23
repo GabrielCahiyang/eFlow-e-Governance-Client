@@ -4,6 +4,7 @@ import type { AccountingAccount, BudgetLineInput, DepartmentBudgetBundle, Genera
 import { mapAdjustment, mapAllocation, mapAllocationLine, mapBudgetLine, mapBudgetSummary, mapCommitment, mapLedger, mapLiquidation, mapReceipt, mapRelease, mapRequest } from "./budgetMappers";
 import { assertCashNeededByIsCurrentOrFuture } from "../selectors/cashWorkflowRules";
 import { fetchBudgetSections } from "./budgetSectionService";
+import { mapTaskCashPools } from "./workCashAssignmentService";
 import {liquidationInputError} from '../validation/financialValidation';
 import { assertActionActor } from '../../../shared/actionActor';
 import { registerAuthCacheReset } from '../../../shared/authCacheReset';
@@ -209,6 +210,7 @@ export async function fetchTaskFundingContext(taskId: string, subtaskId?: string
     canManageDistribution: row.canManageDistribution === true,
     subtaskBudgets: Array.isArray(row.subtaskBudgets) ? row.subtaskBudgets as TaskFundingContext["subtaskBudgets"] : undefined,
     parentSources: Array.isArray(row.parentSources) ? row.parentSources as TaskFundingContext["parentSources"] : undefined,
+    cashPools: mapTaskCashPools(row.cashPools),
     subtaskBudgetBlocked: subtaskBudget?.blocked === true,
     cap: cap ? {
       id: String(cap.id), amount: Number(cap.amount || 0), available: Number(cap.available || 0),
@@ -537,6 +539,15 @@ export async function submitPettyCashLiquidation(input: LiquidationAttempt) {
   const idempotencyKey = input.idempotencyKey || crypto.randomUUID();
   try {
     for (const [index, receipt] of input.receipts.entries()) {
+      if (!receipt.file && receipt.existingFile?.filePath) {
+        uploaded.push({
+          fileName: receipt.existingFile.fileName,
+          filePath: receipt.existingFile.filePath,
+          mimeType: receipt.existingFile.mimeType || "application/octet-stream",
+          fileSize: receipt.existingFile.fileSize || 0,
+        });
+        continue;
+      }
       if (!receipt.file) throw new Error("Attach a file for every receipt row.");
       // A stable command-scoped path makes a network retry idempotent at the
       // storage layer as well as in PostgreSQL, avoiding orphaned duplicates.

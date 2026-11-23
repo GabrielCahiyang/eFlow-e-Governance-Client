@@ -4,6 +4,7 @@ import { isDocumentVisible, subscribeQueryDomain } from '../../../shared/queryCa
 import { isQueryAccessDenied } from '../../../shared/queryAccess';
 import type { NotificationInboxFilters } from '../inboxFilters';
 import { fetchNotificationPage, type NotificationCursor } from '../services/notificationInboxService';
+import { getManilaStartOfDayIso } from '../visuals';
 
 interface InboxState {
   scope: string; rows: Notification[]; unreadCount: number | null;
@@ -16,15 +17,19 @@ const empty = (scope: string, loading: boolean): InboxState => ({
 
 /** Refresh every loaded page, preserving position and rejecting old account/filter results. */
 export function useNotificationInbox(userId: string | undefined, filters: NotificationInboxFilters) {
-  const scope = JSON.stringify([userId, filters.category, filters.unreadOnly, filters.period]);
+  const normalizedQuery = filters.query?.trim() || '';
+  const scope = JSON.stringify([userId, filters.category, filters.unreadOnly, filters.period, normalizedQuery]);
   const [state, setState] = useState(() => empty(scope, Boolean(userId)));
   const controls = useRef({ refresh: () => {}, more: () => {} });
 
   useEffect(() => {
     let active = true, busy = false, queued = false, pages = 1;
     let current = empty(scope, Boolean(userId));
-    const since = filters.period === 'all' ? undefined
-      : new Date(Date.now() - Number(filters.period) * 86400000).toISOString();
+    const since = filters.period === 'all'
+      ? undefined
+      : filters.period === 'today'
+        ? getManilaStartOfDayIso(0)
+        : new Date(Date.now() - Number(filters.period) * 86400000).toISOString();
     const publish = (patch: Partial<InboxState>) => {
       current = { ...current, ...patch };
       if (active) setState(current);
@@ -85,7 +90,7 @@ export function useNotificationInbox(userId: string | undefined, filters: Notifi
       window.removeEventListener('online', refresh);
       document.removeEventListener('visibilitychange', visible);
     };
-  }, [scope, userId, filters.category, filters.unreadOnly, filters.period]);
+  }, [scope, userId, filters.category, filters.unreadOnly, filters.period, normalizedQuery]);
 
   return { ...(state.scope === scope ? state : empty(scope, Boolean(userId))),
     retry: () => controls.current.refresh(), loadMore: () => controls.current.more() };

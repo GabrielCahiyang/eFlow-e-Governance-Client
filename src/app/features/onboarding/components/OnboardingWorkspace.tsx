@@ -3,6 +3,7 @@ import { requestNavigation } from '../../../shared/navigationGuard';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Check, ArrowRight } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '../../../components/ui/dialog';
+import { Modal } from '../../../components/ui/Modal';
 import { Button } from '../../../components/ui/button';
 import { WorkspaceIllustration } from '../../../components/ui/WorkspaceIllustration';
 import { useAuth } from '../../../contexts/AuthContext';
@@ -63,6 +64,40 @@ export function OnboardingWorkspace({ onNavigate }: { onNavigate: (section: stri
       <footer><Button variant="ghost" disabled={busy} onClick={() => { void save({ status: 'dismissed' }).then(() => { setWelcome(false); window.dispatchEvent(new Event('eflow-first-run-finished')); }).catch(() => {}); }}>Skip for now</Button><Button disabled={busy} onClick={() => { void advance().catch(() => {}); }}>{busy ? 'Saving…' : step === 'ready' ? 'Enter your workspace' : 'Continue'} <ArrowRight size={16} /></Button></footer>{error && <p className="eflow-form-error" role="alert">{error}</p>}
     </section><WorkspaceIllustration /></DialogContent></Dialog>
     <Dialog open={help} onOpenChange={setHelp}><DialogContent className="eflow-checklist-dialog" onCloseAutoFocus={returnHelpFocus}><DialogTitle>Help & Getting Started</DialogTitle><DialogDescription>Your role-aware guide to working with your Office.</DialogDescription>{content}{role !== 'admin' && <Button variant="outline" onClick={() => { setHelp(false); setProfile(true); }}>Review your professional profile</Button>}{error && <p role="alert" className="eflow-form-error">{error}</p>}</DialogContent></Dialog>
-    <Dialog open={profile} onOpenChange={next=>{if(next)setProfile(true);else void requestNavigation(()=>setProfile(false));}}><DialogContent className="eflow-member-panel" onCloseAutoFocus={returnHelpFocus}><DialogTitle>Your professional profile</DialogTitle><DialogDescription>Review and confirm your work-relevant background.</DialogDescription><ProfessionalProfilePanel /></DialogContent></Dialog>
+    <Modal
+      isOpen={profile}
+      title="Your professional profile"
+      description="Review and confirm your work-relevant background."
+      width="max-w-2xl"
+      onClose={() => {
+        void requestNavigation(() => {
+          setProfile(false);
+          requestAnimationFrame(() => {
+            if (helpReturnFocus.current?.isConnected) helpReturnFocus.current.focus();
+          });
+        });
+      }}
+      footer={
+        <div className="flex justify-end">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              void requestNavigation(() => {
+                setProfile(false);
+                requestAnimationFrame(() => {
+                  if (helpReturnFocus.current?.isConnected) helpReturnFocus.current.focus();
+                });
+              });
+            }}
+          >
+            Close
+          </Button>
+        </div>
+      }
+    >
+      <ProfessionalProfilePanel />
+    </Modal>
   </>;
 }

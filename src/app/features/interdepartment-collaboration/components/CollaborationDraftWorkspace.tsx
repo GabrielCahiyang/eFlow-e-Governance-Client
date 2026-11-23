@@ -9,6 +9,7 @@ import {
   SavedPlanApprovalError,
 } from "../services/saveReviewUpdate";
 import { Button, EmptyState, Loader } from "@vibe/core";
+import { Modal } from "../../../components/ui/Modal";
 import { useAuth } from "../../../contexts/AuthContext";
 import type { Organization, UserProfile } from "../../../types";
 import { useToast } from "../../../components/ui/Toast";
@@ -611,42 +612,44 @@ export function CollaborationDraftWorkspace({
         )}
       </div>
       {secondaryTab && (
-        <aside
-          className="eflow-collaboration-inspector"
-          aria-label="Collaboration workspace tool"
-          role="dialog"
-          aria-modal="false"
-        >
-          <header className="eflow-collaboration-inspector__header">
-            <div>
-              <span className="text-[11px] font-semibold uppercase tracking-wide text-neutral-400">
-                Workspace tool
-              </span>
-              <h2 className="m-0 text-base font-bold text-neutral-900">
-                {secondaryTab === "source"
-                  ? "Source PDF"
-                  : secondaryTab === "people"
-                    ? "Team roster"
-                    : secondaryTab === "budget"
-                      ? "Budget"
-                      : secondaryTab === "changes"
-                        ? "Requested changes"
-                        : secondaryTab === "governance"
-                          ? "Governance"
-                          : "Plan update history"}
-              </h2>
+        <Modal
+          isOpen
+          title={
+            secondaryTab === "source"
+              ? "Source PDF"
+              : secondaryTab === "people"
+                ? "Team roster"
+                : secondaryTab === "budget"
+                  ? "Budget"
+                  : secondaryTab === "changes"
+                    ? "Requested changes"
+                    : secondaryTab === "governance"
+                      ? "Governance"
+                      : "Plan update history"
+          }
+          description={`Workspace tool · ${draft.title}`}
+          ariaLabel="Collaboration workspace tool"
+          width="max-w-4xl"
+          preventClose={busy}
+          onClose={() => {
+            void requestNavigation(() => setSecondaryTab(null));
+          }}
+          footer={
+            <div className="flex justify-end">
+              <Button
+                kind="secondary"
+                size="small"
+                disabled={busy}
+                onClick={() => {
+                  void requestNavigation(() => setSecondaryTab(null));
+                }}
+              >
+                Close
+              </Button>
             </div>
-            <button
-              type="button"
-              className="text-xs font-medium text-blue-600 hover:underline"
-              onClick={() => {
-                void requestNavigation(() => setSecondaryTab(null));
-              }}
-            >
-              Close
-            </button>
-          </header>
-          <div className="eflow-collaboration-inspector__body">
+          }
+        >
+          <div className="space-y-4">
             {secondaryTab === "source" && (
               <CollaborationSourcePanel
                 draft={draft}
@@ -739,7 +742,7 @@ export function CollaborationDraftWorkspace({
               />
             )}
           </div>
-        </aside>
+        </Modal>
       )}
     </div>
   );

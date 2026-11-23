@@ -2,6 +2,11 @@
 from fastapi import HTTPException
 from gateway_dependencies import supabase_admin
 from invitations.service import require_head
+from services.workload_scoring import (
+    compute_member_workload,
+    fetch_auxiliary_workload_rows,
+    load_office_thresholds,
+)
 
 ACTIVE = {'pending_assignment', 'todo', 'in_progress', 'for_review', 'changes_requested'}
 
@@ -9,6 +14,21 @@ def workload_for(user_id, tasks):
     owned = [t for t in tasks if t.get('status') in ACTIVE and
              user_id in {t.get('assigned_to'), t.get('recommendation_lead_id'), *(t.get('team_member_ids') or [])}]
     return {'activeTasks': len(owned)}
+
+def _workload_summary_note(load):
+    status = str(load.get('workloadTier') or 'available').upper()
+    parts = [
+        f"Workload: {status} ({load.get('loadPoints', 0):.1f} pts",
+        f"{load.get('activeProjectsLed', 0)} active projects led",
+        f"{load.get('tasksLed', 0)} tasks led",
+        f"{load.get('subtasksLed', 0)} subtasks led",
+    ]
+    if load.get('overdueCount', 0):
+        parts.append(f"{load['overdueCount']} overdue")
+    summary = ', '.join(parts) + ').'
+    if load.get('isOverloaded'):
+        summary += ' OVERLOADED: avoid assigning as lead if a lighter-loaded eligible teammate is available.'
+    return summary
 
 def compact_profile(profile):
     def items(key, cap):
@@ -53,23 +73,35 @@ def build_staffing_context(task_id, user, auto_assign=False):
     # Page through active Office work instead of silently truncating workload.
     work = []; offset = 0
     while True:
-        batch = supabase_admin.table('tasks').select('id,assigned_to,recommendation_lead_id,team_member_ids,status,percent_complete').eq('org_id', user.org_id).is_('deleted_at', 'null').is_('archived_at', 'null').in_('status', list(ACTIVE)).range(offset, offset + 499).execute().data or []
+        batch = supabase_admin.table('tasks').select('id,assigned_to,recommendation_lead_id,team_member_ids,status,percent_complete,due_date,deadline,linked_project_id,archived_at,deleted_at').eq('org_id', user.org_id).is_('deleted_at', 'null').is_('archived_at', 'null').in_('status', list(ACTIVE)).range(offset, offset + 499).execute().data or []
         work.extend(batch)
         if len(batch) < 500: break
         offset += 500
         if offset >= 10000: raise HTTPException(503, 'Office workload is too large to summarize safely. Narrow the active workload first.')
+    thresholds = load_office_thresholds(supabase_admin, user.org_id)
+    projects, subtasks = fetch_auxiliary_workload_rows(supabase_admin, ids, [user.org_id] if user.org_id else None)
     names = {p['id']: p['full_name'] for p in profiles}
-    candidates = [{'id': p['user_id'], 'name': names[p['user_id']], **compact_profile(p), **workload_for(p['user_id'], work)} for p in professional]
+    candidates = []
+    for p in professional:
+        load = compute_member_workload(p['user_id'], tasks=work, projects=projects, subtasks=subtasks, thresholds=thresholds)
+        prof = compact_profile(p)
+        if load['isOverloaded'] or load['workloadTier'] == 'heavy':
+            base_summary = prof['experience_summary']
+            note = _workload_summary_note(load)
+            prof['experience_summary'] = f"{base_summary} {note}".strip()[:700]
+        candidates.append({'id': p['user_id'], 'name': names[p['user_id']], **prof, **load})
     if auto_assign:
         # Include the available Office directory, even before project enrollment.
         # Missing professional details stay unknown; only factual workload is used.
         confirmed = {p['id'] for p in candidates}
         for p in profiles:
             if p['id'] not in confirmed:
-                load = workload_for(p['id'], work)
+                load = compute_member_workload(p['id'], tasks=work, projects=projects, subtasks=subtasks, thresholds=thresholds)
                 candidates.append({'id': p['id'], 'name': p['full_name'], **compact_profile({}), **load,
-                    'experience_summary': f"Professional details not confirmed. Current active tasks: {load['activeTasks']}."})
+                    'experience_summary': f"Professional details not confirmed. {_workload_summary_note(load)}"[:700]})
+    candidates.sort(key=lambda c: (bool(c.get('isOverloaded')), float(c.get('loadPoints', 0.0)), (c.get('name') or '').lower()))
     if len(candidates) > 200:
         raise HTTPException(409, 'The available Office directory exceeds this request’s 200-person processing limit.')
     return {'task': {'id': task['id'], 'title': task['title'], 'description': (task.get('description') or '')[:3000], 'skills': task.get('tags') or []},
-            'candidates': candidates, 'excludedUnconfirmed': len(profiles) - len(candidates)}
+            'candidates': candidates, 'excludedUnconfirmed': len(profiles) - len(candidates),
+            'workloadPolicy': {'heavyPoints': thresholds['heavy_points'], 'overloadPoints': thresholds['overload_points'], 'avoidOverloaded': True}}

@@ -20,8 +20,6 @@ vi.mock('../../src/app/features/budget/hooks/useTaskFundingContext',()=>({useTas
 vi.mock('../../src/app/features/subtasks/components/SubtaskDeadlineEditor',()=>({SubtaskDeadlineEditor:()=>null}));
 import {TaskSubtasksWidget,SubitemInspector} from '../../src/app/features/subtasks';
 import {WorkInspector} from '../../src/app/features/personal-work/components/WorkInspector';
-import {SubtaskReviewInbox} from '../../src/app/features/reviews';
-import {ReviewSubitemInspector} from '../../src/app/features/reviews/components/ReviewSubitemInspector';
 const allow={allowed:true,reason_code:null} as const,deny={allowed:false,reason_code:'branch_denied'} as const;
 const task:Task={id:'root',title:'Root',linkedProjectId:'project',orgId:'office',assigneeId:'root-lead',status:'todo',createdAt:1,updatedAt:1};
 function node(id:string,parent:string|null,title=id):WorkNode{return {id,task_id:'root',title,parent_subtask_id:parent,lead_id:'other-lead',assigned_to_ids:['worker'],depth:parent?2:1,sibling_order:0,due_date:null,is_standalone:true,status:'todo',percent_complete:20,can_work:false,can_review:false,can_manage:false,can_appoint:false,can_order:false,capabilities:{execute:allow,submit:allow,review:deny}};}
@@ -49,10 +47,6 @@ describe('NW8.4 canonical entrances and compatibility',()=>{
  });
  
  
- 
- it('ignores late root metadata after the canonical review item changes',async()=>{
-  let resolve!:(row:Record<string,unknown>)=>void;api.root.mockImplementationOnce(()=>new Promise(yes=>{resolve=yes;}));api.root.mockResolvedValueOnce(null);const item=reviewItem(),view=render(<ReviewSubitemInspector item={item} origin={{view:'Review'}} onClose={()=>{}}/>);view.rerender(<ReviewSubitemInspector item={{...item,subtask:{...item.subtask,id:'other',taskId:'other-root'}}} origin={{view:'Review'}} onClose={()=>{}}/>);await screen.findByRole('alert');await act(async()=>resolve({id:'root',title:'Wrong root',linked_project_id:'project',org_id:'office'}));expect(screen.queryByText('Wrong root')).toBeNull();expect(api.read).not.toHaveBeenCalled();
- });
  
  it('does not render a legacy fallback for a mismatched actor or root controller',()=>{
   render(<TaskSubtasksWidget taskId="root" parentTask={task} controller={{...controller(),actorId:'other'}} fallback={<p>Unsafe legacy fallback</p>}/>);expect(screen.getByRole('alert')).toBeTruthy();expect(screen.queryByText('Unsafe legacy fallback')).toBeNull();

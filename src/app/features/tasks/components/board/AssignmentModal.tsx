@@ -78,8 +78,9 @@ export function AssignmentModal({
               : "No members selected"}
           </p>
           <div className="flex justify-end gap-2">
-            <Button onClick={onClose} variant="outline">Cancel</Button>
+            <Button type="button" onClick={onClose} variant="outline">Cancel</Button>
             <Button
+              type="button"
               onClick={() => {
                 onConfirm(draft, draftLead);
                 onClose();
@@ -104,7 +105,7 @@ export function AssignmentModal({
               className="h-[38px] flex-1 border-0 bg-transparent px-2 text-[12px] shadow-none focus:outline-none focus:ring-0 focus:ring-offset-0 focus-visible:!border-0 focus-visible:!outline-none focus-visible:!ring-0 focus-visible:!ring-offset-0"
             />
             {search && (
-              <WorkspaceTooltip content="Close assignments"><button aria-label="Close assignments"
+              <WorkspaceTooltip content="Clear search"><button type="button" aria-label="Clear search"
                 onClick={() => setSearch("")}
                 className="pr-2.5 text-muted-foreground hover:text-foreground"
               >
@@ -128,7 +129,7 @@ export function AssignmentModal({
                       <Crown size={10} className="text-amber-500" />
                     )}
                     {getInitials(emp.name)} · {emp.name.split(" ")[0]}
-                    <WorkspaceTooltip content="Clear search"><button aria-label="Clear search"
+                    <WorkspaceTooltip content={`Remove ${emp.name}`}><button type="button" aria-label={`Remove ${emp.name}`}
                       onClick={() => toggle(id)}
                       className="ml-0.5 text-muted-foreground hover:text-accent-foreground"
                     >
@@ -222,7 +223,7 @@ export function AssignmentModal({
 
                     {/* Lead toggle */}
                     {selected && (
-                      <WorkspaceTooltip content="Set as Team Lead"><button aria-label="Set as Team Lead"
+                      <WorkspaceTooltip content={isLead ? "Remove as Team Lead" : "Set as Team Lead"}><button type="button" aria-label="Set as Team Lead"
                         onClick={(e) => {
                           e.stopPropagation();
                           setDraftLead(isLead ? null : emp.id);

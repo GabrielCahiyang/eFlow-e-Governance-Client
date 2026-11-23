@@ -1,10 +1,12 @@
 import type { ComponentProps, ReactNode } from 'react';
-import { Button, Dropdown, Heading, IconButton, Label, Search as VibeSearch, Tab, TabList, TabsContext } from '@vibe/core';
-import { Announcement, Calendar, Check, Close, Completed, Email, Globe, Inbox, Info, NavigationChevronRight, Team, Time, Workspace } from '@vibe/icons';
+import { Button, Dropdown, Label, Search as VibeSearch, Tab, TabList, TabsContext } from '@vibe/core';
+import { Announcement, Calendar, Check, Completed, Email, Globe, Inbox, Info, NavigationChevronRight, Team, Time, Workspace } from '@vibe/icons';
 import type { Audience } from '../../../../services/announcementService';
 import { PageHeader, SectionEmpty, StatCard, formatDate } from '../../../../components/workflow/primitives';
 import { WorkspaceLoadingSkeleton } from '../../../../components/workflow/WorkspaceLoadingSkeleton';
-import { InspectorPanel } from '../../../../shared/motion';
+import { Modal } from '../../../../components/ui/Modal';
+import { formatManilaDate, formatManilaDateTime } from '../../../../shared/calendarDisplay';
+import { useNotificationNavigationIntent } from '../../../notifications';
 import { useAnnouncementCenter } from '../../hooks/useAnnouncementCenter';
 
 const AUDIENCE_META: Record<Audience, { label: string; icon: ReactNode; color: string; labelColor: ComponentProps<typeof Label>["color"] }> = {
@@ -30,6 +32,30 @@ const AUDIENCE_META: Record<Audience, { label: string; icon: ReactNode; color: s
 
 export function AnnouncementCenter({ eyebrow = "My Workspace · Updates" }: { eyebrow?: string }) {
   const { audienceFilter, filter, filteredItems, items, loading, markAllRead, openAnnouncement, readList, searchQuery, selectedAnnouncement, setAudienceFilter, setFilter, setSearchQuery, setSelectedAnnouncement, unreadList } = useAnnouncementCenter();
+
+  useNotificationNavigationIntent(
+    (intent) => intent.kind === "announcement",
+    (intent) => {
+      if (loading) return false;
+      setFilter("all");
+      setAudienceFilter("all");
+      setSearchQuery("");
+      const label = intent.entityLabel?.trim().toLowerCase();
+      if (label) {
+        const matched = items.find(
+          (entry) =>
+            entry.title.trim().toLowerCase() === label ||
+            label.includes(entry.title.trim().toLowerCase()) ||
+            entry.body.trim().toLowerCase().includes(label),
+        );
+        if (matched) {
+          void openAnnouncement(matched);
+        }
+      }
+      return true;
+    },
+    [items, loading, openAnnouncement, setAudienceFilter, setFilter, setSearchQuery],
+  );
 
   const filters = [
     { id: "all", label: loading ? "All" : `All (${items.length})`, icon: <Inbox size={13} /> },
@@ -129,9 +155,9 @@ export function AnnouncementCenter({ eyebrow = "My Workspace · Updates" }: { ey
                         {/* Audience Badge */}
                         <Label color={aud.labelColor} text={aud.label} />
 
-                        {/* Unread Pill */}
+                        {/* Unread Badge */}
                         {isUnread && (
-                          <span className="inline-flex items-center rounded-full bg-red-500 px-2 py-0.5 text-[10px] font-semibold text-white">New</span>
+                          <span className="inline-flex items-center rounded-md bg-red-500 px-2 py-0.5 text-[10px] font-semibold text-white">New</span>
                         )}
 
                         {/* Read Badge */}
@@ -142,7 +168,7 @@ export function AnnouncementCenter({ eyebrow = "My Workspace · Updates" }: { ey
 
                       {/* Published Date */}
                       <span className="text-[11px] font-normal text-neutral-400 flex items-center gap-1 shrink-0">
-                        <Time size={11} /> {formatDate(a.publishedAt)}
+                        <Time size={11} /> {formatManilaDateTime(a.publishedAt, formatDate(a.publishedAt))}
                       </span>
                     </div>
 
@@ -163,7 +189,7 @@ export function AnnouncementCenter({ eyebrow = "My Workspace · Updates" }: { ey
                     {/* Footer Info */}
                     {a.expiresAt && (
                       <div className="mt-3 flex items-center gap-1 text-[11px] text-amber-600 font-medium">
-                        <Info size={12} /> Valid until {formatDate(a.expiresAt)}
+                        <Info size={12} /> Valid until {formatManilaDate(a.expiresAt, formatDate(a.expiresAt))}
                       </div>
                     )}
                   </div>
@@ -178,78 +204,63 @@ export function AnnouncementCenter({ eyebrow = "My Workspace · Updates" }: { ey
         </div>
       )}
 
-      {/* ─── Detail Modal / Drawer View ─── */}
-      <InspectorPanel ariaLabel="Announcement detail" className="w-full sm:w-[600px]" onClose={() => setSelectedAnnouncement(null)} open={Boolean(selectedAnnouncement)}>
-        {selectedAnnouncement && <>
-            {/* Modal Header */}
-            <div className="flex items-center justify-between p-5 border-b border-neutral-100 bg-neutral-50/50">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center">
-                  <Announcement size={16} />
-                </div>
-                <div>
-                  <div className="text-[10.5px] font-medium text-neutral-400 uppercase tracking-wider">
-                    Official Directive
-                  </div>
-                  <div className="text-[13px] font-semibold text-neutral-900">
-                    Announcement Detail
-                  </div>
-                </div>
-              </div>
-
-              <IconButton aria-label="Close announcement detail" icon={Close} kind="tertiary" onClick={() => setSelectedAnnouncement(null)} size="small" />
-            </div>
-
-            {/* Modal Body */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-6">
-              <div>
-                <div className="flex items-center gap-2 flex-wrap mb-3">
-                  <span
-                    className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11.5px] font-medium border ${
-                      (AUDIENCE_META[selectedAnnouncement.audience] || AUDIENCE_META.all).color
-                    }`}
-                  >
-                    {(AUDIENCE_META[selectedAnnouncement.audience] || AUDIENCE_META.all).icon}{" "}
-                    {(AUDIENCE_META[selectedAnnouncement.audience] || AUDIENCE_META.all).label}
-                  </span>
-                  <span className="inline-flex items-center gap-1 text-[11.5px] font-normal text-neutral-500 bg-neutral-100 px-3 py-1 rounded-full">
-                    <Calendar size={12} /> Published {formatDate(selectedAnnouncement.publishedAt)}
-                  </span>
-                </div>
-
-                <Heading className="leading-snug text-neutral-900" type="h1" weight="medium">{selectedAnnouncement.title}</Heading>
-              </div>
-
-              <div className="h-px bg-neutral-100" />
-
-              {/* Message Content */}
-              <div className="bg-neutral-50/80 border border-neutral-200/60 rounded-2xl p-5 text-[14px] font-normal text-neutral-800 whitespace-pre-wrap leading-relaxed shadow-xs">
-                {selectedAnnouncement.body}
-              </div>
-
-              {selectedAnnouncement.expiresAt && (
-                <div className="bg-amber-50 border border-amber-200/80 rounded-xl p-3.5 flex items-start gap-2.5 text-amber-800">
-                  <Info size={16} className="text-amber-600 shrink-0 mt-0.5" />
-                  <div className="text-[12px] font-normal">
-                    This announcement has a set expiration date of{" "}
-                    <strong className="font-semibold">
-                      {formatDate(selectedAnnouncement.expiresAt)}
-                    </strong>
-                    .
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Modal Footer */}
-            <div className="p-4 border-t border-neutral-100 bg-neutral-50/50 flex items-center justify-between">
-              <div className="flex items-center gap-1.5 text-[11.5px] font-medium text-emerald-600">
+      {/* ─── Standard Centered Announcement Detail Modal ─── */}
+      <Modal
+        isOpen={Boolean(selectedAnnouncement)}
+        title={selectedAnnouncement?.title || "Announcement Detail"}
+        description="Official Directive · Announcement Detail"
+        ariaLabel="Announcement detail"
+        width="max-w-2xl"
+        onClose={() => setSelectedAnnouncement(null)}
+        footer={
+          selectedAnnouncement ? (
+            <div className="flex w-full items-center justify-between gap-3">
+              <div className="flex items-center gap-1.5 text-xs font-medium text-emerald-700">
                 <Check size={15} /> Marked as read
               </div>
-              <Button kind="primary" onClick={() => setSelectedAnnouncement(null)} size="small">Close</Button>
+              <Button kind="primary" onClick={() => setSelectedAnnouncement(null)} size="small">
+                Close
+              </Button>
             </div>
-          </>}
-      </InspectorPanel>
+          ) : undefined
+        }
+      >
+        {selectedAnnouncement && (
+          <div className="space-y-4">
+            <div className="flex flex-wrap items-center gap-2">
+              <span
+                className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs font-medium ${
+                  (AUDIENCE_META[selectedAnnouncement.audience] || AUDIENCE_META.all).color
+                }`}
+              >
+                {(AUDIENCE_META[selectedAnnouncement.audience] || AUDIENCE_META.all).icon}{" "}
+                {(AUDIENCE_META[selectedAnnouncement.audience] || AUDIENCE_META.all).label}
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-md border border-[var(--eflow-border)] bg-[var(--eflow-subtle)] px-2.5 py-1 text-xs font-medium text-[var(--eflow-text-secondary)]">
+                <Calendar size={12} /> Published{" "}
+                {formatManilaDateTime(selectedAnnouncement.publishedAt, formatDate(selectedAnnouncement.publishedAt))}
+              </span>
+            </div>
+
+            <div className="rounded-lg border border-[var(--eflow-border)] bg-[var(--eflow-subtle)] p-5 text-sm leading-relaxed text-[var(--eflow-text)] whitespace-pre-wrap">
+              {selectedAnnouncement.body}
+            </div>
+
+            {selectedAnnouncement.expiresAt && (
+              <div className="flex items-start gap-2.5 rounded-lg border border-amber-200 bg-amber-50 p-3.5 text-amber-900">
+                <Info size={16} className="mt-0.5 shrink-0 text-amber-700" />
+                <div className="text-xs leading-relaxed">
+                  This announcement has a set expiration date of{" "}
+                  <strong className="font-semibold">
+                    {formatManilaDate(selectedAnnouncement.expiresAt, formatDate(selectedAnnouncement.expiresAt))}
+                  </strong>
+                  .
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </Modal>
     </div>
   );
 }

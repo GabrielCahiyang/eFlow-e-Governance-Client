@@ -18,10 +18,11 @@ import '../officeTeam.css';
 import '../../../../styles/people-management.css';
 
 export function OfficeTeamWorkspace() {
-  const { userProfile } = useAuth(), { orgs } = useOrgs();
+  const { userProfile, can } = useAuth(), { orgs } = useOrgs();
   const scope = `${userProfile?.id || ''}:${userProfile?.org_id || ''}`;
   const canManage = isAppointedOfficeHead(userProfile, orgs);
-  const state = useOfficeTeam(scope, !!userProfile?.is_active && userProfile.role === 'head');
+  const canViewTeam = !!userProfile?.is_active && userProfile.role !== 'admin' && (canManage || (typeof can === 'function' && can('navigation.team_supervision')));
+  const state = useOfficeTeam(scope, canViewTeam, canManage);
   const [search, setSearch] = useState(''), [role, setRole] = useState('all'), [status, setStatus] = useState('all'), [tab, setTab] = useState('active');
   const [invite, setInvite] = useState(false), [detailId, setDetailId] = useState(''), [uploadBusy, setUploadBusy] = useState(''), [uploadError, setUploadError] = useState('');
   const uploadPending = useRef(false);
@@ -50,10 +51,12 @@ export function OfficeTeamWorkspace() {
     )}
     {actions.error && <FeedbackState tone="error" title="Invitation action">{actions.error}</FeedbackState>}{actions.receipt && <p role="status">{actions.receipt}</p>}{uploadError && <FeedbackState tone="error" title="PDS upload failed">{uploadError}</FeedbackState>}
     {actions.freshLink && <div className="eflow-fresh-link"><label>Fresh invitation link<input readOnly maxLength={2048} value={actions.freshLink} onFocus={e => e.target.select()}/></label><p>Private · expires · replaces the previous link.</p><button className="eflow-text-button" onClick={actions.clearLink}>Hide link</button></div>}
-    <WorkspaceTabs value={tab} onValueChange={next => void requestNavigation(() => { setTab(next); actions.clearLink(); })} label="Office Team views" tabs={[
+    <WorkspaceTabs value={canManage ? tab : 'active'} onValueChange={next => void requestNavigation(() => { setTab(next); actions.clearLink(); })} label="Office Team views" tabs={[
       { id: 'active', label: state.loading ? 'Active Members' : `Active Members (${state.members.filter(m => m.is_active).length})`, content: state.loading ? <OfficeTeamTableSkeleton pending={false} /> : <>{state.teamError && <FeedbackState tone="error" title="Office members unavailable" onRetry={() => void state.refresh()}>{state.teamError}</FeedbackState>}{shownMembers.length ? <OfficeTeamTable members={shownMembers} onOpen={id => void requestNavigation(() => setDetailId(id))}/> : !state.teamError && empty(!!search || role !== 'all', true)}</> },
-      { id: 'pending', label: state.loading ? 'Invitations' : `Invitations (${state.invitations.length})`, content: state.loading ? <OfficeTeamTableSkeleton pending={true} /> : <>{state.inviteError && <FeedbackState tone="error" title="Invitations unavailable" onRetry={() => void state.refresh()}>{state.inviteError}</FeedbackState>}{shownInvitations.length ? <InvitationTable rows={shownInvitations} busy={uploadBusy || actions.busy} canManage={canManage && !state.inviteError} onAction={(item, action) => void actions.manage(item, action, () => current.current.canManage && current.current.scope === scope && current.current.invitations.some(i => i.id === item.id && ['pending', 'expired'].includes(i.status)))} onPds={(i, f) => void attach(i, f)}/> : !state.inviteError && empty(!!search || role !== 'all' || status !== 'all', false)}</> },
-      { id: 'access', label: 'Identity & Access', content: <OfficeIdentityAccessWorkspace embedded /> },
+      ...(canManage ? [
+        { id: 'pending', label: state.loading ? 'Invitations' : `Invitations (${state.invitations.length})`, content: state.loading ? <OfficeTeamTableSkeleton pending={true} /> : <>{state.inviteError && <FeedbackState tone="error" title="Invitations unavailable" onRetry={() => void state.refresh()}>{state.inviteError}</FeedbackState>}{shownInvitations.length ? <InvitationTable rows={shownInvitations} busy={uploadBusy || actions.busy} canManage={canManage && !state.inviteError} onAction={(item, action) => void actions.manage(item, action, () => current.current.canManage && current.current.scope === scope && current.current.invitations.some(i => i.id === item.id && ['pending', 'expired'].includes(i.status)))} onPds={(i, f) => void attach(i, f)}/> : !state.inviteError && empty(!!search || role !== 'all' || status !== 'all', false)}</> },
+        { id: 'access', label: 'Identity & Access', content: <OfficeIdentityAccessWorkspace embedded /> },
+      ] : []),
     ]}/>
     <InviteMemberDialog key={scope} officeName={state.office} open={invite && canManage} onOpenChange={setInvite} onSent={() => { setTab('pending'); void state.refresh(); }}/>
     {detailId && <OfficeMemberInspector key={`${scope}:${detailId}`} member={state.members.find(m => m.id === detailId && m.is_active)} office={state.office} onClose={() => setDetailId('')} onReturnFocus={() => (Array.from(document.querySelectorAll<HTMLElement>('[data-member-id]')).find(el => el.dataset.memberId === detailId) || document.getElementById('office-team-search'))?.focus()}/>}

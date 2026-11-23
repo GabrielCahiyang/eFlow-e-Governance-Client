@@ -4,7 +4,7 @@ import { useRef, useState } from 'react';
 import { patchWorkspaceTask, timelineDraft, timelineError, type WorkspaceTaskPatch } from '../../project-table';
 import { type Task } from '../../tasks';
 import { useAuth } from '../../../contexts/AuthContext';
-import { isHeadWorkspaceRole } from '../../../shared/roles';
+import { isAdminRole, isHeadWorkspaceRole } from '../../../shared/roles';
 import { canEditProjectTask } from '../selectors';
 import { useProjectOfficeContext } from '../../project-offices';
 
@@ -21,8 +21,8 @@ export function useProjectViewActions(project: { orgId?: string; status: string 
   const closed = ['completed', 'archived'].includes(project.status);
   const ownOffice = officeState.offices.find(o => o.office_id === officeId);
   const officeAccess = ownOffice?.invitation_status === 'joined' && ownOffice.relationship_type !== 'observer';
-  const readOnly = closed || officeState.loading || !!officeState.error || !userProfile || userProfile.is_active === false || !isHeadWorkspaceRole(userProfile.role);
-  const structuralEdit = !readOnly && isHeadWorkspaceRole(userProfile?.role) && (canManage && project.orgId === officeId || !!officeAccess);
+  const readOnly = closed || officeState.loading || !!officeState.error || !userProfile || userProfile.is_active === false || isAdminRole(userProfile.role);
+  const structuralEdit = !readOnly && ((canManage && project.orgId === officeId) || (isHeadWorkspaceRole(userProfile?.role) && !!officeAccess));
   const canEditDates = (task: Task) => canEditProjectTask(task, structuralEdit, officeId);
   const latestDateAccess = useRef(canEditDates); latestDateAccess.current = canEditDates;
   const saveDates = async (task: Task, patch: WorkspaceTaskPatch) => {

@@ -1,11 +1,14 @@
 import { AlertTriangle, CheckCircle2 } from "lucide-react";
-import { ProjectScheduleLabel } from "../../presentation/projectPresentation";
+import { ProjectScheduleLabel, ProjectUnifiedStatus } from "../../presentation/projectPresentation";
+import type { Project } from "../../services/types";
 import type { ProjectCommandMetrics } from "./types";
 
 export function ProjectHealthStrip({
   metrics,
+  project,
 }: {
   metrics: ProjectCommandMetrics;
+  project?: Project;
 }) {
   const totalAttention =
     metrics.overdue + metrics.blocked + metrics.changesRequested;
@@ -50,9 +53,13 @@ export function ProjectHealthStrip({
         </div>
 
         <div className="eflow-health-item">
-          <span className="eflow-health-item-label">Schedule</span>
+          <span className="eflow-health-item-label">Status</span>
           <div>
-            <ProjectScheduleLabel health={metrics.scheduleHealth} />
+            {project ? (
+              <ProjectUnifiedStatus project={project} health={metrics.scheduleHealth} layout="inline" />
+            ) : (
+              <ProjectScheduleLabel health={metrics.scheduleHealth} />
+            )}
           </div>
         </div>
 

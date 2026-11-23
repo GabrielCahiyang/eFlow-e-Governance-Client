@@ -1,8 +1,11 @@
 import { EmptyState } from '../../../../components/ui/EmptyState';
+import { BoundedTextarea, BoundedTextInput } from '../../../../components/ui/BoundedInput';
 import { DateInput } from '../../../../components/ui/DateInput';
+import { WorkspaceTooltip } from '../../../../components/ui/workspace/WorkspaceTooltip';
 import { getPhilippineCalendarDate, historicalDateError } from '../../../../shared/calendarDates';
 import { formatManilaDateTime } from '../../../../shared/calendarDisplay';
 import { attachmentError, EVIDENCE_ACCEPT } from '../../../../shared/fileValidation';
+import { INPUT_LIMITS } from '../../../../shared/inputLimits';
 import { useExplicitDraft } from "../../../../shared/useExplicitDraft";
 import * as React from "react";
 import { Download, ExternalLink, FileCheck2, Upload } from "lucide-react";
@@ -43,11 +46,50 @@ export function GovernanceRecordPanel({
   const [endorsement, setEndorsement] = React.useState("");
   const [file, setFile] = React.useState<File>();
   const [validationError, setValidationError] = React.useState('');
+  const [resolutionTouched, setResolutionTouched] = React.useState(false);
+  const [meetingDateTouched, setMeetingDateTouched] = React.useState(false);
+  const [meetingDateInvalidText, setMeetingDateInvalidText] = React.useState(false);
+  const resolutionId = React.useId();
+  const meetingDateId = React.useId();
+  const endorsementId = React.useId();
+
+  const rawResolutionError = !resolution.trim()
+    ? 'Resolution number is required.'
+    : resolution.length > INPUT_LIMITS.SHORT_TAG
+      ? `Use a resolution number up to ${INPUT_LIMITS.SHORT_TAG} characters.`
+      : '';
+  const rawMeetingDateError = meetingDateInvalidText
+    ? 'Enter a valid meeting date in MM/DD/YYYY format.'
+    : historicalDateError(meetingDate, 'Meeting date');
+  const rawEndorsementError =
+    endorsement.length > INPUT_LIMITS.SUMMARY
+      ? `Use an endorsement note up to ${INPUT_LIMITS.SUMMARY.toLocaleString('en-US')} characters.`
+      : '';
+  const fileIssue = attachmentError(file ? [file] : [], { maxCount: 1 });
+  const visibleResolutionError = resolutionTouched ? rawResolutionError : '';
+  const visibleMeetingDateError =
+    meetingDateTouched || meetingDateInvalidText || Boolean(meetingDate)
+      ? rawMeetingDateError
+      : '';
+  const saveBlockedReason = busy
+    ? ''
+    : rawResolutionError || rawMeetingDateError || rawEndorsementError || fileIssue || '';
+
   const saveRecord = () => {
-    const issue = !resolution.trim() ? 'Resolution number is required.' : historicalDateError(meetingDate, 'Meeting date') || attachmentError(file ? [file] : [], { maxCount: 1 });
-    if (issue || resolution.length > 100 || endorsement.length > 2000) { setValidationError(issue || 'Use a resolution number up to 100 characters and a note up to 2,000.'); return; }
+    setResolutionTouched(true);
+    setMeetingDateTouched(true);
+    const issue = rawResolutionError || rawMeetingDateError || rawEndorsementError || fileIssue;
+    if (issue) {
+      if (fileIssue) setValidationError(fileIssue);
+      return;
+    }
     setValidationError('');
-    void onSaveRecord({ resolutionNumber: resolution, meetingDate, endorsement, minutesFile: file });
+    void onSaveRecord({
+      resolutionNumber: resolution.trim(),
+      meetingDate,
+      endorsement: endorsement.trim(),
+      minutesFile: file,
+    });
   };
 
   const canonical = React.useMemo(
@@ -72,6 +114,10 @@ export function GovernanceRecordPanel({
       setMeetingDate(canonical.meetingDate);
       setEndorsement(canonical.endorsement);
       setFile(undefined);
+      setResolutionTouched(false);
+      setMeetingDateTouched(false);
+      setMeetingDateInvalidText(false);
+      setValidationError('');
       setBaseline(canonical);
     },
     actingOrgId,
@@ -84,6 +130,9 @@ export function GovernanceRecordPanel({
       previousReceipt.current = savedReceipt;
       setBaseline({ resolution, meetingDate, endorsement });
       setFile(undefined);
+      setResolutionTouched(false);
+      setMeetingDateTouched(false);
+      setMeetingDateInvalidText(false);
       guard.markClean();
     }
   }, [savedReceipt]);
@@ -95,6 +144,10 @@ export function GovernanceRecordPanel({
       setMeetingDate(canonical.meetingDate);
       setEndorsement(canonical.endorsement);
       setFile(undefined);
+      setResolutionTouched(false);
+      setMeetingDateTouched(false);
+      setMeetingDateInvalidText(false);
+      setValidationError('');
       setBaseline(canonical);
     }
   }, [canonical, actingOrgId]);
@@ -204,51 +257,103 @@ export function GovernanceRecordPanel({
           <div className="text-[10px] font-medium text-primary">
             Record your organization’s formal action
           </div>
-          <div className="mt-2 grid gap-2 sm:grid-cols-2">
-            <input
-              aria-label="Resolution number"
-              maxLength={100}
-              value={resolution}
-              onChange={(event) => setResolution(event.target.value)}
-              placeholder="Resolution number"
-              className="h-9 rounded-lg border border-primary/25 bg-white px-3 text-[10px] outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
-            />
-            <DateInput
-              aria-label="Meeting date"
-              max={getPhilippineCalendarDate()}
-              value={meetingDate}
-              onChange={(event) => setMeetingDate(event.target.value)}
-              className="h-9 rounded-lg border border-primary/25 bg-white px-3 text-[10px] outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
+          <div className="mt-2 grid items-start gap-2 sm:grid-cols-2">
+            <div>
+              <label htmlFor={resolutionId} className="mb-1 block text-[10px] font-medium text-neutral-700">
+                Resolution number
+                <span className="text-[var(--eflow-negative-text)]" aria-hidden="true"> *</span>
+              </label>
+              <BoundedTextInput
+                id={resolutionId}
+                maxLength={INPUT_LIMITS.SHORT_TAG}
+                value={resolution}
+                aria-required
+                error={visibleResolutionError || undefined}
+                onBlur={() => setResolutionTouched(true)}
+                onChange={(event) => {
+                  setResolution(event.target.value);
+                  if (validationError) setValidationError('');
+                }}
+                placeholder="Resolution number"
+                className="h-9 w-full rounded-lg border border-primary/25 bg-white px-3 text-[10px] outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
+              />
+            </div>
+            <div>
+              <label htmlFor={meetingDateId} className="mb-1 block text-[10px] font-medium text-neutral-700">
+                Meeting date
+                <span className="text-[var(--eflow-negative-text)]" aria-hidden="true"> *</span>
+              </label>
+              <DateInput
+                id={meetingDateId}
+                max={getPhilippineCalendarDate()}
+                value={meetingDate}
+                aria-required
+                hasError={Boolean(visibleMeetingDateError)}
+                errorMessage={visibleMeetingDateError || undefined}
+                onInvalidTextChange={setMeetingDateInvalidText}
+                onBlur={() => setMeetingDateTouched(true)}
+                onChange={(event) => {
+                  setMeetingDate(event.target.value);
+                  if (validationError) setValidationError('');
+                }}
+                className="h-9 rounded-lg border border-primary/25 bg-white px-3 text-[10px] outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
+              />
+              {visibleMeetingDateError && (
+                <span className="mt-1 block text-[11px] font-medium text-[var(--eflow-negative-text)]">
+                  {visibleMeetingDateError}
+                </span>
+              )}
+            </div>
+          </div>
+          <div className="mt-2">
+            <label htmlFor={endorsementId} className="mb-1 block text-[10px] font-medium text-neutral-700">
+              Endorsement or decision note
+            </label>
+            <BoundedTextarea
+              id={endorsementId}
+              maxLength={INPUT_LIMITS.SUMMARY}
+              value={endorsement}
+              error={rawEndorsementError || undefined}
+              onChange={(event) => {
+                setEndorsement(event.target.value);
+                if (validationError) setValidationError('');
+              }}
+              rows={2}
+              placeholder="Endorsement or decision note"
+              className="w-full resize-none rounded-lg border border-primary/25 bg-white px-3 py-2 text-[10px] outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
             />
           </div>
-          <textarea
-            aria-label="Endorsement or decision note"
-            maxLength={2000}
-            value={endorsement}
-            onChange={(event) => setEndorsement(event.target.value)}
-            rows={2}
-            placeholder="Endorsement or decision note"
-            className="mt-2 w-full resize-none rounded-lg border border-primary/25 bg-white px-3 py-2 text-[10px] outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
-          />
-          <label className="mt-2 inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-primary/25 bg-white px-3 py-2 text-[10px] text-primary transition hover:bg-primary/5">
-            <Upload size={11} />{" "}
-            {file?.name || current?.minutesFileName || "Attach signed minutes"}
-            <input
-              type="file"
-              accept={EVIDENCE_ACCEPT}
-              className="hidden"
-              onChange={event => { const chosen = event.target.files?.[0]; const issue = attachmentError(chosen ? [chosen] : [], { maxCount: 1 }); setValidationError(issue); if (!issue) setFile(chosen); event.target.value = ''; }}
-            />
-          </label>
-          <button
-            type="button"
-            disabled={busy || !resolution.trim() || !meetingDate}
-            onClick={saveRecord}
-            className="ml-2 rounded-lg bg-primary px-3 py-2 text-[10px] text-primary-foreground transition hover:bg-primary/90 disabled:opacity-40"
-          >
-            Save formal record
-          </button>
-          {validationError && <p role="alert" className="mt-2 text-destructive">{validationError}</p>}
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-primary/25 bg-white px-3 py-2 text-[10px] text-primary transition hover:bg-primary/5">
+              <Upload size={11} />{" "}
+              {file?.name || current?.minutesFileName || "Attach signed minutes"}
+              <input
+                type="file"
+                accept={EVIDENCE_ACCEPT}
+                className="hidden"
+                onChange={event => {
+                  const chosen = event.target.files?.[0];
+                  const issue = attachmentError(chosen ? [chosen] : [], { maxCount: 1 });
+                  setValidationError(issue);
+                  if (!issue) setFile(chosen);
+                  event.target.value = '';
+                }}
+              />
+            </label>
+            <WorkspaceTooltip content={saveBlockedReason} disabled={!saveBlockedReason}>
+              <span className="inline-flex">
+                <button
+                  type="button"
+                  disabled={busy || Boolean(rawResolutionError || rawMeetingDateError || rawEndorsementError || fileIssue)}
+                  onClick={saveRecord}
+                  className="rounded-lg bg-primary px-3 py-2 text-[10px] text-primary-foreground transition hover:bg-primary/90 disabled:opacity-40"
+                >
+                  Save formal record
+                </button>
+              </span>
+            </WorkspaceTooltip>
+          </div>
+          {validationError && <p role="alert" className="mt-2 text-xs text-destructive">{validationError}</p>}
         </div>
       )}
     </section>

@@ -5,9 +5,11 @@ import { PageHeader } from "../workflow/primitives";
 import { useAuth } from "../../contexts/AuthContext";
 import { useCurrentUserTasks } from "../../hooks/useCurrentUserTasks";
 import {
+  assignTask,
   submitTaskForReview,
   updateTaskStatus,
 } from "../../services/taskService";
+import { useDeptDirectoryEmployees } from "../../features/members";
 import {
   subscribeToNotifications,
   type Notification,
@@ -18,7 +20,15 @@ import { useNotificationNavigationIntent } from "../../features/notifications";
 
 export function EmployeeTaskWorkspace() {
   const { tasks, loading } = useCurrentUserTasks();
-  const { user, userProfile } = useAuth();
+  const { user, userProfile, can } = useAuth();
+  const canAssignTasks = typeof can === "function" ? can("tasks.assign") : false;
+  const { deptEmployees } = useDeptDirectoryEmployees({
+    scope: "exact",
+    includeCurrentUser: true,
+    includeDepartmentHeads: true,
+    activeOnly: true,
+    excludeAdmins: true,
+  });
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const { projects } = useProjectsData();
   const [notificationTask, setNotificationTask] = useState<(typeof tasks)[number] | null>(null);
@@ -133,9 +143,11 @@ export function EmployeeTaskWorkspace() {
       ) : (
         <MondayBoard
           tasks={tasks}
+          employees={canAssignTasks ? deptEmployees : undefined}
           role="member"
           currentUserId={user?.id}
           currentUserName={userProfile?.full_name || ""}
+          onAssign={canAssignTasks ? assignTask : undefined}
           onExecute={startTask}
           onSubmit={submitTask}
         />

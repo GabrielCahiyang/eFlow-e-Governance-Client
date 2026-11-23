@@ -1,4 +1,12 @@
 export type ProjectStatus = 'planning' | 'active' | 'on_hold' | 'completed' | 'archived';
+export type EffectiveProjectStatus =
+  | ProjectStatus
+  | 'pending'
+  | 'waiting_for_activation'
+  | 'pending_completion';
+export type ProjectFundingApprovalStatus = 'none' | 'pending_head' | 'pending_accounting' | 'approved';
+export type ProjectApprovalStatus = 'not_required' | 'pending_head' | 'approved' | 'rejected';
+export type ProjectCompletionReviewStatus = 'none' | 'requested' | 'changes_requested' | 'approved';
 export type ProjectPriority = 'low' | 'medium' | 'high';
 export type MilestoneStatus = 'auto' | 'not_started' | 'in_progress' | 'at_risk' | 'completed';
 export type ProjectSourceType = 'ai_pdf' | 'manual' | 'standalone';
@@ -13,6 +21,22 @@ export interface Project {
   scope?: string;
   setupCompletedAt?: string;
   fundingNotRequired?: boolean;
+  fundingApprovalStatus?: ProjectFundingApprovalStatus;
+  projectApprovalStatus?: ProjectApprovalStatus;
+  projectApprovalRequestedBy?: string;
+  projectApprovalRequestedAt?: string;
+  projectApprovedBy?: string;
+  projectApprovedAt?: string;
+  projectApprovalFeedback?: string;
+  activationScheduledAt?: string;
+  activationScheduledBy?: string;
+  completionReviewStatus?: ProjectCompletionReviewStatus;
+  completionRequestedBy?: string;
+  completionRequestedAt?: string;
+  completionRequestNote?: string;
+  completionReviewFeedback?: string;
+  completionReviewedBy?: string;
+  completionReviewedAt?: string;
   proposalId?: string;
   proposalTitle?: string;
   programId?: string;

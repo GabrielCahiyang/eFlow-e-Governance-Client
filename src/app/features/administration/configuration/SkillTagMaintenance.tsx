@@ -1,12 +1,15 @@
 import "./statusMaintenance.css";
 import { useState, type FormEvent } from "react";
 import { Pencil, Plus, RotateCcw, Tag, Trash2 } from "lucide-react";
+import { BoundedTextInput } from "../../../components/ui/BoundedInput";
 import { Button } from "../../../components/ui/button";
 import { FeedbackState } from "../../../components/ui/FeedbackState";
 import { FeatureDialog } from "../../../components/ui/FeatureDialog";
-import { FormField, TextInput } from "../../../components/ui/FormField";
+import { FormField } from "../../../components/ui/FormField";
 import { useConfirmation } from "../../../components/ui/useConfirmation";
 import { StatusPill, WorkspaceHeader } from "../../../components/ui/workspace";
+import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
+import { INPUT_LIMITS } from "../../../shared/inputLimits";
 import {
   saveSkillTagDefinition,
   updateSkillTagDefinition,
@@ -23,38 +26,67 @@ export function SkillTagMaintenance({ embedded = false }: { embedded?: boolean }
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const [labelTouched, setLabelTouched] = useState(false);
+  const [labelDirty, setLabelDirty] = useState(false);
   const removal = useConfirmation();
 
   function openEditor(draft: SkillTagDefinition, originalLabel: string | null) {
     setEditor({ draft, originalLabel });
+    setLabelTouched(false);
+    setLabelDirty(false);
     setError("");
     setNotice("");
   }
 
   function closeEditor() {
     setEditor(null);
+    setLabelTouched(false);
+    setLabelDirty(false);
     setError("");
   }
+
+  const cleanDraftLabel = editor ? editor.draft.label.replace(/\s+/g, " ").trim() : "";
+  const duplicateTag =
+    editor && cleanDraftLabel
+      ? definitions.find(
+          (item) =>
+            item.id !== editor.draft.id &&
+            item.label.replace(/\s+/g, " ").trim().toLowerCase() === cleanDraftLabel.toLowerCase(),
+        )
+      : undefined;
+  const rawLabelIssue = !editor
+    ? ""
+    : !cleanDraftLabel
+      ? "Skill name is required."
+      : cleanDraftLabel.length > INPUT_LIMITS.SHORT_TAG
+        ? `Skill name must be at most ${INPUT_LIMITS.SHORT_TAG} characters.`
+        : duplicateTag
+          ? duplicateTag.retired
+            ? `“${duplicateTag.label}” already exists in Hidden skill tags. Restore it instead.`
+            : `A skill tag named “${duplicateTag.label}” already exists.`
+          : "";
+  const visibleLabelError =
+    error || (labelTouched || labelDirty ? rawLabelIssue : "");
 
   async function save(event: FormEvent) {
     event.preventDefault();
     if (!editor || busy) return;
+    setLabelTouched(true);
     const { draft } = editor;
-    const cleanLabel = draft.label.replace(/\s+/g, " ").trim();
-    if (!cleanLabel || cleanLabel.length > 100) {
-      setError("Enter a skill name between 1 and 100 characters.");
+    if (rawLabelIssue) {
+      setError(rawLabelIssue);
       return;
     }
     setBusy(true);
     setError("");
     try {
       if (editor.originalLabel === null) {
-        await saveSkillTagDefinition({ ...draft, label: cleanLabel });
+        await saveSkillTagDefinition({ ...draft, label: cleanDraftLabel });
       } else {
-        await updateSkillTagDefinition(draft.id, { label: cleanLabel });
+        await updateSkillTagDefinition(draft.id, { label: cleanDraftLabel });
       }
       closeEditor();
-      setNotice(`Saved “${cleanLabel}”.`);
+      setNotice(`Saved “${cleanDraftLabel}”.`);
       await refresh();
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Could not save skill tag.");
@@ -242,28 +274,41 @@ export function SkillTagMaintenance({ embedded = false }: { embedded?: boolean }
           preventClose={busy}
           contentClassName="max-w-md"
         >
-          <form className="grid gap-4 overflow-y-auto p-6" onSubmit={save}>
+          <form className="grid gap-4 overflow-y-auto p-6" noValidate onSubmit={save}>
             <h2 className="pr-8 text-lg font-semibold text-[var(--eflow-text)]">{editorTitle}</h2>
-            <FormField label="Skill name" required error={error}>
-              <TextInput
-                required
-                maxLength={100}
+            <FormField label="Skill name" required>
+              <BoundedTextInput
+                maxLength={INPUT_LIMITS.SHORT_TAG}
                 value={editor.draft.label}
                 disabled={busy}
                 placeholder="e.g. Budget Forecasting"
-                onChange={(event) => setEditor({
-                  ...editor,
-                  draft: { ...editor.draft, label: event.target.value },
-                })}
+                error={visibleLabelError || undefined}
+                onBlur={() => setLabelTouched(true)}
+                onChange={(event) => {
+                  setLabelDirty(true);
+                  if (error) setError("");
+                  setEditor({
+                    ...editor,
+                    draft: { ...editor.draft, label: event.target.value },
+                  });
+                }}
+                className="eflow-form-input h-10 w-full rounded-lg border border-border bg-input-background px-3 text-[13px] font-normal text-foreground placeholder:text-muted-foreground outline-none transition-all hover:border-neutral-400 focus:border-ring focus:ring-2 focus:ring-ring/15"
               />
             </FormField>
             <div className="status-maintenance-actions">
               <Button type="button" variant="outline" disabled={busy} onClick={closeEditor}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={busy}>
-                {busy ? "Saving…" : "Save skill tag"}
-              </Button>
+              <WorkspaceTooltip
+                content={busy ? "" : rawLabelIssue}
+                disabled={busy || !rawLabelIssue}
+              >
+                <span className="inline-flex">
+                  <Button type="submit" disabled={busy || Boolean(rawLabelIssue)}>
+                    {busy ? "Saving…" : "Save skill tag"}
+                  </Button>
+                </span>
+              </WorkspaceTooltip>
             </div>
           </form>
         </FeatureDialog>

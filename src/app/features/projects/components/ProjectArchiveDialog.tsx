@@ -1,7 +1,8 @@
 import * as React from "react";
 import * as Icons from "lucide-react";
 import { Modal } from "../../../components/ui/Modal";
-import { FieldLengthHint } from "../../../components/ui/FieldLengthHint";
+import { BoundedTextarea } from "../../../components/ui/BoundedInput";
+import { FieldValidationTooltip } from "../../../components/ui/FieldValidationTooltip";
 import { INPUT_LIMITS } from "../../../shared/inputLimits";
 import { archiveProject, restoreProject } from "../services/projectService";
 import { useGuardedProjectDialog } from '../hooks/useGuardedProjectDialog';
@@ -23,13 +24,17 @@ export function ProjectArchiveDialog({
 }) {
   const [reason, setReason] = React.useState("");
   const [submitting, setSubmitting] = React.useState(false);
+  const [actionTipOpen, setActionTipOpen] = React.useState(false);
   const [error, setError] = React.useState("");
   const inFlight = React.useRef(false);
+  const actionAnchorRef = React.useRef<HTMLSpanElement | null>(null);
+  const actionTooltipId = React.useId();
   const close = useGuardedProjectDialog({ open, dirty: Boolean(reason.trim()), pending: submitting, pendingCheck: () => inFlight.current, label: isArchived ? 'Restore project' : 'Archive project', onClose, onDiscard: () => setReason('') });
 
   React.useEffect(() => {
     if (open) {
       setReason("");
+      setActionTipOpen(false);
       setError("");
     }
   }, [open, projectId]);
@@ -38,6 +43,7 @@ export function ProjectArchiveDialog({
     if (inFlight.current) return;
     inFlight.current = true;
     setSubmitting(true);
+    setActionTipOpen(false);
     setError("");
     try {
       if (isArchived) {
@@ -56,6 +62,10 @@ export function ProjectArchiveDialog({
     }
   };
 
+  const actionTooltipMessage = isArchived
+    ? `Restores "${projectTitle}" to active status so team members can resume work.`
+    : `Warning: Moves "${projectTitle}" to Archived projects as read-only.`;
+
   return (
     <Modal
       isOpen={open}
@@ -72,19 +82,36 @@ export function ProjectArchiveDialog({
           >
             Cancel
           </button>
-          <button
-            type="button"
-            onClick={() => void handleSubmit()}
-            disabled={submitting}
-            className={`inline-flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-semibold text-white shadow-sm transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
-              isArchived
-                ? "bg-blue-600 hover:bg-blue-700 active:bg-blue-800"
-                : "bg-amber-600 hover:bg-amber-700 active:bg-amber-800"
-            }`}
+          <span
+            ref={actionAnchorRef}
+            className="inline-flex"
+            onMouseEnter={() => setActionTipOpen(true)}
+            onMouseLeave={() => setActionTipOpen(false)}
           >
-            {submitting && <Icons.Loader2 size={16} className="animate-spin" />}
-            {isArchived ? (submitting ? "Restoring…" : "Restore project") : (submitting ? "Archiving…" : "Archive project")}
-          </button>
+            <button
+              type="button"
+              aria-describedby={actionTipOpen && !submitting ? actionTooltipId : undefined}
+              onFocus={() => setActionTipOpen(true)}
+              onBlur={() => setActionTipOpen(false)}
+              onClick={() => void handleSubmit()}
+              disabled={submitting}
+              className={`inline-flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-semibold text-white shadow-sm transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
+                isArchived
+                  ? "bg-blue-600 hover:bg-blue-700 active:bg-blue-800"
+                  : "bg-amber-600 hover:bg-amber-700 active:bg-amber-800"
+              }`}
+            >
+              {submitting && <Icons.Loader2 size={16} className="animate-spin" />}
+              {isArchived ? (submitting ? "Restoring…" : "Restore project") : (submitting ? "Archiving…" : "Archive project")}
+            </button>
+            <FieldValidationTooltip
+              id={actionTooltipId}
+              anchorRef={actionAnchorRef}
+              message={actionTooltipMessage}
+              open={actionTipOpen && !submitting}
+              tone="warning"
+            />
+          </span>
         </div>
       }
     >
@@ -118,25 +145,23 @@ export function ProjectArchiveDialog({
 
         {/* Reason field */}
         <div className="flex flex-col gap-2">
-          <div className="flex items-center justify-between gap-2">
-            <label htmlFor="archive-reason-input" className="text-xs font-semibold text-neutral-700">
-              Reason for {isArchived ? "restoration" : "archiving"} <span className="font-normal text-neutral-400">(optional)</span>
-            </label>
-            <FieldLengthHint length={reason.length} max={INPUT_LIMITS.REASON} />
-          </div>
-          <textarea
+          <label htmlFor="archive-reason-input" className="text-xs font-semibold text-neutral-700">
+            Reason for {isArchived ? "restoration" : "archiving"} <span className="font-normal text-neutral-400">(optional)</span>
+          </label>
+          <BoundedTextarea
             id="archive-reason-input"
             maxLength={INPUT_LIMITS.REASON}
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             rows={3}
             disabled={submitting}
+            hint="Optional audit note recorded in the project history."
             placeholder={
               isArchived
                 ? "Explain why this project is being reactivated (recorded in audit log)…"
                 : "Explain why this project is being archived (recorded in audit log)…"
             }
-            className="w-full px-3.5 py-2.5 text-sm text-neutral-900 bg-white border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 placeholder:text-neutral-400 transition-all resize-none"
+            className="w-full px-3.5 py-2.5 text-sm text-neutral-900 bg-white border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--eflow-primary)]/20 focus:border-[var(--eflow-primary)] placeholder:text-neutral-400 transition-all resize-none"
           />
         </div>
 

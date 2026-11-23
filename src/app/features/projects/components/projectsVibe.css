@@ -1704,111 +1704,6 @@
   color: var(--primary-text-color, var(--eflow-text));
 }
 
-/* --- Secondary project tools inspector --- */
-.eflow-project-tools-inspector {
-  position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 61;
-  display: flex;
-  width: min(680px, 92vw);
-  flex-direction: column;
-  background: var(--primary-background-color, var(--eflow-surface));
-  box-shadow: -18px 0 40px rgba(0, 0, 0, 0.18);
-}
-
-.eflow-project-tools-inspector__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 18px 22px 14px;
-  border-bottom: 1px solid var(--eflow-border);
-}
-
-.eflow-project-tools-inspector__header h2 {
-  margin: 2px 0 0;
-  color: var(--primary-text-color, var(--eflow-text));
-  font-size: 18px;
-  font-weight: 650;
-}
-
-.eflow-project-tools-inspector__eyebrow {
-  color: var(--eflow-text-muted);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-}
-
-.eflow-project-tools-inspector__tabs {
-  display: flex;
-  gap: 4px;
-  padding: 10px 22px 0;
-  border-bottom: 1px solid var(--eflow-border);
-}
-
-.eflow-project-tools-inspector__tabs [role="tab"] {
-  min-height: 36px;
-  padding: 0 14px;
-  border: 1px solid transparent;
-  border-bottom: 0;
-  border-radius: 9px 9px 0 0;
-  background: transparent;
-  color: var(--eflow-text-secondary);
-  font: 500 13px/18px inherit;
-  cursor: pointer;
-}
-
-.eflow-project-tools-inspector__tabs [role="tab"]:hover,
-.eflow-project-tools-inspector__tabs [aria-selected="true"] {
-  background: #f3f3f3;
-  color: var(--eflow-text);
-}
-
-.eflow-project-tools-inspector__tabs [aria-selected="true"] {
-  border-color: var(--eflow-border);
-  border-bottom-color: #f3f3f3;
-  font-weight: 650;
-}
-
-.eflow-project-tools-inspector__body {
-  min-height: 0;
-  flex: 1;
-  overflow: auto;
-  padding: 18px 22px 28px;
-}
-
-.eflow-project-tools-inspector__body .eflow-section-card {
-  border: 0;
-  border-top: 1px solid var(--eflow-border);
-  border-radius: 0;
-  box-shadow: none;
-  padding-inline: 0;
-}
-
-.eflow-project-tools-inspector__body .eflow-section-card > header {
-  padding-inline: 0;
-}
-
-.eflow-collaboration-inspector {
-  position: fixed;
-  z-index: 59;
-  top: 76px;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  width: min(680px, 92vw);
-  flex-direction: column;
-  overflow: hidden;
-  border-left: 1px solid var(--eflow-border);
-  background: var(--eflow-surface);
-  box-shadow: -12px 0 32px rgba(15, 23, 42, .12);
-}
-.eflow-collaboration-inspector__header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 18px 20px; border-bottom: 1px solid #edf0f3; }
-.eflow-collaboration-inspector__body { min-height: 0; flex: 1; overflow: auto; padding: 18px 20px 28px; }
-
 /* ========================================================================== 
    TIMELINE + GANTT CHART STYLES (frappe-gantt integration)
    ========================================================================== */
@@ -2504,8 +2399,6 @@
   }
   .eflow-workspace-tabs { justify-content: flex-start; }
   .eflow-workspace-tabs [role="tablist"] { margin-inline: 0; }
-  .eflow-project-tools-inspector { width: 100vw; }
-  .eflow-collaboration-inspector { top: 56px; width: 100vw; }
   .eflow-projects-heading {
     flex-direction: column;
     gap: 12px;
@@ -2681,8 +2574,6 @@
   }
   .eflow-workspace-tabs { justify-content: flex-start; }
   .eflow-workspace-tabs [role="tablist"] { margin-inline: 0; }
-  .eflow-project-tools-inspector { width: 100vw; }
-  .eflow-collaboration-inspector { top: 56px; width: 100vw; }
   .eflow-projects-heading {
     flex-direction: column;
     gap: 12px;
@@ -3030,11 +2921,7 @@
 .eflow-project-command [class*="text-[9px]"],
 .eflow-project-command [class*="text-[10px]"],
 .eflow-project-command [class*="text-[10.5px]"],
-.eflow-project-command [class*="text-[11px]"],
-.eflow-collaboration-inspector [class*="text-[9px]"],
-.eflow-collaboration-inspector [class*="text-[10px]"],
-.eflow-collaboration-inspector [class*="text-[10.5px]"],
-.eflow-collaboration-inspector [class*="text-[11px]"] {
+.eflow-project-command [class*="text-[11px]"] {
   font-size: 0.75rem !important;
   line-height: 1.45;
 }
@@ -3044,28 +2931,9 @@
   line-height: 1.4;
 }
 
-.eflow-project-tools-inspector__tabs [role="tab"] {
-  min-height: 40px;
-  font-size: 0.8125rem;
-}
-
-.eflow-project-tools-inspector__body {
-  font-size: 0.8125rem;
-  line-height: 1.5;
-}
-
 .eflow-collaboration-scope__save {
   border-top: 1px solid var(--layout-border-color, var(--eflow-border));
   padding-top: 14px;
-}
-
-.eflow-collaboration-inspector__header {
-  padding: 18px 22px 16px;
-}
-
-.eflow-collaboration-inspector__body {
-  font-size: 0.8125rem;
-  line-height: 1.5;
 }
 
 @media (max-width: 768px) {

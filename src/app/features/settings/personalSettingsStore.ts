@@ -3,6 +3,7 @@ export type TimeDisplayFormat = "12h" | "24h";
 export type WeekStartDay = "monday" | "sunday";
 export type InterfaceDensity = "comfortable" | "compact";
 export type MotionMode = "system" | "reduced";
+export type NotificationSoundVolume = "normal" | "soft";
 
 export interface PersonalSettings {
   dateFormat: DateDisplayFormat;
@@ -11,8 +12,13 @@ export interface PersonalSettings {
   density: InterfaceDensity;
   motion: MotionMode;
   defaultNotificationTab: "all" | "unread";
-  defaultNotificationCategory: "all" | "reviews" | "assignments" | "finance";
+  defaultNotificationCategory: "all" | "urgent" | "reviews" | "assignments" | "finance";
+  notificationSoundEnabled: boolean;
+  notificationSoundVolume: NotificationSoundVolume;
+  desktopNotificationsEnabled: boolean;
 }
+
+export const PERSONAL_SETTINGS_CHANGED_EVENT = "eflow:personal-settings-changed";
 
 export const DEFAULT_PERSONAL_SETTINGS: PersonalSettings = {
   dateFormat: "dmy",
@@ -22,6 +28,9 @@ export const DEFAULT_PERSONAL_SETTINGS: PersonalSettings = {
   motion: "system",
   defaultNotificationTab: "all",
   defaultNotificationCategory: "all",
+  notificationSoundEnabled: true,
+  notificationSoundVolume: "normal",
+  desktopNotificationsEnabled: false,
 };
 
 const STORAGE_PREFIX = "eflow:personal-settings:v1:";
@@ -60,6 +69,13 @@ export function savePersonalSettings(
     } catch {
       // Non-fatal if storage quota is unavailable.
     }
+  }
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(
+      new CustomEvent(PERSONAL_SETTINGS_CHANGED_EVENT, {
+        detail: { userId, settings: next },
+      }),
+    );
   }
   return next;
 }

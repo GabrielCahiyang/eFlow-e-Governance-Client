@@ -1,0 +1,224 @@
+/* Theme-matched eFlow field validation tooltips, error rings, and bottom-right counters (zero pills). */
+
+.eflow-validation-tooltip {
+  position: fixed;
+  z-index: calc(var(--eflow-layer-toast, 600) + 10);
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 7px;
+  max-width: min(340px, calc(100vw - 24px));
+  padding: 8px 11px;
+  border-radius: var(--eflow-radius-control, 8px);
+  font-family: var(--eflow-font);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.45;
+  box-shadow: var(--eflow-shadow-popover, 0 8px 24px rgb(20 30 30 / 16%));
+  pointer-events: none;
+  box-sizing: border-box;
+  animation: eflow-tooltip-pop 120ms ease-out both;
+}
+
+.eflow-validation-tooltip[data-tone="error"] {
+  background: var(--eflow-surface, #ffffff);
+  color: var(--eflow-negative-text, #c92a3a);
+  border: 1px solid color-mix(in srgb, var(--eflow-danger, #c92a3a) 48%, transparent);
+  border-left: 3px solid var(--eflow-danger, #c92a3a);
+}
+
+.eflow-validation-tooltip[data-tone="warning"] {
+  background: var(--eflow-warning-bg, #fff2d8);
+  color: var(--eflow-warning-text, #795008);
+  border: 1px solid color-mix(in srgb, var(--eflow-warning-text, #795008) 40%, transparent);
+  border-left: 3px solid var(--eflow-warning-text, #795008);
+}
+
+.eflow-validation-tooltip__icon {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.eflow-validation-tooltip__caret {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  transform: rotate(45deg);
+  pointer-events: none;
+}
+
+.eflow-validation-tooltip[data-tone="error"] .eflow-validation-tooltip__caret {
+  background: var(--eflow-surface, #ffffff);
+  border-color: color-mix(in srgb, var(--eflow-danger, #c92a3a) 48%, transparent);
+}
+
+.eflow-validation-tooltip[data-tone="warning"] .eflow-validation-tooltip__caret {
+  background: var(--eflow-warning-bg, #fff2d8);
+  border-color: color-mix(in srgb, var(--eflow-warning-text, #795008) 40%, transparent);
+}
+
+.eflow-validation-tooltip[data-placement="top"] .eflow-validation-tooltip__caret {
+  bottom: -5px;
+  border-right: 1px solid;
+  border-bottom: 1px solid;
+}
+
+.eflow-validation-tooltip[data-placement="bottom"] .eflow-validation-tooltip__caret {
+  top: -5px;
+  border-left: 1px solid;
+  border-top: 1px solid;
+}
+
+@keyframes eflow-tooltip-pop {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .eflow-validation-tooltip {
+    animation: none;
+  }
+}
+
+/* Bounded field containers & bottom-right counters */
+.eflow-bounded-field {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
+.eflow-bounded-textarea-wrap {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
+.eflow-bounded-textarea-wrap > textarea {
+  display: block;
+  width: 100%;
+  padding-bottom: 28px !important;
+}
+
+.eflow-bounded-textarea-counter {
+  position: absolute;
+  right: 12px;
+  bottom: 7px;
+  padding: 1px 4px;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--eflow-surface, #ffffff) 92%, transparent);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.3;
+  font-variant-numeric: tabular-nums;
+  color: var(--eflow-text-muted, #5e6b85);
+  pointer-events: none;
+  user-select: none;
+}
+
+.eflow-bounded-textarea-counter[data-level="warn"],
+.eflow-bounded-counter[data-level="warn"] {
+  color: var(--eflow-warning-text, #795008);
+  font-weight: 600;
+}
+
+.eflow-bounded-textarea-counter[data-level="max"],
+.eflow-bounded-counter[data-level="max"] {
+  color: var(--eflow-negative-text, #c92a3a);
+  font-weight: 600;
+}
+
+.eflow-bounded-meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 4px;
+  min-height: 16px;
+}
+
+.eflow-bounded-meta__hint {
+  font-size: 11.5px;
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--eflow-text-muted, #5e6b85);
+  min-width: 0;
+}
+
+.eflow-bounded-meta__hint[data-tone="error"] {
+  color: var(--eflow-negative-text, #c92a3a);
+  font-weight: 500;
+}
+
+.eflow-bounded-counter {
+  margin-left: auto;
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.3;
+  font-variant-numeric: tabular-nums;
+  color: var(--eflow-text-muted, #5e6b85);
+  white-space: nowrap;
+}
+
+.eflow-money-wrap {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
+.eflow-money-hint {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  gap: 5px;
+  margin-top: 5px;
+  font-size: 11.5px;
+  font-weight: 500;
+  line-height: 1.35;
+  font-variant-numeric: tabular-nums;
+  color: var(--eflow-text-muted, #5e6b85);
+}
+
+.eflow-money-hint[data-over="true"] {
+  justify-content: flex-start;
+  color: var(--eflow-negative-text, #c92a3a);
+  font-weight: 600;
+}
+
+.eflow-money-hint__icon {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* Shared crisp danger border for invalid fields inside wizard, funding panels, and forms */
+.pf-wizard-fields input[aria-invalid="true"],
+.pf-wizard-fields select[aria-invalid="true"],
+.pf-wizard-fields textarea[aria-invalid="true"],
+.pf-panel input[aria-invalid="true"],
+.pf-panel select[aria-invalid="true"],
+.pf-panel textarea[aria-invalid="true"],
+.pf-task-draft input[aria-invalid="true"],
+.eflow-field-invalid {
+  border-color: var(--eflow-danger, #c92a3a) !important;
+  background-color: color-mix(in srgb, var(--eflow-negative-bg, #fde9e8) 28%, var(--eflow-surface, #ffffff));
+}
+
+.pf-wizard-fields input[aria-invalid="true"]:focus,
+.pf-wizard-fields select[aria-invalid="true"]:focus,
+.pf-wizard-fields textarea[aria-invalid="true"]:focus,
+.pf-panel input[aria-invalid="true"]:focus,
+.pf-panel select[aria-invalid="true"]:focus,
+.pf-panel textarea[aria-invalid="true"]:focus,
+.pf-task-draft input[aria-invalid="true"]:focus,
+.eflow-field-invalid:focus {
+  border-color: var(--eflow-danger, #c92a3a) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--eflow-danger, #c92a3a) 16%, transparent) !important;
+}

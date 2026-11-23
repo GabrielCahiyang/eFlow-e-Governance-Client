@@ -105,15 +105,16 @@ export async function postComment(
     .single();
   if (error) throw error;
 
-  // Notify other participants (assignee + creator) — deep-linked to the task.
+  // Notify other participants (assignee + reviewer + creator) — deep-linked to the task.
   const { data: task } = await supabase
     .from('tasks')
-    .select('title, assigned_to, created_by')
+    .select('title, assigned_to, created_by, reviewer_id, linked_project_id')
     .eq('id', taskId)
     .maybeSingle();
   if (task) {
     const recipients = new Set<string>();
     if (task.assigned_to && task.assigned_to !== author.id) recipients.add(task.assigned_to as string);
+    if (task.reviewer_id && task.reviewer_id !== author.id) recipients.add(task.reviewer_id as string);
     if (task.created_by && task.created_by !== author.id) recipients.add(task.created_by as string);
     await Promise.all(
       Array.from(recipients).map((uid) =>
@@ -123,6 +124,7 @@ export async function postComment(
           message: `${author.name} commented on "${task.title || 'a task'}".`,
           taskId,
           taskTitle: (task.title as string) || '',
+          projectId: (task.linked_project_id as string) || undefined,
           actorId: author.id,
           actorName: author.name,
         }),
@@ -324,23 +326,32 @@ export async function submitProgressUpdate(input: ProgressUpdateInput): Promise<
 
   window.dispatchEvent(new CustomEvent('eflow:work-updated', { detail: { taskId: input.taskId } }));
 
-  // Notify reviewer/creator when a blocker is raised.
+  // Notify reviewer, creator, and assignee (excluding author) when a blocker is raised.
   if (hasBlocker) {
     const { data: task } = await supabase
       .from('tasks')
-      .select('title, created_by')
+      .select('title, created_by, reviewer_id, assigned_to, linked_project_id')
       .eq('id', input.taskId)
       .maybeSingle();
-    if (task?.created_by && task.created_by !== input.author.id) {
-      await createNotification(task.created_by as string, {
-        type: 'status_change',
-        title: 'Blocker raised',
-        message: `${input.author.name} reported a blocker on "${task.title || 'a task'}": ${input.blocker}`,
-        taskId: input.taskId,
-        taskTitle: (task.title as string) || '',
-        actorId: input.author.id,
-        actorName: input.author.name,
-      });
+    if (task) {
+      const recipients = new Set<string>();
+      if (task.reviewer_id && task.reviewer_id !== input.author.id) recipients.add(task.reviewer_id as string);
+      if (task.created_by && task.created_by !== input.author.id) recipients.add(task.created_by as string);
+      if (task.assigned_to && task.assigned_to !== input.author.id) recipients.add(task.assigned_to as string);
+      await Promise.all(
+        Array.from(recipients).map((uid) =>
+          createNotification(uid, {
+            type: 'status_change',
+            title: 'Blocker raised',
+            message: `${input.author.name} reported a blocker on "${task.title || 'a task'}": ${input.blocker}`,
+            taskId: input.taskId,
+            taskTitle: (task.title as string) || '',
+            projectId: (task.linked_project_id as string) || undefined,
+            actorId: input.author.id,
+            actorName: input.author.name,
+          }),
+        ),
+      );
     }
   }
 

@@ -2,8 +2,12 @@ import {ReturnedBudgetNote,TaskProjectFunding} from '../../project-setup';
 import {OfficePettyCashLauncher} from '../../office-petty-cash';
 import { useEffect, useMemo, useState } from "react";
 import {
+  ArrowRightLeft,
   Banknote,
   Loader2,
+  ReceiptText,
+  RotateCcw,
+  Trash2,
   WalletCards,
 } from "lucide-react";
 import { useAuth } from "../../../contexts/AuthContext";
@@ -13,7 +17,7 @@ import type { Subtask } from "../../subtasks";
 import { getCurrentFiscalYear } from "../constants";
 import { useDepartmentBudget } from "../hooks/useDepartmentBudget";
 import { useTaskFundingContext } from "../hooks/useTaskFundingContext";
-import type { PettyCashRequest } from "../types";
+import type { PettyCashRequest, WorkCashAssignment } from "../types";
 import { peso } from "./budgetUi";
 import {
   SubtaskBudgetButton,
@@ -21,12 +25,21 @@ import {
   SubtaskBudgetManager,
   type SubtaskBudgetDraftTrigger,
 } from "./SubtaskBudgetManager";
+import { AssignMoneyModal } from "./AssignMoneyModal";
+import { AssignmentReceiptDialog } from "./AssignmentReceiptDialog";
 import { CashRequestForm } from "./CashRequestForm";
 import { cashRequestActionKey, type CashRequestAttempt } from '../services/cashRequestRecovery';
 import { usePendingAction } from '../../../shared/usePendingAction';
 import { CashRequestTimeline } from "./CashRequestTimeline";
 import { DirectWorkFunding } from "./DirectWorkFunding";
 import { isOpenDirectFundingWork } from "../selectors/directFundingEligibility";
+import { resolveCashPools } from "../selectors/workCashPools";
+import {
+  createAssignmentReceiptSignedUrl,
+  deleteAssignmentReceipt,
+  recallWorkCash,
+} from "../services/workCashAssignmentService";
+import { readableUiError } from "../../../shared/userFacingError";
 
 interface WorkBudgetCardProps {
   task: Task;
@@ -90,6 +103,13 @@ export function WorkBudgetCard({
   const [correction, setCorrection] = useState<PettyCashRequest>();
   const [budgetsOpen, setBudgetsOpen] = useState(false);
   const [budgetDraft, setBudgetDraft] = useState<SubtaskBudgetDraftTrigger>();
+  const [assignMoneyOpen, setAssignMoneyOpen] = useState(false);
+  const [assignMoneyTarget, setAssignMoneyTarget] = useState<
+    { kind: "task" } | { kind: "subtask"; subtaskId: string } | undefined
+  >();
+  const [receiptTarget, setReceiptTarget] = useState<WorkCashAssignment>();
+  const [assignmentActionBusy, setAssignmentActionBusy] = useState("");
+  const [assignmentActionError, setAssignmentActionError] = useState("");
   const [section, setSection] = useState<"all" | "requests" | "subtasks" | "sources">("all");
   const currentUserId = userProfile?.id || "";
   const savedRequest = usePendingAction<CashRequestAttempt>(cashRequestActionKey(currentUserId, fundingOffice, task.id, subtask?.id));
@@ -98,6 +118,47 @@ export function WorkBudgetCard({
     subtask?.assignedToIds.includes(currentUserId),
   );
   const context = funding.context;
+  const cashPools = useMemo(
+    () =>
+      resolveCashPools(context, {
+        taskId: task.id,
+        requests: budget.requests,
+        releases: budget.releases,
+        currentUserId,
+      }),
+    [context, task.id, budget.requests, budget.releases, currentUserId],
+  );
+  const activeAssignments = useMemo(
+    () =>
+      cashPools.assignments.filter(
+        (a) =>
+          a.status === "active" &&
+          (subtask ? a.subtaskId === subtask.id : true),
+      ),
+    [cashPools.assignments, subtask],
+  );
+  const subtaskAssignedTaskCash = activeAssignments
+    .filter((a) => a.sourceKind === "task_cash_release")
+    .reduce((sum, a) => sum + a.amount, 0);
+  const subtaskAssignedPettyCash = activeAssignments
+    .filter((a) => a.sourceKind === "office_petty_cash")
+    .reduce((sum, a) => sum + a.amount, 0);
+  const subtaskAssignedCashTotal = subtaskAssignedTaskCash + subtaskAssignedPettyCash;
+  const subtaskAssignedReceiptsTotal = activeAssignments.reduce(
+    (sum, a) => sum + a.recordedSpent,
+    0,
+  );
+  const subtaskAssignedUnspentTotal = activeAssignments.reduce(
+    (sum, a) => sum + a.unspentAmount,
+    0,
+  );
+  const hasCashOnHandTask = !subtask && cashPools.totals.cashOnHandTask > 0;
+  const hasAssignableCashPool =
+    cashPools.taskCashReleases.some((p) => p.isCurrentHolder && p.acknowledged) ||
+    cashPools.officePettyCashReleases.some((p) => p.isCurrentHolder);
+  const hasAssignableBudgetCap = Boolean(
+    subtask && context?.parentSources?.some((s) => s.available > 0),
+  );
   const fundingCurrent = !context?.taskLeaderId || context.taskLeaderId === getTaskLeadId(task);
   const canRequestForWork = subtask ? isAssignedContributor || isTaskLeader : isTaskLeader;
   const requiresSubtaskBudget = Boolean(
@@ -115,6 +176,17 @@ export function WorkBudgetCard({
     (!readOnly || taskFinished || subtask?.status === "completed") &&
       !authorityPending && !(funding.loading && !context) && fundingCurrent && isTaskLeader &&
       context?.funded && context.canManageDistribution && context.subtaskBudgets,
+  );
+  const canAssignMoney = Boolean(
+    !readOnly &&
+      !taskFinished &&
+      !(subtask?.status === "completed") &&
+      !authorityPending &&
+      !(funding.loading && !context) &&
+      fundingCurrent &&
+      isTaskLeader &&
+      (cashPools.canAssignCash || context?.canManageDistribution) &&
+      (hasAssignableCashPool || hasAssignableBudgetCap || activeAssignments.length > 0),
   );
   const requests = budget.requests.filter(
     (request) =>
@@ -164,13 +236,24 @@ export function WorkBudgetCard({
   );
   const fundingStep = subtask && !funding.error && !budget.error ? (
     fundingChecking ? 'Checking funding access…'
+      : subtaskAssignedCashTotal > 0 ? (
+        activeAssignments.some((a) => a.canLogReceipt)
+          ? 'Cash is already assigned to this subtask. Use Record receipt below — your receipts roll up automatically into the cash holder’s liquidation.'
+          : 'Cash is already assigned to this subtask from released funds.'
+      )
       : hasUnacknowledgedCash ? 'Acknowledge receipt of the released cash first before recording expenses.'
       : hasReleasedCash ? 'Use Record expenses on your cash release. Enter the amount spent and attach the receipts.'
-      : !context?.funded ? 'Ask the Task Lead about funding for this subtask.'
+      : !context?.funded ? (
+        canAssignMoney
+          ? 'Use Assign money to fund this subtask with released office petty cash.'
+          : 'Ask the Task Lead about funding for this subtask.'
+      )
       : requiresSubtaskBudget ? (
-        canManageBudgets
-          ? 'Allocate a budget to this subtask before requesting cash.'
-          : 'Ask the task lead to allocate a budget to this subtask before requesting cash.'
+        canAssignMoney
+          ? 'Use Assign money to fund this subtask with released task cash, released office petty cash, or an unrequested task budget cap.'
+          : canManageBudgets
+            ? 'Allocate a budget to this subtask before requesting cash.'
+            : 'Ask the task lead to allocate a budget to this subtask before requesting cash.'
       )
       : !requests.length && canRequest && context.available > 0 ? 'Request the amount you need. The cash recipient can record expenses after the cash is released.'
       : !requests.length && (readOnly || !canRequestForWork) ? 'An assigned contributor or the Task Lead can request cash. The recipient records expenses after release.'
@@ -182,6 +265,56 @@ export function WorkBudgetCard({
 
   const refresh = async () => {
     await Promise.all([funding.refresh(), budget.refresh()]);
+  };
+  const openAssignMoney = (target?: { kind: "task" } | { kind: "subtask"; subtaskId: string }) => {
+    setAssignmentActionError("");
+    setAssignMoneyTarget(target ?? (subtask ? { kind: "subtask", subtaskId: subtask.id } : { kind: "task" }));
+    setAssignMoneyOpen(true);
+  };
+  const handleRecallAssignment = async (assignment: WorkCashAssignment) => {
+    if (assignmentActionBusy) return;
+    setAssignmentActionBusy(assignment.id);
+    setAssignmentActionError("");
+    try {
+      await recallWorkCash({
+        assignmentId: assignment.id,
+        taskId: assignment.taskId,
+        subtaskId: assignment.subtaskId,
+        reason: "Returned unspent cash back to unassigned cash pool",
+      });
+      await refresh();
+    } catch (caught) {
+      setAssignmentActionError(
+        readableUiError(caught, "Could not return unspent cash to the pool.", "write"),
+      );
+    } finally {
+      setAssignmentActionBusy("");
+    }
+  };
+  const handleDeleteAssignmentReceipt = async (
+    assignment: WorkCashAssignment,
+    receiptId: string,
+    filePath: string,
+  ) => {
+    if (assignmentActionBusy) return;
+    setAssignmentActionBusy(receiptId);
+    setAssignmentActionError("");
+    try {
+      await deleteAssignmentReceipt({
+        receiptId,
+        sourceKind: assignment.sourceKind,
+        filePath,
+        taskId: assignment.taskId,
+        subtaskId: assignment.subtaskId,
+      });
+      await refresh();
+    } catch (caught) {
+      setAssignmentActionError(
+        readableUiError(caught, "Could not remove this receipt.", "write"),
+      );
+    } finally {
+      setAssignmentActionBusy("");
+    }
   };
   const subtaskRows = context?.subtaskBudgets ?? [];
   const hasSubtaskSection = Boolean(
@@ -201,6 +334,9 @@ export function WorkBudgetCard({
   const approvedTotal = context?.cap?.amount || context?.taskBudget || 0;
   const releasedTotal = context?.distribution?.released ?? approvedCash;
   const spentTotal = context?.distribution?.spent ?? settledSpending;
+  const taskLoggedReceiptsTotal = cashPools.assignments
+    .filter((a) => a.status === "active" && a.sourceKind === "task_cash_release")
+    .reduce((sum, a) => sum + a.recordedSpent, 0);
   const separatePettyCashSection = !readOnly && (
     <div
       className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-3"
@@ -218,7 +354,170 @@ export function WorkBudgetCard({
     </div>
   );
 
-  if (!subtask && !budget.summary && !budget.loading && !context?.funded) {
+  const cashAssignmentsPanel = activeAssignments.length > 0 && (
+    <section
+      aria-label={subtask ? "Assigned cash for this subtask" : "Assigned cash on hand"}
+      className="space-y-2 rounded-xl border border-emerald-200/80 bg-emerald-50/35 p-3"
+    >
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex items-center gap-1.5 text-[12px] font-semibold text-foreground">
+          <ArrowRightLeft size={13} className="text-emerald-700" aria-hidden="true" />
+          <span>
+            {subtask ? "Assigned cash on hand" : "Cash on hand distribution"} ({activeAssignments.length})
+          </span>
+        </div>
+        {canAssignMoney && (
+          <button
+            type="button"
+            onClick={() => openAssignMoney()}
+            className="text-[11.5px] font-medium text-primary hover:underline"
+          >
+            + Assign / adjust
+          </button>
+        )}
+      </div>
+
+      {assignmentActionError && (
+        <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/10 px-2.5 py-1.5 text-[11.5px] text-destructive">
+          {assignmentActionError}
+        </p>
+      )}
+
+      <ul className="space-y-2">
+        {activeAssignments.map((assignment) => (
+          <li
+            key={assignment.id}
+            className="rounded-lg border border-border bg-card px-3 py-2.5"
+          >
+            <div className="flex flex-wrap items-start justify-between gap-2">
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <span className="text-[12.5px] font-semibold text-foreground">
+                    {assignment.subtaskId
+                      ? assignment.subtaskTitle || "Subtask"
+                      : `This task (${task.title})`}
+                  </span>
+                  <span
+                    className={`rounded-md px-1.5 py-0.5 text-[10.5px] font-medium ${
+                      assignment.sourceKind === "office_petty_cash"
+                        ? "bg-indigo-100 text-indigo-800"
+                        : "bg-emerald-100 text-emerald-800"
+                    }`}
+                  >
+                    {assignment.sourceLabel}
+                  </span>
+                </div>
+                <div className="mt-1 flex flex-wrap items-center gap-x-2 text-[11.5px] text-muted-foreground tabular-nums">
+                  <span>Assigned <strong className="text-foreground">{peso.format(assignment.amount)}</strong></span>
+                  <span>·</span>
+                  <span>Receipts logged {peso.format(assignment.recordedSpent)}</span>
+                  <span>·</span>
+                  <span>Unspent <strong className="text-foreground">{peso.format(assignment.unspentAmount)}</strong></span>
+                </div>
+                {assignment.note && (
+                  <p className="mt-0.5 text-[11px] text-muted-foreground">{assignment.note}</p>
+                )}
+              </div>
+
+              <div className="flex shrink-0 flex-wrap items-center gap-1.5">
+                {assignment.canLogReceipt && assignment.unspentAmount > 0 && (
+                  <button
+                    type="button"
+                    disabled={Boolean(assignmentActionBusy)}
+                    onClick={() => setReceiptTarget(assignment)}
+                    className="inline-flex h-7 items-center gap-1 rounded-md bg-primary px-2.5 text-[11.5px] font-medium text-primary-foreground transition hover:bg-primary/90 disabled:opacity-50"
+                  >
+                    <ReceiptText size={11} aria-hidden="true" />
+                    Record receipt
+                  </button>
+                )}
+                {canAssignMoney && (
+                  <button
+                    type="button"
+                    disabled={Boolean(assignmentActionBusy)}
+                    onClick={() =>
+                      openAssignMoney(
+                        assignment.subtaskId
+                          ? { kind: "subtask", subtaskId: assignment.subtaskId }
+                          : { kind: "task" },
+                      )
+                    }
+                    className="h-7 rounded-md border border-border bg-background px-2 text-[11.5px] font-medium text-foreground hover:bg-muted disabled:opacity-50"
+                  >
+                    Adjust
+                  </button>
+                )}
+                {assignment.canRecall && assignment.unspentAmount > 0 && (
+                  <button
+                    type="button"
+                    disabled={Boolean(assignmentActionBusy)}
+                    onClick={() => void handleRecallAssignment(assignment)}
+                    className="inline-flex h-7 items-center gap-1 rounded-md border border-amber-300 bg-amber-50 px-2 text-[11.5px] font-medium text-amber-900 hover:bg-amber-100 disabled:opacity-50"
+                  >
+                    <RotateCcw size={11} aria-hidden="true" />
+                    {assignmentActionBusy === assignment.id ? "Returning…" : "Return unused"}
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {assignment.receipts.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-1.5 border-t border-border/70 pt-2">
+                {assignment.receipts.map((rcpt) => (
+                  <span
+                    key={rcpt.id}
+                    className="inline-flex items-center gap-1 rounded-md border border-border bg-muted/40 px-2 py-0.5 text-[11.5px] text-foreground"
+                  >
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        try {
+                          const url = await createAssignmentReceiptSignedUrl(
+                            assignment.sourceKind,
+                            rcpt.filePath,
+                          );
+                          window.open(url, "_blank", "noopener,noreferrer");
+                        } catch (caught) {
+                          setAssignmentActionError(
+                            readableUiError(caught, "Could not open receipt file.", "read"),
+                          );
+                        }
+                      }}
+                      className="inline-flex items-center gap-1 hover:underline"
+                    >
+                      <ReceiptText size={10} aria-hidden="true" />
+                      <span>
+                        {rcpt.vendor} · {peso.format(rcpt.amount)}
+                      </span>
+                    </button>
+                    {rcpt.canDelete && (
+                      <button
+                        type="button"
+                        aria-label={`Remove receipt ${rcpt.vendor}`}
+                        disabled={assignmentActionBusy === rcpt.id}
+                        onClick={() =>
+                          void handleDeleteAssignmentReceipt(
+                            assignment,
+                            rcpt.id,
+                            rcpt.filePath,
+                          )
+                        }
+                        className="ml-0.5 rounded p-0.5 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                      >
+                        <Trash2 size={10} aria-hidden="true" />
+                      </button>
+                    )}
+                  </span>
+                ))}
+              </div>
+            )}
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+
+  if (!subtask && !budget.summary && !budget.loading && !context?.funded && !hasAssignableCashPool && !activeAssignments.length) {
     return (
       <section
         aria-label="Task funding"
@@ -291,6 +590,86 @@ export function WorkBudgetCard({
               <Loader2 size={12} className="animate-spin" />
               <span>Calculating availability…</span>
             </div>
+          ) : subtask ? (
+            <div className="space-y-1 pl-8">
+              {subtaskAssignedCashTotal > 0 ? (
+                <>
+                  <div className="flex flex-wrap items-baseline gap-1.5">
+                    <strong className="text-[18px] font-semibold tabular-nums text-emerald-900">
+                      {peso.format(subtaskAssignedCashTotal)}
+                    </strong>
+                    <span className="text-[12.5px] font-medium text-emerald-800">
+                      cash on hand assigned to this subtask
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11.5px] text-muted-foreground tabular-nums">
+                    {subtaskAssignedTaskCash > 0 && (
+                      <span>Task cash: {peso.format(subtaskAssignedTaskCash)}</span>
+                    )}
+                    {subtaskAssignedPettyCash > 0 && (
+                      <span className="rounded bg-indigo-50 px-1.5 py-0.5 font-medium text-indigo-800">
+                        Office petty cash: {peso.format(subtaskAssignedPettyCash)}
+                      </span>
+                    )}
+                    <span>
+                      · {peso.format(subtaskAssignedReceiptsTotal)} logged · {peso.format(subtaskAssignedUnspentTotal)} unspent
+                    </span>
+                  </div>
+                  {context?.cap && (
+                    <div className="text-[11.5px] text-muted-foreground tabular-nums">
+                      Separate subtask budget cap: {peso.format(context.cap.amount)} ({peso.format(context.available)} requestable)
+                    </div>
+                  )}
+                </>
+              ) : context?.funded ? (
+                <div className="flex flex-wrap items-baseline gap-1.5">
+                  <strong className="text-[18px] font-semibold tabular-nums text-foreground">
+                    {peso.format(context.cap ? context.available : 0)}
+                  </strong>
+                  <span className="text-[12.5px] text-muted-foreground">
+                    {context.cap
+                      ? "available to request for this subtask"
+                      : "assigned to this subtask yet"}
+                  </span>
+                </div>
+              ) : (
+                <div className="text-[12px] text-muted-foreground">
+                  {funding.error ? "Funding unavailable right now" : "No funding assigned to this subtask yet"}
+                </div>
+              )}
+            </div>
+          ) : hasCashOnHandTask ? (
+            <div className="space-y-1 pl-8">
+              <div className="flex flex-wrap items-baseline gap-1.5">
+                <strong className="text-[18px] font-semibold tabular-nums text-emerald-900">
+                  {peso.format(cashPools.totals.cashOnHandTask)}
+                </strong>
+                <span className="text-[12.5px] font-medium text-emerald-800">
+                  cash on hand (released & usable now)
+                </span>
+              </div>
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11.5px] text-muted-foreground tabular-nums">
+                <span>
+                  <strong className="text-foreground">{peso.format(cashPools.totals.cashOnHandUnassigned)}</strong> unassigned
+                </span>
+                <span>·</span>
+                <span>
+                  <strong className="text-foreground">{peso.format(cashPools.totals.cashOnHandAssigned)}</strong> assigned
+                </span>
+                <span>·</span>
+                <span>
+                  <strong className="text-foreground">{peso.format(cashPools.totals.unrequestedBudget)}</strong> unrequested task budget remaining
+                </span>
+                {cashPools.totals.officePettyCashAssigned > 0 && (
+                  <span className="rounded bg-indigo-50 px-1.5 py-0.5 font-medium text-indigo-800">
+                    + {peso.format(cashPools.totals.officePettyCashAssigned)} office petty cash assigned
+                  </span>
+                )}
+              </div>
+              <p className="text-[11.5px] text-muted-foreground">
+                Use <strong>Assign money</strong> to allocate released cash or office petty cash directly to this task or to subtasks.
+              </p>
+            </div>
           ) : context?.funded ? (
             <div className="pl-8">
               <div className="flex flex-wrap items-baseline gap-1.5">
@@ -298,22 +677,42 @@ export function WorkBudgetCard({
                   {peso.format(context.available)}
                 </strong>
                 <span className="text-[12.5px] text-muted-foreground">
-                  available {context.cap ? "for this subtask" : "from the task budget"}
+                  available from the task budget
                 </span>
               </div>
-              {!subtask && (
-                <p className="mt-0.5 text-[11.5px] text-muted-foreground">
-                  Task requests go through Project Lead approval, then Accounting approval to release.
-                </p>
+              {cashPools.totals.officePettyCashAssigned > 0 && (
+                <div className="mt-1 text-[11.5px] font-medium text-indigo-800 tabular-nums">
+                  + {peso.format(cashPools.totals.officePettyCashAssigned)} separate office petty cash assigned
+                </div>
               )}
+              <p className="mt-0.5 text-[11.5px] text-muted-foreground">
+                Task requests go through Project Lead approval, then Accounting approval to release.
+              </p>
             </div>
           ) : (
             <div className="pl-8 text-[12px] text-muted-foreground">
-              {funding.error ? "Funding unavailable right now" : "No approved funding for this task"}
+              {funding.error
+                ? "Funding unavailable right now"
+                : cashPools.totals.officePettyCashAssigned > 0
+                  ? `${peso.format(cashPools.totals.officePettyCashAssigned)} separate office petty cash assigned`
+                  : "No approved project budget for this task"}
             </div>
           )}
         </div>
         <div className="flex shrink-0 flex-wrap items-center gap-2">
+          {canAssignMoney && (
+            <button
+              type="button"
+              onClick={() => openAssignMoney()}
+              className={`inline-flex min-h-9 items-center gap-1.5 rounded-lg px-3.5 text-[13px] font-medium transition ${
+                hasCashOnHandTask || subtask
+                  ? "bg-[var(--eflow-primary)] text-[var(--eflow-on-primary)] hover:bg-[var(--eflow-primary-hover)]"
+                  : "border border-border bg-background text-foreground hover:bg-muted"
+              }`}
+            >
+              <ArrowRightLeft size={14} aria-hidden="true" /> Assign money
+            </button>
+          )}
           {canManageBudgets && (subtask || hasSubtaskSection) && (
             <SubtaskBudgetButton
               hasAllocation={!!context?.cap}
@@ -340,7 +739,11 @@ export function WorkBudgetCard({
                 type="button"
                 disabled={!canRequest}
                 onClick={() => setRequestOpen(true)}
-                className="inline-flex min-h-9 items-center gap-1.5 rounded-lg bg-[var(--eflow-primary)] px-3.5 text-[13px] font-medium text-[var(--eflow-on-primary)] transition hover:bg-[var(--eflow-primary-hover)] disabled:opacity-50"
+                className={
+                  hasCashOnHandTask && canAssignMoney
+                    ? "inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-border bg-background px-3.5 text-[13px] font-medium text-foreground transition hover:bg-muted disabled:opacity-50"
+                    : "inline-flex min-h-9 items-center gap-1.5 rounded-lg bg-[var(--eflow-primary)] px-3.5 text-[13px] font-medium text-[var(--eflow-on-primary)] transition hover:bg-[var(--eflow-primary-hover)] disabled:opacity-50"
+                }
               >
                 <WalletCards size={14} aria-hidden="true" /> Request cash
               </button>
@@ -396,23 +799,47 @@ export function WorkBudgetCard({
             label={context.cap ? "Subtask budget" : "Approved budget"}
             value={approvedTotal}
           />
-          <SummaryCell
-            label="Pending holds"
-            value={temporaryHeld}
-            tone={temporaryHeld > 0 ? "amber" : "neutral"}
-            note={temporaryHeld > 0 ? "Held, not spent yet" : "No pending holds"}
-          />
-          <SummaryCell
-            label="Cash released"
-            value={releasedTotal}
-          />
+          {hasCashOnHandTask ? (
+            <>
+              <SummaryCell
+                label="Cash on hand"
+                value={cashPools.totals.cashOnHandTask}
+                note={`${peso.format(cashPools.totals.cashOnHandUnassigned)} unassigned · ${peso.format(cashPools.totals.cashOnHandAssigned)} assigned`}
+              />
+              <SummaryCell
+                label="Unrequested budget"
+                value={cashPools.totals.unrequestedBudget}
+                tone={temporaryHeld > 0 ? "amber" : "neutral"}
+                note={temporaryHeld > 0 ? `${peso.format(temporaryHeld)} pending holds` : "Remaining to request"}
+              />
+            </>
+          ) : (
+            <>
+              <SummaryCell
+                label="Pending holds"
+                value={temporaryHeld}
+                tone={temporaryHeld > 0 ? "amber" : "neutral"}
+                note={temporaryHeld > 0 ? "Held, not spent yet" : "No pending holds"}
+              />
+              <SummaryCell
+                label="Cash released"
+                value={releasedTotal}
+              />
+            </>
+          )}
           <SummaryCell
             label="Actual spent"
             value={spentTotal}
-            note="Settled receipts"
+            note={
+              taskLoggedReceiptsTotal > 0
+                ? `Settled · ${peso.format(taskLoggedReceiptsTotal)} logged`
+                : "Settled receipts"
+            }
           />
         </dl>
       )}
+
+      {activeSection === "all" && cashAssignmentsPanel}
 
       {fundingStep && (
         <p
@@ -432,6 +859,34 @@ export function WorkBudgetCard({
         <p className="rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-[12px] text-blue-900">
           Returned requests hold no funds. Funds are checked and held again only when resubmitted.
         </p>
+      )}
+
+      {assignMoneyOpen && context && (
+        <AssignMoneyModal
+          taskTitle={task.title}
+          context={context}
+          pools={cashPools}
+          initialTarget={assignMoneyTarget}
+          lockTarget={Boolean(subtask)}
+          onChanged={refresh}
+          onClose={() => {
+            setAssignMoneyOpen(false);
+            setAssignMoneyTarget(undefined);
+          }}
+        />
+      )}
+
+      {receiptTarget && (
+        <AssignmentReceiptDialog
+          assignment={receiptTarget}
+          workTitle={
+            receiptTarget.subtaskId
+              ? receiptTarget.subtaskTitle || subtask?.title || "Subtask"
+              : task.title
+          }
+          onSaved={refresh}
+          onClose={() => setReceiptTarget(undefined)}
+        />
       )}
 
       {budgetsOpen && context && (

@@ -364,6 +364,104 @@ export interface SubtaskFundingCap {
   reason: string;
 }
 
+export type WorkCashSourceKind = "task_cash_release" | "office_petty_cash";
+
+export interface TaskCashReleasePool {
+  requestId: string;
+  requestNumber: number;
+  purpose: string;
+  status: string;
+  sourceLabels: string[];
+  fundingLines: CashFundingLine[];
+  releasedAmount: number;
+  assignedToTask: number;
+  assignedToSubtasks: number;
+  unassignedAmount: number;
+  recordedReceiptsTotal: number;
+  liquidationDueAt?: string | null;
+  holderId?: string;
+  holderName: string;
+  isCurrentHolder: boolean;
+  acknowledged: boolean;
+}
+
+export interface OfficePettyCashReleasePool {
+  officeCashRequestId: string;
+  purpose: string;
+  releasedAmount: number;
+  assignedHere: number;
+  assignedElsewhere: number;
+  unassignedAmount: number;
+  recordedReceiptsTotal: number;
+  liquidationDueAt?: string | null;
+  holderId?: string;
+  holderName: string;
+  isCurrentHolder: boolean;
+}
+
+export interface WorkCashAssignmentReceipt {
+  id: string;
+  assignmentId: string;
+  taskId?: string;
+  subtaskId?: string | null;
+  subtaskTitle?: string | null;
+  vendor: string;
+  receiptNumber: string;
+  receiptDate: string;
+  description: string;
+  amount: number;
+  items: ReceiptItem[];
+  fileName: string;
+  filePath: string;
+  mimeType: string;
+  fileSize: number;
+  uploadedBy: string;
+  uploadedByName: string;
+  createdAt?: string;
+  canDelete?: boolean;
+}
+
+export interface WorkCashAssignment {
+  id: string;
+  sourceKind: WorkCashSourceKind;
+  sourceRequestId: string;
+  sourceLabel: string;
+  sourceOrgId?: string;
+  fundingLines: CashFundingLine[];
+  taskId: string;
+  subtaskId?: string | null;
+  subtaskTitle?: string | null;
+  amount: number;
+  recordedSpent: number;
+  unspentAmount: number;
+  status: "active" | "recalled" | "settled";
+  note: string;
+  assignedBy: string;
+  assignedByName: string;
+  canLogReceipt: boolean;
+  canRecall: boolean;
+  receipts: WorkCashAssignmentReceipt[];
+}
+
+export interface TaskCashPoolsSummary {
+  cashOnHandTask: number;
+  cashOnHandAssigned: number;
+  cashOnHandUnassigned: number;
+  officePettyCashOnHand: number;
+  officePettyCashAssigned: number;
+  subtaskTaskCashAssigned: number;
+  subtaskOfficePettyCashAssigned: number;
+  unrequestedBudget: number;
+}
+
+export interface TaskCashPools {
+  canAssignCash: boolean;
+  taskCashReleases: TaskCashReleasePool[];
+  officePettyCashReleases: OfficePettyCashReleasePool[];
+  assignments: WorkCashAssignment[];
+  totals: TaskCashPoolsSummary;
+}
+
 export interface TaskFundingContext {
   funded: boolean;
   supportsItemizedCash?: boolean;
@@ -382,6 +480,7 @@ export interface TaskFundingContext {
   canManageDistribution?: boolean;
   subtaskBudgets?: SubtaskBudgetRow[];
   parentSources?: { id: string; name: string; available: number }[];
+  cashPools?: TaskCashPools;
 }
 
 export interface SubtaskBudgetDistribution {
@@ -449,6 +548,13 @@ export interface ReceiptDraft {
   amount: number;
   overrideReason?: string;
   file?: File;
+  existingFile?: {
+    fileName: string;
+    filePath: string;
+    mimeType: string;
+    fileSize: number;
+  };
+  originLabel?: string;
   items?: ReceiptItem[];
 }
 

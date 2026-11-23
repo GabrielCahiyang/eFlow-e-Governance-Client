@@ -1,9 +1,8 @@
-import { readableUiError } from '../../../shared/userFacingError';
-import { INPUT_LIMITS } from '../../../shared/inputLimits';
-import { useRef, useState } from "react";
+import { useId, useRef, useState } from "react";
 import { AttentionBox, Button } from "@vibe/core";
 import * as m from "motion/react-m";
 import { CheckCircle2 } from "lucide-react";
+import { BoundedTextInput } from "../../../components/ui/BoundedInput";
 import { BxsBox } from "../../../components/ui/boxicons";
 import {
   Dialog,
@@ -13,9 +12,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../../../components/ui/dialog";
+import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
+import { INPUT_LIMITS } from "../../../shared/inputLimits";
+import { motionTransition } from "../../../shared/motion/motionTokens";
+import { readableUiError } from "../../../shared/userFacingError";
 import type { PettyCashRelease, PettyCashRequest } from "../types";
 import { acknowledgePettyCashRelease } from "../services/budgetService";
-import { motionTransition } from "../../../shared/motion/motionTokens";
 import { buildDvCode } from "./DisbursementVoucherDialog";
 import { peso } from "./budgetUi";
 import { formatFundingRequestCode } from "../selectors/cashWorkflowRules";
@@ -33,16 +35,33 @@ export function VoucherConfirmDialog({
   onClose: () => void;
   onAcknowledged: () => Promise<void>;
 }) {
-  const expected   = buildDvCode(release, request, fiscalYear);
-  const [input,    setInput]    = useState("");
-  const [busy,     setBusy]     = useState(false);
-  const [error,    setError]    = useState("");
-  const inFlight   = useRef(false);
+  const voucherId = useId();
+  const expected = buildDvCode(release, request, fiscalYear);
+  const [input, setInput] = useState("");
+  const [touched, setTouched] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const inFlight = useRef(false);
 
   const normalise = (s: string) => s.trim().toUpperCase();
-  const matches   = normalise(input) === normalise(expected);
+  const matches = normalise(input) === normalise(expected);
+  const voucherError = !input.trim()
+    ? "Enter the Disbursement Voucher number."
+    : !matches
+      ? "Voucher number does not match the assigned disbursement voucher."
+      : "";
+  const visibleVoucherError = touched || input.length > 0 ? voucherError : "";
+  const confirmDisabled = busy || !matches;
+  const confirmTooltip = busy
+    ? ""
+    : !input.trim()
+      ? "Enter the Disbursement Voucher number provided by the releasing officer."
+      : !matches
+        ? "Entered voucher number does not match this release's voucher code."
+        : "";
 
   const confirm = async () => {
+    setTouched(true);
     if (inFlight.current || !matches) return;
     inFlight.current = true;
     setBusy(true);
@@ -50,7 +69,7 @@ export function VoucherConfirmDialog({
     try {
       await acknowledgePettyCashRelease(release.id, expected);
     } catch (caught) {
-      setError(readableUiError(caught, "Acknowledgement could not be recorded.", 'write'));
+      setError(readableUiError(caught, "Acknowledgement could not be recorded.", "write"));
       inFlight.current = false;
       setBusy(false);
       return;
@@ -97,16 +116,29 @@ export function VoucherConfirmDialog({
 
           {/* Voucher input */}
           <div>
-            <label className="text-[11px] font-medium text-neutral-900">Voucher Number</label>
+            <label htmlFor={voucherId} className="text-[11px] font-medium text-neutral-900">
+              Voucher Number{" "}
+              <span className="text-[var(--eflow-negative-text)]" aria-hidden="true">
+                *
+              </span>
+            </label>
             <div className="relative mt-1">
-              <input
+              <BoundedTextInput
+                id={voucherId}
                 type="text"
+                aria-required="true"
                 maxLength={INPUT_LIMITS.CODE}
                 value={input}
-                onChange={(e) => setInput(e.target.value)}
+                error={visibleVoucherError || undefined}
+                hint="Case-insensitive format: DV-YYYY-NNNNN-XXXX"
+                onBlur={() => setTouched(true)}
+                onChange={(e) => {
+                  setTouched(true);
+                  setInput(e.target.value);
+                }}
                 disabled={busy}
                 placeholder="DV-2026-00042-A3F1"
-                className={`w-full rounded-xl border px-3 py-2 font-mono text-sm uppercase tracking-widest placeholder:normal-case placeholder:tracking-normal disabled:opacity-50 transition ${
+                className={`w-full rounded-xl border px-3 py-2 pr-9 font-mono text-sm uppercase tracking-widest placeholder:normal-case placeholder:tracking-normal disabled:opacity-50 transition ${
                   matches
                     ? "border-emerald-500 bg-emerald-50/40 text-emerald-900 focus:border-emerald-600 focus:outline-none"
                     : "border-neutral-300 focus:border-blue-500 focus:outline-none"
@@ -115,10 +147,13 @@ export function VoucherConfirmDialog({
                 spellCheck={false}
               />
               {matches && (
-                <CheckCircle2 size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-emerald-600" />
+                <CheckCircle2
+                  size={16}
+                  aria-hidden="true"
+                  className="pointer-events-none absolute right-3 top-[19px] -translate-y-1/2 text-emerald-600"
+                />
               )}
             </div>
-            <p className="mt-1 text-[10px] text-neutral-400">Case-insensitive format: DV-YYYY-NNNNN-XXXX</p>
           </div>
 
           {error && <p role="alert" className="rounded-lg bg-rose-50 p-3 text-[11px] text-rose-700">{error}</p>}
@@ -133,15 +168,19 @@ export function VoucherConfirmDialog({
           >
             Cancel
           </Button>
-          <Button
-            kind="primary"
-            size="small"
-            disabled={busy || !matches}
-            loading={busy}
-            onClick={() => { void confirm(); }}
-          >
-            Confirm Receipt
-          </Button>
+          <WorkspaceTooltip content={confirmTooltip} disabled={!confirmTooltip}>
+            <span className="inline-flex">
+              <Button
+                kind="primary"
+                size="small"
+                disabled={confirmDisabled}
+                loading={busy}
+                onClick={() => { void confirm(); }}
+              >
+                Confirm Receipt
+              </Button>
+            </span>
+          </WorkspaceTooltip>
         </DialogFooter>
       </DialogContent>
     </Dialog>

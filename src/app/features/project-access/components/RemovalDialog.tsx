@@ -1,5 +1,6 @@
 import {useEffect,useRef,useState} from 'react';
 import {FeatureDialog} from '../../../components/ui/FeatureDialog';
+import {WorkspaceTooltip} from '../../../components/ui/workspace/WorkspaceTooltip';
 import {useNavigationBlocker} from '../../../shared/navigationGuard';
 import {previewRemoval,removePerson} from '../services/accessService';
 import type {RemovalImpact} from '../types';
@@ -44,5 +45,5 @@ function RemovalReview({project,user,office,name,onClose,onRemoved}:RemovalProps
   </ul>:<p className="rounded-xl border border-dashed border-[var(--eflow-border)] bg-[var(--eflow-subtle)] px-3.5 py-3 text-[13px]">No current work assignments. The applicable project access will end.</p>}
  </div>}
  {error&&<p role="alert" className="rounded-xl border border-rose-200 bg-rose-50 px-3.5 py-2.5 text-[13px] text-rose-800">{error}</p>}{saved&&<p role="status" className="rounded-xl border border-emerald-200 bg-emerald-50 px-3.5 py-2.5 text-[13px] text-emerald-800">Removal saved. Affected unfinished work requires reassignment.</p>}
- <footer><button type="button" disabled={busy} onClick={onClose}>{saved?'Done':'Cancel removal'}</button>{!saved&&<><button type="button" disabled={busy} onClick={()=>{request.current=undefined;setRevision(x=>x+1);}}>Refresh impact preview</button><button type="button" className="r9-danger" disabled={busy||!impact} onClick={()=>void confirm()}>{busy?'Removing…':'Confirm removal and unassign work'}</button></>}</footer></FeatureDialog>;
+ <footer><button type="button" disabled={busy} onClick={onClose}>{saved?'Done':'Cancel removal'}</button>{!saved&&<><button type="button" disabled={busy} onClick={()=>{request.current=undefined;setRevision(x=>x+1);}}>Refresh impact preview</button><WorkspaceTooltip content={busy?'':!impact?(error?'Refresh the impact preview before confirming removal.':'Wait for affected tasks and subtasks to finish loading before confirming removal.'):`Permanently removes ${name} from this project, unassigns affected work, and clears delegated Lead roles. This cannot be undone.`} disabled={busy}><span className="inline-flex"><button type="button" className="r9-danger" disabled={busy||!impact} onClick={()=>void confirm()}>{busy?'Removing…':'Confirm removal and unassign work'}</button></span></WorkspaceTooltip></>}</footer></FeatureDialog>;
 }

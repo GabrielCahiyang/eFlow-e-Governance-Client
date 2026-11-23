@@ -1,7 +1,9 @@
 import { useExplicitDraft } from '../../../shared/useExplicitDraft';
 import { useState } from "react";
 import { CheckCircle2, RotateCcw } from "lucide-react";
-import {DecisionModal} from '../../../components/ui/DecisionModal';
+import { DecisionModal } from '../../../components/ui/DecisionModal';
+import { WorkspaceTooltip } from '../../../components/ui/workspace/WorkspaceTooltip';
+import { INPUT_LIMITS } from '../../../shared/inputLimits';
 import { verifyTask } from "../../../services/taskService";
 import { useAuth } from "../../../contexts/AuthContext";
 import { useToast } from "../../../components/ui/Toast";
@@ -48,6 +50,35 @@ function TaskReviewDecisionForm({
   const draftGuard = useExplicitDraft('Task review decision', mode !== 'idle' || !!feedback, busy, () => { setMode('idle'); setFeedback(''); });
   const cash = useTaskCashClearance(taskId);
   const approvalDisabled = busy || cash.loading || attempted !== undefined;
+  const approveTriggerDisabled = approvalDisabled || mode !== 'idle';
+  const rejectTriggerDisabled = busy || attempted !== undefined || mode !== 'idle';
+  const MIN_CHANGE_FEEDBACK = 5;
+
+  const approveModalDisabledReason = busy
+    ? "Submitting review decision…"
+    : attempted !== undefined
+      ? "Verify the previous review attempt before approving."
+      : cash.loading
+        ? "Checking cash clearance before approval can proceed…"
+        : "";
+
+  const approveTriggerTooltip = !approveTriggerDisabled
+    ? ""
+    : busy
+      ? "Submitting review decision…"
+      : attempted !== undefined
+        ? "Verify the previous review attempt using Check current decision first."
+        : cash.loading
+          ? "Checking cash clearance before approval can proceed…"
+          : "Finish or cancel the open review confirmation dialog first.";
+
+  const rejectTriggerTooltip = !rejectTriggerDisabled
+    ? ""
+    : busy
+      ? "Submitting review decision…"
+      : attempted !== undefined
+        ? "Verify the previous review attempt using Check current decision first."
+        : "Finish or cancel the open review confirmation dialog first.";
 
   async function confirmed(approve: boolean) {
     const clearance = approve ? await fetchWorkFinancialClearance(taskId).catch(() => undefined) : undefined;
@@ -76,8 +107,14 @@ function TaskReviewDecisionForm({
   const decide = async () => {
     if (!user?.id || attempted !== undefined || draftGuard.pendingRef.current) return;
     const approve = mode === "approve";
-    if (!approve && !feedback.trim()) {
-      toast("Feedback is required when requesting changes.", "error");
+    const trimmedFeedback = feedback.trim();
+    if (!approve && trimmedFeedback.length < MIN_CHANGE_FEEDBACK) {
+      toast(
+        trimmedFeedback.length === 0
+          ? "Feedback is required when requesting changes."
+          : `Feedback must be at least ${MIN_CHANGE_FEEDBACK} characters when requesting changes.`,
+        "error",
+      );
       return;
     }
 
@@ -128,23 +165,52 @@ function TaskReviewDecisionForm({
         onOpenFinancialReview={onOpenFinancialReview}
       />
       <div className="flex items-center gap-2">
-          <button
-            onClick={() => setMode("approve")}
-            disabled={approvalDisabled||mode!=='idle'}
-            className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-emerald-600 py-2 text-[12.5px] font-medium text-white hover:bg-emerald-700 disabled:opacity-40"
-          >
-            <CheckCircle2 size={14} /> Approve work
-          </button>
-          <button
-            onClick={() => setMode("reject")}
-            disabled={busy||attempted!==undefined||mode!=='idle'}
-            className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg border border-amber-300 bg-amber-50 py-2 text-[12.5px] font-medium text-amber-900 hover:bg-amber-100"
-          >
-            <RotateCcw size={14} /> Request changes
-          </button>
+        <WorkspaceTooltip content={approveTriggerTooltip} disabled={!approveTriggerDisabled || !approveTriggerTooltip}>
+          <span className="inline-flex flex-1">
+            <button
+              type="button"
+              onClick={() => setMode("approve")}
+              disabled={approveTriggerDisabled}
+              className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-emerald-600 py-2 text-[12.5px] font-medium text-white hover:bg-emerald-700 disabled:opacity-40 disabled:pointer-events-none"
+            >
+              <CheckCircle2 size={14} /> Approve work
+            </button>
+          </span>
+        </WorkspaceTooltip>
+        <WorkspaceTooltip content={rejectTriggerTooltip} disabled={!rejectTriggerDisabled || !rejectTriggerTooltip}>
+          <span className="inline-flex flex-1">
+            <button
+              type="button"
+              onClick={() => setMode("reject")}
+              disabled={rejectTriggerDisabled}
+              className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg border border-amber-300 bg-amber-50 py-2 text-[12.5px] font-medium text-amber-900 hover:bg-amber-100 disabled:opacity-40 disabled:pointer-events-none"
+            >
+              <RotateCcw size={14} /> Request changes
+            </button>
+          </span>
+        </WorkspaceTooltip>
       </div>
       {attempted!==undefined&&decisionError&&<div role="alert"><p>{decisionError}</p><button type="button" disabled={busy} onClick={()=>void checkDecision()}>Check current decision</button></div>}
-      {mode!=='idle'&&attempted===undefined&&<DecisionModal title={mode==='approve'?'Approve this submission?':'Request changes to this task?'} description={mode==='approve'?`Approve submission ${submission.version}? Accepting work unlocks required receipts. Outstanding cash still blocks final completion.`:`Return submission ${submission.version} and explain what the task lead needs to change.`} decision={mode==='approve'?'approve':'changes'} reason={feedback} onReasonChange={setFeedback} reasonLabel={mode==='approve'?'Approval note (optional)':'Required change feedback'} requireReason={mode==='reject'} busy={busy} disabled={mode==='approve'&&approvalDisabled} error={decisionError} onConfirm={()=>void decide()} onCancel={()=>{if(busy)return;draftGuard.markClean();setMode('idle');setFeedback('');setDecisionError('');}}/>}
+      {mode!=='idle'&&attempted===undefined&&(
+        <DecisionModal
+          title={mode==='approve'?'Approve this submission?':'Request changes to this task?'}
+          description={mode==='approve'?`Approve submission ${submission.version}? Accepting work unlocks required receipts. Outstanding cash still blocks final completion.`:`Return submission ${submission.version} and explain what the task lead needs to change.`}
+          decision={mode==='approve'?'approve':'changes'}
+          reason={feedback}
+          onReasonChange={setFeedback}
+          reasonLabel={mode==='approve'?'Approval note (optional)':'Required change feedback'}
+          requireReason={mode==='reject'}
+          minReasonLength={mode==='reject'?MIN_CHANGE_FEEDBACK:0}
+          maxReasonLength={mode==='reject'?INPUT_LIMITS.REASON:INPUT_LIMITS.COMMENT}
+          busy={busy}
+          disabled={mode==='approve'&&approvalDisabled}
+          disabledReason={mode==='approve'?approveModalDisabledReason:undefined}
+          warningTooltip={mode==='reject'?'Returns this submission to the task lead for revisions.':undefined}
+          error={decisionError}
+          onConfirm={()=>void decide()}
+          onCancel={()=>{if(busy)return;draftGuard.markClean();setMode('idle');setFeedback('');setDecisionError('');}}
+        />
+      )}
     </div>
   );
 }

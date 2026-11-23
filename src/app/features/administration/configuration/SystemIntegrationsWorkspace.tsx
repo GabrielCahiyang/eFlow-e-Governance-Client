@@ -6,9 +6,10 @@ import { WorkspaceHeader, WorkspaceTabs, type WorkspaceTab } from "../../../comp
 import { ApplicationSettings } from "./ApplicationSettings";
 import { SkillTagMaintenance } from "./SkillTagMaintenance";
 import { StatusMaintenance } from "./StatusMaintenance";
+import { WorkloadMaintenance } from "./WorkloadMaintenance";
 import { ArchiveRetentionMaintenance } from "../retention/ArchiveRetentionMaintenance";
 
-export type SystemIntegrationsTab = "general" | "statuses" | "skills" | "retention";
+export type SystemIntegrationsTab = "general" | "statuses" | "skills" | "workload" | "retention";
 
 export function SystemIntegrationsWorkspace({
   initialTab = "general",
@@ -20,12 +21,12 @@ export function SystemIntegrationsWorkspace({
   const [tab, setTab] = useState<SystemIntegrationsTab>(initialTab);
 
   useEffect(() => {
-    if ((initialTab === "statuses" || initialTab === "skills" || initialTab === "retention") && !isAdmin) setTab("general");
+    if ((initialTab === "statuses" || initialTab === "skills" || initialTab === "workload" || initialTab === "retention") && !isAdmin) setTab("general");
     else setTab(initialTab);
   }, [initialTab, isAdmin]);
 
   const activeTab: SystemIntegrationsTab =
-    (tab === "statuses" || tab === "skills" || tab === "retention") && !isAdmin ? "general" : tab;
+    (tab === "statuses" || tab === "skills" || tab === "workload" || tab === "retention") && !isAdmin ? "general" : tab;
 
   const tabs: WorkspaceTab[] = [
     {
@@ -46,6 +47,11 @@ export function SystemIntegrationsWorkspace({
             content: <SkillTagMaintenance embedded />,
           },
           {
+            id: "workload",
+            label: "Workload & Overload",
+            content: <WorkloadMaintenance embedded />,
+          },
+          {
             id: "retention",
             label: "Archive & Retention",
             content: <ArchiveRetentionMaintenance embedded />,
@@ -58,7 +64,7 @@ export function SystemIntegrationsWorkspace({
     <div className="min-h-full space-y-6">
       <WorkspaceHeader
         title="System & Maintenance"
-        description="Configure branding, invitation defaults, deadline rules, maintenance notices, work statuses, skill tags, and archive retention."
+        description="Configure branding, invitation defaults, deadline rules, maintenance notices, work statuses, skill tags, workload overload thresholds, and archive retention."
       />
       <WorkspaceTabs
         label="System & Maintenance sections"

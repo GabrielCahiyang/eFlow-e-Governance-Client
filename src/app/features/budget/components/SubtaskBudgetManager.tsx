@@ -1,8 +1,13 @@
-import { readableUiError } from "../../../shared/userFacingError";
-import { useRef, useState, type FormEvent } from "react";
+import { useId, useRef, useState, type FormEvent } from "react";
 import { Plus, WalletCards } from "lucide-react";
+import { BoundedTextarea } from "../../../components/ui/BoundedInput";
+import { FieldValidationTooltip } from "../../../components/ui/FieldValidationTooltip";
 import { Modal, ModalButton } from "../../../components/ui/Modal";
 import { MoneyInput } from "../../../components/ui/MoneyInput";
+import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
+import { exceedsCentavos, formatPeso } from "../../../shared/currency";
+import { INPUT_LIMITS, textLengthError } from "../../../shared/inputLimits";
+import { readableUiError } from "../../../shared/userFacingError";
 import {
   buildDistributionCommand,
   distributionLimits,
@@ -273,6 +278,13 @@ export function SubtaskBudgetManager({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const [touched, setTouched] = useState<{ source?: boolean; amount?: boolean; reason?: boolean }>({});
+  const [sourceActive, setSourceActive] = useState(false);
+  const sourceRef = useRef<HTMLSelectElement | null>(null);
+  const sourceId = useId();
+  const sourceTipId = useId();
+  const amountId = useId();
+  const reasonId = useId();
   const attempt = useRef<{ signature: string; key: string } | undefined>(undefined);
   const row = rows.find((item) => item.id === draft?.id);
   const limits = row && draft
@@ -281,19 +293,58 @@ export function SubtaskBudgetManager({
   const floor = fromCents(limits.minimumCents);
   const maximum = fromCents(limits.maximumCents);
   const parsedCents = draft?.amount ? parsePesoCents(draft.amount) : null;
-  const amountError = draft?.mode === "save" && draft.amount
-    ? parsedCents === null
-      ? "Enter a valid amount up to two decimal places."
-      : parsedCents > limits.maximumCents
-        ? `This account has only ${formatCents(limits.maximumCents)} for this subtask.`
-        : limits.minimumCents > 0 && parsedCents < limits.minimumCents
-          ? `Keep at least ${formatCents(limits.minimumCents)} for recorded spending.`
-          : ""
+  const sourceError =
+    draft?.mode === "save" && !draft.source
+      ? "Choose a funding account."
+      : "";
+  const visibleSourceError = touched.source ? sourceError : "";
+  const amountOverMax =
+    draft?.mode === "save" && parsedCents !== null && parsedCents > limits.maximumCents;
+  const amountError =
+    draft?.mode === "save"
+      ? !draft.amount.trim()
+        ? "Enter a budget amount."
+        : parsedCents === null
+          ? "Enter a valid amount up to two decimal places."
+          : exceedsCentavos(fromCents(parsedCents), INPUT_LIMITS.MONEY_MAX_BUDGET)
+            ? `Amount cannot exceed ${formatPeso(INPUT_LIMITS.MONEY_MAX_BUDGET)}.`
+            : parsedCents > limits.maximumCents
+              ? `This account has only ${formatCents(limits.maximumCents)} for this subtask.`
+              : limits.minimumCents > 0 && parsedCents < limits.minimumCents
+                ? `Keep at least ${formatCents(limits.minimumCents)} for recorded spending.`
+                : ""
+      : "";
+  const visibleAmountError = touched.amount || amountOverMax ? amountError : "";
+  const reasonError = draft
+    ? textLengthError(draft.reason, "Reason", {
+        required: true,
+        min: 5,
+        max: INPUT_LIMITS.FUNDING_REASON,
+      })
     : "";
+  const visibleReasonError =
+    touched.reason || Boolean(draft && draft.reason.length > 0) ? reasonError : "";
+  const submitBlockedReason =
+    !draft || !row
+      ? ""
+      : !canManage
+        ? "Only the current Task Lead can manage subtask budgets."
+        : row.blocked
+          ? "Resolve the open cash request to change this budget."
+          : sourceError || amountError || reasonError;
+  const submitDisabled = busy || !canManage || Boolean(row?.blocked) || Boolean(submitBlockedReason);
+  const submitTooltip = busy
+    ? ""
+    : submitDisabled
+      ? submitBlockedReason
+      : draft?.mode === "return"
+        ? "Returns unused subtask allocation back to the parent task budget."
+        : "";
 
   function edit(item: SubtaskBudgetRow, mode: SubtaskBudgetActionMode) {
     setNotice("");
     setError("");
+    setTouched({});
     setDraft({
       id: item.id,
       mode,
@@ -308,6 +359,8 @@ export function SubtaskBudgetManager({
   async function submit(event: FormEvent) {
     event.preventDefault();
     if (!draft || !row || busy || !canManage || row.blocked) return;
+    setTouched({ source: true, amount: true, reason: true });
+    if (submitBlockedReason) return;
     const signature = JSON.stringify([draft.mode, row.id, draft.expectedCapId, draft.source, draft.amount, draft.reason.trim()]);
     if (attempt.current?.signature !== signature) {
       attempt.current = { signature, key: crypto.randomUUID() };
@@ -392,37 +445,88 @@ export function SubtaskBudgetManager({
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
                   <strong className="mr-1 text-sm tabular-nums">{peso.format(item.amount)}</strong>
-                  {item.capId && item.returnable > 0 && (
-                    <ModalButton disabled={!canManage || busy || item.blocked} onClick={() => edit(item, "return")}>
-                      Return unused
-                    </ModalButton>
-                  )}
-                  {!(taskFinished || item.finished) && (
-                    <ModalButton
-                      disabled={!canManage || busy || item.blocked || (!item.capId && !sources.some((source) => source.available > 0))}
-                      onClick={() => edit(item, "save")}
-                    >
-                      {item.capId ? "Edit budget" : "Allocate"}
-                    </ModalButton>
-                  )}
+                  {item.capId && item.returnable > 0 && (() => {
+                    const returnDisabled = !canManage || busy || item.blocked;
+                    const returnTip = !canManage
+                      ? "Only the Task Lead can return unused subtask funds."
+                      : item.blocked
+                        ? "Resolve the open cash request before returning unused funds."
+                        : busy
+                          ? "Wait for the current update to finish."
+                          : "Returns unused subtask allocation back to the parent task budget.";
+                    return (
+                      <WorkspaceTooltip content={returnTip} disabled={!returnTip}>
+                        <span className="inline-flex">
+                          <ModalButton disabled={returnDisabled} onClick={() => edit(item, "return")}>
+                            Return unused
+                          </ModalButton>
+                        </span>
+                      </WorkspaceTooltip>
+                    );
+                  })()}
+                  {!(taskFinished || item.finished) && (() => {
+                    const editDisabled =
+                      !canManage ||
+                      busy ||
+                      item.blocked ||
+                      (!item.capId && !sources.some((source) => source.available > 0));
+                    const editTip = !canManage
+                      ? "Only the Task Lead can manage subtask budgets."
+                      : item.blocked
+                        ? "Resolve the open cash request to change this budget."
+                        : !item.capId && !sources.some((source) => source.available > 0)
+                          ? "No unallocated parent task funds are available."
+                          : busy
+                            ? "Wait for the current update to finish."
+                            : "";
+                    return (
+                      <WorkspaceTooltip content={editTip} disabled={!editTip}>
+                        <span className="inline-flex">
+                          <ModalButton disabled={editDisabled} onClick={() => edit(item, "save")}>
+                            {item.capId ? "Edit budget" : "Allocate"}
+                          </ModalButton>
+                        </span>
+                      </WorkspaceTooltip>
+                    );
+                  })()}
                 </div>
               </div>
               {row?.id === item.id && draft && (
                 <form onSubmit={submit} className="mt-3 space-y-3 rounded-lg border border-border bg-muted/40 p-3">
                   <fieldset disabled={busy || !canManage || row.blocked} className="space-y-3">
                     {draft.mode === "save" ? (
-                      <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_10rem]">
-                        <label className="grid gap-1 text-sm">
-                          Funding account
+                      <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_12rem]">
+                        <div className="grid gap-1 text-sm">
+                          <label htmlFor={sourceId}>
+                            Funding account{" "}
+                            <span className="text-[var(--eflow-negative-text)]" aria-hidden="true">
+                              *
+                            </span>
+                          </label>
                           <select
+                            ref={sourceRef}
+                            id={sourceId}
                             value={draft.source}
                             disabled={limits.sourceLocked}
                             required
+                            aria-required="true"
+                            aria-invalid={Boolean(visibleSourceError) || undefined}
+                            aria-describedby={sourceActive && visibleSourceError ? sourceTipId : undefined}
+                            onFocus={() => setSourceActive(true)}
+                            onMouseEnter={() => setSourceActive(true)}
+                            onMouseLeave={() => setSourceActive(false)}
+                            onBlur={() => {
+                              setSourceActive(false);
+                              setTouched((prev) => ({ ...prev, source: true }));
+                            }}
                             onChange={(event) => {
+                              setTouched((prev) => ({ ...prev, source: true }));
                               setDraft({ ...draft, source: event.target.value });
                               setError("");
                             }}
-                            className="min-w-0 rounded-md border border-border bg-background px-3 py-2"
+                            className={`min-w-0 rounded-md border bg-background px-3 py-2 ${
+                              visibleSourceError ? "eflow-field-invalid border-destructive" : "border-border"
+                            }`}
                           >
                             <option value="">Choose an account</option>
                             {sources
@@ -433,60 +537,101 @@ export function SubtaskBudgetManager({
                                 </option>
                               ))}
                           </select>
+                          <FieldValidationTooltip
+                            id={sourceTipId}
+                            anchorRef={sourceRef}
+                            message={visibleSourceError}
+                            open={sourceActive && Boolean(visibleSourceError)}
+                            tone="error"
+                          />
+                          {visibleSourceError && (
+                            <small role="alert" className="text-destructive">
+                              {visibleSourceError}
+                            </small>
+                          )}
                           {limits.sourceLocked && (
                             <small className="text-muted-foreground">
                               Account locked because this subtask already has cash history or finished work.
                             </small>
                           )}
-                        </label>
-                        <label className="grid gap-1 text-sm">
-                          New budget
+                        </div>
+                        <div className="grid gap-1 text-sm">
+                          <label htmlFor={amountId}>
+                            New budget{" "}
+                            <span className="text-[var(--eflow-negative-text)]" aria-hidden="true">
+                              *
+                            </span>
+                          </label>
                           <MoneyInput
+                            id={amountId}
                             required
+                            aria-required="true"
                             value={draft.amount}
                             min={Math.max(0.01, floor)}
-                            max={maximum}
+                            max={INPUT_LIMITS.MONEY_MAX_BUDGET}
+                            availableMax={maximum}
+                            showCeilingHint
+                            externalError={visibleAmountError || undefined}
+                            onBlur={() => setTouched((prev) => ({ ...prev, amount: true }))}
                             onValueChange={(raw) => {
+                              setTouched((prev) => ({ ...prev, amount: true }));
                               setDraft({ ...draft, amount: raw });
                               setError("");
                             }}
                             className="min-w-0 rounded-md border border-border bg-background px-3 py-2"
                           />
-                          <small className={amountError ? "text-destructive" : "text-muted-foreground"}>
-                            {amountError ||
-                              (limits.minimumCents > 0
-                                ? `Min ${formatCents(limits.minimumCents)} · Max ${formatCents(limits.maximumCents)}`
-                                : `Maximum ${formatCents(limits.maximumCents)}`)}
-                          </small>
-                        </label>
+                          {!visibleAmountError && limits.minimumCents > 0 && (
+                            <small className="text-muted-foreground">
+                              Min {formatCents(limits.minimumCents)}
+                            </small>
+                          )}
+                        </div>
                       </div>
                     ) : (
                       <p className="text-sm">
                         Return {peso.format(item.returnable)} to the parent task’s available budget.
                       </p>
                     )}
-                    <label className="grid gap-1 text-sm">
-                      Reason
-                      <input
+                    <div className="grid gap-1 text-sm">
+                      <label htmlFor={reasonId}>
+                        Reason{" "}
+                        <span className="text-[var(--eflow-negative-text)]" aria-hidden="true">
+                          *
+                        </span>
+                      </label>
+                      <BoundedTextarea
+                        id={reasonId}
+                        aria-required="true"
                         value={draft.reason}
-                        required
-                        maxLength={3000}
-                        onChange={(event) => setDraft({ ...draft, reason: event.target.value })}
-                        className="rounded-md border border-border bg-background px-3 py-2"
+                        maxLength={INPUT_LIMITS.FUNDING_REASON}
+                        rows={2}
+                        error={visibleReasonError || undefined}
+                        placeholder="Explain why this subtask budget is being set or returned (at least 5 characters)"
+                        onBlur={() => setTouched((prev) => ({ ...prev, reason: true }))}
+                        onChange={(event) => {
+                          setTouched((prev) => ({ ...prev, reason: true }));
+                          setDraft({ ...draft, reason: event.target.value });
+                        }}
+                        className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
                       />
-                    </label>
+                    </div>
                     <div className="flex justify-end gap-2">
                       <ModalButton
                         onClick={() => {
                           setDraft(undefined);
+                          setTouched({});
                           setError("");
                         }}
                       >
                         Cancel
                       </ModalButton>
-                      <ModalButton variant="primary" type="submit">
-                        {busy ? "Saving…" : draft.mode === "return" ? "Confirm return" : "Save budget"}
-                      </ModalButton>
+                      <WorkspaceTooltip content={submitTooltip} disabled={!submitTooltip}>
+                        <span className="inline-flex">
+                          <ModalButton variant="primary" type="submit" disabled={submitDisabled}>
+                            {busy ? "Saving…" : draft.mode === "return" ? "Confirm return" : "Save budget"}
+                          </ModalButton>
+                        </span>
+                      </WorkspaceTooltip>
                     </div>
                   </fieldset>
                 </form>

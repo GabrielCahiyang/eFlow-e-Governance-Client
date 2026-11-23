@@ -131,7 +131,7 @@ describe('R4 retained navigation and identities',()=>{
    profiles,
    tasks:[{assigneeId:'guest-assignee',teamMemberIds:['alice']}],
   });
-  expect(ids).toEqual(['cheryl','alice','bob','guest-assignee']);
+  expect(ids).toEqual(['cheryl','guest-assignee','alice']);
  });
 });
 

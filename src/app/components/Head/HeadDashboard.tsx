@@ -44,6 +44,11 @@ import {
 import { TaskDetailDrawer } from "../../features/task-inspector";
 import { TaskRow } from "./HeadDashboardTaskRow";
 import { getHeadWorkspaceLabel } from "../../shared/roles";
+import {
+  MemberWorkloadModal,
+  useOfficeWorkload,
+  WorkloadStatusTag,
+} from "../../features/workload";
 
 type FocusList = null | "overdue" | "review" | "unassigned" | "completed";
 
@@ -166,7 +171,8 @@ export function HeadDashboardSkeleton() {
 }
 
 export function HeadDashboard() {
-  const { userProfile } = useAuth();
+  const { userProfile, can } = useAuth();
+  const canVerifyTasks = typeof can === "function" ? can("tasks.verify") : true;
   const workspaceLabel = getHeadWorkspaceLabel(userProfile?.role);
   const { tasks, loading: tasksLoading } = useTasks();
   const { projects } = useProjectsData();
@@ -176,6 +182,13 @@ export function HeadDashboard() {
   const [period, setPeriod] = useState("30");
   const [focus, setFocus] = useState<FocusList>(null);
   const [openTask, setOpenTask] = useState<Task | null>(null);
+  const [inspectWorkloadUserId, setInspectWorkloadUserId] = useState<string | null>(null);
+  const workloadOrgId = !includeAllAccessibleWork ? (userProfile?.org_id || scopedOrgIds[0] || null) : null;
+  const officeWorkload = useOfficeWorkload(workloadOrgId);
+  const overloadedMemberCount = useMemo(
+    () => officeWorkload.members.filter((m) => m.tier === "overloaded").length,
+    [officeWorkload.members],
+  );
 
   // Scope tasks to the head's org subtree (admin sees everything).
   const scoped = useMemo(() => {
@@ -428,8 +441,82 @@ export function HeadDashboard() {
         {/* Right column */}
         <div className="space-y-4">
           {/* Workload */}
-          <Card className="overflow-hidden" title="Workload by member" subtitle="Task duration and deadline pressure">
-            {workload.length === 0 ? (
+          <Card
+            className="overflow-hidden"
+            title="Workload by member"
+            subtitle={
+              officeWorkload.members.length > 0
+                ? "Projects led, tasks, subtasks & overdue · Click a member to inspect"
+                : "Task duration and deadline pressure"
+            }
+            right={
+              overloadedMemberCount > 0 ? (
+                <WorkloadStatusTag
+                  tier="overloaded"
+                  label={`${overloadedMemberCount} overloaded`}
+                  compact
+                />
+              ) : undefined
+            }
+          >
+            {officeWorkload.members.length > 0 ? (
+              <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">
+                {officeWorkload.members.slice(0, 12).map((member) => {
+                  const tone =
+                    member.tier === "overloaded"
+                      ? "bad"
+                      : member.tier === "heavy"
+                        ? "warn"
+                        : "neutral";
+                  const totalTasks = member.taskLeads + member.taskContributions;
+                  const totalSubtasks = member.subtaskLeads + member.subtaskContributions;
+                  return (
+                    <button
+                      key={member.userId}
+                      type="button"
+                      onClick={() => setInspectWorkloadUserId(member.userId)}
+                      className="w-full text-left rounded-lg border border-border/60 bg-background/50 px-2.5 py-2 transition-colors hover:bg-accent/50 focus-visible:outline-2 focus-visible:outline-primary"
+                    >
+                      <div className="flex items-center gap-2 mb-1.5">
+                        <InitialsAvatar name={member.fullName} size={22} />
+                        <span className="min-w-0 flex-1 truncate text-[12px] font-medium text-foreground">
+                          {member.fullName}
+                        </span>
+                        <WorkloadStatusTag
+                          tier={member.tier}
+                          loadPoints={member.loadPoints}
+                          compact
+                        />
+                      </div>
+                      <ProgressBar
+                        value={Math.min(100, member.utilizationPercent)}
+                        tone={tone}
+                      />
+                      <div className="mt-1.5 flex flex-wrap gap-x-2.5 gap-y-0.5 text-[10.5px] text-muted-foreground tabular-nums">
+                        <span>{member.activeProjectsLed + member.planningProjectsLed} proj led</span>
+                        <span>{totalTasks} tasks</span>
+                        <span>{totalSubtasks} subtasks</span>
+                        {member.overdueCount > 0 && (
+                          <span className="font-semibold text-red-600 dark:text-red-400">
+                            {member.overdueCount} overdue
+                          </span>
+                        )}
+                        {member.pendingReviews > 0 && (
+                          <span className="font-medium text-amber-600 dark:text-amber-400">
+                            {member.pendingReviews} reviews
+                          </span>
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
+                {unassigned.length > 0 && (
+                  <div className="mt-2 flex items-center gap-2 border-t border-border pt-3 text-[11.5px] font-medium text-muted-foreground">
+                    <Users size={12} /> {unassigned.length} unassigned task(s) need an owner
+                  </div>
+                )}
+              </div>
+            ) : workload.length === 0 ? (
               <SectionEmpty icon={<Users size={24} />} title="No assigned work" />
             ) : (
               <div className="space-y-2.5 max-h-[260px] overflow-y-auto pr-1">
@@ -510,9 +597,18 @@ export function HeadDashboard() {
       <TaskDetailDrawer
         task={openTask}
         onClose={() => setOpenTask(null)}
-        canReview
+        canReview={canVerifyTasks}
         onChanged={() => { /* realtime subscription refreshes lists */ }}
       />
+      {inspectWorkloadUserId && (
+        <MemberWorkloadModal
+          open
+          userId={inspectWorkloadUserId}
+          userName={officeWorkload.byUserId.get(inspectWorkloadUserId)?.fullName}
+          orgId={workloadOrgId}
+          onClose={() => setInspectWorkloadUserId(null)}
+        />
+      )}
       </div>
     </div>
   );

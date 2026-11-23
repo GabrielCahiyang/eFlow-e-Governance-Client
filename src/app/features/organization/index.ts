@@ -1,4 +1,3 @@
-export { OrgTreeBuilder } from "./components/org-tree";
 export {
   assignOrganizationLeadership,
   type OrganizationLeadershipInput,

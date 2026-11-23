@@ -1,11 +1,12 @@
-import { useRef, useState } from "react";
+import { useId, useRef, useState } from "react";
 import { formatManilaDate } from "../../../shared/calendarDisplay";
 import { AttentionBox, Button } from "@vibe/core";
 import * as m from "motion/react-m";
 import { AlertTriangle, CheckCircle2, Copy } from "lucide-react";
 import { BxsBox } from "../../../components/ui/boxicons";
-import { FieldLengthHint } from "../../../components/ui/FieldLengthHint";
-import { INPUT_LIMITS } from "../../../shared/inputLimits";
+import { BoundedTextarea, BoundedTextInput } from "../../../components/ui/BoundedInput";
+import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
+import { INPUT_LIMITS, textLengthError } from "../../../shared/inputLimits";
 import {
   Dialog,
   DialogContent,
@@ -70,13 +71,34 @@ export function DisbursementVoucherDialog({
     release.releaseMethod || "cash",
   );
   const [chequeNumber, setChequeNumber] = useState(release.chequeNumber || "");
+  const [chequeTouched, setChequeTouched] = useState(false);
   const [overrideSchedule, setOverrideSchedule] = useState(false);
   const [overrideReason, setOverrideReason] = useState("");
+  const [overrideReasonTouched, setOverrideReasonTouched] = useState(false);
+  const chequeId = useId();
+  const overrideReasonId = useId();
   const inFlight = useRef(false);
   const canOverrideSchedule =
     userProfile?.role === "accounting_staff" && can("accounting.release_cash");
   const scheduledEarly =
     release.scheduledDate > getPhilippineCalendarDate();
+  const chequeError =
+    method === "cheque"
+      ? textLengthError(chequeNumber, "Cheque number", {
+          required: true,
+          max: INPUT_LIMITS.CODE,
+        })
+      : "";
+  const visibleChequeError = chequeTouched ? chequeError : "";
+  const overrideReasonError = overrideSchedule
+    ? textLengthError(overrideReason, "Override reason", {
+        required: true,
+        min: 10,
+        max: INPUT_LIMITS.REASON,
+      })
+    : "";
+  const visibleOverrideReasonError =
+    overrideReasonTouched || overrideReason.length > 0 ? overrideReasonError : "";
 
   const handleCopy = () => {
     void navigator.clipboard
@@ -295,17 +317,29 @@ export function DisbursementVoucherDialog({
                 </select>
               </label>
               {method === "cheque" && (
-                <label className="text-[10px] text-neutral-600">
-                  Cheque number
-                  <input
+                <div className="text-[10px] text-neutral-600">
+                  <label htmlFor={chequeId} className="block">
+                    Cheque number{" "}
+                    <span className="text-[var(--eflow-negative-text)]" aria-hidden="true">
+                      *
+                    </span>
+                  </label>
+                  <BoundedTextInput
+                    id={chequeId}
                     aria-label="Cheque number"
+                    aria-required="true"
                     maxLength={INPUT_LIMITS.CODE}
                     value={chequeNumber}
-                    onChange={(event) => setChequeNumber(event.target.value)}
+                    error={visibleChequeError || undefined}
+                    onBlur={() => setChequeTouched(true)}
+                    onChange={(event) => {
+                      setChequeTouched(true);
+                      setChequeNumber(event.target.value);
+                    }}
                     disabled={busy}
                     className="mt-1 h-9 w-full rounded-lg border border-neutral-200 bg-white px-2.5 text-[10.5px]"
                   />
-                </label>
+                </div>
               )}
             </div>
 
@@ -313,6 +347,7 @@ export function DisbursementVoucherDialog({
               <input
                 type="checkbox"
                 checked={checked}
+                aria-required="true"
                 onChange={(e) => setChecked(e.target.checked)}
                 disabled={busy}
                 className="mt-0.5 h-4 w-4 rounded border-neutral-300"
@@ -322,7 +357,10 @@ export function DisbursementVoucherDialog({
                 {method === "cheque"
                   ? "cheque has been physically issued to"
                   : "cash has been physically handed over to"}{" "}
-                the recipient.
+                the recipient.{" "}
+                <span className="text-[var(--eflow-negative-text)]" aria-hidden="true">
+                  *
+                </span>
               </span>
             </label>
           </section>
@@ -353,31 +391,31 @@ export function DisbursementVoucherDialog({
                   animate={{ opacity: 1, height: "auto" }}
                   className="mt-4 border-t border-amber-200 pt-3"
                 >
-                  <label className="block text-[10.5px] font-medium text-amber-950">
-                    <span className="flex items-center justify-between gap-2">
-                      <span className="flex items-center gap-1">
-                        <AlertTriangle size={12} /> Override reason
-                      </span>
-                      <FieldLengthHint length={overrideReason.length} max={INPUT_LIMITS.REASON} />
+                  <label
+                    htmlFor={overrideReasonId}
+                    className="flex items-center gap-1 text-[10.5px] font-medium text-amber-950"
+                  >
+                    <AlertTriangle size={12} aria-hidden="true" />
+                    <span>Override reason</span>
+                    <span className="text-[var(--eflow-negative-text)]" aria-hidden="true">
+                      *
                     </span>
-                    <textarea
-                      aria-label="Schedule override reason"
-                      value={overrideReason}
-                      onChange={(event) =>
-                        setOverrideReason(event.target.value)
-                      }
-                      disabled={busy}
-                      rows={3}
-                      maxLength={INPUT_LIMITS.REASON}
-                      placeholder="Explain why the cash must be handed over before its scheduled date…"
-                      className="mt-1.5 w-full resize-none rounded-lg border border-amber-300 bg-white p-2.5 text-[11px] text-neutral-800 outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-200"
-                    />
                   </label>
-                  <p className="mt-1 text-[9.5px] text-amber-800">
-                    At least 10 characters. Your identity, reason, original
-                    date, and release time are recorded in the financial audit
-                    trail.
-                  </p>
+                  <BoundedTextarea
+                    id={overrideReasonId}
+                    aria-label="Schedule override reason"
+                    aria-required="true"
+                    value={overrideReason}
+                    error={visibleOverrideReasonError || undefined}
+                    hint="At least 10 characters. Your identity, reason, original date, and release time are recorded in the financial audit trail."
+                    onBlur={() => setOverrideReasonTouched(true)}
+                    onChange={(event) => setOverrideReason(event.target.value)}
+                    disabled={busy}
+                    rows={3}
+                    maxLength={INPUT_LIMITS.REASON}
+                    placeholder="Explain why the cash must be handed over before its scheduled date…"
+                    className="mt-1.5 w-full resize-none rounded-lg border border-amber-300 bg-white p-2.5 text-[11px] text-neutral-800 outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-200"
+                  />
                 </m.div>
               )}
             </div>
@@ -407,25 +445,48 @@ export function DisbursementVoucherDialog({
           <Button kind="secondary" size="small" disabled={busy} onClick={close}>
             Cancel
           </Button>
-          <Button
-            kind="primary"
-            color="positive"
-            size="small"
-            disabled={
+          {(() => {
+            const confirmDisabled =
               busy ||
               Boolean(financialOutcome(key)) ||
               !canOverrideSchedule ||
               !checked ||
-              (method === "cheque" && !chequeNumber.trim()) ||
-              (overrideSchedule && overrideReason.trim().length < 10)
-            }
-            loading={busy}
-            onClick={() => {
-              void confirm();
-            }}
-          >
-            Confirm &amp; Record Release
-          </Button>
+              Boolean(chequeError) ||
+              Boolean(overrideReasonError);
+            const confirmTooltip = busy
+              ? ""
+              : financialOutcome(key)
+                ? "A previous release attempt already completed or requires verification."
+                : !canOverrideSchedule
+                  ? "Only Accounting Staff with cash-release permission can record this release."
+                  : !checked
+                    ? "Confirm physical handover before recording release."
+                    : chequeError
+                      ? chequeError
+                      : overrideReasonError
+                        ? overrideReasonError
+                        : overrideSchedule
+                          ? "Audited override: posts the disbursement journal entry before the scheduled release date."
+                          : "Posts this disbursement to the accounting journal as a physical handover.";
+            return (
+              <WorkspaceTooltip content={confirmTooltip} disabled={!confirmTooltip}>
+                <span className="inline-flex">
+                  <Button
+                    kind="primary"
+                    color="positive"
+                    size="small"
+                    disabled={confirmDisabled}
+                    loading={busy}
+                    onClick={() => {
+                      void confirm();
+                    }}
+                  >
+                    Confirm &amp; Record Release
+                  </Button>
+                </span>
+              </WorkspaceTooltip>
+            );
+          })()}
         </DialogFooter>
       </DialogContent>
     </Dialog>

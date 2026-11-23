@@ -2,6 +2,7 @@ import { readableUiError } from '../../../shared/userFacingError';
 import { useEffect, useMemo, useState } from "react";
 import { Button, Label } from "@vibe/core";
 import { CheckCircle2, ChevronRight, ShieldAlert } from "lucide-react";
+import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import type {
   CollaborationDraftSnapshot,
   CollaborationSnapshotTask,
@@ -137,8 +138,7 @@ export function CollaborationBudgetPanel({
                         : "Task funding"}
                     </div>
                   </div>
-                  {saveError && <p role="alert" className="text-xs text-red-700">{saveError}</p>}
-      {editable && (
+                  {editable && (
                     <ChevronRight size={16} className="text-neutral-400" />
                   )}
                 </div>
@@ -167,26 +167,33 @@ export function CollaborationBudgetPanel({
               ? "Every task has a complete funding decision."
               : "Complete every task budget before publication."}
           </div>
-          <Button
-            size="small"
-            disabled={!dirty || saving}
-            onClick={async () => {
-              setSaving(true);
-              setSaveError("");
-              try {
-                await onSave(
-                  { ...snapshot, tasks, budget },
-                  "Task funding schedule updated",
-                );
-              } catch (error) {
-                setSaveError(readableUiError(error, "Budget changes could not be saved.", 'write'));
-              } finally {
-                setSaving(false);
-              }
-            }}
+          <WorkspaceTooltip
+            content={saving ? "Saving budget changes…" : !dirty ? "No unsaved budget changes to save." : ""}
+            disabled={dirty && !saving}
           >
-            {saving ? "Publishing…" : "Save budget changes"}
-          </Button>
+            <span className="inline-flex">
+              <Button
+                size="small"
+                disabled={!dirty || saving}
+                onClick={async () => {
+                  setSaving(true);
+                  setSaveError("");
+                  try {
+                    await onSave(
+                      { ...snapshot, tasks, budget },
+                      "Task funding schedule updated",
+                    );
+                  } catch (error) {
+                    setSaveError(readableUiError(error, "Budget changes could not be saved.", 'write'));
+                  } finally {
+                    setSaving(false);
+                  }
+                }}
+              >
+                {saving ? "Publishing…" : "Save budget changes"}
+              </Button>
+            </span>
+          </WorkspaceTooltip>
         </div>
       )}
 

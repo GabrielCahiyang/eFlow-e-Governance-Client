@@ -79,8 +79,13 @@ export function buildVisibleTourSections({
     if (group === "workspaces") {
       // Matches WorkspaceNavigationPanel: Office tools (in groupOfficeTools order),
       // followed immediately by Projects. Legacy `tasks` is excluded just like the panel.
+      const hasDelegatedOfficeTools = items.some(
+        (item) =>
+          item.group === "workspaces" &&
+          !["projects", "tasks", "dashboard"].includes(item.id),
+      );
       const showOfficeTools =
-        (workspaceKind === "personal" || role === "head")
+        (workspaceKind === "personal" || role === "head" || hasDelegatedOfficeTools)
         && items.some((item) => item.group === "workspaces" && item.id !== "projects" && item.id !== "tasks");
 
       if (showOfficeTools) {

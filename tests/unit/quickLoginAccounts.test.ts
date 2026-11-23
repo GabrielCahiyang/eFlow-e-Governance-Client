@@ -23,6 +23,12 @@ describe("quick-login account registry", () => {
     const clientAccounts = getQuickLoginAccountsForPortal("client");
     const adminAccounts = getQuickLoginAccountsForPortal("admin");
     expect(clientAccounts.every((account) => account.roleLabel !== "Admin")).toBe(true);
+    expect(clientAccounts.map((account) => account.email)).toEqual([
+      "jamessdrian12@gmail.com",
+      "gabzcah@gmail.com",
+      "kurtditch@gmail.com",
+      "gabzcahv2@gmail.com",
+    ]);
     expect(adminAccounts.map((account) => account.email)).toEqual(["admin@gmail.com"]);
   });
 });

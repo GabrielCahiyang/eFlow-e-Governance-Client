@@ -1,10 +1,13 @@
 import { readableUiError } from '../../../shared/userFacingError';
-import { useState, type FormEvent } from 'react';
+import { useId, useState, type FormEvent } from 'react';
 import { Pencil, RotateCcw } from 'lucide-react';
+import { BoundedTextInput } from '../../../components/ui/BoundedInput';
 import { Button } from '../../../components/ui/button';
 import { FeatureDialog } from '../../../components/ui/FeatureDialog';
 import { FeedbackState } from '../../../components/ui/FeedbackState';
 import { StatusPill, WorkspaceHeader } from '../../../components/ui/workspace';
+import { WorkspaceTooltip } from '../../../components/ui/workspace/WorkspaceTooltip';
+import { INPUT_LIMITS } from '../../../shared/inputLimits';
 import { builtInStatuses, useWorkStatuses, type StatusDefinition, type StatusScope } from '../../work-status';
 import './statusMaintenance.css';
 
@@ -18,6 +21,9 @@ export function StatusMaintenance({ embedded = false }: { embedded?: boolean }) 
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
+  const [labelTouched, setLabelTouched] = useState(false);
+  const [labelDirty, setLabelDirty] = useState(false);
+  const statusNameId = useId();
   const builtIn = Object.entries(builtInStatuses).map(([id, label], index): StatusDefinition =>
     catalog.definitions.find(item => item.id === id) ??
       { id, label, color: null, position: (index + 1) * 10, scope: 'builtin', retired: false });
@@ -26,14 +32,43 @@ export function StatusMaintenance({ embedded = false }: { embedded?: boolean }) 
   function edit(item: StatusDefinition) {
     setError('');
     setNotice('');
+    setLabelTouched(false);
+    setLabelDirty(false);
     setDraft(item);
   }
 
   function closeDraft() {
     if (busy) return;
     setError('');
+    setLabelTouched(false);
+    setLabelDirty(false);
     setDraft(null);
   }
+
+  const cleanedDraftLabel = draft ? draft.label.trim().replace(/\s+/g, ' ') : '';
+  const isDuplicateDraftLabel = Boolean(
+    draft &&
+      !draft.retired &&
+      cleanedDraftLabel &&
+      [...builtIn, ...custom].some(
+        item =>
+          item.id !== draft.id &&
+          !item.retired &&
+          item.label.trim().replace(/\s+/g, ' ').toLowerCase() === cleanedDraftLabel.toLowerCase(),
+      ),
+  );
+  const rawNameIssue = !draft
+    ? ''
+    : !cleanedDraftLabel
+      ? 'Status name is required.'
+      : cleanedDraftLabel.length < 2
+        ? 'Status name must be at least 2 characters.'
+        : cleanedDraftLabel.length > INPUT_LIMITS.CODE
+          ? `Status name must be at most ${INPUT_LIMITS.CODE} characters.`
+          : isDuplicateDraftLabel
+            ? 'That status name is already in use.'
+            : '';
+  const visibleNameError = labelTouched || labelDirty ? rawNameIssue : '';
 
   async function persistDefinition(next: StatusDefinition, successNotice: string, fallbackError: string) {
     if (busy) return;
@@ -46,6 +81,8 @@ export function StatusMaintenance({ embedded = false }: { embedded?: boolean }) 
     try {
       await catalog.save(next);
       setDraft(null);
+      setLabelTouched(false);
+      setLabelDirty(false);
       setNotice(successNotice);
     } catch (reason) {
       setError(readableUiError(reason, fallbackError, 'write'));
@@ -57,9 +94,9 @@ export function StatusMaintenance({ embedded = false }: { embedded?: boolean }) 
   async function save(event: FormEvent) {
     event.preventDefault();
     if (!draft || busy) return;
-    const label = draft.label.trim().replace(/\s+/g, ' ');
-    if (!label) return setError('Enter a status name.');
-    await persistDefinition({ ...draft, label }, 'Status updated.', 'Could not save this status.');
+    setLabelTouched(true);
+    if (rawNameIssue) return;
+    await persistDefinition({ ...draft, label: cleanedDraftLabel }, 'Status updated.', 'Could not save this status.');
   }
 
   async function restoreDefault() {
@@ -169,7 +206,7 @@ export function StatusMaintenance({ embedded = false }: { embedded?: boolean }) 
           preventClose={busy}
           contentClassName="max-w-lg"
         >
-          <form className="status-maintenance-dialog-form" onSubmit={save}>
+          <form className="status-maintenance-dialog-form" noValidate onSubmit={save}>
             <div className="status-maintenance-dialog-header">
               <h2>{dialogTitle}</h2>
               {draft.scope === 'builtin' && defaultBuiltInLabel && (
@@ -177,16 +214,29 @@ export function StatusMaintenance({ embedded = false }: { embedded?: boolean }) 
               )}
             </div>
             <div className="status-maintenance-fields">
-              <label>
-                Status name
-                <input
-                  required
-                  maxLength={50}
+              <div className="grid gap-1">
+                <label htmlFor={statusNameId}>
+                  <span>
+                    Status name
+                    <span className="text-[var(--eflow-negative-text)]" aria-hidden="true"> *</span>
+                  </span>
+                </label>
+                <BoundedTextInput
+                  id={statusNameId}
+                  maxLength={INPUT_LIMITS.CODE}
                   value={draft.label}
                   disabled={busy}
-                  onChange={event => setDraft({ ...draft, label: event.target.value })}
+                  aria-required
+                  error={visibleNameError || undefined}
+                  onBlur={() => setLabelTouched(true)}
+                  onChange={event => {
+                    setLabelDirty(true);
+                    if (error) setError('');
+                    setDraft({ ...draft, label: event.target.value });
+                  }}
+                  className="w-full"
                 />
-              </label>
+              </div>
               <label>
                 Badge color
                 <input
@@ -222,27 +272,49 @@ export function StatusMaintenance({ embedded = false }: { embedded?: boolean }) 
                 <span>Hide from new items (keeps label visible on existing work)</span>
               </label>
             )}
-            {error && <FeedbackState tone="error" title="Check status details">{error}</FeedbackState>}
+            {error && !visibleNameError && <FeedbackState tone="error" title="Check status details">{error}</FeedbackState>}
             <div className="status-maintenance-dialog-footer">
               <div className="status-maintenance-dialog-reset">
                 {canRestoreBuiltInDefault && (
-                  <Button type="button" variant="outline" size="sm" disabled={busy} onClick={() => void restoreDefault()}>
-                    <RotateCcw size={13} aria-hidden="true" /> Back to default
-                  </Button>
+                  <WorkspaceTooltip
+                    content={
+                      busy
+                        ? ''
+                        : `Restores this built-in status name to “${defaultBuiltInLabel}” and resets its badge color to default.`
+                    }
+                    disabled={busy}
+                  >
+                    <span className="inline-flex">
+                      <Button type="button" variant="outline" size="sm" disabled={busy} onClick={() => void restoreDefault()}>
+                        <RotateCcw size={13} aria-hidden="true" /> Back to default
+                      </Button>
+                    </span>
+                  </WorkspaceTooltip>
                 )}
                 {draft.color && (
-                  <Button type="button" variant="ghost" size="sm" disabled={busy} onClick={() => setDraft({ ...draft, color: null })}>
-                    Reset color
-                  </Button>
+                  <WorkspaceTooltip
+                    content={busy ? '' : 'Clears the custom badge color and restores the default status color.'}
+                    disabled={busy}
+                  >
+                    <span className="inline-flex">
+                      <Button type="button" variant="ghost" size="sm" disabled={busy} onClick={() => setDraft({ ...draft, color: null })}>
+                        Reset color
+                      </Button>
+                    </span>
+                  </WorkspaceTooltip>
                 )}
               </div>
               <div className="status-maintenance-actions">
                 <Button type="button" variant="outline" disabled={busy} onClick={closeDraft}>
                   Cancel
                 </Button>
-                <Button type="submit" disabled={busy}>
-                  {busy ? 'Saving…' : 'Save status'}
-                </Button>
+                <WorkspaceTooltip content={busy ? '' : rawNameIssue} disabled={busy || !rawNameIssue}>
+                  <span className="inline-flex">
+                    <Button type="submit" disabled={busy || Boolean(rawNameIssue)}>
+                      {busy ? 'Saving…' : 'Save status'}
+                    </Button>
+                  </span>
+                </WorkspaceTooltip>
               </div>
             </div>
           </form>

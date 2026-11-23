@@ -5,9 +5,12 @@ import type { ReadinessCheck } from '../types';
 const presentation: Record<string, {title:string;icon:typeof Check}> = {
  structure:{title:'Work plan review',icon:ClipboardList}, dates:{title:'Schedule review',icon:CalendarDays},
  budget:{title:'Budget review',icon:Wallet}, schedule:{title:'Project dates',icon:CalendarDays},
+ start_date_reached:{title:'Project start date',icon:CalendarDays},
  staffing:{title:'Task leads',icon:UsersRound}, work:{title:'Project tasks',icon:ClipboardList},
  office_identity:{title:'Office names',icon:Building2}, invitations:{title:'Office participation',icon:Building2},
  responsibilities:{title:'Office responsibilities',icon:ShieldCheck},
+ funding_certification:{title:'Funding approval',icon:Wallet},
+ project_setup:{title:'Project details & funding',icon:ClipboardList},
 };
 
 /** A compact action list; server checks remain the only source of readiness. */

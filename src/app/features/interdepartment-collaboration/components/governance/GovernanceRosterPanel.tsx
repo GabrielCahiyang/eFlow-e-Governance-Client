@@ -1,4 +1,5 @@
 import { readableUiError } from '../../../../shared/userFacingError';
+import { FieldValidationTooltip } from "../../../../components/ui/FieldValidationTooltip";
 import { WorkspaceTooltip } from "../../../../components/ui/workspace/WorkspaceTooltip";
 import { useExplicitDraft } from "../../../../shared/useExplicitDraft";
 import { INPUT_LIMITS, blockInvalidNumberKey, maxDigitsForNumber } from "../../../../shared/inputLimits";
@@ -148,18 +149,26 @@ export function GovernanceRosterPanel({
   const candidates = profiles.filter(
     (profile) => profile.is_active && profile.org_id === selectedOrg,
   );
-  const addPerson = () => {
-    if (
-      !selectedOrg ||
-      !newUserId ||
+  const rosterConfigError = governanceConfigurationError(orgs);
+  const duplicateAssignment = Boolean(
+    selectedOrg &&
+      newUserId &&
       people.some(
         (item) =>
           item.organizationId === selectedOrg &&
           item.userId === newUserId &&
           item.role === newRole,
-      )
-    )
-      return;
+      ),
+  );
+  const addDisabledReason = !selectedOrg
+    ? "Select an organization first."
+    : !newUserId
+      ? "Select an active person to add to the governance roster."
+      : duplicateAssignment
+        ? "This person already has that governance role in this organization."
+        : "";
+  const addPerson = () => {
+    if (addDisabledReason) return;
     setPeople((current) => [
       ...current,
       { organizationId: selectedOrg, userId: newUserId, role: newRole },
@@ -180,14 +189,21 @@ export function GovernanceRosterPanel({
           </p>
         </div>
         {editable && (
-          <button
-            type="button"
-            disabled={busy || saving}
-            onClick={() => void save()}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-neutral-900 px-3 py-2 text-[10px] text-white disabled:opacity-40"
+          <WorkspaceTooltip
+            content={busy || saving ? "" : rosterConfigError}
+            disabled={busy || saving || !rosterConfigError}
           >
-            <Save size={12} /> Save governance
-          </button>
+            <span className="inline-flex">
+              <button
+                type="button"
+                disabled={busy || saving || Boolean(rosterConfigError)}
+                onClick={() => void save()}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-neutral-900 px-3 py-2 text-[10px] text-white disabled:opacity-40"
+              >
+                <Save size={12} /> Save governance
+              </button>
+            </span>
+          </WorkspaceTooltip>
         )}
       </div>
       {error && (
@@ -304,38 +320,23 @@ export function GovernanceRosterPanel({
                         className="h-8 w-14 rounded-lg border border-neutral-200 bg-white px-2 tabular-nums"
                       />
                     </label>
-                    <label className="flex items-center gap-1 text-[9px] text-neutral-500">
-                      Due
-                      <input
-                        type="number"
-                        min={1}
-                        max={INPUT_LIMITS.DAYS_REVIEW_MAX}
-                        step={1}
-                        aria-label="Review deadline in days"
-                        aria-invalid={!!governanceConfigurationError([participant])}
-                        value={participant.reviewDeadlineDays || 5}
-                        onKeyDown={(event) => blockInvalidNumberKey(event)}
-                        onChange={(event) => {
-                          const raw = event.target.value;
-                          if (raw !== "") {
-                            const intDigits = raw.replace(/^-/, "").split(".")[0].replace(/^0+(?=\d)/, "");
-                            if (intDigits.length > maxDigitsForNumber(INPUT_LIMITS.DAYS_REVIEW_MAX)) return;
-                          }
-                          setOrgs((current) =>
-                            current.map((item) =>
-                              item.orgId === participant.orgId
-                                ? {
-                                    ...item,
-                                    reviewDeadlineDays: raw === "" ? NaN : Number(raw),
-                                  }
-                                : item,
-                            ),
-                          );
-                        }}
-                        className="h-8 w-14 rounded-lg border border-neutral-200 bg-white px-2"
-                      />
-                      days
-                    </label>
+                    <ReviewDeadlineInput
+                      value={
+                        participant.reviewDeadlineDays === undefined
+                          ? 5
+                          : participant.reviewDeadlineDays
+                      }
+                      error={governanceConfigurationError([participant])}
+                      onChange={(nextDays) =>
+                        setOrgs((current) =>
+                          current.map((item) =>
+                            item.orgId === participant.orgId
+                              ? { ...item, reviewDeadlineDays: nextDays }
+                              : item,
+                          ),
+                        )
+                      }
+                    />
                   </div>
                 )}
               </div>
@@ -428,16 +429,87 @@ export function GovernanceRosterPanel({
               </option>
             ))}
           </select>
-          <button
-            type="button"
-            disabled={!newUserId}
-            onClick={addPerson}
-            className="inline-flex h-9 items-center justify-center gap-1 rounded-lg bg-primary px-3 text-[10px] text-primary-foreground transition hover:bg-primary/90 disabled:opacity-40"
-          >
-            <Plus size={12} /> Add
-          </button>
+          <WorkspaceTooltip content={addDisabledReason} disabled={!addDisabledReason}>
+            <span className="inline-flex">
+              <button
+                type="button"
+                disabled={Boolean(addDisabledReason)}
+                onClick={addPerson}
+                className="inline-flex h-9 w-full items-center justify-center gap-1 rounded-lg bg-primary px-3 text-[10px] text-primary-foreground transition hover:bg-primary/90 disabled:opacity-40"
+              >
+                <Plus size={12} /> Add
+              </button>
+            </span>
+          </WorkspaceTooltip>
         </div>
       )}
     </section>
+  );
+}
+
+function ReviewDeadlineInput({
+  value,
+  error,
+  onChange,
+}: {
+  value: number;
+  error: string;
+  onChange: (nextValue: number) => void;
+}) {
+  const inputRef = React.useRef<HTMLInputElement | null>(null);
+  const tipId = React.useId();
+  const [tipOpen, setTipOpen] = React.useState(false);
+
+  return (
+    <div className="flex flex-col items-end">
+      <label className="flex items-center gap-1 text-[9px] text-neutral-500">
+        Due
+        <input
+          ref={inputRef}
+          type="number"
+          min={1}
+          max={INPUT_LIMITS.DAYS_REVIEW_MAX}
+          step={1}
+          aria-label="Review deadline in days"
+          aria-invalid={Boolean(error) || undefined}
+          aria-describedby={tipOpen && error ? tipId : undefined}
+          value={Number.isNaN(value) ? "" : value}
+          onFocus={() => setTipOpen(true)}
+          onBlur={() => setTipOpen(false)}
+          onMouseEnter={() => setTipOpen(true)}
+          onMouseLeave={() => setTipOpen(false)}
+          onKeyDown={(event) => blockInvalidNumberKey(event)}
+          onChange={(event) => {
+            const raw = event.target.value;
+            if (raw !== "") {
+              const intDigits = raw
+                .replace(/^-/, "")
+                .split(".")[0]
+                .replace(/^0+(?=\d)/, "");
+              if (intDigits.length > maxDigitsForNumber(INPUT_LIMITS.DAYS_REVIEW_MAX)) {
+                return;
+              }
+            }
+            onChange(raw === "" ? NaN : Number(raw));
+          }}
+          className={`h-8 w-14 rounded-lg border bg-white px-2 tabular-nums ${
+            error ? "eflow-field-invalid border-destructive" : "border-neutral-200"
+          }`}
+        />
+        days
+      </label>
+      <FieldValidationTooltip
+        id={tipId}
+        anchorRef={inputRef}
+        message={error || undefined}
+        open={tipOpen && Boolean(error)}
+        tone="error"
+      />
+      {error && (
+        <span className="mt-0.5 text-[10px] font-medium text-[var(--eflow-negative-text)]">
+          {error}
+        </span>
+      )}
+    </div>
   );
 }

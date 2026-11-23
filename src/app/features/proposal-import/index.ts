@@ -22,6 +22,5 @@ export type {
   ProposalDecompositionTask,
 } from "./types";
 export { default as ProposalImport } from "./components/ProposalImport";
-export { ProposalImportDialog } from "./components/ProposalImportDialog";
 export { ProposalPdfForm } from "./components/ProposalPdfForm";
 export { ManualPlanBuilder } from "./components/ManualPlanBuilder";

@@ -5,7 +5,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.security import HTTPAuthorizationCredentials
 from pydantic import BaseModel, ConfigDict, Field, SecretStr, field_validator
-from gateway_dependencies import bearer, require_user, supabase_admin
+from gateway_dependencies import _permission_allowed, bearer, is_administrator, require_user, supabase_admin
 from invitations import service
 from invitations import local_offices
 from services.private_validation import PrivateValidationRoute
@@ -162,7 +162,11 @@ def office_team(user=Depends(require_user)):
     return database_read(lambda: _office_team(user))
 
 def _office_team(user):
-    service.require_head(user)
+    if user.role == 'head':
+        service.require_head(user)
+    else:
+        if is_administrator(user.role) or not user.org_id or not _permission_allowed(user, 'navigation.team_supervision'):
+            raise HTTPException(status_code=403, detail='The navigation.team_supervision capability is required.')
     office = supabase_admin.table('organizations').select('name').eq('id', user.org_id).single().execute().data
     members = supabase_admin.table('profiles').select('id,full_name,email,role,is_active').eq('org_id', user.org_id).order('full_name').execute().data or []
     return {'office_name': office['name'], 'members': members}

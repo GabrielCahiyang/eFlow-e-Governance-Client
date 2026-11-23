@@ -1,6 +1,7 @@
 import {createContext,useContext,type ReactNode} from 'react';
 import {useAuth} from '../../../../contexts/AuthContext';
 import {Button} from '../../../../components/ui/button';
+import {WorkspaceTooltip} from '../../../../components/ui/workspace/WorkspaceTooltip';
 import type {Employee} from '../../../../services/employeeService';
 import {getCachedProjects} from '../../../../services/projectService';
 import type {Task} from '../../../../services/taskService';
@@ -11,10 +12,20 @@ import {TaskSubtasksWidget} from '../../../subtasks';
 interface Props {task:Task;employees:Employee[];readOnly:boolean}
 const EditorWorkContext=createContext<WorkTreeController|undefined>(undefined);
 export interface LegacyEditorStaffingScope {rootId:string;actorId:string;code:'PGRST202'}
-export function TaskEditorSaveButton({task,saving,onSave}:{task:Task;saving:boolean;onSave:(legacy?:LegacyEditorStaffingScope)=>void}){
+export function TaskEditorSaveButton({task,saving,disabled=false,disabledReason='',onSave}:{task:Task;saving:boolean;disabled?:boolean;disabledReason?:string;onSave:(legacy?:LegacyEditorStaffingScope)=>void}){
  const controller=useContext(EditorWorkContext),{user}=useAuth();
  const legacy=controller?.unavailable&&!controller.loading&&!controller.pending&&!controller.error&&controller.rootId===task.id&&user?.id&&controller.actorId===user.id?{rootId:task.id,actorId:user.id,code:'PGRST202' as const}:undefined;
- return <Button disabled={saving} onClick={()=>legacy?onSave(legacy):onSave()}>{saving?'Saving...':'Save changes'}</Button>;
+ const isDisabled=saving||disabled;
+ const tooltip=saving?'Saving changes…':disabled?disabledReason:'';
+ return (
+  <WorkspaceTooltip content={tooltip} disabled={!tooltip}>
+   <span className="inline-flex">
+    <Button type="button" disabled={isDisabled} onClick={()=>legacy?onSave(legacy):onSave()}>
+     {saving?'Saving...':'Save changes'}
+    </Button>
+   </span>
+  </WorkspaceTooltip>
+ );
 }
 export function TaskEditorWorkOwner({task,children}:{task:Task;children:ReactNode}){
  return supportsNestedWork(task)?<ConnectedOwner task={task}>{children}</ConnectedOwner>:<>{children}</>;

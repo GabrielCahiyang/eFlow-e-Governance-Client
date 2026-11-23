@@ -11,20 +11,40 @@ const projectErrorListeners=new Set<(error:Error)=>void>();
 // to Plans & Projects does not blank the workspace while the same query runs
 // again. Realtime events still invalidate and refresh this snapshot.
 const PROJECT_CACHE_TTL_MS = 30_000;
+const DUE_ACTIVATION_SYNC_COOLDOWN_MS = 60_000;
 let projectCache: Project[] | null = null;
 let projectCacheUpdatedAt = 0;
+let lastDueActivationSyncAt = 0;
 let projectLoadPromise: Promise<Project[]> | null = null;
 let projectRealtimeChannel: ReturnType<typeof supabase.channel> | null = null;
+let projectSetupWindowListener: (() => void) | null = null;
 let cacheGeneration = 0;
 export function getCachedProjects(): Project[] | null { return projectCache; }
-registerExternalMemoryCache('projects','Projects',()=>{++cacheGeneration;projectCache=null;projectCacheUpdatedAt=0;projectLoadPromise=null;if(projectListeners.size>0)void notifyProjectListeners();},()=>({domain:'projects',entries:projectCache?1:0,approxBytes:projectCache?projectCache.length*480:0}));
+registerExternalMemoryCache('projects','Projects',()=>{++cacheGeneration;projectCache=null;projectCacheUpdatedAt=0;lastDueActivationSyncAt=0;projectLoadPromise=null;if(projectListeners.size>0)void notifyProjectListeners();},()=>({domain:'projects',entries:projectCache?1:0,approxBytes:projectCache?projectCache.length*480:0}));
 registerAuthCacheReset(() => {
   ++cacheGeneration;
-  projectCache = null; projectCacheUpdatedAt = 0; projectLoadPromise = null;
+  projectCache = null; projectCacheUpdatedAt = 0; lastDueActivationSyncAt = 0; projectLoadPromise = null;
   projectListeners.forEach(callback => callback([]));
   if (projectRealtimeChannel) void supabase.removeChannel(projectRealtimeChannel);
   projectRealtimeChannel = null;
+  if (projectSetupWindowListener && typeof window !== 'undefined') {
+    window.removeEventListener('eflow:project-setup', projectSetupWindowListener);
+    projectSetupWindowListener = null;
+  }
 });
+
+async function maybeSyncDueProjectActivations(): Promise<void> {
+  const now = Date.now();
+  if (now - lastDueActivationSyncAt < DUE_ACTIVATION_SYNC_COOLDOWN_MS) return;
+  lastDueActivationSyncAt = now;
+  try {
+    if (typeof supabase.rpc === 'function') {
+      await supabase.rpc('sync_due_project_activations', {});
+    }
+  } catch {
+    // Non-blocking: pg_cron also handles due activations every minute.
+  }
+}
 
 export const PROJECTS_BROADCAST_EVENT = 'eflow:projects-broadcast';
 
@@ -67,7 +87,14 @@ export function subscribeToProjects(callback: (projects: Project[]) => void,onEr
 
   if (projectCache) callback(projectCache);
   if (!projectCache || Date.now() - projectCacheUpdatedAt > PROJECT_CACHE_TTL_MS) {
-    void notifyProjectListeners();
+    void maybeSyncDueProjectActivations().finally(() => void notifyProjectListeners());
+  }
+
+  if (!projectSetupWindowListener && typeof window !== 'undefined') {
+    projectSetupWindowListener = () => {
+      void notifyProjectListeners();
+    };
+    window.addEventListener('eflow:project-setup', projectSetupWindowListener);
   }
 
   // Share one realtime channel across all consumers. The channel remains
@@ -88,6 +115,10 @@ export function subscribeToProjects(callback: (projects: Project[]) => void,onEr
     if (projectListeners.size === 0 && projectRealtimeChannel) {
       void supabase.removeChannel(projectRealtimeChannel);
       projectRealtimeChannel = null;
+    }
+    if (projectListeners.size === 0 && projectSetupWindowListener && typeof window !== 'undefined') {
+      window.removeEventListener('eflow:project-setup', projectSetupWindowListener);
+      projectSetupWindowListener = null;
     }
   };
 }

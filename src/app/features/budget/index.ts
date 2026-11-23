@@ -10,9 +10,11 @@ export const AssignedIndependentReviews = lazyFeature(
 export * from "./types";
 export * from "./constants";
 export * from "./services/budgetService";
+export * from "./services/workCashAssignmentService";
 export * from "./hooks/useDepartmentBudget";
 export * from "./selectors/budgetSelectors";
 export * from "./selectors/cashWorkflowRules";
+export * from "./selectors/workCashPools";
 export { OfficeBudgetWorkspace } from "./components/OfficeBudgetWorkspace";
 export {
   AccountingStaffWorkspace,
@@ -56,6 +58,8 @@ export { isCashCompletionError } from "./selectors/taskCashClearance";
 export * from "./services/workFinancialClearanceService";
 export { WorkFinancialClearancePanel } from "./components/WorkFinancialClearancePanel";
 export { CashReturnPanel } from "./components/CashReturnPanel";
+export { AssignMoneyModal } from "./components/AssignMoneyModal";
+export { AssignmentReceiptDialog } from "./components/AssignmentReceiptDialog";
 
 export {
   ACCOUNTING_VIEWS,

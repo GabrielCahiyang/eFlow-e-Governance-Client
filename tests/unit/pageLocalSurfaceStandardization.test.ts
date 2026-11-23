@@ -2,7 +2,6 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 const annualBudget = readFileSync("src/app/features/budget/components/AnnualBudgetSetup.tsx", "utf8");
-const sessionBroadcast = readFileSync("src/app/features/role-legislative/session/components/SessionBroadcast.tsx", "utf8");
 const auditPrimitives = readFileSync("src/app/features/role-executive/components/AuditPrimitives.tsx", "utf8");
 const returnedFunds = readFileSync("src/app/features/role-executive/components/ReturnedFunds.tsx", "utf8");
 const projectDashboard = readFileSync("src/app/features/projects/components/project-command/ProjectDashboardTab.tsx", "utf8");
@@ -13,12 +12,10 @@ const reviewInbox = readFileSync("src/app/features/reviews/components/ForReviewI
 const card = "rounded-[10px] border border-border bg-card p-5 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]";
 
 describe("page-local surface standardization", () => {
-  it("uses canonical cards and 14px panels in the budget and legislative workspaces", () => {
+  it("uses canonical cards and 14px panels in the budget workspace", () => {
     expect(annualBudget).toContain(card);
     expect(annualBudget).toContain("rounded-[14px] border border-border bg-muted/50 p-3");
     expect(annualBudget).toContain("bg-primary px-4");
-    expect(sessionBroadcast).toContain("rounded-[10px] border border-border bg-card shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]");
-    expect(sessionBroadcast).toContain("rounded-[14px] border border-border bg-card");
   });
 
   it("uses canonical executive cards and a scrollable, fixed-width table pattern", () => {

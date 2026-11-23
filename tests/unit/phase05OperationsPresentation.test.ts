@@ -9,13 +9,12 @@ const peopleShell = read("src/app/features/team-management/components/PeopleWork
 const reports = read("src/app/features/reports/components/HeadReportsWorkspace.tsx");
 const reportTable = read("src/app/features/reports/components/DepartmentReportTable.tsx");
 const announcementCenter = read("src/app/features/announcements/components/center/AnnouncementCenter.tsx");
-const adminAnnouncements = read("src/app/features/announcements/components/admin/AdminAnnouncements.tsx");
 const messagesButton = read("src/app/features/chat-calls/components/MessagesButton.tsx");
 const chatChannels = read("src/app/features/chat-calls/components/ChatChannelList.tsx");
 
 describe("Phase 8 people, reports, and communications presentation", () => {
   it("uses layout-matched skeletons instead of blocking spinner surfaces", () => {
-    for (const source of [supervision, intelligence, reports, announcementCenter, adminAnnouncements]) {
+    for (const source of [supervision, intelligence, reports, announcementCenter]) {
       expect(source).toContain("WorkspaceLoadingSkeleton");
       expect(source).not.toContain("LoadingState");
     }

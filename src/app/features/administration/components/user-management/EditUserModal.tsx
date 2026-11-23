@@ -1,13 +1,16 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { useAuth } from "../../../../contexts/AuthContext";
+import { BoundedTextInput } from "../../../../components/ui/BoundedInput";
+import { FieldValidationTooltip } from "../../../../components/ui/FieldValidationTooltip";
 import {
   FormField,
   SelectInput,
-  TextInput,
 } from "../../../../components/ui/FormField";
 import { FeedbackState } from "../../../../components/ui/FeedbackState";
 import { Modal, ModalButton } from "../../../../components/ui/Modal";
 import { useToast } from "../../../../components/ui/Toast";
+import { WorkspaceTooltip } from "../../../../components/ui/workspace/WorkspaceTooltip";
+import { INPUT_LIMITS } from "../../../../shared/inputLimits";
 import type { Organization, UserProfile } from "../../../../types";
 import { getAssignableRoleOptions } from "./userManagementPrimitives";
 import {
@@ -68,6 +71,11 @@ export function EditUserModal({
   const [resetSentNotice, setResetSentNotice] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"basic" | "skills">("basic");
   const [skills, setSkills] = useState<Record<string, boolean>>({});
+  const [fullNameTouched, setFullNameTouched] = useState(false);
+  const [roleTipOpen, setRoleTipOpen] = useState(false);
+  const roleWrapRef = useRef<HTMLDivElement | null>(null);
+  const roleId = useId();
+  const roleTipId = useId();
   const { activeLabels: availableSkillTags, loading: loadingSkillTags } = useSkillTags(isOpen);
   const initialBaseRole = editUser ? normalizeUserRole(editUser.role) : "member";
   const resolvedRole = (() => {
@@ -129,6 +137,7 @@ export function EditUserModal({
         orgId: editUser.org_id || "",
       });
       setSkills(editUser.skills || {});
+      setFullNameTouched(false);
     }
   };
   const dirty = Boolean(
@@ -144,6 +153,36 @@ export function EditUserModal({
     void requestNavigation(onClose);
   };
   const lastAdmin = editUser ? isLastActiveAdmin(editUser, profiles) : false;
+  const isSelfEdit = Boolean(editUser && editUser.id === userProfile?.id);
+  const trimmedFullName = form.fullName.trim();
+  const rawFullNameIssue = !trimmedFullName
+    ? "Full name is required."
+    : trimmedFullName.length < 2
+      ? "Enter the full name (at least 2 characters)."
+      : "";
+  const visibleFullNameError =
+    fullNameTouched || form.fullName !== (editUser?.full_name ?? "")
+      ? rawFullNameIssue
+      : "";
+  const lastAdminRoleBlocked = lastAdmin && !isAdminRole(resolvedRole.role);
+  const saveBlockedReason =
+    rawFullNameIssue ||
+    (lastAdminRoleBlocked ? "The last active Admin must keep Admin access." : "") ||
+    leadershipConflict ||
+    "";
+  const roleFieldError =
+    leadershipConflict ||
+    (lastAdminRoleBlocked ? "The last active Admin must keep Admin access." : "");
+  const roleTooltipMessage =
+    roleFieldError ||
+    (isSelfEdit
+      ? "You cannot change your own role while signed in. Ask another Admin to update it."
+      : lastAdmin
+        ? "The last active Admin must keep Admin access."
+        : leadershipLocked
+          ? "Leadership roles are managed by Admin."
+          : "");
+  const roleTooltipTone: "error" | "warning" = roleFieldError ? "error" : "warning";
 
   useEffect(() => {
     if (editUser) {
@@ -156,6 +195,7 @@ export function EditUserModal({
       setActiveTab("basic");
       setResetSentNotice(null);
       setSaveError(null);
+      setFullNameTouched(false);
     }
   }, [editUser]);
 
@@ -164,6 +204,14 @@ export function EditUserModal({
     editUser?.is_active !== false &&
     (isAdminRole(userProfile?.role) ||
       (!isAdminRole(editUser?.role) && !isManagedLeadershipRole(editUser?.role || "")));
+  const resetDisabledReason =
+    saving || sendingReset
+      ? ""
+      : editUser && editUser.is_active === false
+        ? "Activate this account before sending a password reset link."
+        : !canSendPasswordReset
+          ? "Only Admin can send a password reset link for an Admin or leadership account."
+          : "";
 
   const handleSendPasswordReset = async () => {
     if (!editUser || sendingReset || !canSendPasswordReset) return;
@@ -194,6 +242,11 @@ export function EditUserModal({
   const handleSave = async () => {
     if (savePending.current) return;
     if (!editUser) return;
+    if (rawFullNameIssue) {
+      setFullNameTouched(true);
+      setActiveTab("basic");
+      return;
+    }
     if (lastAdmin && !isAdminRole(resolvedRole.role)) {
       toast("The last active Admin must keep Admin access.", "error");
       return;
@@ -224,14 +277,14 @@ export function EditUserModal({
         organizations,
         profiles,
         changes: {
-          full_name: form.fullName,
+          full_name: trimmedFullName,
           role: resolvedRole.role,
           custom_role_key: resolvedRole.customRoleKey,
           org_id: form.orgId || null,
           skills,
         },
       });
-      toast(`User "${form.fullName}" updated`, "success");
+      toast(`User "${trimmedFullName}" updated`, "success");
       draft.markClean();
       onClose();
     } catch (err: any) {
@@ -259,9 +312,21 @@ export function EditUserModal({
           <ModalButton disabled={saving} onClick={close}>
             Cancel
           </ModalButton>
-          <ModalButton variant="primary" onClick={handleSave} pending={saving}>
-            {saving ? "Saving..." : "Save Changes"}
-          </ModalButton>
+          <WorkspaceTooltip
+            content={saving ? "" : saveBlockedReason}
+            disabled={saving || !saveBlockedReason}
+          >
+            <span className="inline-flex">
+              <ModalButton
+                variant="primary"
+                onClick={handleSave}
+                pending={saving}
+                disabled={Boolean(saveBlockedReason)}
+              >
+                {saving ? "Saving..." : "Save Changes"}
+              </ModalButton>
+            </span>
+          </WorkspaceTooltip>
         </>
       }
     >
@@ -304,33 +369,60 @@ export function EditUserModal({
         {activeTab === "basic" && (
           <div className="space-y-4">
             <FormField label="Full Name" required>
-              <TextInput
-                maxLength={160}
+              <BoundedTextInput
+                maxLength={INPUT_LIMITS.PERSON_NAME}
                 value={form.fullName}
+                error={visibleFullNameError || undefined}
+                onBlur={() => setFullNameTouched(true)}
                 onChange={(e) => setForm({ ...form, fullName: e.target.value })}
+                className="eflow-form-input h-10 w-full rounded-lg border border-border bg-input-background px-3 text-[13px] font-normal text-foreground placeholder:text-muted-foreground outline-none transition-all hover:border-neutral-400 focus:border-ring focus:ring-2 focus:ring-ring/15"
               />
             </FormField>
             <div>
-              <FormField label="Role" error={leadershipConflict || undefined}>
-                <SelectInput
-                  value={form.role}
-                  onChange={(e) =>
-                    setForm({ ...form, role: e.target.value })
-                  }
-                  options={roleOptions}
-                  hasError={Boolean(leadershipConflict)}
-                  disabled={
-                    leadershipLocked ||
-                    lastAdmin ||
-                    editUser.id === userProfile?.id
-                  }
-                />
+              <FormField label="Role" controlId={roleId} error={roleFieldError || undefined}>
+                <div
+                  ref={roleWrapRef}
+                  onMouseEnter={() => setRoleTipOpen(true)}
+                  onMouseLeave={() => setRoleTipOpen(false)}
+                >
+                  <SelectInput
+                    id={roleId}
+                    value={form.role}
+                    onChange={(e) =>
+                      setForm({ ...form, role: e.target.value })
+                    }
+                    onFocus={() => setRoleTipOpen(true)}
+                    onBlur={() => setRoleTipOpen(false)}
+                    options={roleOptions}
+                    hasError={Boolean(roleFieldError)}
+                    aria-invalid={Boolean(roleFieldError) || undefined}
+                    aria-describedby={roleTipOpen && Boolean(roleTooltipMessage) ? roleTipId : undefined}
+                    disabled={
+                      leadershipLocked ||
+                      lastAdmin ||
+                      isSelfEdit
+                    }
+                  />
+                  <FieldValidationTooltip
+                    id={roleTipId}
+                    anchorRef={roleWrapRef}
+                    message={roleTooltipMessage || undefined}
+                    open={roleTipOpen && Boolean(roleTooltipMessage)}
+                    tone={roleTooltipTone}
+                  />
+                </div>
               </FormField>
             </div>
             {lastAdmin ? (
               <p className="rounded-lg border border-amber-100 bg-amber-50 px-3 py-2 text-[10.5px] text-amber-800">
                 The last active Admin must keep Admin access. Create or activate
                 another Admin before changing this account's role.
+              </p>
+            ) : null}
+            {isSelfEdit && !lastAdmin && !leadershipLocked ? (
+              <p className="rounded-lg border border-blue-100 bg-blue-50 px-3 py-2 text-[10.5px] text-blue-800">
+                You cannot change your own role while signed in. Ask another
+                Admin if your role needs to be updated.
               </p>
             ) : null}
             {leadershipLocked ? (
@@ -350,13 +442,20 @@ export function EditUserModal({
                     : "Activate this account before sending a password reset link."}
                 </p>
               </div>
-              <ModalButton
-                disabled={saving || sendingReset || !canSendPasswordReset}
-                onClick={() => void handleSendPasswordReset()}
+              <WorkspaceTooltip
+                content={resetDisabledReason}
+                disabled={!resetDisabledReason}
               >
-                <Mail size={13} aria-hidden="true" />
-                {sendingReset ? "Sending…" : "Send reset link"}
-              </ModalButton>
+                <span className="inline-flex">
+                  <ModalButton
+                    disabled={saving || sendingReset || !canSendPasswordReset}
+                    onClick={() => void handleSendPasswordReset()}
+                  >
+                    <Mail size={13} aria-hidden="true" />
+                    {sendingReset ? "Sending…" : "Send reset link"}
+                  </ModalButton>
+                </span>
+              </WorkspaceTooltip>
             </div>
             {resetSentNotice ? (
               <FeedbackState tone="success" title="Reset link sent">

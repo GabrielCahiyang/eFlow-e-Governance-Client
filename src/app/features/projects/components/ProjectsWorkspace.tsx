@@ -31,8 +31,7 @@ import { ProjectWorkspaceActions } from './ProjectWorkspaceActions';
 import { TaskDetailDrawer } from "../../task-inspector";
 import { ProjectDeleteDialog } from "./ProjectDeleteDialog";
 import { ProjectDetail } from "./ProjectDetail";
-import type { ProjectCommandTab } from "./project-command/types";
-import type { ProjectTool } from "./project-command/ProjectToolsInspector";
+import type { ProjectCommandTab, ProjectTool } from "./project-command/types";
 import {
   ALL_PROJECT_DEPARTMENTS,
   UNASSIGNED_PROJECT_DEPARTMENT,
@@ -102,7 +101,13 @@ export function ProjectsWorkspace({
   const [committedProject, setCommittedProject] = React.useState<import('../services/types').Project>();
   const createdNavigationRef = React.useRef<string | undefined>(undefined);
   const dbProjects = React.useMemo(() => {
-    const snapshot = workspaceScope ? availableProjects.filter(project=>workspaceScope.officeProjectIds.includes(project.id)) : availableProjects;
+    const snapshot = workspaceScope
+      ? availableProjects.filter(
+          (project) =>
+            workspaceScope.officeProjectIds.includes(project.id) ||
+            (workspaceScope.workspace.kind === 'office' && project.orgId === workspaceScope.workspace.office_id),
+        )
+      : availableProjects;
     // Keep the returned creation receipt visible until realtime catches up.
     return committedProject && (!workspaceScope || committedProject.orgId === workspaceScope.workspace.office_id) && !snapshot.some(project=>project.id===committedProject.id) ? [...snapshot, committedProject] : snapshot;
   }, [availableProjects,workspaceScope, committedProject]);
@@ -214,21 +219,29 @@ export function ProjectsWorkspace({
   const approvalPortfolioDrafts = React.useMemo(() => collaboration.drafts.filter((draft) => matchesProjectDepartment(draft.ownerOrgId, departmentFilter)), [collaboration.drafts, departmentFilter]);
   // Tab management handlers
   const openProject = React.useCallback(
-    (projectId: string, historyMode: 'push' | 'replace' | false = 'replace') => {
+    (
+      projectId: string,
+      historyMode: 'push' | 'replace' | false = 'replace',
+      preferredTab?: ProjectCommandTab,
+    ) => {
       const project = dbProjects.find((p) => p.id === projectId);
       if (!project) return false;
       setContextNotice('');
       const tabId = `project-${projectId}`;
       const title = project?.title || "Project Workspace";
+      const nextView: ProjectCommandTab =
+        preferredTab || (activeTab.projectId === projectId ? projectWorkspaceTab : 'tasks');
       setActiveTab({ id: tabId, type: 'project', projectId, title });
       setWorkspaceView("portfolio");
       if (historyMode) {
         const params = new URLSearchParams(window.location.search);
-        const view = params.get('project') === projectId ? params.get('view') || projectWorkspaceTab : 'tasks';
+        const view =
+          preferredTab ||
+          (params.get('project') === projectId ? params.get('view') || projectWorkspaceTab : 'tasks');
         writeNavigationLocation('projects', 'Projects', historyMode, { project: projectId, view, parameters: { project: projectId, view } });
       }
 
-      setProjectWorkspaceTab(currentView => activeTab.projectId === projectId ? currentView : 'tasks');
+      setProjectWorkspaceTab(nextView);
       return true;
     },
     [activeTab.projectId, dbProjects, projectWorkspaceTab],
@@ -279,11 +292,11 @@ export function ProjectsWorkspace({
       if (needsPlan && collaboration.loading) return false;
       if (needsPlan && collaboration.error) { setContextNotice('Work plans could not load. Open Saved work plans and retry loading.'); return false; }
       if (intent.kind === "collaboration" && intent.proposalId) {
-        if (!openProposal(intent.proposalId)) { setContextNotice('This work plan is unavailable or is no longer shared with you.'); return 'unavailable'; }
+        if (!openProposal(intent.proposalId, intent.proposalTab || "overview")) { setContextNotice('This work plan is unavailable or is no longer shared with you.'); return 'unavailable'; }
         return true;
       }
       if (intent.projectId) {
-        if (!openProject(intent.projectId, 'push')) { setContextNotice('This project is unavailable in this workspace. Open its home workspace or check your access.'); return 'unavailable'; }
+        if (!openProject(intent.projectId, 'push', intent.projectTab)) { setContextNotice('This project is unavailable in this workspace. Open its home workspace or check your access.'); return 'unavailable'; }
         if ((intent.kind === "task" || intent.kind === "budget") && intent.taskId) {
           setCompletionTaskId(intent.taskId);
         }
@@ -296,7 +309,7 @@ export function ProjectsWorkspace({
         return true;
       }
       if (intent.proposalId) {
-        if (!openProposal(intent.proposalId)) { setContextNotice('This work plan is unavailable or is no longer shared with you.'); return 'unavailable'; }
+        if (!openProposal(intent.proposalId, intent.proposalTab || "overview")) { setContextNotice('This work plan is unavailable or is no longer shared with you.'); return 'unavailable'; }
         return true;
       }
       setContextNotice('This notification does not contain a project or work-plan link.');
@@ -407,7 +420,27 @@ export function ProjectsWorkspace({
       {/* The workspace is intentionally continuous: global rail → project context → page. */}
       <div className="flex-1 min-w-0 bg-white">
         {/* Tab 1: Project Workspace Detail Tab */}
-        {activeTab.type === "project" && activeProject && (
+        {activeTab.type === "project" && activeProject && (() => {
+          const canManageThisProject = canManageSpecificProject(
+            activeProject,
+            userProfile,
+            orgs,
+            access.canManage,
+          );
+          const isProjectController =
+            canManageThisProject ||
+            (isAppointedOfficeHead(userProfile, orgs) &&
+              activeProject.orgId === currentOrgId);
+          const canArchiveThisProject =
+            access.canArchive && isProjectController;
+          const canDeleteThisProject =
+            access.canDelete && isProjectController;
+          const canDiscardOwnDraft =
+            activeProject.publicationState === "draft" &&
+            (activeProject.projectLeadId === userProfile?.id ||
+              activeProject.createdBy === userProfile?.id);
+
+          return (
           <div className="animate-in fade-in duration-150" key={activeTab.id}>
             <ProjectDetail
               key={`${currentUserId}:${currentOrgId}:${userProfile?.role || ''}:${activeProject.id}`}
@@ -418,23 +451,31 @@ export function ProjectsWorkspace({
               onBack={() => { void requestNavigation(() => closeTab(activeTab.id)); }}
               onDeleted={() => closeTab(activeTab.id)}
               orgs={orgs}
-              canManage={canManageSpecificProject(activeProject, userProfile, orgs, access.canManage)}
-              canArchive={access.canArchive}
-              canDelete={access.canDelete}
+              canManage={canManageThisProject}
+              canArchive={canArchiveThisProject}
+              canDelete={canDeleteThisProject}
               canReviewTasks={access.canReviewTasks}
               canExport={access.canExport}
               favoriteContextId={workspaceScope?.workspace.id || currentOrgId || 'unassigned'}
               authorizedProjectIds={inScope.map(project => project.id)}
               lifecycleActions={{
-                complete: access.canManage && isAppointedOfficeHead(userProfile, orgs) && userProfile?.is_active !== false ? () => setCompleteTarget({ id: activeProject.id, title: activeProject.title }) : undefined,
-                archive: access.canArchive ? () => setArchiveTarget({ id: activeProject.id, title: activeProject.title, isArchived: false }) : undefined,
-                restore: access.canArchive ? () => setArchiveTarget({ id: activeProject.id, title: activeProject.title, isArchived: true }) : undefined,
-                delete: (access.canDelete || activeProject.publicationState==='draft'&&(activeProject.projectLeadId===userProfile?.id || activeProject.createdBy===userProfile?.id)) ? () => setDeleteTarget({ id: activeProject.id, title: activeProject.title, status: activeProject.status, publicationState: activeProject.publicationState }) : undefined,
+                complete:
+                  ((access.canManage && isAppointedOfficeHead(userProfile, orgs)) ||
+                    (activeProject.status === 'active' &&
+                      activeProject.projectLeadId === userProfile?.id &&
+                      !activeProject.sourceCollaborationDraftId)) &&
+                  userProfile?.is_active !== false
+                    ? () => setCompleteTarget({ id: activeProject.id, title: activeProject.title })
+                    : undefined,
+                archive: canArchiveThisProject ? () => setArchiveTarget({ id: activeProject.id, title: activeProject.title, isArchived: false }) : undefined,
+                restore: canArchiveThisProject ? () => setArchiveTarget({ id: activeProject.id, title: activeProject.title, isArchived: true }) : undefined,
+                delete: (canDeleteThisProject || canDiscardOwnDraft) ? () => setDeleteTarget({ id: activeProject.id, title: activeProject.title, status: activeProject.status, publicationState: activeProject.publicationState }) : undefined,
               }}
               onOpenSourceGovernance={(draftId) => openProposal(draftId, "governance")}
             />
           </div>
-        )}
+          );
+        })()}
 
         {/* Tab 2: Proposal Workspace Detail Tab */}
         {activeTab.type === "proposal" && activeTab.draftId && (

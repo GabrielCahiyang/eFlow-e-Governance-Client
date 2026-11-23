@@ -41,8 +41,8 @@ export function liquidationInputError(input:{spent:number;note:string;receipts:R
    }
    if(receipt.items.reduce((total,item)=>total+Math.round(item.amount*100),0)!==Math.round(receipt.amount*100))return prefix+'Purchased items must equal the receipt amount.';
   }else if(!receipt.description.trim())return prefix+'Describe the expense.';
-  if(!receipt.file)return prefix+'Attach the receipt file.';
-  const fileIssue=attachmentError([receipt.file],{extensions:['jpg','jpeg','png','webp','pdf']});if(fileIssue)return prefix+fileIssue;
+  if(!receipt.file&&!receipt.existingFile?.filePath)return prefix+'Attach the receipt file.';
+  if(receipt.file){const fileIssue=attachmentError([receipt.file],{extensions:['jpg','jpeg','png','webp','pdf']});if(fileIssue)return prefix+fileIssue;}
   sum+=Math.round(receipt.amount*100);
  }
  if(input.releasedAmount!==undefined&&sum>Math.round(input.releasedAmount*100))return `Receipt totals exceed the released cash of ₱${input.releasedAmount.toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2})}.`;

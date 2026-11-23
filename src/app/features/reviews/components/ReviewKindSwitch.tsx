@@ -22,6 +22,7 @@ export function ReviewKindSwitch({
   const kinds: { id: ReviewKind; label: string }[] = [
     { id: "tasks", label: "Project Tasks" },
     { id: "clearance", label: "Ready to Complete" },
+    ...(active === "subtasks" ? [{ id: "subtasks" as const, label: "Subtasks" }] : []),
     ...(includeBudget ? [{ id: "budget" as const, label: "Budget" }] : []),
   ];
   const tabs = useRef<HTMLDivElement>(null);

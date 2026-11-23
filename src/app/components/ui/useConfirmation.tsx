@@ -1,6 +1,7 @@
 import {
   useCallback,
   useEffect,
+  useId,
   useRef,
   useState,
   type ReactNode,
@@ -14,11 +15,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "./alert-dialog";
-import { FormField, TextInput } from "./FormField";
+import { BoundedTextInput, BoundedTextarea } from "./BoundedInput";
 import { Button } from "./button";
 import { FeedbackState } from "./FeedbackState";
 import { ConfirmationPopoverLayer } from "./OverlayPopoverLayer";
-import {CheckCircle2, RotateCcw} from 'lucide-react';
+import { WorkspaceTooltip } from "./workspace/WorkspaceTooltip";
+import { INPUT_LIMITS } from "../../shared/inputLimits";
+import { CheckCircle2, RotateCcw } from 'lucide-react';
 import './decisionModal.css';
 
 export interface ConfirmationOptions {
@@ -27,19 +30,30 @@ export interface ConfirmationOptions {
   actionLabel?: string;
   cancelLabel?: string;
   danger?: boolean;
+  warningTooltip?: string;
   tone?: 'approve' | 'return';
   impact?: ReactNode;
   blockers?: string[];
   /** Opt in only when a feature's mutation risk requires it. */
   confirmationText?: string;
-  reason?: { label: string; onAccept: (reason: string) => void };
+  reason?: {
+    label: string;
+    minLength?: number;
+    maxLength?: number;
+    placeholder?: string;
+    onAccept: (reason: string) => void;
+  };
 }
 
 /** Resolve confirmation before starting a mutation; cancellation has no side effects. */
 export function useConfirmation() {
   const [options, setOptions] = useState<ConfirmationOptions | null>(null);
   const [typed, setTyped] = useState("");
+  const [typedTouched, setTypedTouched] = useState(false);
   const [reason, setReason] = useState("");
+  const [reasonTouched, setReasonTouched] = useState(false);
+  const confirmId = useId();
+  const reasonId = useId();
   const reasonValue = useRef("");
   const optionsRef = useRef(options);
   optionsRef.current = options;
@@ -47,7 +61,11 @@ export function useConfirmation() {
   const returnFocus = useRef<HTMLElement | null>(null);
   const finish = useCallback((accepted: boolean) => {
     if (accepted && optionsRef.current?.reason) {
-      if (!reasonValue.current.trim()) return;
+      const minLen = optionsRef.current.reason.minLength ?? 1;
+      if (reasonValue.current.trim().length < minLen) {
+        setReasonTouched(true);
+        return;
+      }
       optionsRef.current.reason.onAccept(reasonValue.current.trim());
     }
     pending.current?.(accepted);
@@ -63,7 +81,9 @@ export function useConfirmation() {
   const confirm = useCallback((next: ConfirmationOptions) => {
     pending.current?.(false);
     setTyped("");
+    setTypedTouched(false);
     setReason("");
+    setReasonTouched(false);
     reasonValue.current = "";
     setOptions(next);
     const active =
@@ -82,6 +102,47 @@ export function useConfirmation() {
       pending.current = resolve;
     });
   }, []);
+
+  const confirmTextTarget = options?.confirmationText || "";
+  const confirmTextError =
+    confirmTextTarget && (typedTouched || typed.length > 0) && typed !== confirmTextTarget
+      ? typed.length === 0
+        ? `Type "${confirmTextTarget}" to confirm.`
+        : `Text must exactly match "${confirmTextTarget}".`
+      : "";
+
+  const reasonMinLen = options?.reason?.minLength ?? 1;
+  const reasonMaxLen = options?.reason?.maxLength ?? INPUT_LIMITS.REASON;
+  const reasonTrimmed = reason.trim();
+  const reasonTooShort = Boolean(options?.reason) && reasonTrimmed.length < reasonMinLen;
+  const reasonMissingChars = Math.max(0, reasonMinLen - reasonTrimmed.length);
+  const reasonError =
+    options?.reason && (reasonTouched || reason.length > 0) && reasonTooShort
+      ? reasonTrimmed.length === 0
+        ? reasonMinLen > 1
+          ? `${options.reason.label} is required (minimum ${reasonMinLen} characters).`
+          : `${options.reason.label} is required.`
+        : `Enter at least ${reasonMinLen} characters (${reasonMissingChars} more needed).`
+      : "";
+
+  const confirmDisabled =
+    Boolean(options?.blockers?.length) ||
+    Boolean(confirmTextTarget && typed !== confirmTextTarget) ||
+    reasonTooShort;
+
+  const confirmTooltip = confirmDisabled
+    ? options?.blockers?.[0] ||
+      (confirmTextTarget && typed !== confirmTextTarget
+        ? `Type "${confirmTextTarget}" to enable confirmation.`
+        : reasonTooShort
+          ? reasonTrimmed.length === 0
+            ? `Enter ${options?.reason?.label?.toLowerCase() || "a reason"} before confirming.`
+            : `Enter at least ${reasonMinLen} characters (${reasonMissingChars} more needed).`
+          : "")
+    : options?.danger
+      ? options.warningTooltip || "This action cannot be undone."
+      : "";
+
   const dialog = (
     <ConfirmationPopoverLayer>
       <AlertDialog
@@ -126,48 +187,67 @@ export function useConfirmation() {
               </FeedbackState>
             )}
             {options?.confirmationText && (
-              <FormField label={`Type ${options.confirmationText} to confirm`}>
-                <TextInput
-                  maxLength={200}
+              <div className="eflow-field">
+                <label htmlFor={confirmId} className="eflow-field__label">
+                  Type {options.confirmationText} to confirm{" "}
+                  <span className="text-[var(--eflow-negative-text)]" aria-hidden="true">
+                    *
+                  </span>
+                </label>
+                <BoundedTextInput
+                  id={confirmId}
+                  maxLength={Math.max(INPUT_LIMITS.TITLE, options.confirmationText.length)}
                   value={typed}
+                  aria-required="true"
+                  error={confirmTextError || undefined}
                   onChange={(event) => setTyped(event.target.value)}
+                  onBlur={() => setTypedTouched(true)}
                   autoComplete="off"
                 />
-              </FormField>
+              </div>
             )}
             {options?.reason && (
-              <FormField label={options.reason.label} required>
-                <TextInput
-                  maxLength={1000}
+              <div className="eflow-field">
+                <label htmlFor={reasonId} className="eflow-field__label">
+                  {options.reason.label}{" "}
+                  <span className="text-[var(--eflow-negative-text)]" aria-hidden="true">
+                    *
+                  </span>
+                </label>
+                <BoundedTextarea
+                  id={reasonId}
+                  rows={3}
+                  maxLength={reasonMaxLen}
                   value={reason}
+                  aria-required="true"
+                  placeholder={options.reason.placeholder}
+                  error={reasonError || undefined}
                   onChange={(event) => {
                     setReason(event.target.value);
                     reasonValue.current = event.target.value;
                   }}
+                  onBlur={() => setReasonTouched(true)}
                   autoComplete="off"
                 />
-              </FormField>
+              </div>
             )}
           </div>
           <AlertDialogFooter>
             <AlertDialogCancel onClick={() => finish(false)}>
               {options?.cancelLabel || "Cancel"}
             </AlertDialogCancel>
-            <Button
-              type="button"
-              disabled={
-                Boolean(options?.blockers?.length) ||
-                Boolean(
-                  options?.confirmationText &&
-                    typed !== options.confirmationText,
-                ) ||
-                Boolean(options?.reason && !reason.trim())
-              }
-              variant={options?.danger ? "destructive" : "default"}
-              onClick={() => finish(true)}
-            >
-              {options?.actionLabel || "Confirm"}
-            </Button>
+            <WorkspaceTooltip content={confirmTooltip} disabled={!confirmTooltip}>
+              <span className="inline-flex">
+                <Button
+                  type="button"
+                  disabled={confirmDisabled}
+                  variant={options?.danger ? "destructive" : "default"}
+                  onClick={() => finish(true)}
+                >
+                  {options?.actionLabel || "Confirm"}
+                </Button>
+              </span>
+            </WorkspaceTooltip>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

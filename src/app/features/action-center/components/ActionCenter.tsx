@@ -54,7 +54,7 @@ export function ActionCenter({role,hasLeadingWork=false,page='Inbox',onNavigate}
       inspector.openTask(item.taskId,{view:'Inbox',restoreFocus:()=>(document.querySelector<HTMLElement>(`[data-action-key="${item.key}"]`) || document.getElementById("inbox-action-summary") || document.getElementById('inbox-updates-context') || document.getElementById("inbox-updates"))?.focus()});
     } else {
       if(!personalReviewActions([],subtasks.rows,user?.id,role).some(row=>row.key===item.key)){setNotice('This subtask submission is no longer yours to review.');return;}
-      navigate('reviews','For Review',{notificationId:item.key,kind:'subtask_review',taskId:item.taskId,entityLabel:item.entityLabel,entityId:item.entityId});
+      navigate('reviews', role === 'head' ? 'For Review' : 'Leader Reviews', {notificationId:item.key,kind:'subtask_review',taskId:item.taskId,entityLabel:item.entityLabel,entityId:item.entityId});
     }
   };
   const recipientRef = useRef(user?.id); recipientRef.current = user?.id;
@@ -62,7 +62,20 @@ export function ActionCenter({role,hasLeadingWork=false,page='Inbox',onNavigate}
     const recipient = user?.id, href = window.location.href;
     const destination=resolveInboxUpdateDestination(item,role);
     setNotice('');
-    if(item.taskId && destination?.intent.kind!=='personal_work' && !tasks.some(task=>task.id===item.taskId)&&!(destination?.intent.entityId&&['subtask','leading_task','subtask_review'].includes(destination.intent.kind))) {setNotice('The referenced task is unavailable, deleted or outside your access. Open your current work or review queue.');return;}
+    const skipsPersonalTaskCheck = Boolean(
+      destination &&
+        [
+          'personal_work',
+          'budget',
+          'project_approval',
+          'project_completion_review',
+          'project',
+          'proposal',
+          'collaboration',
+          'conversation',
+        ].includes(destination.intent.kind),
+    );
+    if(item.taskId && !skipsPersonalTaskCheck && !tasks.some(task=>task.id===item.taskId)&&!(destination?.intent.entityId&&['subtask','leading_task','subtask_review'].includes(destination.intent.kind))) {setNotice('The referenced task is unavailable, deleted or outside your access. Open your current work or review queue.');return;}
     if(!destination || !canOpenNavigationSection(role,destination.section,can,hasLeadingWork && ['leading','reviews'].includes(destination.section))) {setNotice('This update has no available destination under your current access. Your current queues remain available.');return;}
     if(item.taskId && destination && ['task','leading_task','task_review'].includes(destination.intent.kind) && !destination.intent.entityId) {
       inspector.openTask(item.taskId,{view:'Inbox Updates',restoreFocus:() => (document.querySelector<HTMLElement>(`[data-update-id="${item.id}"]`) || document.getElementById('inbox-updates-context') || document.getElementById('inbox-updates'))?.focus()});return;
@@ -133,10 +146,10 @@ export function ActionCenter({role,hasLeadingWork=false,page='Inbox',onNavigate}
         ) : null}
         {!pendingFinancial && !actions.length && !loading && !subtasks.loading && !error && !subtasks.error && <EmptyState fill illustration="complete" title="All caught up" description="No task, subtask, or financial reviews are waiting for your decision."/>}
         <PersonalActionRows items={actions} onOpen={openAction} />
-        <div className="inbox-workflow-fallback"><Button variant="outline" onClick={() => navigate('reviews', 'For Review')}>Open all review queues</Button></div>
+        <div className="inbox-workflow-fallback"><Button variant="outline" onClick={() => navigate('reviews', role === 'head' ? 'For Review' : 'Leader Reviews')}>Open all review queues</Button></div>
       </>}
       {role === 'accounting_staff' && can('navigation.accounting_overview') && <div className="inbox-workflow-fallback"><Button variant="outline" onClick={() => navigate('accounting_overview', 'Accounting Overview')}>Open Accounting</Button></div>}
     </>}
-    <TaskInspector task={selected} taskId={inspector.taskId || undefined} origin={inspector.origin} onClose={inspector.close} readOnly={role === 'admin' || !!error} canDiscuss canReview={!!selected && canReview && canUserReviewTask(selected, user?.id, role)} />
+    <TaskInspector task={selected} taskId={inspector.taskId || undefined} origin={inspector.origin} onClose={inspector.close} readOnly={role === 'admin' || !!error} canDiscuss canReview={!!selected && canReview && (typeof can === 'function' ? can('tasks.verify') : true) && canUserReviewTask(selected, user?.id, role)} />
   </section>;
 }

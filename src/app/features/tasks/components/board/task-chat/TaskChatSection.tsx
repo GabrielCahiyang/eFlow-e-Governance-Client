@@ -1,5 +1,7 @@
 import { readableUiError } from '../../../../../shared/userFacingError';
 import { WorkspaceTooltip } from "../../../../../components/ui/workspace/WorkspaceTooltip";
+import { BoundedTextInput } from "../../../../../components/ui/BoundedInput";
+import { INPUT_LIMITS } from "../../../../../shared/inputLimits";
 import { EmptyState } from '../../../../../components/ui/EmptyState';
 import { CornerUpLeft, MoreVertical, Send, Smile, X } from 'lucide-react';
 import { FeatureDialog } from '../../../../../components/ui/FeatureDialog';
@@ -46,7 +48,7 @@ if (!channelId) {
           const hoverActions = (
             <div className="opacity-0 group-hover:opacity-100 flex items-center gap-1 transition-opacity duration-150 shrink-0 relative z-20">
               <div className="relative">
-                <WorkspaceTooltip content="React"><button aria-label="React"
+                <WorkspaceTooltip content="React"><button type="button" aria-label="React"
                   onClick={() => setActiveReactionMenuFor(activeReactionMenuFor === m.id ? null : m.id)}
                   className="w-6 h-6 flex items-center justify-center rounded-full bg-white shadow hover:bg-neutral-50 text-neutral-500 transition-colors cursor-pointer"
 
@@ -57,6 +59,7 @@ if (!channelId) {
                   <div className={`absolute ${isNearTop ? "top-8" : "bottom-8"} left-1/2 -translate-x-1/2 flex items-center gap-1 bg-white border border-neutral-200 rounded-full shadow-xl p-1.5 z-50`}>
                     {["👍", "❤️", "😂", "😮", "😢", "😡"].map((emoji) => (
                       <button
+                        type="button"
                         key={emoji}
                         onClick={() => handleToggleReaction(m, emoji)}
                         className="text-[16px] hover:scale-130 transition-transform p-0.5 hover:drop-shadow cursor-pointer"
@@ -68,7 +71,7 @@ if (!channelId) {
                 )}
               </div>
 
-              <WorkspaceTooltip content="Reply"><button aria-label="Reply"
+              <WorkspaceTooltip content="Reply"><button type="button" aria-label="Reply"
                 onClick={() => setReplyingTo(m)}
                 className="w-6 h-6 flex items-center justify-center rounded-full bg-white shadow hover:bg-neutral-50 text-neutral-500 transition-colors cursor-pointer"
 
@@ -77,7 +80,7 @@ if (!channelId) {
               </button></WorkspaceTooltip>
 
               <div className="relative">
-                <WorkspaceTooltip content="More"><button aria-label="More"
+                <WorkspaceTooltip content="More"><button type="button" aria-label="More"
                   onClick={() => setActiveMoreMenuFor(activeMoreMenuFor === m.id ? null : m.id)}
                   className="w-6 h-6 flex items-center justify-center rounded-full bg-white shadow hover:bg-neutral-50 text-neutral-500 transition-colors cursor-pointer"
 
@@ -200,32 +203,43 @@ if (!channelId) {
             Replying to <span className="font-semibold">{replyingTo.senderName}</span>: "
             {parseMessage(replyingTo.content).text.slice(0, 40)}"
           </span>
-          <WorkspaceTooltip content="Cancel reply"><button aria-label="Cancel reply" onClick={() => setReplyingTo(null)} className="text-neutral-400 hover:text-neutral-600">
+          <WorkspaceTooltip content="Cancel reply"><button type="button" aria-label="Cancel reply" onClick={() => setReplyingTo(null)} className="text-neutral-400 hover:text-neutral-600">
             <X size={10} />
           </button></WorkspaceTooltip>
         </div>
       )}
 
-      <div className="flex items-center gap-2">
-        <input
-          value={draft}
-          maxLength={1000}
-          onChange={(e) => { setDraft(e.target.value); if (sendError) setSendError(""); }}
-          onKeyDown={(e) => e.key === "Enter" && handleSend()}
-          placeholder="Message the team…"
-          className="flex-1 h-[36px] rounded-full border border-neutral-200 bg-neutral-50 px-3.5 text-[12px] outline-none focus:border-neutral-300 focus:bg-white transition-all"
-        />
-        <WorkspaceTooltip content="Send message"><button aria-label="Send message"
-          onClick={handleSend}
-          disabled={sending || !draft.trim()}
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm transition-all hover:bg-primary/90 active:scale-95 disabled:bg-neutral-200 disabled:opacity-40"
-        >
-          <Send size={13} />
-        </button></WorkspaceTooltip>
-      </div>
-      <div className="mt-1 flex items-start justify-between gap-3 text-[10px]">
-        <span role={sendError ? "alert" : undefined} className="text-rose-600">{sendError}</span>
-        <span className={draft.length > 900 ? "shrink-0 text-rose-600" : "shrink-0 text-neutral-400"}>{draft.length}/1000</span>
+      <div className="flex items-start gap-2">
+        <div className="flex-1 min-w-0">
+          <BoundedTextInput
+            aria-label="Message the team"
+            value={draft}
+            maxLength={INPUT_LIMITS.REASON}
+            error={sendError || undefined}
+            onChange={(e) => { setDraft(e.target.value); if (sendError) setSendError(""); }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                handleSend();
+              }
+            }}
+            placeholder="Message the team…"
+            className="h-[36px] w-full rounded-full border border-neutral-200 bg-neutral-50 px-3.5 text-[12px] outline-none focus:border-neutral-300 focus:bg-white transition-all"
+          />
+        </div>
+        <WorkspaceTooltip content={sending ? "Sending message…" : !draft.trim() ? "Type a message to send." : "Send message"}>
+          <span className="inline-flex">
+            <button
+              type="button"
+              aria-label="Send message"
+              onClick={handleSend}
+              disabled={sending || !draft.trim()}
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm transition-all hover:bg-primary/90 active:scale-95 disabled:bg-neutral-200 disabled:opacity-40"
+            >
+              <Send size={13} />
+            </button>
+          </span>
+        </WorkspaceTooltip>
       </div>
 
       {/* Detailed Reactions Modal */}
@@ -235,7 +249,7 @@ if (!channelId) {
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-800 bg-[#242526]">
               <span className="text-[14px] font-bold">Message reactions</span>
-              <WorkspaceTooltip content="Close reactions"><button aria-label="Close reactions"
+              <WorkspaceTooltip content="Close reactions"><button type="button" aria-label="Close reactions"
                 onClick={() => setReactionsModalContent(null)}
                 className="w-7 h-7 flex items-center justify-center rounded-full bg-neutral-800 text-neutral-400 hover:bg-neutral-700 transition cursor-pointer"
               >
@@ -246,6 +260,7 @@ if (!channelId) {
             {/* Tabs */}
             <div className="flex gap-4 px-4 border-b border-neutral-800 bg-[#18191a] shrink-0 overflow-x-auto">
               <button
+                type="button"
                 onClick={() => setActiveReactionTab("all")}
                 className={`py-2.5 px-1 text-[12px] font-semibold border-b-2 transition-all cursor-pointer ${
                   activeReactionTab === "all"
@@ -260,6 +275,7 @@ if (!channelId) {
                 if (count === 0) return null;
                 return (
                   <button
+                    type="button"
                     key={emoji}
                     onClick={() => setActiveReactionTab(emoji)}
                     className={`py-2.5 px-1 text-[12px] font-semibold border-b-2 transition-all flex items-center gap-1 cursor-pointer ${

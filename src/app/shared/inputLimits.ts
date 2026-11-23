@@ -23,7 +23,7 @@ export const INPUT_LIMITS = {
   FUNDING_REASON: 3000,   // Project/office budget funding justification & authority references
   COMMENT: 4000,          // Discussion comments & review notes (<= 4000)
   DESCRIPTION: 10000,     // Task/plan descriptions, announcement bodies, criteria blocks
-  PROJECT_DESCRIPTION: 12000, // Project description & scope (eflow_project.save_details <= 12000)
+  PROJECT_DESCRIPTION: 8000, // Project description & scope (eflow_project.save_details <= 8000)
 
   // Numeric limits
   MONEY_MAX_BUDGET: 90_000_000_000, // ₱90B annual/project budget ceiling

@@ -1,5 +1,8 @@
 import { useExplicitDraft } from "../../../../shared/useExplicitDraft";
+import { BoundedTextarea, BoundedTextInput } from "../../../../components/ui/BoundedInput";
 import { DateInput } from "../../../../components/ui/DateInput";
+import { WorkspaceTooltip } from "../../../../components/ui/workspace/WorkspaceTooltip";
+import { getPhilippineCalendarDate, historicalDateError } from "../../../../shared/calendarDates";
 import { INPUT_LIMITS } from "../../../../shared/inputLimits";
 import * as React from "react";
 import {
@@ -55,6 +58,12 @@ export function GovernanceCloseoutPanel({
   const [reason, setReason] = React.useState("");
   const [resolution, setResolution] = React.useState("");
   const [meetingDate, setMeetingDate] = React.useState("");
+  const [meetingDateInvalidText, setMeetingDateInvalidText] = React.useState(false);
+  const [reasonTouched, setReasonTouched] = React.useState(false);
+  const requestNoteId = React.useId();
+  const resolutionId = React.useId();
+  const meetingDateId = React.useId();
+  const decisionReasonId = React.useId();
   const [baseline, setBaseline] = React.useState({
     note: "",
     reason: "",
@@ -71,6 +80,8 @@ export function GovernanceCloseoutPanel({
       setReason(baseline.reason);
       setResolution(baseline.resolution);
       setMeetingDate(baseline.meetingDate);
+      setMeetingDateInvalidText(false);
+      setReasonTouched(false);
     },
     decisionOrgId,
   );
@@ -79,6 +90,8 @@ export function GovernanceCloseoutPanel({
     if (previousReceipt.current !== savedReceipt) {
       previousReceipt.current = savedReceipt;
       setBaseline({ note, reason, resolution, meetingDate });
+      setMeetingDateInvalidText(false);
+      setReasonTouched(false);
       guard.markClean();
     }
   }, [savedReceipt]);
@@ -90,6 +103,24 @@ export function GovernanceCloseoutPanel({
     canManage &&
     allTasksApproved &&
     ["draft", "changes_requested"].includes(status);
+  const meetingDateError = meetingDateInvalidText
+    ? "Enter a valid meeting date in MM/DD/YYYY format."
+    : historicalDateError(meetingDate, "Meeting date", false);
+  const correctionReasonMissing = !reason.trim()
+    ? "Enter an endorsement or required correction reason first."
+    : "";
+  const requestCorrectionTip = busy
+    ? ""
+    : meetingDateError ||
+      correctionReasonMissing ||
+      "Returns closeout to the proposal owner with required corrections.";
+  const declineTip = busy
+    ? ""
+    : meetingDateError ||
+      (!reason.trim()
+        ? "Enter a reason before declining closeout."
+        : "Formally declines governance closeout and notifies the proposal owner.");
+  const approveTip = busy ? "" : meetingDateError;
   return (
     <section className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
       <div className="bg-gradient-to-r from-slate-950 to-slate-800 p-5 text-white">
@@ -148,21 +179,22 @@ export function GovernanceCloseoutPanel({
 
         {canRequest && (
           <div className="mt-4 rounded-xl border border-primary/25 bg-primary/5 p-3">
-            <div className="text-[10px] font-medium text-primary">
+            <label htmlFor={requestNoteId} className="mb-1.5 block text-[10px] font-medium text-primary">
               Request final verification
-            </div>
-            <textarea
+            </label>
+            <BoundedTextarea
+              id={requestNoteId}
               maxLength={INPUT_LIMITS.COMMENT}
               value={note}
               onChange={(event) => setNote(event.target.value)}
               rows={2}
               placeholder="Closeout note and final deliverables summary"
-              className="mt-2 w-full resize-none rounded-lg border border-primary/25 bg-white px-3 py-2 text-[10px] outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
+              className="w-full resize-none rounded-lg border border-primary/25 bg-white px-3 py-2 text-[10px] outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
             />
             <button
               type="button"
               disabled={busy}
-              onClick={() => void onRequest(note)}
+              onClick={() => void onRequest(note.trim())}
               className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-[10px] text-primary-foreground transition hover:bg-primary/90 disabled:opacity-40"
             >
               {busy ? (
@@ -182,61 +214,115 @@ export function GovernanceCloseoutPanel({
             <div className="text-[10px] font-medium text-amber-900">
               Your final closeout decision
             </div>
-            <div className="mt-2 grid gap-2 sm:grid-cols-2">
-              <input
-                maxLength={INPUT_LIMITS.CODE}
-                value={resolution}
-                onChange={(event) => setResolution(event.target.value)}
-                placeholder="Board resolution number (optional)"
-                className="h-9 rounded-lg border border-amber-200 bg-white px-3 text-[10px] outline-none"
-              />
-              <DateInput
-                value={meetingDate}
-                onChange={(event) => setMeetingDate(event.target.value)}
-                className="h-9 rounded-lg border border-amber-200 bg-white px-3 text-[10px] outline-none"
+            <div className="mt-2 grid items-start gap-2 sm:grid-cols-2">
+              <div>
+                <label htmlFor={resolutionId} className="mb-1 block text-[10px] font-medium text-amber-900">
+                  Board resolution number (optional)
+                </label>
+                <BoundedTextInput
+                  id={resolutionId}
+                  maxLength={INPUT_LIMITS.CODE}
+                  value={resolution}
+                  onChange={(event) => setResolution(event.target.value)}
+                  placeholder="Board resolution number (optional)"
+                  className="h-9 w-full rounded-lg border border-amber-200 bg-white px-3 text-[10px] outline-none"
+                />
+              </div>
+              <div>
+                <label htmlFor={meetingDateId} className="mb-1 block text-[10px] font-medium text-amber-900">
+                  Meeting date (optional)
+                </label>
+                <DateInput
+                  id={meetingDateId}
+                  aria-label="Meeting date"
+                  max={getPhilippineCalendarDate()}
+                  value={meetingDate}
+                  hasError={Boolean(meetingDateError)}
+                  errorMessage={meetingDateError || undefined}
+                  onInvalidTextChange={setMeetingDateInvalidText}
+                  onChange={(event) => setMeetingDate(event.target.value)}
+                  className="h-9 rounded-lg border border-amber-200 bg-white px-3 text-[10px] outline-none"
+                />
+                {meetingDateError && (
+                  <span className="mt-1 block text-[11px] font-medium text-[var(--eflow-negative-text)]">
+                    {meetingDateError}
+                  </span>
+                )}
+              </div>
+            </div>
+            <div className="mt-2">
+              <label htmlFor={decisionReasonId} className="mb-1 block text-[10px] font-medium text-amber-900">
+                Endorsement or required correction
+              </label>
+              <BoundedTextarea
+                id={decisionReasonId}
+                maxLength={INPUT_LIMITS.REASON}
+                value={reason}
+                onBlur={() => setReasonTouched(true)}
+                onChange={(event) => setReason(event.target.value)}
+                rows={2}
+                placeholder="Endorsement or required correction"
+                hint={!reason.trim() ? "Optional for approval; required to request correction or decline." : undefined}
+                error={
+                  reasonTouched && !reason.trim()
+                    ? "Enter a reason before requesting corrections or declining closeout."
+                    : undefined
+                }
+                className="w-full resize-none rounded-lg border border-amber-200 bg-white px-3 py-2 text-[10px] outline-none"
               />
             </div>
-            <textarea
-              maxLength={INPUT_LIMITS.REASON}
-              value={reason}
-              onChange={(event) => setReason(event.target.value)}
-              rows={2}
-              placeholder="Endorsement or required correction"
-              className="mt-2 w-full resize-none rounded-lg border border-amber-200 bg-white px-3 py-2 text-[10px] outline-none"
-            />
             <div className="mt-2 flex flex-wrap gap-2">
-              <button
-                disabled={busy}
-                onClick={() =>
-                  void onDecide("approved", reason, resolution, meetingDate)
-                }
-                className="rounded-lg bg-emerald-700 px-3 py-2 text-[10px] text-white"
-              >
-                Approve closeout
-              </button>
-              <button
-                disabled={busy || !reason.trim()}
-                onClick={() =>
-                  void onDecide(
-                    "changes_requested",
-                    reason,
-                    resolution,
-                    meetingDate,
-                  )
-                }
-                className="rounded-lg border border-amber-300 bg-white px-3 py-2 text-[10px] text-amber-800 disabled:opacity-40"
-              >
-                Request correction
-              </button>
-              <button
-                disabled={busy || !reason.trim()}
-                onClick={() =>
-                  void onDecide("declined", reason, resolution, meetingDate)
-                }
-                className="rounded-lg border border-red-200 bg-white px-3 py-2 text-[10px] text-red-700 disabled:opacity-40"
-              >
-                Decline
-              </button>
+              <WorkspaceTooltip content={approveTip} disabled={!approveTip}>
+                <span className="inline-flex">
+                  <button
+                    type="button"
+                    disabled={busy || Boolean(meetingDateError)}
+                    onClick={() =>
+                      void onDecide("approved", reason.trim(), resolution.trim(), meetingDate)
+                    }
+                    className="rounded-lg bg-emerald-700 px-3 py-2 text-[10px] text-white disabled:opacity-40"
+                  >
+                    Approve closeout
+                  </button>
+                </span>
+              </WorkspaceTooltip>
+              <WorkspaceTooltip content={requestCorrectionTip} disabled={!requestCorrectionTip}>
+                <span className="inline-flex">
+                  <button
+                    type="button"
+                    disabled={busy || !reason.trim() || Boolean(meetingDateError)}
+                    onClick={() => {
+                      setReasonTouched(true);
+                      if (!reason.trim() || meetingDateError) return;
+                      void onDecide(
+                        "changes_requested",
+                        reason.trim(),
+                        resolution.trim(),
+                        meetingDate,
+                      );
+                    }}
+                    className="rounded-lg border border-amber-300 bg-white px-3 py-2 text-[10px] text-amber-800 disabled:opacity-40"
+                  >
+                    Request correction
+                  </button>
+                </span>
+              </WorkspaceTooltip>
+              <WorkspaceTooltip content={declineTip} disabled={!declineTip}>
+                <span className="inline-flex">
+                  <button
+                    type="button"
+                    disabled={busy || !reason.trim() || Boolean(meetingDateError)}
+                    onClick={() => {
+                      setReasonTouched(true);
+                      if (!reason.trim() || meetingDateError) return;
+                      void onDecide("declined", reason.trim(), resolution.trim(), meetingDate);
+                    }}
+                    className="rounded-lg border border-red-200 bg-white px-3 py-2 text-[10px] text-red-700 disabled:opacity-40"
+                  >
+                    Decline
+                  </button>
+                </span>
+              </WorkspaceTooltip>
             </div>
           </div>
         )}
@@ -306,6 +392,19 @@ function ActionBox({
   required?: boolean;
   onSubmit: () => Promise<void>;
 }) {
+  const [touched, setTouched] = React.useState(false);
+  const inputId = React.useId();
+  const rawError =
+    required && !value.trim()
+      ? "Archive reason is required before archiving proposal delivery."
+      : "";
+  const visibleError = touched ? rawError : "";
+  const buttonTooltip = busy
+    ? ""
+    : rawError ||
+      (required
+        ? "Archives this proposal and removes all linked tasks from active Task Boards while preserving audit records."
+        : "");
   return (
     <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-3">
       <div className="flex items-center gap-2 text-[10px] font-medium text-emerald-900">
@@ -313,25 +412,45 @@ function ActionBox({
         {title}
       </div>
       <p className="mt-1 text-[9px] text-emerald-700">{description}</p>
-      <textarea
-        maxLength={INPUT_LIMITS.REASON}
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        rows={2}
-        placeholder={
-          required ? "Archive reason (required)" : "Completion note (optional)"
-        }
-        className="mt-2 w-full resize-none rounded-lg border border-emerald-200 bg-white px-3 py-2 text-[10px] outline-none"
-      />
-      <button
-        type="button"
-        disabled={busy || (required && !value.trim())}
-        onClick={() => void onSubmit()}
-        className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-neutral-900 px-3 py-2 text-[10px] text-white disabled:opacity-40"
-      >
-        {busy && <Loader2 size={12} className="animate-spin" />}
-        {button}
-      </button>
+      <div className="mt-2">
+        <label htmlFor={inputId} className="mb-1 block text-[10px] font-medium text-emerald-900">
+          {required ? "Archive reason" : "Completion note (optional)"}
+          {required && (
+            <span className="text-[var(--eflow-negative-text)]" aria-hidden="true"> *</span>
+          )}
+        </label>
+        <BoundedTextarea
+          id={inputId}
+          maxLength={INPUT_LIMITS.REASON}
+          value={value}
+          aria-required={required || undefined}
+          error={visibleError || undefined}
+          onBlur={() => setTouched(true)}
+          onChange={(event) => onChange(event.target.value)}
+          rows={2}
+          placeholder={
+            required ? "Archive reason (required)" : "Completion note (optional)"
+          }
+          className="w-full resize-none rounded-lg border border-emerald-200 bg-white px-3 py-2 text-[10px] outline-none"
+        />
+      </div>
+      <WorkspaceTooltip content={buttonTooltip} disabled={!buttonTooltip}>
+        <span className="mt-2 inline-flex">
+          <button
+            type="button"
+            disabled={busy || Boolean(rawError)}
+            onClick={() => {
+              setTouched(true);
+              if (rawError) return;
+              void onSubmit();
+            }}
+            className="inline-flex items-center gap-1.5 rounded-lg bg-neutral-900 px-3 py-2 text-[10px] text-white disabled:opacity-40"
+          >
+            {busy && <Loader2 size={12} className="animate-spin" />}
+            {button}
+          </button>
+        </span>
+      </WorkspaceTooltip>
     </div>
   );
 }

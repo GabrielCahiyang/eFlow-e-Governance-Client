@@ -96,8 +96,12 @@
 }
 .opc-form { display: grid; gap: var(--eflow-space-4); }
 .opc-form label { display: grid; gap: var(--eflow-space-1); min-width: 0; font-size: var(--eflow-text-sm); }
+.opc-field { display: grid; gap: var(--eflow-space-1); min-width: 0; }
+.opc-field > label { display: inline-flex; align-items: center; gap: 4px; font-size: var(--eflow-text-sm); font-weight: 500; }
+.opc-required { color: var(--eflow-negative-text); font-weight: 600; }
 .opc-form :is(input, textarea) {
   min-width: 0;
+  width: 100%;
   max-width: 100%;
   min-height: var(--eflow-control-height);
   border: 1px solid var(--eflow-border);
@@ -106,7 +110,11 @@
   background: var(--eflow-surface);
   color: var(--eflow-text);
 }
+.opc-form :is(input, textarea)[aria-invalid="true"] {
+  border-color: var(--eflow-negative-text);
+}
 .opc-form textarea { min-height: 5rem; }
+.opc-form .eflow-bounded-field textarea { padding-bottom: 26px; }
 .opc-form fieldset {
   min-width: 0;
   display: grid;

@@ -23,7 +23,17 @@ export function getSidebarContent(
       ],
     };
   if (section === "settings") return settingsContent;
-  if ((role === "head" || role === "dept_head") && section === "team")
+  if (role !== "admin" && section === "budget")
+    return {
+      title: "Office Budget",
+      sections: [
+        {
+          title: "Office",
+          items: [{ label: "Office Budget", isActive: true }],
+        },
+      ],
+    };
+  if (role !== "admin" && section === "team")
     return {
       title: "Analytics",
       sections: [
@@ -36,7 +46,7 @@ export function getSidebarContent(
         },
       ],
     };
-  if(role==='head'&&section==='intelligence')return {title:'Analytics',sections:[{title:'Insights',items:[{label:'Analytics',isActive:true}]}]};
+  if (role !== 'admin' && section === 'intelligence') return {title:'Analytics',sections:[{title:'Insights',items:[{label:'Analytics',isActive:true}]}]};
 
   if (role === "admin" && section === "users")
     return {

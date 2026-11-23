@@ -1,6 +1,9 @@
 import { useId, useRef, useState } from "react";
 import { formatManilaDate } from "../../../shared/calendarDisplay";
 import { AlertTriangle, Loader2 } from "lucide-react";
+import { BoundedTextarea } from "../../../components/ui/BoundedInput";
+import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
+import { INPUT_LIMITS, textLengthError } from "../../../shared/inputLimits";
 import {
   Dialog,
   DialogContent,
@@ -40,10 +43,17 @@ export function CashReleaseOverrideDialog({
   onReleased: () => Promise<void>;
 }) {
   const [reason, setReason] = useState("");
+  const [reasonTouched, setReasonTouched] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const inFlight = useRef(false);
   const reasonId = useId();
+  const reasonError = textLengthError(reason, "Override reason", {
+    required: true,
+    min: 10,
+    max: INPUT_LIMITS.REASON,
+  });
+  const visibleReasonError = reasonTouched || reason.length > 0 ? reasonError : "";
   const draft = useExplicitDraft(
     "Release handover",
     !financialOutcome(`release:${release.id}`) && Boolean(reason.trim()),
@@ -176,22 +186,25 @@ export function CashReleaseOverrideDialog({
             htmlFor={reasonId}
             className="text-sm font-medium text-neutral-900"
           >
-            Override reason
+            Override reason{" "}
+            <span className="text-[var(--eflow-negative-text)]" aria-hidden="true">
+              *
+            </span>
           </label>
-          <textarea
+          <BoundedTextarea
             id={reasonId}
+            aria-required="true"
             value={reason}
+            onBlur={() => setReasonTouched(true)}
             onChange={(event) => setReason(event.target.value)}
             disabled={busy}
-            maxLength={1000}
+            maxLength={INPUT_LIMITS.REASON}
             rows={3}
+            error={visibleReasonError || undefined}
+            hint="At least 10 characters. Confirm only when the cash is actually being handed over."
             placeholder="Explain why this cash must be released before its scheduled date…"
             className="mt-1 w-full resize-none rounded-lg border border-neutral-300 p-2 text-sm disabled:opacity-50"
           />
-          <p className="mt-1 text-xs text-neutral-500">
-            At least 10 characters. Confirm only when the cash is actually being
-            handed over.
-          </p>
         </div>
         {error && (
           <p
@@ -220,21 +233,34 @@ export function CashReleaseOverrideDialog({
           >
             Cancel
           </button>
-          <button
-            type="button"
-            disabled={
-              busy ||
-              Boolean(financialOutcome(key)) ||
-              reason.trim().length < 10
-            }
-            onClick={() => {
-              void confirm();
-            }}
-            className="inline-flex items-center justify-center gap-2 rounded-lg bg-amber-700 px-3 py-2 text-sm text-white disabled:opacity-40"
-          >
-            {busy && <Loader2 size={14} className="animate-spin" />} Confirm
-            override & release
-          </button>
+          {(() => {
+            const confirmDisabled = busy || Boolean(financialOutcome(key)) || Boolean(reasonError);
+            const confirmTooltip = busy
+              ? ""
+              : financialOutcome(key)
+                ? "A previous release attempt already completed or requires verification."
+                : reasonError
+                  ? reasonError
+                  : "Audited action: your identity, override reason, and release timestamp are permanently logged.";
+            return (
+              <WorkspaceTooltip content={confirmTooltip} disabled={!confirmTooltip}>
+                <span className="inline-flex">
+                  <button
+                    type="button"
+                    disabled={confirmDisabled}
+                    onClick={() => {
+                      setReasonTouched(true);
+                      void confirm();
+                    }}
+                    className="inline-flex items-center justify-center gap-2 rounded-lg bg-amber-700 px-3 py-2 text-sm text-white disabled:opacity-40"
+                  >
+                    {busy && <Loader2 size={14} className="animate-spin" />} Confirm
+                    override & release
+                  </button>
+                </span>
+              </WorkspaceTooltip>
+            );
+          })()}
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -1,13 +1,16 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { useAuth } from "../../../../contexts/AuthContext";
+import { BoundedTextInput } from "../../../../components/ui/BoundedInput";
+import { FieldValidationTooltip } from "../../../../components/ui/FieldValidationTooltip";
 import {
   FormField,
   SelectInput,
-  TextInput,
 } from "../../../../components/ui/FormField";
 import { FeedbackState } from "../../../../components/ui/FeedbackState";
 import { Modal, ModalButton } from "../../../../components/ui/Modal";
 import { useToast } from "../../../../components/ui/Toast";
+import { WorkspaceTooltip } from "../../../../components/ui/workspace/WorkspaceTooltip";
+import { INPUT_LIMITS } from "../../../../shared/inputLimits";
 import type { Organization, UserProfile } from "../../../../types";
 import {
   getAssignableRoleCatalog,
@@ -81,6 +84,10 @@ export function CreateUserModal({
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [roleTipOpen, setRoleTipOpen] = useState(false);
+  const roleWrapRef = useRef<HTMLDivElement | null>(null);
+  const roleId = useId();
+  const roleTipId = useId();
   // Skills tab state
   const [activeTab, setActiveTab] = useState<"basic" | "skills">("basic");
   const [skills, setSkills] = useState<Record<string, boolean>>({});
@@ -132,23 +139,55 @@ export function CreateUserModal({
     });
   };
 
+  const validateFullName = (value: string) => {
+    if (mode !== 'ledipo_create') return '';
+    const trimmed = value.trim();
+    if (!trimmed) return 'Full name is required.';
+    if (trimmed.length < 2) return 'Enter the full name (at least 2 characters).';
+    return '';
+  };
+
+  const validateEmail = (value: string) => {
+    const trimmed = value.trim();
+    if (!trimmed) return 'Email address is required.';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) return 'Enter a valid email address.';
+    return '';
+  };
+
+  const targetOrgId = form.orgId || resolvedLedipoId;
+  const orgUnavailableIssue =
+    officeError ||
+    (!targetOrgId || (authorizedOffices.length > 0 && !authorizedOffices.some(o => o.id === targetOrgId))
+      ? 'LEDIPO workspace is unavailable. Close this form and try again.'
+      : '');
+  const liveFullNameIssue = validateFullName(form.fullName);
+  const liveEmailIssue = validateEmail(form.email);
+  const liveRoleIssue = !roleOptions.some(({ value }) => value === form.role)
+    ? "You cannot assign this role."
+    : "";
+  const liveSkillsIssue = mode === 'ledipo_create' ? accountSkillsError(skills) : '';
+  const submitBlockedReason =
+    orgUnavailableIssue ||
+    liveFullNameIssue ||
+    liveEmailIssue ||
+    liveRoleIssue ||
+    leadershipConflict ||
+    liveSkillsIssue ||
+    '';
+
   const validate = () => {
     const errs: Record<string, string> = {};
-    const targetOrgId = form.orgId || resolvedLedipoId;
-    if (mode === 'ledipo_create' && !form.fullName.trim()) errs.fullName = "Required";
-    if (!form.email.trim()) errs.email = "Required";
-    if (!targetOrgId || (authorizedOffices.length > 0 && !authorizedOffices.some(o => o.id === targetOrgId))) {
-      errs.orgId = officeError || 'LEDIPO workspace is unavailable. Close this form and try again.';
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) errs.email = 'Enter a valid email address.';
-    if (mode === 'ledipo_create' && form.fullName.trim() && form.fullName.trim().length < 2) errs.fullName = 'Enter the full name.';
-    if (!roleOptions.some(({ value }) => value === form.role))
-      errs.role = "You cannot assign this role.";
-    if (mode === 'ledipo_create') {
-      const skillIssue = accountSkillsError(skills);
-      if (skillIssue) { errs.skills = skillIssue; setActiveTab('skills'); }
-    }
+    if (liveFullNameIssue) errs.fullName = liveFullNameIssue;
+    if (liveEmailIssue) errs.email = liveEmailIssue;
+    if (orgUnavailableIssue) errs.orgId = orgUnavailableIssue;
+    if (liveRoleIssue) errs.role = liveRoleIssue;
+    if (liveSkillsIssue) errs.skills = liveSkillsIssue;
     setErrors(errs);
+    if (errs.fullName || errs.email || errs.role || leadershipConflict) {
+      setActiveTab('basic');
+    } else if (errs.skills) {
+      setActiveTab('skills');
+    }
     return !leadershipConflict && Object.keys(errs).length === 0;
   };
 
@@ -205,13 +244,21 @@ export function CreateUserModal({
           <ModalButton disabled={saving} onClick={close}>
             Cancel
           </ModalButton>
-          <ModalButton
-            variant="primary"
-            onClick={handleSubmit}
-            pending={saving}
+          <WorkspaceTooltip
+            content={saving ? "" : submitBlockedReason}
+            disabled={saving || !submitBlockedReason}
           >
-            {saving ? "Saving invitation…" : "Send activation email"}
-          </ModalButton>
+            <span className="inline-flex">
+              <ModalButton
+                variant="primary"
+                onClick={handleSubmit}
+                pending={saving}
+                disabled={Boolean(submitBlockedReason)}
+              >
+                {saving ? "Saving invitation…" : "Send activation email"}
+              </ModalButton>
+            </span>
+          </WorkspaceTooltip>
         </>
       }
     >
@@ -264,26 +311,40 @@ export function CreateUserModal({
         {activeTab === "basic" && (
           <div className="space-y-4">
             {mode === 'ledipo_create' && (
-              <FormField label="Full Name" error={errors.fullName} required>
-                <TextInput
-                  maxLength={160}
+              <FormField label="Full Name" required>
+                <BoundedTextInput
+                  maxLength={INPUT_LIMITS.PERSON_NAME}
                   value={form.fullName}
-                  onChange={(e) => setForm({ ...form, fullName: e.target.value })}
+                  onChange={(e) => {
+                    setForm({ ...form, fullName: e.target.value });
+                    if (errors.fullName) setErrors((current) => ({ ...current, fullName: "" }));
+                  }}
+                  onBlur={() =>
+                    setErrors((current) => ({ ...current, fullName: validateFullName(form.fullName) }))
+                  }
                   placeholder="Juan Dela Cruz"
-                  hasError={!!errors.fullName}
+                  error={errors.fullName || undefined}
+                  className="eflow-form-input h-10 w-full rounded-lg border border-border bg-input-background px-3 text-[13px] font-normal text-foreground placeholder:text-muted-foreground outline-none transition-all hover:border-neutral-400 focus:border-ring focus:ring-2 focus:ring-ring/15"
                 />
               </FormField>
             )}
 
             <div>
-              <FormField label="Email" error={errors.email} required>
-                <TextInput
+              <FormField label="Email" required>
+                <BoundedTextInput
                   type="email"
-                  maxLength={254}
+                  maxLength={INPUT_LIMITS.EMAIL}
                   value={form.email}
-                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                  onChange={(e) => {
+                    setForm({ ...form, email: e.target.value });
+                    if (errors.email) setErrors((current) => ({ ...current, email: "" }));
+                  }}
+                  onBlur={() =>
+                    setErrors((current) => ({ ...current, email: validateEmail(form.email) }))
+                  }
                   placeholder="j.delacruz@eflow.gov.ph"
-                  hasError={!!errors.email}
+                  error={errors.email || undefined}
+                  className="eflow-form-input h-10 w-full rounded-lg border border-border bg-input-background px-3 text-[13px] font-normal text-foreground placeholder:text-muted-foreground outline-none transition-all hover:border-neutral-400 focus:border-ring focus:ring-2 focus:ring-ring/15"
                 />
               </FormField>
             </div>
@@ -292,17 +353,38 @@ export function CreateUserModal({
             <div>
               <FormField
                 label="Role"
+                controlId={roleId}
                 error={errors.role || leadershipConflict || undefined}
                 required
               >
-                <SelectInput
-                  value={form.role}
-                  onChange={(e) =>
-                    setForm({ ...form, role: e.target.value })
-                  }
-                  options={roleOptions}
-                  hasError={Boolean(errors.role || leadershipConflict)}
-                />
+                <div
+                  ref={roleWrapRef}
+                  onMouseEnter={() => setRoleTipOpen(true)}
+                  onMouseLeave={() => setRoleTipOpen(false)}
+                >
+                  <SelectInput
+                    id={roleId}
+                    value={form.role}
+                    onChange={(e) => {
+                      setForm({ ...form, role: e.target.value });
+                      if (errors.role) setErrors((current) => ({ ...current, role: "" }));
+                    }}
+                    onFocus={() => setRoleTipOpen(true)}
+                    onBlur={() => setRoleTipOpen(false)}
+                    options={roleOptions}
+                    aria-required
+                    aria-invalid={Boolean(errors.role || leadershipConflict) || undefined}
+                    aria-describedby={roleTipOpen && Boolean(errors.role || leadershipConflict) ? roleTipId : undefined}
+                    hasError={Boolean(errors.role || leadershipConflict)}
+                  />
+                  <FieldValidationTooltip
+                    id={roleTipId}
+                    anchorRef={roleWrapRef}
+                    message={errors.role || leadershipConflict || undefined}
+                    open={roleTipOpen && Boolean(errors.role || leadershipConflict)}
+                    tone="error"
+                  />
+                </div>
               </FormField>
             </div>
             {resolvedRole.customRoleKey && resolvedRole.role !== 'head' && resolvedRole.role !== 'admin' && (

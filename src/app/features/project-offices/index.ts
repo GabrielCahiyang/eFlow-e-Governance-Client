@@ -29,18 +29,6 @@ export {
   proposeTaskOffice,
   resolveTaskOffice,
 } from "./services/officeIdentityService";
-export const ProjectOfficePanel = lazyFeature(
-  () =>
-    import("./components/ProjectOfficePanel").then((module) => ({
-      default: module.ProjectOfficePanel,
-    })),
-  undefined,
-  "ProjectOfficePanel",
-  createElement(CardSectionSkeleton, {
-    rows: 3,
-    label: "Loading project offices…",
-  }),
-);
 export const TaskOfficeControl = lazyFeature(
   () =>
     import("./components/TaskOfficeControl").then((module) => ({
@@ -50,3 +38,16 @@ export const TaskOfficeControl = lazyFeature(
   "TaskOfficeControl",
   createElement(InlineCellSkeleton, { label: "Loading office…" }),
 );
+export const ProjectPeoplePage = lazyFeature(
+  () =>
+    import("./components/ProjectPeoplePage").then((module) => ({
+      default: module.ProjectPeoplePage,
+    })),
+  undefined,
+  "ProjectPeoplePage",
+  createElement(CardSectionSkeleton, {
+    rows: 4,
+    label: "Loading project people…",
+  }),
+);
+export { OfficeMembersEditor } from "./components/OfficeMembersEditor";

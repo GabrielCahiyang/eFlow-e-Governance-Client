@@ -11,7 +11,7 @@ import httpx
 from pydantic import BaseModel, Field, ValidationError
 
 from gateway_config import settings
-from gateway_dependencies import AuthenticatedUser, internal_ai_key, require_user, supabase_admin
+from gateway_dependencies import AuthenticatedUser, _permission_allowed, internal_ai_key, is_administrator, require_user, supabase_admin
 from uuid import UUID
 from services.staffing_context import build_staffing_context
 from services.import_staffing_context import build_import_staffing_context
@@ -81,11 +81,21 @@ def checked_chat_payload(payload: ChatRequest, user: AuthenticatedUser) -> dict:
     request = payload.workspace_decomposition
     if request is None:
         return body
-    if user.role != "head" or not user.org_id:
-        raise HTTPException(status_code=403, detail="Only an active Office Head can decompose project work.")
-    project = supabase_admin.table("projects").select("id,org_id,title,description,scope,start_date,target_date,funding_not_required,status").eq("id", str(request.projectId)).maybe_single().execute().data
+    if is_administrator(user.role) or not user.org_id:
+        raise HTTPException(status_code=403, detail="Only an authorized active office account can decompose project work.")
+    if user.role != "head" and not _permission_allowed(user, "projects.create"):
+        raise HTTPException(status_code=403, detail="The projects.create capability is required to decompose project work.")
+    project = supabase_admin.table("projects").select("id,org_id,title,description,scope,start_date,target_date,funding_not_required,status,created_by,owner_id,project_lead_id,source_collaboration_draft_id").eq("id", str(request.projectId)).maybe_single().execute().data
     if not project or str(project["org_id"]) != user.org_id or project["status"] in ("completed", "archived"):
         raise HTTPException(status_code=403, detail="Choose an open project belonging to your Office.")
+    if user.role != "head":
+        is_owner = user.id in {
+            str(project.get("created_by") or ""),
+            str(project.get("owner_id") or ""),
+            str(project.get("project_lead_id") or ""),
+        }
+        if not is_owner or project.get("source_collaboration_draft_id"):
+            raise HTTPException(status_code=403, detail="You can only decompose open projects that you created or lead.")
     groups = supabase_admin.table("project_groups").select("id,title").eq("project_id", str(request.projectId)).order("position").execute().data or []
     tasks = supabase_admin.table("tasks").select("id,title,description,group_id").eq("linked_project_id", str(request.projectId)).is_("deleted_at", "null").limit(300).execute().data or []
     offices = supabase_admin.table("organizations").select("id,name,slug").execute().data or []

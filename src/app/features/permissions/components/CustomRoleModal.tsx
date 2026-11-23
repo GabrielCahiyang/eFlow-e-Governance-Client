@@ -1,5 +1,8 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { Link2, ShieldPlus, X } from "lucide-react";
+import { BoundedTextInput } from "../../../components/ui/BoundedInput";
+import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
+import { INPUT_LIMITS } from "../../../shared/inputLimits";
 import {
   ACTION_PERMISSION_KEYS,
   VISIBLE_PAGE_PERMISSION_KEYS,
@@ -78,6 +81,7 @@ export function CustomRoleModal({
   const [validationError, setValidationError] = useState<string | null>(null);
   const [dependencyNotice, setDependencyNotice] = useState<string | null>(null);
   const [labelTouched, setLabelTouched] = useState(false);
+  const [labelDirty, setLabelDirty] = useState(false);
 
   useEffect(() => {
     if (!open) return;
@@ -94,6 +98,7 @@ export function CustomRoleModal({
     setValidationError(null);
     setDependencyNotice(null);
     setLabelTouched(false);
+    setLabelDirty(false);
   }, [open, initialRole, mode, roleRows]);
 
   useEffect(() => {
@@ -111,7 +116,7 @@ export function CustomRoleModal({
   );
 
   const liveNameError = useMemo(() => {
-    if (!label.trim()) return null;
+    if (!label.trim()) return "Role name is required (2 to 60 characters).";
     return validateCustomRoleName(
       label,
       existingRoles,
@@ -167,13 +172,16 @@ export function CustomRoleModal({
     setValidationError(null);
     await onSubmit({
       label: cleanedLabel,
-      description: description.trim().slice(0, 240),
+      description: description.trim().slice(0, INPUT_LIMITS.SHORT_DESCRIPTION),
       baseRole,
       permissions: normalizeRolePermissionMap(permissions, baseRole),
     });
   };
 
-  const inlineNameError = validationError || (labelTouched || label.trim().length >= 2 ? liveNameError : null);
+  const inlineNameError =
+    validationError ||
+    (labelTouched || labelDirty || label.trim().length >= 2 ? liveNameError : null);
+  const submitBlockedReason = saving ? "" : validationError || liveNameError || "";
   const displayError = inlineNameError || error;
 
   return (
@@ -216,33 +224,30 @@ export function CustomRoleModal({
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
                 <label htmlFor="custom-role-label" className="mb-1.5 block text-[12.5px] font-medium text-neutral-800">
-                  Role name <span className="text-red-500">*</span>
+                  Role name <span className="text-[var(--eflow-negative-text)]" aria-hidden="true">*</span>
                 </label>
-                <input
+                <BoundedTextInput
                   id="custom-role-label"
                   type="text"
                   value={label}
                   onChange={(e) => {
+                    setLabelDirty(true);
                     setLabel(e.target.value);
                     if (validationError) setValidationError(null);
                   }}
                   onBlur={() => setLabelTouched(true)}
-                  maxLength={60}
+                  maxLength={INPUT_LIMITS.ROLE_NAME}
                   placeholder="e.g. Budget Reviewer"
                   autoFocus
                   disabled={saving}
-                  aria-invalid={Boolean(inlineNameError)}
-                  aria-describedby={inlineNameError ? "custom-role-label-error" : undefined}
-                  className={`h-9 w-full rounded-lg border bg-white px-3 text-[13px] text-neutral-900 placeholder:text-neutral-400 focus:outline-none ${
-                    inlineNameError
-                      ? "border-red-400 focus:border-red-500"
-                      : "border-neutral-200 focus:border-[#0d544f]"
-                  }`}
+                  aria-required
+                  error={inlineNameError || undefined}
+                  className="h-9 w-full rounded-lg border border-neutral-200 bg-white px-3 text-[13px] text-neutral-900 placeholder:text-neutral-400 focus:border-[#0d544f] focus:outline-none"
                 />
                 {inlineNameError ? (
-                  <p id="custom-role-label-error" role="alert" className="mt-1 text-[11.5px] text-red-600">
+                  <span role="alert" className="sr-only">
                     {inlineNameError}
-                  </p>
+                  </span>
                 ) : null}
               </div>
 
@@ -250,12 +255,12 @@ export function CustomRoleModal({
                 <label htmlFor="custom-role-desc" className="mb-1.5 block text-[12.5px] font-medium text-neutral-800">
                   Description
                 </label>
-                <input
+                <BoundedTextInput
                   id="custom-role-desc"
                   type="text"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  maxLength={240}
+                  maxLength={INPUT_LIMITS.SHORT_DESCRIPTION}
                   placeholder="Optional note on when to assign this role"
                   disabled={saving}
                   className="h-9 w-full rounded-lg border border-neutral-200 bg-white px-3 text-[13px] text-neutral-900 placeholder:text-neutral-400 focus:border-[#0d544f] focus:outline-none"
@@ -339,13 +344,20 @@ export function CustomRoleModal({
             >
               Cancel
             </button>
-            <button
-              type="submit"
-              disabled={saving || Boolean(inlineNameError)}
-              className="inline-flex min-h-[36px] items-center rounded-lg bg-[#0d544f] px-4 text-[13px] font-medium text-white hover:bg-[#0b4642] disabled:opacity-60"
+            <WorkspaceTooltip
+              content={submitBlockedReason}
+              disabled={!submitBlockedReason}
             >
-              {saving ? "Saving…" : mode === "create" ? "Create role" : "Save changes"}
-            </button>
+              <span className="inline-flex">
+                <button
+                  type="submit"
+                  disabled={saving || Boolean(validationError || liveNameError)}
+                  className="inline-flex min-h-[36px] items-center rounded-lg bg-[#0d544f] px-4 text-[13px] font-medium text-white hover:bg-[#0b4642] disabled:opacity-60"
+                >
+                  {saving ? "Saving…" : mode === "create" ? "Create role" : "Save changes"}
+                </button>
+              </span>
+            </WorkspaceTooltip>
           </div>
         </form>
       </div>

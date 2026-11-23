@@ -6,6 +6,7 @@ import { PageHeader } from "../../../components/workflow/primitives";
 import { WorkspaceLoadingSkeleton } from "../../../components/workflow/WorkspaceLoadingSkeleton";
 import { useDepartmentBudget } from "../hooks/useDepartmentBudget";
 import { BudgetApprovalQueue } from "./BudgetApprovalQueue";
+import { ProjectFundingCertificationQueue } from "./ProjectFundingCertificationQueue";
 import { BudgetCard, BudgetEmpty } from "./budgetUi";
 import { FiscalYearControl } from "./FiscalYearControl";
 import { getCurrentFiscalYear } from "../constants";
@@ -142,6 +143,14 @@ export function BudgetReviewInbox({
       </div>}
 
       {focusYear && focusYear.key === focusKey && focusYear.error && <p role="alert" className="text-sm text-destructive">{focusYear.error}</p>}
+      {isDepartmentApprover && orgId && (
+        <ProjectFundingCertificationQueue
+          orgId={orgId}
+          focusProjectId={focus?.financialRecordType === "project_funding" ? focus.projectId : undefined}
+          focusRequestId={focus?.financialRecordType === "project_funding" ? focus.financialRecordId : undefined}
+          onChanged={budget.refresh}
+        />
+      )}
       {resolvingFocus || budget.loading ? (
         <BudgetReviewInboxSkeleton />
       ) : budget.error ? (

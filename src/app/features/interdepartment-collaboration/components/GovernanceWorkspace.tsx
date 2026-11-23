@@ -1,8 +1,10 @@
 import { useGovernanceSafety } from "../hooks/useGovernanceSafety";
 import { useExplicitDraft } from "../../../shared/useExplicitDraft";
 import { requestNavigation } from "../../../shared/navigationGuard";
+import { BoundedTextInput } from "../../../components/ui/BoundedInput";
 import { FeedbackState } from "../../../components/ui/FeedbackState";
-import { INPUT_LIMITS } from "../../../shared/inputLimits";
+import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
+import { INPUT_LIMITS, textLengthError } from "../../../shared/inputLimits";
 import * as React from "react";
 import { Button } from "@vibe/core";
 import { UserRoundCog } from "lucide-react";
@@ -95,13 +97,22 @@ export function GovernanceWorkspace({
     );
   const [recusalOpen, setRecusalOpen] = React.useState(false);
   const [recusalReason, setRecusalReason] = React.useState("");
+  const [recusalTouched, setRecusalTouched] = React.useState(false);
   const [delegateId, setDelegateId] = React.useState("");
+  const recusalReasonId = React.useId();
+  const delegateSelectId = React.useId();
+  const rawRecusalError = textLengthError(recusalReason, "Recusal reason", {
+    required: true,
+    max: INPUT_LIMITS.REASON,
+  });
+  const visibleRecusalError = recusalTouched ? rawRecusalError : "";
   const recusalDraft = useExplicitDraft(
     "Recusal and delegation",
     recusalOpen && Boolean(recusalReason || delegateId),
     safety.pending || busy,
     () => {
       setRecusalReason("");
+      setRecusalTouched(false);
       setDelegateId("");
       setRecusalOpen(false);
     },
@@ -218,8 +229,14 @@ export function GovernanceWorkspace({
               size="small"
               onClick={() => {
                 if (recusalOpen)
-                  void requestNavigation(() => setRecusalOpen(false));
-                else setRecusalOpen(true);
+                  void requestNavigation(() => {
+                    setRecusalTouched(false);
+                    setRecusalOpen(false);
+                  });
+                else {
+                  setRecusalTouched(false);
+                  setRecusalOpen(true);
+                }
               }}
             >
               {recusalOpen ? "Cancel" : "Recuse or delegate"}
@@ -227,57 +244,91 @@ export function GovernanceWorkspace({
           </div>
 
           {recusalOpen && (
-            <div className="mt-4 grid gap-3 rounded-lg border border-blue-200 bg-blue-50/50 p-4 sm:grid-cols-[1fr_220px_auto]">
-              <input
-                aria-label="Recusal reason"
-                maxLength={INPUT_LIMITS.REASON}
-                value={recusalReason}
-                onChange={(event) => setRecusalReason(event.target.value)}
-                placeholder="Required reason for conflict or recusal…"
-                className="eflow-control w-full"
-              />
-              <select
-                aria-label="Temporary delegate"
-                value={delegateId}
-                onChange={(event) => setDelegateId(event.target.value)}
-                className="eflow-control"
-              >
-                <option value="">Recuse without delegate</option>
-                {actingCandidates.map((profile) => (
-                  <option key={profile.id} value={profile.id}>
-                    {profile.full_name}
-                  </option>
-                ))}
-              </select>
-              <Button
-                size="small"
-                disabled={busy || safety.pending || !recusalReason.trim()}
-                onClick={() =>
-                  void onAct(
-                    async () => {
-                      await recuseAndDelegateReview({
-                        draftId: draft.id,
-                        organizationId: actingOrgId,
-                        reason: recusalReason,
-                        delegateTo: delegateId,
-                      });
-                      recusalDraft.markClean();
-                      setRecusalOpen(false);
-                      setRecusalReason("");
-                      setDelegateId("");
-                    },
-                    "Recusal recorded and delegation updated.",
-                    <p>
-                      Reason: {recusalReason}. Delegate:{" "}
-                      {profiles.find((person) => person.id === delegateId)
-                        ?.full_name || "No delegate"}
-                      .
-                    </p>,
-                  )
-                }
-              >
-                Record recusal
-              </Button>
+            <div className="mt-4 grid items-start gap-3 rounded-lg border border-blue-200 bg-blue-50/50 p-4 sm:grid-cols-[1fr_220px_auto]">
+              <div>
+                <label
+                  htmlFor={recusalReasonId}
+                  className="mb-1 block text-xs font-medium text-neutral-700"
+                >
+                  Recusal reason{" "}
+                  <span className="text-[var(--eflow-negative-text)]" aria-hidden="true">*</span>
+                </label>
+                <BoundedTextInput
+                  id={recusalReasonId}
+                  aria-label="Recusal reason"
+                  aria-required
+                  maxLength={INPUT_LIMITS.REASON}
+                  value={recusalReason}
+                  error={visibleRecusalError || undefined}
+                  onBlur={() => setRecusalTouched(true)}
+                  onChange={(event) => setRecusalReason(event.target.value)}
+                  placeholder="Required reason for conflict or recusal…"
+                  className="eflow-control w-full"
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor={delegateSelectId}
+                  className="mb-1 block text-xs font-medium text-neutral-700"
+                >
+                  Temporary delegate
+                </label>
+                <select
+                  id={delegateSelectId}
+                  aria-label="Temporary delegate"
+                  value={delegateId}
+                  onChange={(event) => setDelegateId(event.target.value)}
+                  className="eflow-control w-full"
+                >
+                  <option value="">Recuse without delegate</option>
+                  {actingCandidates.map((profile) => (
+                    <option key={profile.id} value={profile.id}>
+                      {profile.full_name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="sm:pt-5">
+                <WorkspaceTooltip
+                  content={busy || safety.pending ? "" : rawRecusalError}
+                  disabled={busy || safety.pending || !rawRecusalError}
+                >
+                  <span className="inline-flex">
+                    <Button
+                      size="small"
+                      disabled={busy || safety.pending || Boolean(rawRecusalError)}
+                      onClick={() => {
+                        setRecusalTouched(true);
+                        if (rawRecusalError) return;
+                        void onAct(
+                          async () => {
+                            await recuseAndDelegateReview({
+                              draftId: draft.id,
+                              organizationId: actingOrgId,
+                              reason: recusalReason.trim(),
+                              delegateTo: delegateId,
+                            });
+                            recusalDraft.markClean();
+                            setRecusalOpen(false);
+                            setRecusalReason("");
+                            setRecusalTouched(false);
+                            setDelegateId("");
+                          },
+                          "Recusal recorded and delegation updated.",
+                          <p>
+                            Reason: {recusalReason.trim()}. Delegate:{" "}
+                            {profiles.find((person) => person.id === delegateId)
+                              ?.full_name || "No delegate"}
+                            .
+                          </p>,
+                        );
+                      }}
+                    >
+                      Record recusal
+                    </Button>
+                  </span>
+                </WorkspaceTooltip>
+              </div>
             </div>
           )}
         </section>

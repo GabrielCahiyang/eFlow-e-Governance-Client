@@ -25,7 +25,13 @@
 .eflow-portfolio-table .eflow-person-cell > :first-child { flex-shrink: 0; }
 .eflow-portfolio-table .eflow-person-cell > span { overflow-wrap: break-word; word-break: normal; }
 .eflow-portfolio-office { overflow-wrap: break-word; word-break: normal; }
-.eflow-portfolio-muted, .eflow-portfolio-date { color: var(--eflow-text-secondary); font-size: 12px; }
+.eflow-portfolio-muted, .eflow-portfolio-date { color: var(--eflow-text-secondary); font-size: 12px; font-variant-numeric: tabular-nums; }
+.eflow-portfolio-date-cell { display: grid; gap: 2px; min-width: 0; }
+.eflow-portfolio-date-meta { font-size: 11px; line-height: 1.35; font-weight: 500; color: var(--eflow-text-muted); font-variant-numeric: tabular-nums; }
+.eflow-portfolio-date-meta--warning { color: var(--eflow-warning-text); }
+.eflow-portfolio-date-meta--negative { color: var(--eflow-negative-text); }
+.eflow-portfolio-date-meta--indigo { color: #3730a3; }
+.dark .eflow-portfolio-date-meta--indigo { color: #a5b4fc; }
 .eflow-portfolio-table .eflow-progress-cell { width: 100%; grid-template-columns: minmax(28px, auto) minmax(45px, 1fr); gap: 6px 8px; }
 .eflow-portfolio-progress-value { font-size: 13px; font-weight: 600; }
 .eflow-portfolio-table .eflow-progress-track > span { background: var(--eflow-primary); }

@@ -1,6 +1,8 @@
 import * as Carbon from "@carbon/icons-react";
 import * as Lucide from "lucide-react";
-import { useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { FieldValidationTooltip } from "../../../components/ui/FieldValidationTooltip";
+import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import type { TaskCard } from "./councilorData";
 
 export function ConfirmationPad({
@@ -15,16 +17,55 @@ export function ConfirmationPad({
   onCancel: () => void;
 }) {
   const [pin, setPin] = useState("");
-  const [error, setError] = useState(false);
+  const [pinError, setPinError] = useState("");
+  const pinGroupRef = useRef<HTMLDivElement | null>(null);
+  const titleId = useId();
+  const descriptionId = useId();
+  const pinTooltipId = useId();
 
-  const handleSubmit = () => {
+  const appendDigit = useCallback((digit: string) => {
+    setPinError("");
+    setPin((current) => (current.length < 4 ? current + digit : current));
+  }, []);
+
+  const deleteDigit = useCallback(() => {
+    setPinError("");
+    setPin((current) => current.slice(0, -1));
+  }, []);
+
+  const handleSubmit = useCallback(() => {
     if (pin.length === 4) {
+      setPinError("");
       onConfirm();
     } else {
-      setError(true);
-      setTimeout(() => setError(false), 1500);
+      setPinError("Please enter a valid 4-digit PIN.");
     }
-  };
+  }, [pin.length, onConfirm]);
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.defaultPrevented) return;
+      if (event.key === "Escape") {
+        onCancel();
+        return;
+      }
+      if (event.ctrlKey || event.metaKey || event.altKey) return;
+      if (/^\d$/.test(event.key)) {
+        event.preventDefault();
+        appendDigit(event.key);
+      } else if (event.key === "Backspace") {
+        event.preventDefault();
+        deleteDigit();
+      } else if (event.key === "Enter") {
+        if (document.activeElement?.tagName !== "BUTTON") {
+          event.preventDefault();
+          handleSubmit();
+        }
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [appendDigit, deleteDigit, handleSubmit, onCancel]);
 
   const actionLabels: Record<string, { label: string; color: string }> = {
     vote_yes: { label: "Vote: YES", color: "text-emerald-600" },
@@ -36,10 +77,25 @@ export function ConfirmationPad({
 
   const actionInfo = actionLabels[action] || { label: action, color: "text-neutral-600" };
   const isVote = task.type === "Floor Vote";
+  const pinComplete = pin.length === 4;
+  const submitTooltip = !pinComplete
+    ? "Enter your 4-digit PIN to continue."
+    : isVote
+      ? "Casts your vote and seals it permanently in the immutable ledger. This cannot be undone."
+      : "Applies your digital signature and seals this action in the immutable ledger. This cannot be undone.";
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ backdropFilter: "blur(12px)", background: "rgba(0,0,0,0.3)" }}>
-      <div className="bg-white rounded-3xl p-8 w-full max-w-[380px] shadow-2xl mx-4">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center"
+      style={{ backdropFilter: "blur(12px)", background: "rgba(0,0,0,0.3)" }}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        aria-describedby={descriptionId}
+        className="bg-white rounded-3xl p-8 w-full max-w-[380px] shadow-2xl mx-4"
+      >
         {/* Icon */}
         <div className="flex justify-center mb-5">
           <div className="size-16 rounded-2xl bg-emerald-50 flex items-center justify-center">
@@ -47,10 +103,10 @@ export function ConfirmationPad({
           </div>
         </div>
 
-        <h3 className="text-[18px] font-normal text-neutral-900 text-center mb-1">
+        <h3 id={titleId} className="text-[18px] font-normal text-neutral-900 text-center mb-1">
           {isVote ? "Confirm Your Vote" : "Digital Signature Required"}
         </h3>
-        <p className="text-[13px] font-normal text-neutral-500 text-center mb-6">
+        <p id={descriptionId} className="text-[13px] font-normal text-neutral-500 text-center mb-6">
           {isVote ? "Enter your 4-digit PIN to cast your vote" : "Enter your 4-digit PIN to seal your approval"}
         </p>
 
@@ -69,28 +125,51 @@ export function ConfirmationPad({
         </div>
 
         {/* PIN Input */}
-        <div className="flex justify-center gap-3 mb-6">
-          {[0, 1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className={`size-14 rounded-xl border-2 flex items-center justify-center text-[24px] font-normal transition-all duration-200 ${
-                error
-                  ? "border-red-300 bg-red-50"
-                  : pin.length > i
-                  ? "border-neutral-900 bg-neutral-50"
-                  : "border-neutral-200 bg-white"
-              }`}
+        <div className="mb-5">
+          <div
+            ref={pinGroupRef}
+            role="group"
+            aria-label="4-digit PIN"
+            aria-describedby={pinError ? pinTooltipId : undefined}
+            className="flex justify-center gap-3"
+          >
+            {[0, 1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className={`size-14 rounded-xl border-2 flex items-center justify-center text-[24px] font-normal transition-all duration-200 ${
+                  pinError
+                    ? "border-red-400 bg-red-50"
+                    : pin.length > i
+                    ? "border-neutral-900 bg-neutral-50"
+                    : "border-neutral-200 bg-white"
+                }`}
+              >
+                {pin.length > i ? "•" : ""}
+              </div>
+            ))}
+          </div>
+          <FieldValidationTooltip
+            id={pinTooltipId}
+            anchorRef={pinGroupRef}
+            message={pinError}
+            open={Boolean(pinError)}
+            tone="error"
+          />
+          <div className="mt-2 flex items-center justify-between text-[11.5px]">
+            <span className="text-neutral-400">4-digit confirmation PIN</span>
+            <span
+              className={`tabular-nums font-medium ${pinComplete ? "text-emerald-600" : "text-neutral-500"}`}
+              aria-live="polite"
             >
-              {pin.length > i ? "•" : ""}
-            </div>
-          ))}
+              {pin.length} / 4
+            </span>
+          </div>
+          {pinError && (
+            <p role="alert" className="mt-2 text-[12px] font-medium text-red-600 text-center">
+              {pinError}
+            </p>
+          )}
         </div>
-
-        {error && (
-          <p className="text-[12px] font-normal text-red-500 text-center mb-4">
-            Please enter a valid 4-digit PIN
-          </p>
-        )}
 
         {/* Number Pad */}
         <div className="grid grid-cols-3 gap-2 mb-5">
@@ -99,9 +178,11 @@ export function ConfirmationPad({
             return (
               <button
                 key={i}
+                type="button"
+                aria-label={num === "del" ? "Delete last digit" : undefined}
                 onClick={() => {
-                  if (num === "del") setPin((p) => p.slice(0, -1));
-                  else if (pin.length < 4) setPin((p) => p + num);
+                  if (num === "del") deleteDigit();
+                  else appendDigit(String(num));
                 }}
                 className="py-3 rounded-xl bg-neutral-50 text-[18px] font-normal text-neutral-700 cursor-pointer hover:bg-neutral-100 active:bg-neutral-200 transition-colors"
               >
@@ -114,21 +195,35 @@ export function ConfirmationPad({
         {/* Actions */}
         <div className="flex gap-3">
           <button
+            type="button"
             onClick={onCancel}
             className="flex-1 py-3 bg-neutral-100 text-neutral-600 rounded-xl text-[14px] font-normal cursor-pointer hover:bg-neutral-200 transition-colors"
           >
             Cancel
           </button>
-          <button
-            onClick={handleSubmit}
-            className={`flex-1 py-3 rounded-xl text-[14px] font-normal cursor-pointer transition-all ${
-              pin.length === 4
-                ? "bg-emerald-600 text-white hover:bg-emerald-700"
-                : "bg-neutral-200 text-neutral-400 cursor-not-allowed"
-            }`}
-          >
-            {isVote ? "Cast Vote" : "Confirm & Seal"}
-          </button>
+          <WorkspaceTooltip content={submitTooltip} disabled={!submitTooltip}>
+            <span
+              className={`inline-flex flex-1${!pinComplete ? " cursor-not-allowed" : ""}`}
+              onClick={() => {
+                if (!pinComplete) {
+                  setPinError("Please enter a valid 4-digit PIN.");
+                }
+              }}
+            >
+              <button
+                type="button"
+                disabled={!pinComplete}
+                onClick={handleSubmit}
+                className={`w-full py-3 rounded-xl text-[14px] font-normal transition-all disabled:pointer-events-none ${
+                  pinComplete
+                    ? "bg-emerald-600 text-white cursor-pointer hover:bg-emerald-700"
+                    : "bg-neutral-200 text-neutral-400"
+                }`}
+              >
+                {isVote ? "Cast Vote" : "Confirm & Seal"}
+              </button>
+            </span>
+          </WorkspaceTooltip>
         </div>
 
         <p className="text-[10px] font-normal text-neutral-400 text-center mt-4 flex items-center justify-center gap-1">

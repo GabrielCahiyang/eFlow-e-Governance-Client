@@ -1,11 +1,15 @@
 import type { ReactNode } from 'react';
+import { BoundedTextInput } from '../../../components/ui/BoundedInput';
 import { SkillTagSelector } from '../../../components/ui/SkillTagSelector';
+import { INPUT_LIMITS } from '../../../shared/inputLimits';
 
 /** Shared content for Office invitations. */
 export function InvitationPersonFields({
   id,
   index,
   email,
+  emailError,
+  required = true,
   skills = [],
   availableSkills = [],
   loadingSkills = false,
@@ -13,11 +17,14 @@ export function InvitationPersonFields({
   compact = false,
   children,
   onEmail,
+  onEmailBlur,
   onSkills,
 }: {
   id: string;
   index: number;
   email: string;
+  emailError?: string;
+  required?: boolean;
   skills?: string[];
   availableSkills?: readonly string[];
   loadingSkills?: boolean;
@@ -25,27 +32,39 @@ export function InvitationPersonFields({
   compact?: boolean;
   children?: ReactNode;
   onEmail: (value: string) => void;
+  onEmailBlur?: () => void;
   onSkills?: (skills: string[]) => void;
   file?: File;
   onFile?: (value: File | undefined) => void;
   onError?: (message: string) => void;
 }) {
-  const content = (
-    <>
-      <label className={compact ? 'sr-only' : undefined} htmlFor={`invite-email-${id}`}>
-        Email address {index + 1}
-      </label>
-      <input
-        id={`invite-email-${id}`}
-        type="email"
-        autoComplete="email"
-        placeholder="Add email here"
-        value={email}
-        maxLength={254}
-        onChange={(e) => onEmail(e.target.value)}
-      />
-      {children}
-    </>
+  const emailLabel = (
+    <label
+      className={compact ? 'mb-1 block text-xs font-medium text-foreground' : undefined}
+      htmlFor={`invite-email-${id}`}
+    >
+      Email address {index + 1}
+      {required && (
+        <span className="text-[var(--eflow-negative-text)]" aria-hidden="true">
+          {' '}*
+        </span>
+      )}
+    </label>
+  );
+  const emailInput = (
+    <BoundedTextInput
+      id={`invite-email-${id}`}
+      type="email"
+      autoComplete="email"
+      placeholder="Add email here"
+      value={email}
+      maxLength={INPUT_LIMITS.EMAIL}
+      aria-required={required || undefined}
+      error={emailError || undefined}
+      onBlur={onEmailBlur}
+      onChange={(e) => onEmail(e.target.value)}
+      className="!w-full"
+    />
   );
   const showSkillSelector =
     Boolean(onSkills) &&
@@ -54,7 +73,21 @@ export function InvitationPersonFields({
   return (
     <fieldset className="eflow-invite-row" disabled={disabled}>
       <legend className={compact ? 'sr-only' : undefined}>Person {index + 1}</legend>
-      {compact ? <div className="eflow-invite-inputs">{content}</div> : content}
+      {compact ? (
+        <div>
+          {emailLabel}
+          <div className="eflow-invite-inputs !items-start">
+            <div className="min-w-0 flex-1">{emailInput}</div>
+            {children}
+          </div>
+        </div>
+      ) : (
+        <>
+          {emailLabel}
+          {emailInput}
+          {children}
+        </>
+      )}
       {showSkillSelector && onSkills && (
         <div className="mt-2.5">
           <SkillTagSelector

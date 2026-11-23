@@ -38,7 +38,9 @@ export function HeadTaskBoard() {
     notes,
     userProfile,
   } = useHeadTaskBoard();
-  const { user } = useAuth();
+  const { user, can } = useAuth();
+  const canAssignTasks = typeof can === "function" ? can("tasks.assign") : true;
+  const canVerifyTasks = typeof can === "function" ? can("tasks.verify") : true;
   const [reviewId, setReviewId] = useState<string>();
   const reviewTask = deptTasks.find(task => task.id === reviewId);
 
@@ -53,14 +55,14 @@ export function HeadTaskBoard() {
       departmentFilter={userProfile?.departmentId}
       currentUserId={userProfile?.uid}
       currentUserName={userProfile?.fullName || userProfile?.email || ""}
-      onCreateTask={createTask}
-      onAssign={assignTask}
+      onCreateTask={canAssignTasks ? createTask : undefined}
+      onAssign={canAssignTasks ? assignTask : undefined}
       onOpenReview={setReviewId}
       onUpdateTask={updateTask}
       onDeleteTask={deleteTask}
     />
     {reviewTask && <Modal isOpen title="Review task submission" onClose={() => setReviewId(undefined)}>
-      <TaskReviewPanel task={reviewTask} canReview={canUserReviewTask(reviewTask, user?.id, userProfile?.role)}
+      <TaskReviewPanel task={reviewTask} canReview={canVerifyTasks && canUserReviewTask(reviewTask, user?.id, userProfile?.role)}
         onDecided={() => setReviewId(undefined)} />
     </Modal>}
   </>);

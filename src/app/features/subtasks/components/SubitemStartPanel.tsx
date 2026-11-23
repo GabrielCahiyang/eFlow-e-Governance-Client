@@ -1,6 +1,7 @@
 import { readableUiError } from '../../../shared/userFacingError';
 import { useRef, useState } from 'react';
 import { Button } from '@vibe/core';
+import { WorkspaceTooltip } from '../../../components/ui/workspace/WorkspaceTooltip';
 import { startScheduledSubtask } from '../services/subtaskWorkflowService';
 import { useConfirmation } from '../../../components/ui/useConfirmation';
 
@@ -42,11 +43,19 @@ export function SubitemStartPanel({ taskId, subtaskId, blockedReason, pending, r
     }
   }
 
+  const startDisabledReason = busy ? 'Starting subtask…' : pending ? 'Waiting for work refresh…' : '';
+
   return <div className="space-y-2">
     {dialog}
     {started ? <p role="status">Subtask started. Reload this work if the update form does not appear.</p>
       : blockedReason ? <p role="status">{blockedReason}</p>
-      : <Button disabled={pending || busy} onClick={() => void start()}>{busy ? 'Starting…' : 'Start work'}</Button>}
+      : (
+        <WorkspaceTooltip content={startDisabledReason} disabled={!startDisabledReason}>
+          <span className="inline-flex">
+            <Button disabled={pending || busy} onClick={() => void start()}>{busy ? 'Starting…' : 'Start work'}</Button>
+          </span>
+        </WorkspaceTooltip>
+      )}
     {error && <p role="alert">{error}</p>}
   </div>;
 }

@@ -21,8 +21,8 @@ import type { Task } from "../../tasks";
 import type { Project } from "../services/types";
 import { buildProjectPortfolioSummary } from "../selectors/projectCommandSelectors";
 import {
-  ProjectLifecycleLabel,
-  ProjectScheduleLabel,
+  formatProjectTargetDateSubtext,
+  ProjectUnifiedStatus,
 } from "../presentation/projectPresentation";
 import { ActionMenu } from "../../../components/ui/workspace";
 import { useToast } from "../../../components/ui/Toast";
@@ -47,13 +47,12 @@ export function ProjectsPortfolioTable({
 
 
   const columns = [
-    { id: "project", title: "Project", width: { min: 196, max: "2fr" as const } },
+    { id: "project", title: "Project", width: { min: 210, max: "2.1fr" as const } },
     { id: "department", title: "Lead office", width: { min: 76, max: "0.7fr" as const } },
-    { id: "lead", title: "Project lead", width: { min: 128, max: "1fr" as const } },
-    { id: "lifecycle", title: "Status", width: { min: 82, max: "0.75fr" as const } },
-    { id: "schedule", title: "Schedule", width: { min: 96, max: "0.85fr" as const } },
-    { id: "progress", title: "Progress", width: { min: 106, max: "0.9fr" as const } },
-    { id: "target", title: "Target date", width: { min: 88, max: "0.75fr" as const } },
+    { id: "lead", title: "Project lead", width: { min: 132, max: "1fr" as const } },
+    { id: "status", title: "Status", width: { min: 168, max: "1.2fr" as const } },
+    { id: "progress", title: "Progress", width: { min: 110, max: "0.9fr" as const } },
+    { id: "target", title: "Target date", width: { min: 112, max: "0.85fr" as const } },
     { id: "actions", title: "Actions", width: 154 },
   ];
 
@@ -94,12 +93,14 @@ export function ProjectsPortfolioTable({
             const organization = organizations.find(
               (org) => org.id === project.orgId,
             );
+            const primaryLeadId = project.projectLeadId || project.ownerId;
             const owner = profiles.find(
-              (profile) => profile.id === project.ownerId,
+              (profile) => profile.id === primaryLeadId,
             );
             const leads = summary.leadIds
               .map((id) => profiles.find((profile) => profile.id === id))
               .filter((profile): profile is UserProfile => Boolean(profile));
+            const targetSubtext = formatProjectTargetDateSubtext(project, summary.nextDeadline);
 
             return (
               <TableRow key={project.id} className="eflow-project-row">
@@ -148,20 +149,16 @@ export function ProjectsPortfolioTable({
                   )}
                 </TableCell>
 
-                {/* 4. Lifecycle Status */}
+                {/* 4. Unified Project Status */}
                 <TableCell>
-                  <ProjectLifecycleLabel status={project.status} />
-                </TableCell>
-
-                {/* 5. Schedule Health */}
-                <TableCell>
-                  <ProjectScheduleLabel
+                  <ProjectUnifiedStatus
+                    project={project}
                     health={summary.health}
-                    empty={summary.isEmpty}
+                    layout="stacked"
                   />
                 </TableCell>
 
-                {/* 6. Progress */}
+                {/* 5. Progress */}
                 <TableCell>
                   <div className="eflow-progress-cell">
                     <span className="eflow-portfolio-progress-value">
@@ -176,11 +173,24 @@ export function ProjectsPortfolioTable({
                   </div>
                 </TableCell>
 
-                {/* 7. Target Date */}
+                {/* 6. Target Date */}
                 <TableCell>
-                  <span className="eflow-portfolio-date">
-                    {formatDate(project.targetDate || summary.nextDeadline)}
-                  </span>
+                  <div className="eflow-portfolio-date-cell">
+                    <span className="eflow-portfolio-date">
+                      {formatDate(project.targetDate || summary.nextDeadline)}
+                    </span>
+                    {targetSubtext && (
+                      <small
+                        className={`eflow-portfolio-date-meta${
+                          targetSubtext.tone !== "neutral"
+                            ? ` eflow-portfolio-date-meta--${targetSubtext.tone}`
+                            : ""
+                        }`}
+                      >
+                        {targetSubtext.text}
+                      </small>
+                    )}
+                  </div>
                 </TableCell>
 
                 <TableCell className="eflow-project-actions-cell">

@@ -20,55 +20,61 @@ beforeEach(()=>{sessionStorage.clear();vi.useFakeTimers({toFake:['Date']});vi.se
 afterEach(()=>{cleanup();sessionStorage.clear();vi.useRealTimers();});
 
 describe('subtask assignment ranking',()=>{
- it('prioritizes task people without promoting expired or unverified identities',()=>{
+ it('includes only eligible task people without promoting expired, unverified, or other members',()=>{
   const data=snapshot(),before=structuredClone(data);
   const groups=groupWorkAssignmentPeople([...data.people,{id:'specialist',name:'Expired duplicate',eligible:false}],workAssignmentPriority(data,null));
   expect(groups.map(group=>[group.label,group.people.map(person=>person.id)])).toEqual([
-   ['On this task',['task-worker','task-lead']],['Other eligible members',['parent-lead']],
+   ['On this task',['task-worker','task-lead']],
   ]);
   expect(data).toEqual(before);
  });
- it('uses only the immediate parent team and searches across both groups',()=>{
+ it('uses only the immediate parent team and searches within that group',()=>{
   const data=snapshot(),priority=workAssignmentPriority(data,'parent');
   expect(priority).toEqual({label:'On parent subtask',ids:['parent-lead','specialist']});
-  expect(groupWorkAssignmentPeople(data.people,priority).map(group=>group.people.map(person=>person.id))).toEqual([['specialist','parent-lead'],['task-worker','task-lead']]);
-  expect(groupWorkAssignmentPeople(data.people,priority,'  TASK  ')[1].people.map(person=>person.id)).toEqual(['task-worker','task-lead']);
+  expect(groupWorkAssignmentPeople(data.people,priority).map(group=>group.people.map(person=>person.id))).toEqual([['specialist','parent-lead']]);
+  expect(groupWorkAssignmentPeople(data.people,priority,'  ADA  ')[0].people.map(person=>person.id)).toEqual(['specialist']);
+  expect(groupWorkAssignmentPeople(data.people,priority,'  TASK  ')[0].people).toEqual([]);
   expect(workAssignmentPriority(data,'missing').ids).toEqual([]);
  });
- it('groups both fields, searches other members, and keeps selection explicit',()=>{
+ it('shows only task-assigned members in both fields and keeps selection explicit',()=>{
   const data=snapshot(),onLead=vi.fn(),onSelected=vi.fn();
   render(<WorkPeoplePicker people={data.people} priority={workAssignmentPriority(data,null)} lead="" selected={[]} onLead={onLead} onSelected={onSelected} appointmentCapability={allowed} contributorCapability={allowed}/>);
   const lead=screen.getByRole('combobox',{name:'Appointed Lead'});
-  expect(within(lead).getAllByRole('group').map(group=>group.getAttribute('label'))).toEqual(['On this task','Other eligible members']);
+  expect(within(lead).getAllByRole('group').map(group=>group.getAttribute('label'))).toEqual(['On this task']);
+  expect(within(lead).queryByRole('option',{name:'Parent Lead'})).toBeNull();
   expect(screen.getAllByRole('group',{name:'On this task'})).toHaveLength(2);
+  expect(screen.queryByRole('group',{name:'Other eligible members'})).toBeNull();
+  expect(screen.queryByRole('button',{name:'Add contributor Ada Specialist'})).toBeNull();
   expect(onLead).not.toHaveBeenCalled();expect(onSelected).not.toHaveBeenCalled();
-  fireEvent.change(screen.getByRole('searchbox',{name:'Find a lead'}),{target:{value:'ada'}});
-  expect(within(lead).queryByRole('option',{name:'Task Lead'})).toBeNull();
-  fireEvent.change(lead,{target:{value:'specialist'}});
-  expect(onLead).toHaveBeenCalledExactlyOnceWith('specialist');
-  fireEvent.change(screen.getByRole('searchbox',{name:'Find people'}),{target:{value:'  ADA  '}});
-  fireEvent.click(screen.getByRole('button',{name:'Add contributor Ada Specialist'}));
-  expect(onSelected).toHaveBeenLastCalledWith(['specialist']);
+  fireEvent.change(screen.getByRole('searchbox',{name:'Find a lead'}),{target:{value:'lead'}});
+  expect(within(lead).queryByRole('option',{name:'Task Contributor'})).toBeNull();
+  fireEvent.change(lead,{target:{value:'task-lead'}});
+  expect(onLead).toHaveBeenCalledExactlyOnceWith('task-lead');
+  fireEvent.change(screen.getByRole('searchbox',{name:'Find people'}),{target:{value:'  CONTRIBUTOR  '}});
+  fireEvent.click(screen.getByRole('button',{name:'Add contributor Task Contributor'}));
+  expect(onSelected).toHaveBeenLastCalledWith(['task-worker']);
   expect(screen.queryByRole('button',{name:'Add contributor Expired Contributor'})).toBeNull();
  });
  it('keeps the appointed lead selected when a search hides their group',()=>{
   const data=snapshot();
   render(<WorkPeoplePicker people={data.people} priority={workAssignmentPriority(data,null)} lead="task-lead" selected={['task-lead']} onLead={vi.fn()} onSelected={vi.fn()} appointmentCapability={allowed} contributorCapability={allowed}/>);
-  fireEvent.change(screen.getByRole('searchbox',{name:'Find a lead'}),{target:{value:'ada'}});
+  fireEvent.change(screen.getByRole('searchbox',{name:'Find a lead'}),{target:{value:'nobody'}});
   expect((screen.getByRole('combobox') as HTMLSelectElement).value).toBe('task-lead');
   expect(screen.queryByRole('button',{name:'Add contributor Task Lead'})).toBeNull();
  });
- it.each([undefined,'parent'])('creates work under %s without selecting or changing the parent team',async parent=>{
+ it.each([undefined,'parent'])('creates work under %s using only assigned team members without changing the parent team',async parent=>{
   const data=snapshot(),before=structuredClone(data),save=vi.fn().mockResolvedValue(data);
   render(<WorkTreeEditor data={data} edit={{command:'create',parent}} save={save} onDone={vi.fn()} onCancel={vi.fn()}/>);
   expect((screen.getByRole('combobox',{name:'Appointed Lead'}) as HTMLSelectElement).value).toBe('');
   expect(screen.queryByRole('button',{name:/Remove contributor/})).toBeNull();
   expect(screen.getAllByRole('group',{name:parent?'On parent subtask':'On this task'})).toHaveLength(2);
-  fireEvent.change(screen.getByLabelText('Subtask title'),{target:{value:'Specialist review'}});
-  fireEvent.change(screen.getByRole('combobox',{name:'Appointed Lead'}),{target:{value:'specialist'}});
+  expect(screen.queryByRole('group',{name:'Other eligible members'})).toBeNull();
+  const chosenLead=parent?'specialist':'task-worker';
+  fireEvent.change(screen.getByLabelText('Subtask title'),{target:{value:'Team review'}});
+  fireEvent.change(screen.getByRole('combobox',{name:'Appointed Lead'}),{target:{value:chosenLead}});
   fireEvent.click(screen.getByRole('button',{name:'Add subtask',exact:true}));
   await waitFor(()=>expect(save).toHaveBeenCalledOnce());
-  expect(save.mock.calls[0][0]).toMatchObject({command:'create',payload:{parent:parent||null,lead:'specialist',people:['specialist']}});
+  expect(save.mock.calls[0][0]).toMatchObject({command:'create',payload:{parent:parent||null,lead:chosenLead,people:[chosenLead]}});
   expect(data).toEqual(before);
  });
 });

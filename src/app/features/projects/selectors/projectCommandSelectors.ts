@@ -1,10 +1,11 @@
 import type { UserProfile } from "../../../types";
-import { isAdminRole } from "../../../shared/roles";
 import type { Milestone, Project } from "../services/types";
 import type { Subtask } from "../../subtasks";
 import { isOverdue, type Task } from "../../tasks";
 import type { TeamAttentionItem, TeamWorkflowFacts } from "../../team-management";
 import type { ProjectActivityItem, ProjectCommandMetrics, ProjectScheduleHealth } from "../components/project-command/types";
+import { getPhilippineCalendarDate } from "../../../shared/calendarDates";
+import { getDueSoonWindowDays } from "../../../shared/systemRuntimeConfig";
 import { parseCalendarDate } from "../../../shared/scheduling/relativeSchedule";
 
 const DAY = 86_400_000;
@@ -12,6 +13,10 @@ const timestamp = (value?: string): number | undefined => {
   if (!value) return undefined;
   const time = new Date(value).getTime();
   return Number.isFinite(time) ? time : undefined;
+};
+const manilaTodayStart = (now: number): number => {
+  const iso = getPhilippineCalendarDate(new Date(now));
+  return parseCalendarDate(iso) ?? new Date(now).setHours(0, 0, 0, 0);
 };
 
 export function buildProjectCommandMetrics(
@@ -33,14 +38,15 @@ export function buildProjectCommandMetrics(
   const taskCompleted = activeTasks.filter((task) => task.status === "completed").length;
   const completionRecommended = project.status !== "completed" && activeTasks.length > 0 && taskCompleted === activeTasks.length;
 
-  const today = new Date(now);
-  const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
+  const todayStart = manilaTodayStart(now);
+  const dueSoonWindowDays = Math.max(1, getDueSoonWindowDays());
   const targetParsed = project.targetDate ? parseCalendarDate(project.targetDate) ?? timestamp(project.targetDate) : undefined;
   const isTargetOverdue = targetParsed !== undefined && targetParsed < todayStart;
-  const isTargetDueSoon = targetParsed !== undefined && targetParsed >= todayStart && targetParsed <= todayStart + 14 * DAY;
+  const isTargetDueSoon = targetParsed !== undefined && targetParsed >= todayStart && targetParsed <= todayStart + dueSoonWindowDays * DAY;
 
   let scheduleHealth: ProjectScheduleHealth = "on_track";
   if (project.status === "completed" || project.status === "archived") scheduleHealth = "completed";
+  else if (project.status === "planning") scheduleHealth = "on_track";
   else if (overdue > 0 || isTargetOverdue) scheduleHealth = "overdue";
   else if (blocked > 0 || changesRequested > 0 || milestones.some((milestone) => milestone.manualStatus === "at_risk")) scheduleHealth = "at_risk";
   else if (isTargetDueSoon || attention.some((item) => item.kind === "due_soon")) scheduleHealth = "due_soon";
@@ -118,11 +124,11 @@ export function buildProjectPortfolioSummary(project: Project, tasks: Task[], no
   const completed = live.filter((task) => task.status === "completed").length;
   const progress = live.length ? Math.round(live.reduce((sum, task) => sum + (task.status === "completed" ? 100 : 0), 0) / live.length) : project.status === "completed" ? 100 : 0;
   const overdue = live.filter((task) => isOverdue(task, now)).length;
-  const today = new Date(now);
-  const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
+  const todayStart = manilaTodayStart(now);
+  const dueSoonWindowDays = Math.max(1, getDueSoonWindowDays());
   const targetParsed = project.targetDate ? parseCalendarDate(project.targetDate) ?? timestamp(project.targetDate) : undefined;
   const isTargetOverdue = targetParsed !== undefined && targetParsed < todayStart;
-  const isTargetDueSoon = targetParsed !== undefined && targetParsed >= todayStart && targetParsed <= todayStart + 14 * DAY;
+  const isTargetDueSoon = targetParsed !== undefined && targetParsed >= todayStart && targetParsed <= todayStart + dueSoonWindowDays * DAY;
   const awaitingReview = live.filter((task) => task.status === "for_review").length;
   const changesRequested = live.filter((task) => task.status === "changes_requested").length;
   const leadIds = Array.from(new Set(live.map((task) => task.recommendationLeadId || task.assigneeId).filter((id): id is string => Boolean(id))));
@@ -131,7 +137,18 @@ export function buildProjectPortfolioSummary(project: Project, tasks: Task[], no
     .filter((date): date is string => Boolean(date))
     .filter((date) => (parseCalendarDate(date) ?? timestamp(date) ?? 0) >= todayStart)
     .sort((a, b) => (parseCalendarDate(a) ?? timestamp(a) ?? 0) - (parseCalendarDate(b) ?? timestamp(b) ?? 0));
-  const health: ProjectScheduleHealth = (project.status === "completed" || project.status === "archived" && completed===live.length) ? "completed" : overdue || isTargetOverdue ? "overdue" : changesRequested ? "at_risk" : isTargetDueSoon ? "due_soon" : "on_track";
+  const health: ProjectScheduleHealth =
+    project.status === "completed" || (project.status === "archived" && completed === live.length)
+      ? "completed"
+      : project.status === "planning"
+        ? "on_track"
+        : overdue || isTargetOverdue
+          ? "overdue"
+          : changesRequested
+            ? "at_risk"
+            : isTargetDueSoon
+              ? "due_soon"
+              : "on_track";
   const completionRecommended = project.status !== "completed" && live.length > 0 && completed === live.length;
   return { progress, completed, total: live.length, isEmpty: live.length === 0 && project.status !== "completed", overdue, awaitingReview, changesRequested, leadIds, nextDeadline: deadlines[0] || project.targetDate, health, completionRecommended, lastActivityAt: Math.max(project.updatedAt, ...live.map((task) => task.lastActivityAt || task.updatedAt)) };
 }
@@ -158,39 +175,26 @@ export function hasAssignedSubtaskWork(
 
 /**
  * Collects unique participant user IDs for the project header stack,
- * including the project owner/lead, active non-admin members of the project's
- * owning office, explicit project/office members, and task assignees.
+ * including the project owner/lead, explicit project/office members,
+ * and task assignees — without pulling in unrelated office members.
  */
 export function collectProjectParticipantIds({
   project,
-  profiles,
   projectMemberIds = [],
   officeMemberIds = [],
   tasks = [],
 }: {
   project: Pick<Project, "ownerId" | "projectLeadId" | "orgId">;
-  profiles: ReadonlyArray<Pick<UserProfile, "id" | "org_id" | "is_active" | "role">>;
+  profiles?: ReadonlyArray<Pick<UserProfile, "id" | "org_id" | "is_active" | "role">>;
   projectMemberIds?: ReadonlyArray<string>;
   officeMemberIds?: ReadonlyArray<string>;
   tasks?: ReadonlyArray<Pick<Task, "assigneeId" | "teamMemberIds">>;
 }): string[] {
-  const leadOfficeMemberIds = project.orgId
-    ? profiles
-        .filter(
-          (profile) =>
-            profile.is_active !== false &&
-            !isAdminRole(profile.role) &&
-            profile.org_id === project.orgId,
-        )
-        .map((profile) => profile.id)
-    : [];
-
   return [
     ...new Set(
       [
         project.ownerId || "",
         project.projectLeadId || "",
-        ...leadOfficeMemberIds,
         ...projectMemberIds,
         ...officeMemberIds,
         ...tasks.flatMap((task) => [task.assigneeId || "", ...(task.teamMemberIds || [])]),

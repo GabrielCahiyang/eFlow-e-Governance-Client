@@ -98,6 +98,7 @@ function getSectionFromPath(
 
   if (segment === SECTION_PATHS.settings) return "settings";
   if (segment === SECTION_PATHS.messages) return "messages";
+  if (segment === SECTION_PATHS.announcements) return "announcements";
   if (
     segment === "department-budget" &&
     candidates.some((candidate) => candidate.id === "budget")
@@ -134,6 +135,7 @@ function getValidPage(
   getInitialPage: (section: string) => string | undefined,
 ): string | undefined {
   if (section === 'messages') return 'Messages';
+  if (section === 'announcements') return 'Announcements';
   if (section === "users") return resolveSupportPage(section, requestedPage);
   if (
     section !== "users" &&

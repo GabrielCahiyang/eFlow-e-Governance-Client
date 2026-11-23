@@ -1,7 +1,8 @@
 import { readableUiError } from '../../../shared/userFacingError';
 import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
+import { BoundedTextInput } from "../../../components/ui/BoundedInput";
 import { DateInput } from "../../../components/ui/DateInput";
-import { INPUT_LIMITS } from "../../../shared/inputLimits";
+import { INPUT_LIMITS, textLengthError } from "../../../shared/inputLimits";
 import { getPhilippineCalendarDate, scheduledDateError } from '../../../shared/calendarDates';
 import { supportsNestedWork, isCurrentWorkSnapshot, WorkTree, type WorkNode, type WorkTreeSnapshot, type WorkTreeController } from '../../nested-work';
 import type {TaskInspectorOrigin} from '../../task-inspector';
@@ -47,7 +48,9 @@ import {
 import { useAuth } from "../../../contexts/AuthContext";
 import { useToast } from "../../../components/ui/Toast";
 import { startTaskIfTodo, type Task } from "../../../services/taskService";
-import { LegacySubtaskWorkDrawer } from "./LegacySubtaskWorkDrawer";
+import { Modal } from "../../../components/ui/Modal";
+import { Button } from "../../../components/ui/button";
+import { FeedbackState } from "../../../components/ui/FeedbackState";
 import { SubtaskSequenceControls } from "./sequencing/SubtaskSequenceControls";
 import { formatDate } from "../../../components/workflow/primitives";
 import {
@@ -79,8 +82,10 @@ function LegacyTaskSubtasksWidget({
   const { user, userProfile } = useAuth();
   const { subtasks, setSubtasks } = useTaskSubtasks(taskId,user?.id||null);
   const [newTitle, setNewTitle] = useState("");
+  const [titleTouched, setTitleTouched] = useState(false);
   const [newStandalone, setNewStandalone] = useState(false);
   const [newDueDate, setNewDueDate] = useState(() => parentTaskDueDate(parentTask?.deadline, parentTask?.dueDate) || "");
+  const [dueInvalidText, setDueInvalidText] = useState(false);
   const [adding, setAdding] = useState(false);
   const [pickerOpenFor, setPickerOpenFor] = useState<string | null>(null);
   const [openSubtask, setOpenSubtask] = useState<Subtask | null>(null);
@@ -117,10 +122,26 @@ function LegacyTaskSubtasksWidget({
     return Array.from(map.values());
   }, [allowedAssignees]);
 
+  const titleError = textLengthError(newTitle, "Subtask title", { required: true, max: INPUT_LIMITS.TITLE });
+  const visibleTitleError = titleTouched ? titleError : "";
+  const dueError = dueInvalidText
+    ? "Enter a valid due date in MM/DD/YYYY format."
+    : !newDueDate
+      ? "Choose a subtask due date."
+      : scheduledDateError(newDueDate, { latest: parentDue || "", label: "Subtask due date" });
+  const visibleDueError = dueInvalidText || Boolean(newDueDate) ? dueError : "";
+  const addDisabledReason = adding
+    ? "Adding subtask…"
+    : titleError
+      ? titleError
+      : dueError
+        ? dueError
+        : "";
+  const addDisabled = Boolean(addDisabledReason);
+
   const handleAdd = async () => {
-    if (!newTitle.trim() || !newDueDate) return;
-    const issue = scheduledDateError(newDueDate, { latest: parentDue || '', label: 'Subtask due date' });
-    if (issue) { toast(issue, 'error'); return; }
+    setTitleTouched(true);
+    if (addDisabled) return;
     setAdding(true);
     try {
       await createSubtask(taskId, newTitle.trim(), {
@@ -135,8 +156,10 @@ function LegacyTaskSubtasksWidget({
         ? await startTaskIfTodo(taskId)
         : false;
       setNewTitle("");
+      setTitleTouched(false);
       setNewStandalone(false);
       setNewDueDate(parentDue || "");
+      setDueInvalidText(false);
       toast(
         parentStarted
           ? "Subtask added. The task is now In Progress."
@@ -300,24 +323,29 @@ function LegacyTaskSubtasksWidget({
               )}
 
               {canManage && (
-                <button
-                  type="button"
-                  onClick={() => void toggleStandalone(st)}
-                  disabled={executionModeLocked}
-                  aria-label={st.isStandalone ? `Follow work order for ${st.title}` : `Allow ${st.title} out of order`}
-                  className={`inline-flex items-center gap-1 rounded-md border px-1.5 py-1 text-[8.5px] font-medium transition disabled:cursor-not-allowed disabled:opacity-40 ${
-                    st.isStandalone
-                      ? "border-violet-200 bg-violet-50 text-violet-700"
-                      : "border-neutral-200 bg-white text-neutral-500 hover:border-violet-300 hover:text-violet-700"
-                  }`}
-                  title={executionModeLocked
-                    ? "Work order can’t change after work starts"
+                <WorkspaceTooltip
+                  content={executionModeLocked
+                    ? "Work order can’t change after work starts."
                     : st.isStandalone
-                      ? "Make this subtask follow the order of earlier steps"
-                      : "Let this subtask start without waiting for earlier steps"}
+                      ? "Make this subtask follow the order of earlier steps."
+                      : "Let this subtask start without waiting for earlier steps."}
                 >
-                  <Unlink2 size={9} /> {st.isStandalone ? "Follow work order" : "Allow out of order"}
-                </button>
+                  <span className="inline-flex">
+                    <button
+                      type="button"
+                      onClick={() => void toggleStandalone(st)}
+                      disabled={executionModeLocked}
+                      aria-label={st.isStandalone ? `Follow work order for ${st.title}` : `Allow ${st.title} out of order`}
+                      className={`inline-flex items-center gap-1 rounded-md border px-1.5 py-1 text-[8.5px] font-medium transition disabled:cursor-not-allowed disabled:opacity-40 ${
+                        st.isStandalone
+                          ? "border-violet-200 bg-violet-50 text-violet-700"
+                          : "border-neutral-200 bg-white text-neutral-500 hover:border-violet-300 hover:text-violet-700"
+                      }`}
+                    >
+                      <Unlink2 size={9} /> {st.isStandalone ? "Follow work order" : "Allow out of order"}
+                    </button>
+                  </span>
+                </WorkspaceTooltip>
               )}
 
               <span className={`rounded-full px-1.5 py-0.5 text-[8.5px] font-medium ${
@@ -453,54 +481,101 @@ function LegacyTaskSubtasksWidget({
         <p className="mt-2 text-[9.5px] text-amber-700">Sequence is locked while the parent task is under review, completed, cancelled, or archived.</p>
       ) : null}
 
-      {canManage && <div className="mt-2 flex min-w-0 flex-wrap items-center gap-2 sm:flex-nowrap">
-        <input
-          maxLength={INPUT_LIMITS.TITLE}
-          value={newTitle}
-          onChange={(e) => setNewTitle(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleAdd()}
-          placeholder="Add a subtask for team members…"
-          className="h-[32px] min-w-0 basis-full flex-1 rounded-lg border border-neutral-200 bg-white px-2.5 text-[12px] font-normal text-neutral-900 outline-none placeholder:text-neutral-400 focus:border-neutral-400 sm:basis-0"
-        />
-        <DateInput
-          min={getPhilippineCalendarDate()}
-          value={newDueDate}
-          max={parentDue}
-          onChange={(event) => setNewDueDate(event.target.value)}
-          className="h-[32px] w-[145px] rounded-lg border border-neutral-200 bg-white px-2 text-[10.5px] text-neutral-700 outline-none focus:border-neutral-400"
-          title={parentDue ? `Subtask deadline, no later than ${formatDate(parentDue)}` : "Subtask deadline"}
-          aria-label="New subtask due date"
-        />
-        <button
-          type="button"
-          onClick={() => setNewStandalone((current) => !current)}
-          aria-pressed={newStandalone}
-          className={`h-[32px] rounded-lg border px-2.5 text-[10px] font-medium transition ${
-            newStandalone
-              ? "border-violet-300 bg-violet-50 text-violet-700"
-              : "border-neutral-200 bg-white text-neutral-500 hover:border-neutral-300"
-          }`}
-          title="This subtask can start without waiting for earlier steps. Its start date and other requirements still apply."
-        >
-          <span className="inline-flex items-center gap-1"><Unlink2 size={11} /> Allow out of order</span>
-        </button>
-        <button
-          type="button"
-          onClick={handleAdd}
-          disabled={adding || !newTitle.trim() || !newDueDate}
-          className="h-[32px] px-3 rounded-lg bg-neutral-900 text-white text-[11px] font-medium disabled:opacity-40 hover:bg-neutral-800 shrink-0 inline-flex items-center gap-1"
-        >
-          <Plus size={13} /> Add
-        </button>
+      {canManage && <div className="mt-2 space-y-1">
+        <div className="flex min-w-0 flex-wrap items-start gap-2 sm:flex-nowrap">
+          <div className="min-w-0 basis-full flex-1 sm:basis-0">
+            <BoundedTextInput
+              aria-label="New subtask title"
+              maxLength={INPUT_LIMITS.TITLE}
+              value={newTitle}
+              error={visibleTitleError || undefined}
+              onBlur={() => setTitleTouched(true)}
+              onChange={(e) => setNewTitle(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  void handleAdd();
+                }
+              }}
+              placeholder="Add a subtask for team members…"
+              className="h-[32px] w-full rounded-lg border border-neutral-200 bg-white px-2.5 text-[12px] font-normal text-neutral-900 outline-none placeholder:text-neutral-400 focus:border-neutral-400"
+            />
+          </div>
+          <div className="w-[145px] shrink-0">
+            <DateInput
+              min={getPhilippineCalendarDate()}
+              value={newDueDate}
+              max={parentDue}
+              hasError={Boolean(visibleDueError)}
+              errorMessage={visibleDueError || undefined}
+              onInvalidTextChange={setDueInvalidText}
+              onChange={(event) => setNewDueDate(event.target.value)}
+              className="h-[32px] w-full rounded-lg border border-neutral-200 bg-white px-2 text-[10.5px] text-neutral-700 outline-none focus:border-neutral-400"
+              title={parentDue ? `Subtask deadline, no later than ${formatDate(parentDue)}` : "Subtask deadline"}
+              aria-label="New subtask due date"
+            />
+          </div>
+          <WorkspaceTooltip content="This subtask can start without waiting for earlier steps. Its start date and other requirements still apply.">
+            <button
+              type="button"
+              onClick={() => setNewStandalone((current) => !current)}
+              aria-pressed={newStandalone}
+              className={`h-[32px] rounded-lg border px-2.5 text-[10px] font-medium transition shrink-0 ${
+                newStandalone
+                  ? "border-violet-300 bg-violet-50 text-violet-700"
+                  : "border-neutral-200 bg-white text-neutral-500 hover:border-neutral-300"
+              }`}
+            >
+              <span className="inline-flex items-center gap-1"><Unlink2 size={11} /> Allow out of order</span>
+            </button>
+          </WorkspaceTooltip>
+          <WorkspaceTooltip content={addDisabledReason} disabled={!addDisabledReason}>
+            <span className="inline-flex shrink-0">
+              <button
+                type="button"
+                onClick={() => void handleAdd()}
+                disabled={addDisabled}
+                className="h-[32px] px-3 rounded-lg bg-neutral-900 text-white text-[11px] font-medium disabled:opacity-40 hover:bg-neutral-800 shrink-0 inline-flex items-center gap-1"
+              >
+                <Plus size={13} /> Add
+              </button>
+            </span>
+          </WorkspaceTooltip>
+        </div>
+        {visibleDueError && <p role="alert" className="eflow-field-error text-[10.5px]">{visibleDueError}</p>}
       </div>}
-      <LegacySubtaskWorkDrawer
-        subtask={openSubtask}
-        parentTask={parentTask}
-        prerequisite={openSubtask ? getSubtaskPrerequisite(openSubtask, subtasks) : null}
-        readOnly={readOnly||canManage}
-        canManageDeadline={canManage}
-        onClose={() => setOpenSubtask(null)}
-      />
+      {openSubtask && (
+        parentTask ? (
+          <SubitemInspector
+            presentation="dialog"
+            rootTask={parentTask}
+            itemId={openSubtask.id}
+            prerequisite={getSubtaskPrerequisite(openSubtask, subtasks)}
+            readOnly={readOnly || canManage}
+            canManageDeadline={canManage}
+            onClose={() => setOpenSubtask(null)}
+          />
+        ) : (
+          <Modal
+            isOpen
+            title={openSubtask.title || "Subtask unavailable"}
+            description="Parent task context could not be verified."
+            width="max-w-md"
+            onClose={() => setOpenSubtask(null)}
+            footer={
+              <div className="flex justify-end">
+                <Button variant="outline" size="sm" onClick={() => setOpenSubtask(null)}>
+                  Close
+                </Button>
+              </div>
+            }
+          >
+            <FeedbackState tone="warning" title="Open from the parent task">
+              Subtask details require the parent task context. Open this item from its parent task to view or update progress.
+            </FeedbackState>
+          </Modal>
+        )
+      )}
     </div>
   );
 }

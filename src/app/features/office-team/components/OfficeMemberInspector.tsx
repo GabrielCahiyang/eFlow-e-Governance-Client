@@ -1,12 +1,26 @@
-import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
-import { useId, useState } from 'react';
-import { X } from 'lucide-react';
-import { InspectorPanel } from '../../../shared/motion/InspectorPanel';
+import { useState } from 'react';
+import { ArrowRight, Building2, Mail, ShieldCheck, UserRound } from 'lucide-react';
+import { Modal } from '../../../components/ui/Modal';
+import { Button } from '../../../components/ui/button';
+import { FeedbackState } from '../../../components/ui/FeedbackState';
+import { WorkspaceTabs } from '../../../components/ui/workspace';
 import { requestNavigation } from '../../../shared/navigationGuard';
-import { StatusPill, WorkspaceTabs } from '../../../components/ui/workspace';
 import { ProfessionalProfilePanel } from '../../professional-profile';
 import { accountRoleLabel } from '../selectors';
 import type { OfficeMember } from '../types';
+
+function memberInitials(name?: string) {
+  return (
+    (name || '')
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0])
+      .join('')
+      .toUpperCase() || '?'
+  );
+}
 
 export function OfficeMemberInspector({
   member,
@@ -19,77 +33,132 @@ export function OfficeMemberInspector({
   onClose: () => void;
   onReturnFocus: () => void;
 }) {
-  const descriptionId = useId();
   const [tab, setTab] = useState('overview');
 
+  const handleClose = () => {
+    void requestNavigation(() => {
+      onClose();
+      requestAnimationFrame(() => onReturnFocus());
+    });
+  };
+
   return (
-    <InspectorPanel
-      open
-      ariaDescriptionId={descriptionId}
-      ariaLabel={
-        member
-          ? `${member.full_name} — Office member`
-          : 'Office member unavailable'
-      }
-      onClose={() => void requestNavigation(onClose)}
-      onReturnFocus={onReturnFocus}
-      className="eflow-people-inspector"
-    >
-      <header>
-        <div>
-          <h2>{member?.full_name || 'Member unavailable'}</h2>
-          <p id={descriptionId}>{office} · Account membership</p>
+    <Modal
+      isOpen
+      title={member ? member.full_name : 'Office member unavailable'}
+      description={member ? `${office} · Office account membership` : 'Unable to verify member record'}
+      width="max-w-2xl"
+      onClose={handleClose}
+      footer={
+        <div className="flex w-full items-center justify-between gap-3">
+          {member && tab === 'overview' ? (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => void requestNavigation(() => setTab('profile'))}
+            >
+              Open Professional Profile
+              <ArrowRight size={14} aria-hidden="true" />
+            </Button>
+          ) : (
+            <span />
+          )}
+          <Button type="button" variant="outline" size="sm" onClick={handleClose}>
+            Close
+          </Button>
         </div>
-        <WorkspaceTooltip content="Close member inspector"><button
-          className="eflow-icon-button"
-          aria-label="Close member inspector"
-          onClick={() => void requestNavigation(onClose)}
-        >
-          <X size={18} />
-        </button></WorkspaceTooltip>
-      </header>
-      <div className="eflow-people-inspector-body">
-        {member ? (
+      }
+    >
+      {member ? (
+        <div className="space-y-5">
+          {/* Identity Summary Header */}
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[var(--eflow-border)] bg-[var(--eflow-subtle)] p-4">
+            <div className="flex min-w-0 items-center gap-3">
+              <div
+                aria-hidden="true"
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-[var(--eflow-border)] bg-[var(--eflow-surface)] text-sm font-semibold text-[var(--eflow-primary)]"
+              >
+                {memberInitials(member.full_name)}
+              </div>
+              <div className="min-w-0">
+                <p className="truncate text-sm font-semibold text-[var(--eflow-text)]">
+                  {member.full_name}
+                </p>
+                <p className="truncate text-xs text-[var(--eflow-text-muted)]">
+                  {member.email}
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 rounded-md border border-[var(--eflow-border)] bg-[var(--eflow-surface)] px-2.5 py-1 text-xs font-medium text-[var(--eflow-text-secondary)]">
+                <ShieldCheck size={13} aria-hidden="true" />
+                {accountRoleLabel(member.role)}
+              </span>
+              <span
+                role="status"
+                className={`inline-flex items-center rounded-md border px-2.5 py-1 text-xs font-semibold ${
+                  member.is_active
+                    ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
+                    : 'border-[var(--eflow-border)] bg-[var(--eflow-surface)] text-[var(--eflow-text-muted)]'
+                }`}
+              >
+                {member.is_active ? 'Active' : 'Inactive'}
+              </span>
+            </div>
+          </div>
+
           <WorkspaceTabs
             value={tab}
-            onValueChange={(next) =>
-              void requestNavigation(() => setTab(next))
-            }
+            onValueChange={(next) => void requestNavigation(() => setTab(next))}
             label="Member details"
             tabs={[
               {
                 id: 'overview',
                 label: 'Overview',
                 content: (
-                  <>
-                    <dl>
-                      <dt>Email</dt>
-                      <dd>{member.email}</dd>
-                      <dt>Account role</dt>
-                      <dd>
-                        <span className="eflow-role-badge">
+                  <div className="space-y-4 pt-3">
+                    <dl className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                      <div className="rounded-lg border border-[var(--eflow-border)] bg-[var(--eflow-surface)] p-3.5">
+                        <dt className="flex items-center gap-1.5 text-xs font-medium text-[var(--eflow-text-muted)]">
+                          <Mail size={13} aria-hidden="true" />
+                          Email address
+                        </dt>
+                        <dd className="mt-1 break-all text-sm font-medium text-[var(--eflow-text)]">
+                          {member.email}
+                        </dd>
+                      </div>
+                      <div className="rounded-lg border border-[var(--eflow-border)] bg-[var(--eflow-surface)] p-3.5">
+                        <dt className="flex items-center gap-1.5 text-xs font-medium text-[var(--eflow-text-muted)]">
+                          <Building2 size={13} aria-hidden="true" />
+                          Assigned office
+                        </dt>
+                        <dd className="mt-1 text-sm font-medium text-[var(--eflow-text)]">
+                          {office}
+                        </dd>
+                      </div>
+                      <div className="rounded-lg border border-[var(--eflow-border)] bg-[var(--eflow-surface)] p-3.5">
+                        <dt className="flex items-center gap-1.5 text-xs font-medium text-[var(--eflow-text-muted)]">
+                          <UserRound size={13} aria-hidden="true" />
+                          Account role
+                        </dt>
+                        <dd className="mt-1 text-sm font-medium text-[var(--eflow-text)]">
                           {accountRoleLabel(member.role)}
-                        </span>
-                      </dd>
-                      <dt>Status</dt>
-                      <dd>
-                        <StatusPill
-                          label={member.is_active ? 'Active' : 'Inactive'}
-                          tone={member.is_active ? 'positive' : 'neutral'}
-                        />
-                      </dd>
-                      <dt>Professional summary</dt>
-                      <dd>
-                        Not loaded · open Professional Profile to view
-                        authorized work qualifications.
-                      </dd>
+                        </dd>
+                      </div>
+                      <div className="rounded-lg border border-[var(--eflow-border)] bg-[var(--eflow-surface)] p-3.5">
+                        <dt className="text-xs font-medium text-[var(--eflow-text-muted)]">
+                          Account status
+                        </dt>
+                        <dd className="mt-1 text-sm font-medium text-[var(--eflow-text)]">
+                          {member.is_active ? 'Active account' : 'Inactive account'}
+                        </dd>
+                      </div>
                     </dl>
-                    <p className="eflow-inspector-note">
-                      Office membership is separate from project participation
-                      and task execution teams. Manage task contributors in the
-                      task inspector.
+                    <p className="rounded-lg border border-[var(--eflow-border)] bg-[var(--eflow-subtle)] px-3.5 py-2.5 text-xs leading-relaxed text-[var(--eflow-text-secondary)]">
+                      Office membership is separate from project participation and task execution teams. Assign task contributors directly inside each project’s Main table or task details.
                     </p>
-                  </>
+                  </div>
                 ),
               },
               {
@@ -97,21 +166,19 @@ export function OfficeMemberInspector({
                 label: 'Professional Profile',
                 content:
                   tab === 'profile' ? (
-                    <ProfessionalProfilePanel
-                      key={member.id}
-                      userId={member.id}
-                    />
+                    <div className="pt-3">
+                      <ProfessionalProfilePanel key={member.id} userId={member.id} />
+                    </div>
                   ) : null,
               },
             ]}
           />
-        ) : (
-          <p role="status">
-            This member is no longer available in the authorized Office list.
-            Close this inspector and refresh.
-          </p>
-        )}
-      </div>
-    </InspectorPanel>
+        </div>
+      ) : (
+        <FeedbackState tone="warning" title="Member unavailable">
+          This member is no longer available in the authorized Office list. Close this dialog and refresh the table.
+        </FeedbackState>
+      )}
+    </Modal>
   );
 }

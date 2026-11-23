@@ -1,9 +1,10 @@
 import { readableUiError } from '../../../shared/userFacingError';
 import { formatManilaDate, formatManilaDateTime } from '../../../shared/calendarDisplay';
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Banknote, CalendarClock, CheckCircle2, Clock3, ReceiptText, Search, X } from "lucide-react";
 import { useAuth } from "../../../contexts/AuthContext";
 import { EmptyState } from "../../../components/ui/EmptyState";
+import { useNotificationNavigationIntent } from "../../notifications";
 import type {
   DepartmentBudgetBundle,
   PettyCashRelease,
@@ -97,6 +98,40 @@ export function BudgetReleasesPanel({
     `${fiscalYear}`,
     DEFAULT_BUDGET_PAGE_SIZE,
   );
+  const [focusId, setFocusId] = useState("");
+  const rowRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
+  useNotificationNavigationIntent(
+    (intent) =>
+      intent.kind === "budget" &&
+      Boolean(intent.financialRecordId) &&
+      intent.financialRecordType !== "project_funding" &&
+      intent.financialRecordType !== "office_petty_cash",
+    (intent) => {
+      const target = intent.financialRecordId || "";
+      setStatusFilter("all");
+      setQuery("");
+      const index = orderedReleases.findIndex(
+        (release) => release.id === target || release.requestId === target,
+      );
+      if (index >= 0) {
+        setFocusId(orderedReleases[index].id);
+        releasePagination.setPage(Math.floor(index / releasePagination.pageSize) + 1);
+      } else {
+        setFocusId(target);
+      }
+      return true;
+    },
+    [orderedReleases, releasePagination.pageSize, releasePagination.setPage],
+  );
+
+  useEffect(() => {
+    if (!focusId) return;
+    const node = rowRefs.current[focusId];
+    if (node && typeof node.scrollIntoView === "function") {
+      node.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [focusId, releasePagination.page]);
   const refresh = async () => {
     setMessage("");
     try {
@@ -206,10 +241,21 @@ export function BudgetReleasesPanel({
             release.status === "released" &&
             release.recipientId === currentUserId &&
             !release.acknowledgedAt;
+          const isFocused = Boolean(
+            focusId && (release.id === focusId || release.requestId === focusId),
+          );
           return (
             <div
               key={release.id}
-              className="eflow-budget-release-row"
+              ref={(node) => {
+                rowRefs.current[release.id] = node;
+              }}
+              data-focused={isFocused ? "true" : undefined}
+              className={`eflow-budget-release-row${
+                isFocused
+                  ? " bg-primary/5 ring-2 ring-inset ring-[var(--eflow-primary)]/30"
+                  : ""
+              }`}
             >
               <div className="min-w-0 break-words">
                 <div className="text-sm font-semibold text-foreground">

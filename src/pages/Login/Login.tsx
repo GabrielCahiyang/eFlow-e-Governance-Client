@@ -7,7 +7,7 @@ import {
   Button,
   Checkbox,
 } from "@vibe/core";
-import { Alert } from "@vibe/icons";
+import { Info, Alert } from "@vibe/icons";
 import { ArrowLeft, Eye, EyeOff, KeyRound, MailCheck } from "lucide-react";
 import {
   motion,
@@ -18,7 +18,9 @@ import {
 
 import { useLoginForm } from "./useLoginForm";
 import { LivingBoard } from "./components/LivingBoard";
+import { UsageScenariosModal } from "./UsageScenariosModal";
 import { EFlowMark } from "./components/EFlowMark";
+import type { QuickLoginAccount } from "../../app/shared/quickLoginAccounts";
 import {
   isAdminLoginPath,
   requestPasswordReset,
@@ -74,6 +76,7 @@ function readCachedLoginBranding(): { organization_name: string; organization_su
 export function Login() {
   const shouldReduceMotion = useReducedMotion();
   const [showPassword, setShowPassword] = useState(false);
+  const [isScenariosModalOpen, setScenariosModalOpen] = useState(false);
   const [isMarkHovered, setIsMarkHovered] = useState(false);
   const [viewMode, setViewMode] = useState<"login" | "forgot">("login");
   const [forgotEmail, setForgotEmail] = useState("");
@@ -150,7 +153,12 @@ export function Login() {
     handlePasswordBlur,
     handleKeyDown,
     handleSubmit,
+    loginWithCredentials,
   } = useLoginForm();
+
+  const handleSelectScenario = (account: QuickLoginAccount) => {
+    void loginWithCredentials(account.email, account.password);
+  };
 
   const openForgotPassword = () => {
     setForgotEmail(email.trim());
@@ -564,6 +572,24 @@ export function Login() {
                 </Button>
               </motion.div>
 
+              {/* Secondary Affordance: Usage Scenarios */}
+              <motion.div
+                className={styles.scenarioAffordance}
+                variants={formItemVariants}
+              >
+                <Button
+                  id="quick-login-picker"
+                  kind="tertiary"
+                  size="small"
+                  leftIcon={Info}
+                  aria-label="Choose a development account"
+                  onClick={() => setScenariosModalOpen(true)}
+                  disabled={state === "submitting"}
+                >
+                  Usage scenarios
+                </Button>
+              </motion.div>
+
             </form>
               </>
             )}
@@ -606,6 +632,14 @@ export function Login() {
             </div>
           </motion.div>
         </section>
+
+        {/* Usage Scenarios Persona Modal */}
+        <UsageScenariosModal
+          show={isScenariosModalOpen}
+          onClose={() => setScenariosModalOpen(false)}
+          onSelectAccount={handleSelectScenario}
+          portal={isAdminPortal ? "admin" : "client"}
+        />
 
       </main>
     </MotionConfig>

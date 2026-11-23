@@ -41,7 +41,7 @@ for (const width of [320, 375, 768, 1024]) {
       expect(await cardList.evaluate((list) => list.scrollTop)).toBeGreaterThan(0);
     }
 
-    await expect(page.getByRole("button", { name: /Choose a development account|Usage scenarios/i })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: /Choose a development account|Usage scenarios/i })).toBeVisible();
 
     const dimensions = await page.evaluate(() => ({
       documentWidth: document.documentElement.scrollWidth,

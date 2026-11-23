@@ -39,15 +39,15 @@ function normalizeScopeKey(scope: unknown): string {
   }
 }
 
-export function warmOfficeTeam(scope: unknown, forceRefresh = false) {
+export function warmOfficeTeam(scope: unknown, forceRefresh = false, includeInvitations = true) {
   return loadWithQueryCache<CachedOfficeTeam>({
     domain: DOMAIN,
-    scope: buildQueryScopeKey({ workspaceId: normalizeScopeKey(scope) }),
+    scope: buildQueryScopeKey({ workspaceId: `${normalizeScopeKey(scope)}:${includeInvitations ? "full" : "members"}` }),
     forceRefresh,
     fetcher: async () => {
       const [team, invitations] = await Promise.allSettled([
         phase2Request<{ office_name: string; members: OfficeMember[] }>("/office-team"),
-        listInvitations(),
+        includeInvitations ? listInvitations() : Promise.resolve({ invitations: [] as Invitation[] }),
       ]);
       return {
         members: team.status === "fulfilled" ? team.value.members : [],
@@ -56,7 +56,7 @@ export function warmOfficeTeam(scope: unknown, forceRefresh = false) {
         teamError: team.status === "rejected"
           ? team.reason?.message || "Could not load Office members."
           : "",
-        inviteError: invitations.status === "rejected"
+        inviteError: includeInvitations && invitations.status === "rejected"
           ? invitations.reason?.message || "Could not load invitations."
           : "",
       };
@@ -64,9 +64,9 @@ export function warmOfficeTeam(scope: unknown, forceRefresh = false) {
   });
 }
 
-export function useOfficeTeam(scope: unknown, enabled: boolean) {
+export function useOfficeTeam(scope: unknown, enabled: boolean, includeInvitations = true) {
   const scopeKey = normalizeScopeKey(scope);
-  const cacheScope = buildQueryScopeKey({ workspaceId: scopeKey });
+  const cacheScope = buildQueryScopeKey({ workspaceId: `${scopeKey}:${includeInvitations ? "full" : "members"}` });
   const initialCached = enabled
     ? readCachedQuery<CachedOfficeTeam>(DOMAIN, cacheScope)
     : undefined;
@@ -107,7 +107,7 @@ export function useOfficeTeam(scope: unknown, enabled: boolean) {
       if (forceRefresh) {
         invalidateQueryDomain(DOMAIN, cacheScope);
       }
-      const next = await warmOfficeTeam(scopeKey, forceRefresh);
+      const next = await warmOfficeTeam(scopeKey, forceRefresh, includeInvitations);
       if (request !== version.current || activeScope.current !== scopeKey)
         return;
       if (next.teamError && next.inviteError) {
@@ -124,7 +124,7 @@ export function useOfficeTeam(scope: unknown, enabled: boolean) {
         inviteError: next.inviteError,
       }));
     },
-    [cacheScope, enabled, scopeKey],
+    [cacheScope, enabled, includeInvitations, scopeKey],
   );
 
   const refresh = useCallback(async () => {

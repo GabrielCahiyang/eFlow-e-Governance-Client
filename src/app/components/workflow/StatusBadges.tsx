@@ -65,11 +65,14 @@ export function TaskStatusBadge({
 
 // ─── Project status badge ────────────────────────────────────────
 const PROJECT_TONES: Record<string, Tone> = {
-  planning:  { bg: "bg-violet-50",   text: "text-violet-700",  border: "border-violet-200",  dot: "bg-violet-500",  label: "Planning" },
-  active:    { bg: "bg-blue-50",     text: "text-blue-700",    border: "border-blue-200",    dot: "bg-blue-500",    label: "Active" },
-  on_hold:   { bg: "bg-amber-50",    text: "text-amber-700",   border: "border-amber-200",   dot: "bg-amber-500",   label: "On Hold" },
-  completed: { bg: "bg-emerald-50",  text: "text-emerald-700", border: "border-emerald-200", dot: "bg-emerald-500", label: "Completed" },
-  archived:  { bg: "bg-neutral-100", text: "text-neutral-500", border: "border-neutral-200", dot: "bg-neutral-300", label: "Archived" },
+  planning:               { bg: "bg-sky-50",      text: "text-sky-700",     border: "border-sky-200",     dot: "bg-sky-500",     label: "Planning" },
+  pending:                { bg: "bg-amber-50",    text: "text-amber-800",   border: "border-amber-200",   dot: "bg-amber-500",   label: "Pending approval" },
+  waiting_for_activation: { bg: "bg-indigo-50",   text: "text-indigo-800",  border: "border-indigo-200",  dot: "bg-indigo-500",  label: "Waiting for activation" },
+  active:                 { bg: "bg-emerald-50",  text: "text-emerald-700", border: "border-emerald-200", dot: "bg-emerald-500", label: "Active" },
+  pending_completion:     { bg: "bg-indigo-50",   text: "text-indigo-800",  border: "border-indigo-200",  dot: "bg-indigo-500",  label: "Pending completion" },
+  on_hold:                { bg: "bg-amber-50",    text: "text-amber-700",   border: "border-amber-200",   dot: "bg-amber-500",   label: "On Hold" },
+  completed:              { bg: "bg-neutral-100", text: "text-neutral-700", border: "border-neutral-200", dot: "bg-neutral-500", label: "Completed" },
+  archived:               { bg: "bg-neutral-100", text: "text-neutral-500", border: "border-neutral-200", dot: "bg-neutral-300", label: "Archived" },
 };
 
 export function ProjectStatusBadge({ status, size = "md" }: { status: string; size?: "sm" | "md" }) {
@@ -78,9 +81,9 @@ export function ProjectStatusBadge({ status, size = "md" }: { status: string; si
   const pad = size === "sm" ? "px-1.5 py-0.5 text-[10px]" : "px-2 py-0.5 text-[11px]";
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-full border ${pad} font-medium ${tone.bg} ${tone.text} ${tone.border}`}
+      className={`inline-flex items-center gap-1.5 rounded-[5px] border ${pad} font-medium ${tone.bg} ${tone.text} ${tone.border}`}
     >
-      <span className={`w-1.5 h-1.5 rounded-full ${tone.dot}`} style={{backgroundColor:display.color}} />
+      <span className={`w-1.5 h-1.5 rounded-[2px] ${tone.dot}`} style={{backgroundColor:display.color}} />
       {display.label}
     </span>
   );

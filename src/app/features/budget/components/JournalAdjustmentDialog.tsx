@@ -1,12 +1,15 @@
-import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
-import { getPhilippineCalendarDate, historicalDateError } from '../../../shared/calendarDates';
-import { MoneyInput } from '../../../components/ui/MoneyInput';
-import { DateInput } from '../../../components/ui/DateInput';
-import { INPUT_LIMITS } from '../../../shared/inputLimits';
 import * as m from "motion/react-m";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { AttentionBox, Button } from "@vibe/core";
 import { CircleAlert, Plus, X } from "lucide-react";
+import { BoundedTextarea, BoundedTextInput } from "../../../components/ui/BoundedInput";
+import { DateInput } from "../../../components/ui/DateInput";
+import { FieldValidationTooltip } from "../../../components/ui/FieldValidationTooltip";
+import { MoneyInput } from "../../../components/ui/MoneyInput";
+import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
+import { getPhilippineCalendarDate, historicalDateError } from "../../../shared/calendarDates";
+import { diffCentavos, sumCentavos, toCentavos } from "../../../shared/currency";
+import { INPUT_LIMITS, textLengthError } from "../../../shared/inputLimits";
 import {
   Dialog,
   DialogContent,
@@ -70,10 +73,18 @@ export function JournalAdjustmentDialog({
   );
   const [verified, setVerified] = useState("");
   const [reference, setReference] = useState("");
+  const [referenceTouched, setReferenceTouched] = useState(false);
   const [memo, setMemo] = useState("");
+  const [memoTouched, setMemoTouched] = useState(false);
   const [entryDate, setEntryDate] = useState(
     getPhilippineCalendarDate(),
   );
+  const [entryDateTouched, setEntryDateTouched] = useState(false);
+  const [entryDateInvalidText, setEntryDateInvalidText] = useState(false);
+  const [touchedLines, setTouchedLines] = useState<Record<number, boolean>>({});
+  const entryDateId = useId();
+  const referenceId = useId();
+  const memoId = useId();
   const [lines, setLines] = useState<JournalAdjustmentLineInput[]>([
     { accountCode: accounts[0]?.code || "", debit: 0, credit: 0 },
     {
@@ -144,13 +155,34 @@ export function JournalAdjustmentDialog({
       setBusy(false);
     }
   };
-  const totals = lines.reduce(
-    (sum, line) => ({
-      debit: sum.debit + Number(line.debit || 0),
-      credit: sum.credit + Number(line.credit || 0),
-    }),
-    { debit: 0, credit: 0 },
-  );
+  const today = getPhilippineCalendarDate();
+  const entryDateError = entryDateInvalidText
+    ? "Enter a valid entry date in MM/DD/YYYY format."
+    : historicalDateError(entryDate, "Entry date");
+  const visibleEntryDateError =
+    entryDateTouched || entryDateInvalidText || Boolean(entryDate && entryDate > today)
+      ? entryDateError
+      : "";
+  const referenceError = textLengthError(reference, "Reference number", {
+    required: true,
+    max: 64,
+  });
+  const visibleReferenceError =
+    referenceTouched || reference.length > 64 ? referenceError : "";
+  const memoError = textLengthError(memo, "Memo / correction reason", {
+    required: true,
+    max: 500,
+  });
+  const visibleMemoError = memoTouched || memo.length > 500 ? memoError : "";
+
+  const totals = {
+    debit: sumCentavos(lines.map((line) => Number(line.debit || 0))),
+    credit: sumCentavos(lines.map((line) => Number(line.credit || 0))),
+  };
+  const delta = diffCentavos(totals.debit, totals.credit);
+  const balanced = isBalancedJournalLines(lines);
+  const missingAccount = lines.some((line) => !line.accountCode);
+
   const update = (index: number, patch: Partial<JournalAdjustmentLineInput>) =>
     setLines((current) =>
       current.map((line, lineIndex) =>
@@ -158,13 +190,19 @@ export function JournalAdjustmentDialog({
       ),
     );
   const submit = async () => {
-    const dateIssue = historicalDateError(entryDate, "Entry date");
-    if (dateIssue || reference.length > 64 || memo.length > 500) { setError(dateIssue || "Reference must be 64 characters or fewer; memo 500 or fewer."); return; }
+    const dateIssue = entryDateError;
+    if (dateIssue || referenceError || memoError) {
+      setEntryDateTouched(true);
+      setReferenceTouched(true);
+      setMemoTouched(true);
+      setError(dateIssue || referenceError || memoError);
+      return;
+    }
     if (
       pending.current ||
       !reference.trim() ||
       !memo.trim() ||
-      !isBalancedJournalLines(lines) ||
+      !balanced ||
       userProfile?.role !== "accounting_staff" ||
       !can("accounting.post_journal")
     )
@@ -247,9 +285,31 @@ export function JournalAdjustmentDialog({
   const invalid =
     busy ||
     Boolean(financialOutcome(key)) ||
-    !reference.trim() ||
-    !memo.trim() ||
-    !isBalancedJournalLines(lines);
+    Boolean(entryDateError) ||
+    Boolean(referenceError) ||
+    Boolean(memoError) ||
+    !balanced;
+
+  const postTooltip = busy
+    ? ""
+    : financialOutcome(key)
+      ? "A previous posting already completed or requires verification."
+      : entryDateError
+        ? entryDateError
+        : referenceError
+          ? referenceError
+          : memoError
+            ? memoError
+            : missingAccount
+              ? "Select an account for every journal line."
+              : !balanced
+                ? toCentavos(totals.debit) <= 0 && toCentavos(totals.credit) <= 0
+                  ? "Enter debit and credit amounts to balance this entry."
+                  : toCentavos(totals.debit) !== toCentavos(totals.credit)
+                    ? `Debits (${peso.format(totals.debit)}) must equal credits (${peso.format(totals.credit)}). Difference: ${peso.format(Math.abs(delta))}.`
+                    : "Each line needs a valid account and a positive debit or credit amount."
+                : "Posts an immutable correcting entry to the general journal. This cannot be edited or deleted.";
+
   return (
     <Dialog
       open
@@ -306,98 +366,107 @@ export function JournalAdjustmentDialog({
               <p>
                 Confirm the reference, accounts, and amount. This entry cannot
                 be edited or deleted after posting.
-                {' '}Use at most two decimal places; debit and credit totals must match exactly.
+                {" "}Use at most two decimal places; debit and credit totals must match exactly.
               </p>
             </div>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
-            <Field
-              label="Entry date"
-              type="date" max={getPhilippineCalendarDate()}
-              value={entryDate}
-              onChange={setEntryDate}
-            />
-            <Field
-              label="Reference number" maxLength={64}
-              value={reference}
-              onChange={setReference}
+            <div className="min-w-0 text-[10px] text-neutral-600">
+              <label htmlFor={entryDateId} className="block">
+                Entry date{" "}
+                <span className="text-[var(--eflow-negative-text)]" aria-hidden="true">
+                  *
+                </span>
+              </label>
+              <div className="mt-1">
+                <DateInput
+                  id={entryDateId}
+                  aria-label="Entry date"
+                  aria-required="true"
+                  max={today}
+                  value={entryDate}
+                  hasError={Boolean(visibleEntryDateError)}
+                  errorMessage={visibleEntryDateError || undefined}
+                  onInvalidTextChange={setEntryDateInvalidText}
+                  onBlur={() => setEntryDateTouched(true)}
+                  onChange={(event) => {
+                    setEntryDateTouched(true);
+                    setEntryDate(event.target.value);
+                  }}
+                  className="h-9 w-full min-w-0 rounded-lg border border-neutral-200 px-2.5 text-[10.5px]"
+                />
+              </div>
+              {visibleEntryDateError && (
+                <p role="alert" className="mt-1 text-[11px] text-rose-700">
+                  {visibleEntryDateError}
+                </p>
+              )}
+            </div>
+            <div className="min-w-0 text-[10px] text-neutral-600">
+              <label htmlFor={referenceId} className="block">
+                Reference number{" "}
+                <span className="text-[var(--eflow-negative-text)]" aria-hidden="true">
+                  *
+                </span>
+              </label>
+              <BoundedTextInput
+                id={referenceId}
+                aria-label="Reference number"
+                aria-required="true"
+                maxLength={64}
+                value={reference}
+                error={visibleReferenceError || undefined}
+                onBlur={() => setReferenceTouched(true)}
+                onChange={(event) => {
+                  setReferenceTouched(true);
+                  setReference(event.target.value);
+                }}
+                className="mt-1 h-9 w-full min-w-0 rounded-lg border border-neutral-200 pl-2.5 pr-2.5 text-[10.5px]"
+              />
+            </div>
+          </div>
+          <div className="min-w-0 text-[10px] text-neutral-600">
+            <label htmlFor={memoId} className="block">
+              Memo / correction reason{" "}
+              <span className="text-[var(--eflow-negative-text)]" aria-hidden="true">
+                *
+              </span>
+            </label>
+            <BoundedTextarea
+              id={memoId}
+              aria-label="Memo / correction reason"
+              aria-required="true"
+              maxLength={500}
+              rows={2}
+              value={memo}
+              error={visibleMemoError || undefined}
+              onBlur={() => setMemoTouched(true)}
+              onChange={(event) => {
+                setMemoTouched(true);
+                setMemo(event.target.value);
+              }}
+              className="mt-1 w-full min-w-0 rounded-lg border border-neutral-200 px-2.5 py-2 text-[10.5px]"
             />
           </div>
-          <Field
-            label="Memo / correction reason" maxLength={500}
-            value={memo}
-            onChange={setMemo}
-          />
           <div className="min-w-0 space-y-2">
             {lines.map((line, index) => (
-              <m.div
-                layout
+              <JournalLineRow
                 key={index}
-                className="grid min-w-0 grid-cols-2 gap-2 rounded-xl border border-neutral-200 p-3 md:grid-cols-[minmax(0,1fr)_minmax(0,112px)_minmax(0,112px)_32px]"
-              >
-                <label className="col-span-2 min-w-0 text-[10px] text-neutral-600 md:col-span-1">
-                  Account {index + 1}
-                  <select
-                    aria-label={`Account line ${index + 1}`}
-                    value={line.accountCode}
-                    onChange={(event) =>
-                      update(index, { accountCode: event.target.value })
-                    }
-                    className="mt-1 h-9 w-full min-w-0 rounded-lg border border-neutral-200 bg-white px-2 text-[10px]"
-                  >
-                    {accounts.map((account) => (
-                      <option key={account.code} value={account.code}>
-                        {account.code} · {account.title}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className="min-w-0 text-[10px] text-neutral-600">
-                  Debit
-                  <MoneyInput
-                    aria-label={`Debit line ${index + 1}`}
-                    min="0"
-                    max={INPUT_LIMITS.MONEY_MAX_BUDGET}
-                    step="0.01"
-                    placeholder="0.00"
-                    value={line.debit || ""}
-                    onValueChange={raw => update(index, {
-                        debit: Number(raw),
-                        credit: raw ? 0 : line.credit,
-                      })}
-                    className="mt-1 h-9 w-full min-w-0 rounded-lg border border-neutral-200 px-2 text-[10px]"
-                  />
-                </label>
-                <label className="min-w-0 text-[10px] text-neutral-600">
-                  Credit
-                  <MoneyInput
-                    aria-label={`Credit line ${index + 1}`}
-                    min="0"
-                    max={INPUT_LIMITS.MONEY_MAX_BUDGET}
-                    step="0.01"
-                    placeholder="0.00"
-                    value={line.credit || ""}
-                    onValueChange={raw => update(index, {
-                        credit: Number(raw),
-                        debit: raw ? 0 : line.debit,
-                      })}
-                    className="mt-1 h-9 w-full min-w-0 rounded-lg border border-neutral-200 px-2 text-[10px]"
-                  />
-                </label>
-                <WorkspaceTooltip content={`Remove line ${index + 1}`}><button
-                  aria-label={`Remove line ${index + 1}`}
-                  type="button"
-                  disabled={lines.length <= 2}
-                  onClick={() =>
-                    setLines((current) =>
-                      current.filter((_, lineIndex) => lineIndex !== index),
-                    )
-                  }
-                  className="col-span-2 h-9 w-9 justify-self-end rounded-lg text-neutral-500 hover:bg-rose-50 hover:text-rose-600 disabled:opacity-30 md:col-span-1 md:self-end"
-                >
-                  <X size={14} />
-                </button></WorkspaceTooltip>
-              </m.div>
+                index={index}
+                line={line}
+                accounts={accounts}
+                canRemove={lines.length > 2}
+                touched={Boolean(touchedLines[index])}
+                onTouch={() =>
+                  setTouchedLines((prev) => (prev[index] ? prev : { ...prev, [index]: true }))
+                }
+                onChange={(patch) => update(index, patch)}
+                onRemove={() =>
+                  setLines((current) =>
+                    current.filter((_, lineIndex) => lineIndex !== index),
+                  )
+                }
+              />
             ))}
           </div>
           <div className="flex flex-wrap items-center justify-between gap-3">
@@ -413,10 +482,14 @@ export function JournalAdjustmentDialog({
             >
               <Plus size={13} /> Add line
             </Button>
-            <div className="text-[10px] text-neutral-600">
+            <div
+              className={`text-[10px] tabular-nums ${
+                toCentavos(delta) !== 0 ? "font-semibold text-rose-700" : "text-neutral-600"
+              }`}
+            >
               Debit {peso.format(totals.debit)} · Credit{" "}
               {peso.format(totals.credit)} · Delta{" "}
-              {peso.format(totals.debit - totals.credit)}
+              {peso.format(delta)}
             </div>
           </div>
           {error && !financialOutcome(key) && <AttentionBox type="negative" text={error} />}
@@ -425,56 +498,183 @@ export function JournalAdjustmentDialog({
           <Button kind="secondary" size="small" disabled={busy} onClick={close}>
             Cancel
           </Button>
-          <Button
-            kind="primary"
-            size="small"
-            loading={busy}
-            disabled={invalid}
-            onClick={() => void submit()}
-          >
-            Post balanced entry
-          </Button>
+          <WorkspaceTooltip content={postTooltip} disabled={!postTooltip}>
+            <span className="inline-flex">
+              <Button
+                kind="primary"
+                size="small"
+                loading={busy}
+                disabled={invalid}
+                onClick={() => void submit()}
+              >
+                Post balanced entry
+              </Button>
+            </span>
+          </WorkspaceTooltip>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 }
 
-function Field({
-  label,
-  value,
+function JournalLineRow({
+  index,
+  line,
+  accounts,
+  canRemove,
+  touched,
+  onTouch,
   onChange,
-  type = "text", max, maxLength,
+  onRemove,
 }: {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  type?: string; max?: string; maxLength?: number;
+  index: number;
+  line: JournalAdjustmentLineInput;
+  accounts: AccountingAccount[];
+  canRemove: boolean;
+  touched: boolean;
+  onTouch: () => void;
+  onChange: (patch: Partial<JournalAdjustmentLineInput>) => void;
+  onRemove: () => void;
 }) {
+  const idPrefix = useId();
+  const selectRef = useRef<HTMLSelectElement | null>(null);
+  const [selectActive, setSelectActive] = useState(false);
+
+  const accountError = !line.accountCode ? "Select an account." : "";
+  const debitCents = toCentavos(Number(line.debit || 0));
+  const creditCents = toCentavos(Number(line.credit || 0));
+  const lineAmountError =
+    debitCents > 0 && creditCents > 0
+      ? "Enter either a debit or a credit per line."
+      : touched && debitCents <= 0 && creditCents <= 0
+        ? "Enter a debit or credit amount."
+        : "";
+
+  const accountId = `${idPrefix}-account`;
+  const accountTipId = `${idPrefix}-account-tip`;
+  const debitId = `${idPrefix}-debit`;
+  const creditId = `${idPrefix}-credit`;
+  const removeTip = canRemove
+    ? `Remove line ${index + 1}.`
+    : "A journal entry requires at least 2 lines.";
+
   return (
-    <label className="text-[10px] text-neutral-600">
-      {label}
-      <span className="relative mt-1 block min-w-0">
-        {type === "date" ? (
-          <DateInput
-            aria-label={label}
-            max={max}
-            maxLength={maxLength}
-            value={value}
-            onChange={(event) => onChange(event.target.value)}
-            className="h-9 w-full min-w-0 rounded-lg border border-neutral-200 px-2.5 text-[10.5px]"
-          />
-        ) : (
-          <input
-            aria-label={label}
-            max={max} maxLength={maxLength}
-            type={type}
-            value={value}
-            onChange={(event) => onChange(event.target.value)}
-            className="h-9 w-full min-w-0 rounded-lg border border-neutral-200 pl-2.5 pr-2.5 text-[10.5px]"
-          />
+    <m.div
+      layout
+      className="grid min-w-0 grid-cols-2 gap-2 rounded-xl border border-neutral-200 p-3 md:grid-cols-[minmax(0,1fr)_minmax(0,112px)_minmax(0,112px)_32px]"
+    >
+      <div className="col-span-2 min-w-0 text-[10px] text-neutral-600 md:col-span-1">
+        <label htmlFor={accountId} className="block">
+          Account {index + 1}{" "}
+          <span className="text-[var(--eflow-negative-text)]" aria-hidden="true">
+            *
+          </span>
+        </label>
+        <select
+          ref={selectRef}
+          id={accountId}
+          aria-label={`Account line ${index + 1}`}
+          aria-required="true"
+          aria-invalid={Boolean(accountError) || undefined}
+          aria-describedby={selectActive && accountError ? accountTipId : undefined}
+          value={line.accountCode}
+          onFocus={() => setSelectActive(true)}
+          onMouseEnter={() => setSelectActive(true)}
+          onMouseLeave={() => setSelectActive(false)}
+          onBlur={() => {
+            setSelectActive(false);
+            onTouch();
+          }}
+          onChange={(event) => {
+            onTouch();
+            onChange({ accountCode: event.target.value });
+          }}
+          className={`mt-1 h-9 w-full min-w-0 rounded-lg border bg-white px-2 text-[10px] ${
+            accountError ? "eflow-field-invalid border-rose-400 bg-rose-50" : "border-neutral-200"
+          }`}
+        >
+          {accounts.map((account) => (
+            <option key={account.code} value={account.code}>
+              {account.code} · {account.title}
+            </option>
+          ))}
+        </select>
+        <FieldValidationTooltip
+          id={accountTipId}
+          anchorRef={selectRef}
+          message={accountError}
+          open={selectActive && Boolean(accountError)}
+          tone="error"
+        />
+        {accountError && (
+          <p role="alert" className="mt-1 text-[10.5px] text-rose-700">
+            {accountError}
+          </p>
         )}
-      </span>
-    </label>
+      </div>
+      <div className="min-w-0 text-[10px] text-neutral-600">
+        <label htmlFor={debitId} className="block">
+          Debit
+        </label>
+        <MoneyInput
+          id={debitId}
+          aria-label={`Debit line ${index + 1}`}
+          min="0"
+          max={INPUT_LIMITS.MONEY_MAX_BUDGET}
+          step="0.01"
+          placeholder="0.00"
+          value={line.debit || ""}
+          externalError={lineAmountError || undefined}
+          onBlur={onTouch}
+          onValueChange={(raw) => {
+            onTouch();
+            onChange({
+              debit: Number(raw),
+              credit: raw ? 0 : line.credit,
+            });
+          }}
+          className="mt-1 h-9 w-full min-w-0 rounded-lg border border-neutral-200 px-2 text-[10px]"
+        />
+      </div>
+      <div className="min-w-0 text-[10px] text-neutral-600">
+        <label htmlFor={creditId} className="block">
+          Credit
+        </label>
+        <MoneyInput
+          id={creditId}
+          aria-label={`Credit line ${index + 1}`}
+          min="0"
+          max={INPUT_LIMITS.MONEY_MAX_BUDGET}
+          step="0.01"
+          placeholder="0.00"
+          value={line.credit || ""}
+          externalError={lineAmountError || undefined}
+          onBlur={onTouch}
+          onValueChange={(raw) => {
+            onTouch();
+            onChange({
+              credit: Number(raw),
+              debit: raw ? 0 : line.debit,
+            });
+          }}
+          className="mt-1 h-9 w-full min-w-0 rounded-lg border border-neutral-200 px-2 text-[10px]"
+        />
+      </div>
+      <div className="col-span-2 justify-self-end md:col-span-1 md:self-end">
+        <WorkspaceTooltip content={removeTip} disabled={!removeTip}>
+          <span className="inline-flex">
+            <button
+              aria-label={`Remove line ${index + 1}`}
+              type="button"
+              disabled={!canRemove}
+              onClick={onRemove}
+              className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-neutral-500 hover:bg-rose-50 hover:text-rose-600 disabled:opacity-30"
+            >
+              <X size={14} />
+            </button>
+          </span>
+        </WorkspaceTooltip>
+      </div>
+    </m.div>
   );
 }

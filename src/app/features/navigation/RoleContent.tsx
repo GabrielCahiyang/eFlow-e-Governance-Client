@@ -83,6 +83,14 @@ const AccountingStaffContent = lazyFeature(
   undefined,
   "AccountingStaffContent",
 );
+const AnnouncementCenter = lazyFeature(
+  () =>
+    import("../announcements").then((module) => ({
+      default: module.AnnouncementCenter,
+    })),
+  undefined,
+  "AnnouncementCenter",
+);
 
 interface RoleContentProps {
   role: string;
@@ -336,6 +344,23 @@ export function RoleContent({
       </Suspense>
     );
   const isProjectsWorkspace = activeSection === "projects";
+  if (role === "admin" && activeSection === "announcements") {
+    return (
+      <Suspense
+        fallback={
+          <RoleLoading
+            role={role}
+            activeSection={activeSection}
+            activePage={activePage}
+          />
+        }
+      >
+        <PageFrame>
+          <AnnouncementCenter eyebrow="Administration · Announcements" />
+        </PageFrame>
+      </Suspense>
+    );
+  }
   if (
     role === "admin" &&
     activeSection !== "settings" &&

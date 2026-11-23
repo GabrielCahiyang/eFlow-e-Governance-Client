@@ -3,7 +3,7 @@ import {formatManilaDate,formatManilaDateTime} from '../../../../shared/calendar
 import { EmptyState } from '../../../../components/ui/EmptyState';
 import { PeopleAvatarStack } from '../../../../components/ui/workspace';
 import type { UserProfile } from '../../../../types';
-import { ProjectScheduleLabel } from '../../presentation/projectPresentation';
+import { ProjectUnifiedStatus } from '../../presentation/projectPresentation';
 import { projectOverviewWork } from '../../selectors/projectOverview';
 import type { ProjectCommandData } from './types';
 import './projectOverview.css';
@@ -21,7 +21,7 @@ export function ProjectOverviewTab({data,profiles,onOpenTask}: {data:ProjectComm
   {tasks.length>5&&<p>{tasks.length-5} more in Main table.</p>}
  </section>;
  return <div className="r4-project-overview">
-  <section className="r4-overview-section r4-overview-purpose" aria-label="Project purpose"><header><h2>Purpose</h2><ProjectScheduleLabel health={data.metrics.scheduleHealth} empty={!data.project.targetDate&&!data.metrics.nextDeadline}/></header>
+  <section className="r4-overview-section r4-overview-purpose" aria-label="Project purpose"><header><h2>Purpose</h2><ProjectUnifiedStatus project={data.project} health={data.metrics.scheduleHealth} layout="inline"/></header>
    <p>{data.project.description?.trim()||'No project purpose has been recorded yet.'}</p>
    {data.project.proposalTitle&&<p>Work plan: {data.project.proposalTitle}</p>}
   </section>

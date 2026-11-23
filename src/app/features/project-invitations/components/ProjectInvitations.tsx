@@ -1,9 +1,12 @@
 import { readableUiError } from "../../../shared/userFacingError";
+import { BoundedTextInput } from '../../../components/ui/BoundedInput';
 import { EmptyState } from '../../../components/ui/EmptyState';
+import { WorkspaceTooltip } from '../../../components/ui/workspace/WorkspaceTooltip';
 import {fetchAccess,RemovalDialog,type AccessSnapshot} from '../../project-access';
-import {useEffect,useRef,useState} from 'react';
+import {useEffect,useId,useRef,useState} from 'react';
 import {useAuth} from '../../../contexts/AuthContext';
 import {useOrgs} from '../../../hooks/useSupabaseData';
+import {INPUT_LIMITS, textLengthError} from '../../../shared/inputLimits';
 import {isAppointedOfficeHead} from '../../../shared/officeAuthority';
 import {DecisionModal} from '../../../components/ui/DecisionModal';
 import {useToast} from '../../../components/ui/Toast';
@@ -21,24 +24,35 @@ function Content({project,office,root,node,canRequest,onChanged}:{project:string
  const {toast}=useToast();
  const [decision,setDecision]=useState<{item:ProjectInvitation;status:'approved'|'rejected'}|null>(null);
  const closeForm=useRef<(()=>void)|undefined>(undefined);
- const [access,setAccess]=useState<AccessSnapshot>(),[removing,setRemoving]=useState<ProjectInvitation>();const [data,setData]=useState<InvitationContext>(),[error,setError]=useState(''),[busy,setBusy]=useState(false),[open,setOpen]=useState(false),[receipt,setReceipt]=useState(''),[sponsorDraft,setSponsorDraft]=useState('');const active=useRef(true),run=useRef(0),pending=useRef(false),hold=useRef(false);hold.current=open||busy||!!removing||!!decision;
+ const [access,setAccess]=useState<AccessSnapshot>(),[removing,setRemoving]=useState<ProjectInvitation>();const [data,setData]=useState<InvitationContext>(),[error,setError]=useState(''),[busy,setBusy]=useState(false),[open,setOpen]=useState(false),[receipt,setReceipt]=useState(''),[sponsorDraft,setSponsorDraft]=useState(''),[sponsorTouched,setSponsorTouched]=useState(false);const sponsorId=useId();const active=useRef(true),run=useRef(0),pending=useRef(false),hold=useRef(false);hold.current=open||busy||!!removing||!!decision;
  async function reload(){const key=++run.current;try{const next=await listProjectInvitations(project);const permissions=await fetchAccess(project).catch(()=>undefined);if(active.current&&key===run.current){setData(next);setAccess(permissions);setError('');}}catch(reason){if(active.current&&key===run.current){setData(undefined);setError((reason as Error).message);}}}
  useEffect(()=>{active.current=true;void reload();const refresh=()=>{if(!hold.current)void reload();};window.addEventListener('focus',refresh);const timer=setInterval(refresh,15000);return()=>{active.current=false;run.current++;clearInterval(timer);window.removeEventListener('focus',refresh);};},[project]);
  async function act(operation:()=>Promise<unknown>){if(pending.current)return false;pending.current=true;setBusy(true);setError('');setReceipt('');try{await operation();await reload();onChanged?.();return true;}catch(reason){await reload();setError((reason as Error).message);return false;}finally{pending.current=false;setBusy(false);}}
  const sponsor=office||data?.office_id;
  const canSend=isAppointedOfficeHead(userProfile,orgs)&&userProfile?.org_id===sponsor;
+ const sponsorTrimmed=sponsorDraft.trim();
+ const sponsorError=textLengthError(sponsorDraft,'Sponsoring Office ID',{required:true,max:INPUT_LIMITS.SHORT_TAG});
+ const visibleSponsorError=sponsorTouched?sponsorError:'';
  async function dispatch(item:ProjectInvitation,resend:boolean){const result=await dispatchProjectInvitation(item,resend);setReceipt(`${item.email}: ${result.delivery_status==='provider_accepted'?'Email accepted by provider':result.delivery_error||'Email failed'}. ${result.receipt}`);}
  return <section className="r8-invitations" aria-label="Project Invitations"><h3>Invitations</h3><p>{canSend?'Send invitations by email. Each person sets their own password and completes their details when joining.':'Your sponsoring Head approves requests before invitations are sent. Recipients complete their own details.'}</p>
  {data&&(canRequest||data.can_request)&&sponsor&&<button type="button" disabled={busy} onClick={()=>setOpen(true)}>Invite by email</button>}
  {(canRequest||data?.can_request)&&!sponsor&&<p>A sponsoring Office must be designated before requesting external membership. Your personal ownership cannot dispatch invitations.</p>}
- {data?.can_designate&&!data.office_id&&data.workspace_id&&<label>Sponsoring Office ID<input maxLength={100} value={sponsorDraft} onChange={e=>setSponsorDraft(e.target.value)} placeholder="Office ID provided by its appointed Head"/><button type="button" disabled={busy||!sponsorDraft} onClick={()=>void act(()=>designateSponsor(data.workspace_id!,sponsorDraft))}>Designate sponsoring Office</button></label>}
+ {data?.can_designate&&!data.office_id&&data.workspace_id&&<div className="grid gap-2">
+  <label htmlFor={sponsorId}>Sponsoring Office ID <span className="text-[var(--eflow-negative-text)]" aria-hidden="true">*</span></label>
+  <BoundedTextInput id={sponsorId} maxLength={INPUT_LIMITS.SHORT_TAG} value={sponsorDraft} disabled={busy} aria-required="true" error={visibleSponsorError||undefined} onChange={e=>{setSponsorDraft(e.target.value);if(!sponsorTouched)setSponsorTouched(true);}} onBlur={()=>setSponsorTouched(true)} placeholder="Office ID provided by its appointed Head"/>
+  <WorkspaceTooltip content={!busy&&!sponsorTrimmed?'Enter the sponsoring Office ID before designating.':''} disabled={busy||Boolean(sponsorTrimmed)}>
+   <span className="inline-flex">
+    <button type="button" disabled={busy||!sponsorTrimmed} onClick={()=>{setSponsorTouched(true);if(!sponsorTrimmed)return;void act(()=>designateSponsor(data.workspace_id!,sponsorTrimmed));}}>Designate sponsoring Office</button>
+   </span>
+  </WorkspaceTooltip>
+ </div>}
  {error&&<p role={error.includes('require the R8 database migration')?'status':'alert'}>{readableUiError(error, "We couldn't confirm this invitation action. Check the invitation list before trying again.", "write")}<button type="button" disabled={busy} onClick={()=>void reload()}>Retry invitations</button></p>}{receipt&&<p role="status">{receipt}</p>}
  {data?.requests.map(item=><article key={item.id}><h4>{item.email}</h4><p>{item.state==='pending'?'Pending Head approval':item.state} · {item.engagement} · {item.access_end?`Ends ${new Date(item.access_end).toLocaleString('en-US',{timeZone:data.timezone||'Asia/Singapore'})}`:item.until_close?'Until project closes':'Permanent membership'}</p><p>Scope: {item.root_id?'Task':'Project'}{item.node_id?" / subtask":''} · {item.skills.join(', ')||'No requested skills'} · {item.summary||'No summary provided'}</p>
  <dl><dt>Invitation</dt><dd>{item.invitation_created_at?'Invitation created':'Not created'}</dd><dt>Email</dt><dd>{item.delivery_status==='provider_accepted'?"Email accepted for sending · delivery not confirmed":item.delivery_status==='failed'?'Failed':item.delivery_status==='attempting'?'Delivery attempted':'Not attempted'}</dd><dt>Onboarding</dt><dd>{item.state==='accepted'?item.onboarding==='complete'?'Complete':'Pending · membership activated':'Pending acceptance'}</dd><dt>PDS</dt><dd>{item.pds_documents.length?item.pds_documents.map(d=><span key={d.id}>{d.original_filename} · {d.processing_status}{d.processing_status==='failed'&&<button type="button" disabled={busy} onClick={()=>void act(()=>retryPds(d.id))}>Retry PDS processing</button>}</span>):"Optional · no file is available to your account"}</dd></dl>
  {item.delivery_error&&<p role="alert">{item.delivery_error}</p>}
  <div className="r8-actions">{item.can_approve&&<><button type="button" disabled={busy} onClick={()=>{setError('');setDecision({item,status:'approved'});}}>Approve request</button><button type="button" disabled={busy} className="!border-amber-300 !bg-amber-50 !text-amber-800" onClick={()=>{setError('');setDecision({item,status:'rejected'});}}>Reject request</button></>}
  {item.can_dispatch&&<button type="button" disabled={busy} onClick={()=>void act(()=>dispatch(item,item.delivery_status==='provider_accepted'))}>{item.delivery_status==='provider_accepted'?"Resend and replace old link":item.invitation_created_at?'Retry email only':'Create invitation and send email'}</button>}
- {item.can_revoke&&(item.state!=='accepted'||access?.can_remove_personal||access?.can_remove_offices.includes(item.office_id))&&<button type="button" disabled={busy} onClick={()=>{if(item.state==='accepted'&&access)setRemoving(item);else void act(()=>decideProjectInvitation(item,'revoked'));}}>Revoke {item.state==='accepted'?'membership':'request / link'}</button>}
+ {item.can_revoke&&(item.state!=='accepted'||access?.can_remove_personal||access?.can_remove_offices.includes(item.office_id))&&<WorkspaceTooltip content={busy?'':item.state==='accepted'?'Opens removal review to unassign work and revoke this member’s project access.':'Permanently revokes this invitation request and invalidates any existing invite link. This cannot be undone.'} disabled={busy}><span className="inline-flex"><button type="button" disabled={busy} onClick={()=>{if(item.state==='accepted'&&access)setRemoving(item);else void act(()=>decideProjectInvitation(item,'revoked'));}}>Revoke {item.state==='accepted'?'membership':'request / link'}</button></span></WorkspaceTooltip>}
  {item.can_complete_onboarding&&item.onboarding==='pending'&&<button type="button" disabled={busy} onClick={()=>void act(()=>completeProjectOnboarding(item.id))}>Confirm my onboarding complete</button>}
  {item.state==='accepted'&&item.accepted_by===user?.id&&<label>Attach your optional private PDS<input type="file" accept="application/pdf,.pdf" disabled={busy} onChange={e=>{const file=e.target.files?.[0];if(file){if(file.size>10485760||!file.name.toLowerCase().endsWith('.pdf')){setError('Choose a PDF smaller than 10 MB.');return;}void act(()=>uploadRequestPds(file,item.id));}e.target.value='';}}/></label>}</div>
  </article>)}{data&&!data.requests.length&&<EmptyState illustration="inbox" size="compact" title="No invites yet."/>}

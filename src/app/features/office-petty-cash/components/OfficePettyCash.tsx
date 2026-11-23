@@ -367,6 +367,12 @@ function ScopedOfficeCash({
                           </td>
                           <td className="opc-amount">
                             <span>{peso.format(r.amount)}</span>
+                            {r.status === 'released' && Number(r.assignedAmount ?? 0) > 0 && (
+                              <small className="opc-breakdown">
+                                {peso.format(Number(r.assignedAmount))} assigned to work ·{' '}
+                                {peso.format(Math.max(0, r.amount - Number(r.assignedAmount)))} unassigned
+                              </small>
+                            )}
                             {hasReceiptsSubmitted && (
                               <small className="opc-breakdown">
                                 Spent {peso.format(spent)} · Returned {peso.format(returned)}

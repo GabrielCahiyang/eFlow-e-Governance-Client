@@ -11,7 +11,6 @@ vi.mock('../../src/app/services/subtaskService',()=>({getCachedSubtasks:()=>[],s
 vi.mock('../../src/app/components/ui/Toast',()=>({useToast:()=>({toast:vi.fn()})}));
 vi.mock('../../src/app/services/taskService',()=>({startTaskIfTodo:vi.fn()}));
 vi.mock('../../src/app/features/subtasks/components/SubitemInspector',()=>({SubitemInspector:(props:any)=>{api.open(props);return <div role="dialog" aria-label="Canonical item inspector">{props.itemId}<button onClick={props.onClose}>Close canonical item</button></div>;}}));
-vi.mock('../../src/app/features/subtasks/components/LegacySubtaskWorkDrawer',()=>({LegacySubtaskWorkDrawer:(props:any)=>{api.legacyOpen(props);return props.subtask?<div role="dialog" aria-label="Legacy item detail">{props.subtask.id}</div>:null;}}));
 vi.mock('../../src/app/features/tasks/components/board/TaskBoardDialog',()=>({TaskBoardDialog:({children,footer}:any)=><section aria-label="Board editor">{children}{footer}</section>}));
 vi.mock('../../src/app/features/tasks/components/board/TaskChatSection',()=>({TaskChatSection:()=>null}));
 vi.mock('../../src/app/features/tasks/components/TaskDepartmentLabel',()=>({TaskDepartmentLabel:()=>null}));
@@ -57,10 +56,10 @@ describe('NW9.7 proven compatibility entrances',()=>{
   const notice=await screen.findByText(/Work is already in progress\. Start date and prerequisites/),title=screen.getByLabelText('Task title'),description=screen.getByLabelText('Task description');
   expect(notice.compareDocumentPosition(title)&Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();expect((title as HTMLInputElement).disabled).toBe(false);expect((description as HTMLTextAreaElement).disabled).toBe(true);expect(screen.queryByLabelText('Due-date change reason')).toBeNull();
  });
- it('hands a proven missing installation to the legacy detail while preserving prerequisite/readOnly/deadline callbacks',async()=>{
+ it('keeps SubtaskWorkDrawer on the canonical centered SubitemInspector with no legacy drawer fallback',async()=>{
   api.load.mockRejectedValue(new WorkTreeUnavailable('Missing'));const prerequisite={id:'prior',taskId:'root'} as any,onClose=vi.fn();
   render(<SubtaskWorkDrawer parentTask={task} subtask={{id:'flat',taskId:'root'} as any} prerequisite={prerequisite} readOnly canManageDeadline onClose={onClose}/>);
-  await screen.findByRole('dialog',{name:'Legacy item detail'});expect(api.legacyOpen).toHaveBeenLastCalledWith(expect.objectContaining({subtask:expect.objectContaining({id:'flat'}),prerequisite,readOnly:true,canManageDeadline:true,onClose}));expect(screen.queryByRole('dialog',{name:'Canonical item inspector'})).toBeNull();
+  await screen.findByRole('dialog',{name:'Canonical item inspector'});expect(api.open).toHaveBeenLastCalledWith(expect.objectContaining({rootTask:task,itemId:'flat',prerequisite,readOnly:true,canManageDeadline:true,presentation:'dialog',onClose}));expect(screen.queryByRole('dialog',{name:'Legacy item detail'})).toBeNull();
  });
  it('keeps standalone detail denial in the canonical error owner and rejects stale supplied missing flags',async()=>{
   api.load.mockRejectedValue(Object.assign(new Error('Current access expired'),{code:'42501'}));const props={parentTask:task,subtask:{id:'flat',taskId:'root'} as any,onClose:vi.fn()},view=render(<SubtaskWorkDrawer {...props}/>);

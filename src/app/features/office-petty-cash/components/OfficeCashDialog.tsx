@@ -1,17 +1,25 @@
-import { useMemo, useState } from 'react';
+import { useId, useMemo, useState } from 'react';
 import { Modal } from '../../../components/ui/Modal';
+import { BoundedTextarea } from '../../../components/ui/BoundedInput';
 import { DateInput } from '../../../components/ui/DateInput';
 import { DecisionModal } from '../../../components/ui/DecisionModal';
 import { MoneyInput } from '../../../components/ui/MoneyInput';
-import { getPhilippineCalendarDate } from '../../../shared/calendarDates';
+import { WorkspaceTooltip } from '../../../components/ui/workspace/WorkspaceTooltip';
+import { getPhilippineCalendarDate, isCalendarDate } from '../../../shared/calendarDates';
+import { formatManilaDate } from '../../../shared/calendarDisplay';
+import { exceedsCentavos, formatPeso } from '../../../shared/currency';
+import { INPUT_LIMITS, textLengthError } from '../../../shared/inputLimits';
 import { OfficeReceiptsForm } from './OfficeReceiptsForm';
 import {
+  OFFICE_PETTY_RECEIPT_LIMIT,
   computeReturnedAmount,
   validateOfficeReceiptsSubmission,
 } from '../validation/officeCashValidation';
 import type { OfficeCashCommand, OfficeCashRequest, OfficeReceipt, PettyAction } from '../types';
 
 const peso = new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' });
+const MIN_REFERENCE_LENGTH = 5;
+const MAX_REFERENCE_LENGTH = 1000;
 
 export const actionLabels: Record<PettyAction, string> = {
   request: 'Request petty cash',
@@ -61,14 +69,37 @@ export function OfficeCashDialog({
   onSubmit: (command: OfficeCashCommand) => Promise<void>;
 }) {
   const today = getPhilippineCalendarDate();
+  const amountId = useId();
+  const referenceId = useId();
+  const dateId = useId();
   const [amount, setAmount] = useState(Number(pending?.data.amount) || 0);
+  const [amountTouched, setAmountTouched] = useState(false);
   const [reference, setReference] = useState(
     String(pending?.data.reference ?? (action === 'receipts' ? request?.liquidation_note || '' : '')),
   );
+  const [referenceTouched, setReferenceTouched] = useState(false);
   const [date, setDate] = useState(String(pending?.data.date || today));
-  const [receipts, setReceipts] = useState<OfficeReceipt[]>(
-    () => (pending?.data.receipts as OfficeReceipt[]) || (action === 'receipts' ? request?.receipts || [] : []),
-  );
+  const [dateTouched, setDateTouched] = useState(false);
+  const [dateInvalidText, setDateInvalidText] = useState(false);
+  const [receipts, setReceipts] = useState<OfficeReceipt[]>(() => {
+    if (pending?.data.receipts) return pending.data.receipts as OfficeReceipt[];
+    if (action !== 'receipts') return [];
+    if (request?.receipts?.length) return request.receipts;
+    if (request?.assignmentReceipts?.length) {
+      return request.assignmentReceipts.map((item) => ({
+        vendor: item.vendor,
+        number: item.number,
+        date: item.date,
+        amount: item.amount,
+        path: item.path,
+        description: item.description ?? '',
+        originLabel: item.subtaskTitle
+          ? `${item.taskTitle} → ${item.subtaskTitle}${item.uploadedByName ? ` · ${item.uploadedByName}` : ''}`
+          : `${item.taskTitle}${item.uploadedByName ? ` · ${item.uploadedByName}` : ''}`,
+      }));
+    }
+    return [];
+  });
   const [refundReceiptNumber, setRefundReceiptNumber] = useState(
     String(pending?.data.refundReceiptNumber ?? (action === 'receipts' ? request?.refund_receipt_number || '' : '')),
   );
@@ -77,6 +108,7 @@ export function OfficeCashDialog({
   );
   const [localError, setLocalError] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [receiptDatesInvalid, setReceiptDatesInvalid] = useState(false);
 
   const lock = busy || uploading || !!pending;
   const money = action === 'request' || action === 'replenish';
@@ -84,6 +116,13 @@ export function OfficeCashDialog({
   const spentAmount = Number(request?.spent ?? 0);
   const settleReturnBlocked = action === 'settle' && returnedAmount > 0 && request?.returnApproved === false;
   const isHeadFallbackSettle = action === 'settle' && Boolean(request?.headCanSettle) && !request?.canSettle;
+
+  const referenceLabel =
+    action === 'request'
+      ? 'Purpose'
+      : action === 'receipts'
+        ? 'Liquidation note / transaction reference'
+        : 'Reason / transaction reference';
 
   const receiptsValidation = useMemo(
     () =>
@@ -99,16 +138,57 @@ export function OfficeCashDialog({
     [request?.amount, date, reference, receipts, refundReceiptNumber, refundDate, today],
   );
 
+  const amountExceedsMax = money && exceedsCentavos(amount, maximum);
+  const amountError = !money
+    ? ''
+    : !Number.isFinite(amount) || amount <= 0
+      ? 'Enter an amount greater than ₱0.00.'
+      : amountExceedsMax
+        ? action === 'replenish'
+          ? `Amount exceeds the ${formatPeso(maximum)} eligible for replenishment.`
+          : `Amount exceeds the available office petty cash (${formatPeso(maximum)}).`
+        : '';
+  const visibleAmountError = amountExceedsMax || amountTouched ? amountError : '';
+
+  const referenceError =
+    textLengthError(reference, referenceLabel, {
+      required: true,
+      min: MIN_REFERENCE_LENGTH,
+      max: MAX_REFERENCE_LENGTH,
+    }) || '';
+  const visibleReferenceError =
+    referenceTouched || reference.length > 0 ? referenceError : '';
+
+  const dateError = dateInvalidText
+    ? 'Enter a valid transaction date in MM/DD/YYYY format.'
+    : !date
+      ? 'Enter the transaction date.'
+      : !isCalendarDate(date)
+        ? 'Transaction date must be a valid date.'
+        : date > today
+          ? `Transaction date cannot be after ${formatManilaDate(today, today)}.`
+          : '';
+  const visibleDateError =
+    dateTouched || dateInvalidText || Boolean(date && date > today) ? dateError : '';
+
   const valid =
     action === 'receipts'
-      ? receiptsValidation.isValid
-      : Boolean(
-          reference.trim() &&
-            date &&
-            date <= today &&
-            (!money || (amount > 0 && amount <= maximum)) &&
-            !settleReturnBlocked,
-        );
+      ? receiptsValidation.isValid && !referenceError && !dateInvalidText && !receiptDatesInvalid
+      : Boolean(!referenceError && !dateError && !amountError && !settleReturnBlocked);
+
+  const submitBlockedReason =
+    pending || valid
+      ? ''
+      : amountError ||
+        referenceError ||
+        dateError ||
+        (action === 'receipts' && receiptDatesInvalid
+          ? 'Enter valid receipt and cash return dates in MM/DD/YYYY format.'
+          : '') ||
+        (settleReturnBlocked
+          ? 'Accounting must acknowledge receipt and the Office Head must approve the cash return before settlement.'
+          : '') ||
+        (action === 'receipts' ? receiptsValidation.blockingErrors[0] || '' : '');
 
   const buildCommand = (): OfficeCashCommand => {
     if (pending) return pending;
@@ -125,6 +205,7 @@ export function OfficeCashDialog({
       };
     }
     if (action === 'receipts') {
+      const sanitizedReceipts = receipts.map(({ originLabel: _originLabel, ...rest }) => rest);
       return {
         key: crypto.randomUUID(),
         action,
@@ -133,7 +214,7 @@ export function OfficeCashDialog({
           amount,
           reference: reference.trim(),
           date,
-          receipts,
+          receipts: sanitizedReceipts,
           ...(receiptsValidation.requiresCashReturn
             ? {
                 refundReceiptNumber: refundReceiptNumber.trim(),
@@ -199,6 +280,12 @@ export function OfficeCashDialog({
       </>
     );
 
+    const decisionDisabledReason = uploading
+      ? 'Wait for the receipt upload to finish before continuing.'
+      : !pending && !valid
+        ? submitBlockedReason
+        : '';
+
     return (
       <DecisionModal
         title={`${actionLabels[action]}?`}
@@ -207,11 +294,13 @@ export function OfficeCashDialog({
         reason={reference}
         onReasonChange={pending ? undefined : setReference}
         reasonLabel={decisionReasonLabel}
-        maxReasonLength={1000}
+        minReasonLength={MIN_REFERENCE_LENGTH}
+        maxReasonLength={MAX_REFERENCE_LENGTH}
         preventClose={!!pending}
         requireReason
         busy={busy}
         disabled={uploading || (!pending && !valid)}
+        disabledReason={decisionDisabledReason}
         error={error}
         confirmLabel={pending ? resumeLabel : actionLabels[action]}
         onCancel={onClose}
@@ -225,15 +314,29 @@ export function OfficeCashDialog({
   const inlineError =
     error ||
     localError ||
-    (money && amount > maximum
-      ? 'Amount exceeds the available office petty cash.'
-      : action === 'receipts' && receiptsValidation.totalError
-        ? receiptsValidation.totalError
-        : action === 'receipts' && receipts.some((r) => r.amount > 5000)
-          ? 'Each receipt must be at most ₱5,000.'
-          : settleReturnBlocked
-            ? 'Accounting must acknowledge physical receipt and the Office Head must approve the cash return before settlement.'
-            : '');
+    (action === 'receipts' && receiptsValidation.totalError
+      ? receiptsValidation.totalError
+      : action === 'receipts' && receipts.some((r) => exceedsCentavos(r.amount, OFFICE_PETTY_RECEIPT_LIMIT))
+        ? `Each receipt must be at most ${formatPeso(OFFICE_PETTY_RECEIPT_LIMIT)}.`
+        : settleReturnBlocked
+          ? 'Accounting must acknowledge physical receipt and the Office Head must approve the cash return before settlement.'
+          : '');
+
+  const primaryLabel = busy
+    ? 'Saving…'
+    : pending
+      ? resumeLabel
+      : isHeadFallbackSettle
+        ? 'Confirm Head fallback settlement'
+        : actionLabels[action];
+  const submitDisabled = busy || uploading || (!pending && !valid);
+  const submitTooltip = submitDisabled
+    ? uploading
+      ? 'Wait for the receipt upload to finish before continuing.'
+      : submitBlockedReason
+    : action === 'cancel'
+      ? 'Permanently cancels this petty cash request. This cannot be undone.'
+      : '';
 
   return (
     <Modal
@@ -247,20 +350,18 @@ export function OfficeCashDialog({
           <button type="button" disabled={lock} onClick={onClose}>
             Cancel
           </button>
-          <button
-            type="button"
-            className="opc-primary"
-            disabled={busy || uploading || (!pending && !valid)}
-            onClick={submit}
-          >
-            {busy
-              ? 'Saving…'
-              : pending
-                ? resumeLabel
-                : isHeadFallbackSettle
-                  ? 'Confirm Head fallback settlement'
-                  : actionLabels[action]}
-          </button>
+          <WorkspaceTooltip content={submitTooltip} disabled={!submitTooltip}>
+            <span className="inline-flex">
+              <button
+                type="button"
+                className="opc-primary"
+                disabled={submitDisabled}
+                onClick={submit}
+              >
+                {primaryLabel}
+              </button>
+            </span>
+          </WorkspaceTooltip>
         </div>
       }
     >
@@ -281,15 +382,28 @@ export function OfficeCashDialog({
         )}
 
         {money && (
-          <label>
-            Amount · available up to ₱{maximum.toLocaleString()}
+          <div className="opc-field">
+            <label htmlFor={amountId}>
+              Amount · available up to {formatPeso(maximum)}{' '}
+              <span className="opc-required" aria-hidden="true">
+                *
+              </span>
+            </label>
             <MoneyInput
+              id={amountId}
               value={amount}
-              max={maximum}
-              onValueChange={(value) => setAmount(Number(value))}
+              max={INPUT_LIMITS.MONEY_MAX_BUDGET}
+              availableMax={maximum}
+              showCeilingHint
+              externalError={visibleAmountError || undefined}
+              onValueChange={(value) => {
+                setAmountTouched(true);
+                setAmount(Number(value));
+              }}
+              onBlur={() => setAmountTouched(true)}
               disabled={lock}
             />
-          </label>
+          </div>
         )}
 
         {action === 'receipts' && request && (
@@ -306,6 +420,7 @@ export function OfficeCashDialog({
             onRefundDateChange={setRefundDate}
             onUploadingChange={setUploading}
             onUploadError={setLocalError}
+            onInvalidDateChange={setReceiptDatesInvalid}
           />
         )}
 
@@ -349,24 +464,59 @@ export function OfficeCashDialog({
           </>
         )}
 
-        <label>
-          {action === 'request'
-            ? 'Purpose'
-            : action === 'receipts'
-              ? 'Liquidation note / transaction reference'
-              : 'Reason / transaction reference'}
-          <textarea
+        <div className="opc-field">
+          <label htmlFor={referenceId}>
+            {referenceLabel}{' '}
+            <span className="opc-required" aria-hidden="true">
+              *
+            </span>
+          </label>
+          <BoundedTextarea
+            id={referenceId}
             value={reference}
-            maxLength={1000}
+            maxLength={MAX_REFERENCE_LENGTH}
+            rows={3}
             disabled={lock}
+            placeholder={
+              action === 'request'
+                ? 'Describe what the petty cash will be used for (at least 5 characters)'
+                : action === 'receipts'
+                  ? 'Summarize the receipts or liquidation reference (at least 5 characters)'
+                  : 'Enter the reason or transaction reference (at least 5 characters)'
+            }
+            error={visibleReferenceError || undefined}
             onChange={(event) => setReference(event.target.value)}
+            onBlur={() => setReferenceTouched(true)}
           />
-        </label>
+        </div>
 
-        <label>
-          Transaction date
-          <DateInput max={today} value={date} disabled={lock} onChange={(event) => setDate(event.target.value)} />
-        </label>
+        <div className="opc-field">
+          <label htmlFor={dateId}>
+            Transaction date{' '}
+            <span className="opc-required" aria-hidden="true">
+              *
+            </span>
+          </label>
+          <DateInput
+            id={dateId}
+            max={today}
+            value={date}
+            disabled={lock}
+            hasError={Boolean(visibleDateError)}
+            errorMessage={visibleDateError || undefined}
+            onInvalidTextChange={setDateInvalidText}
+            onChange={(event) => {
+              setDateTouched(true);
+              setDate(event.target.value);
+            }}
+            onBlur={() => setDateTouched(true)}
+          />
+          {visibleDateError && (
+            <span className="opc-field-error" role="alert">
+              {visibleDateError}
+            </span>
+          )}
+        </div>
 
         {inlineError && (
           <div className="opc-error" role="alert">

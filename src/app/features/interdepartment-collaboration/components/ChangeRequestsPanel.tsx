@@ -2,8 +2,9 @@ import * as React from "react";
 import { Button, Label } from "@vibe/core";
 import { AlertTriangle, Check, Plus } from "lucide-react";
 import type { Organization, UserProfile } from "../../../types";
-import { FieldLengthHint } from "../../../components/ui/FieldLengthHint";
-import { INPUT_LIMITS } from "../../../shared/inputLimits";
+import { BoundedTextarea, BoundedTextInput } from "../../../components/ui/BoundedInput";
+import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
+import { INPUT_LIMITS, textLengthError } from "../../../shared/inputLimits";
 import { formatManilaDate } from "../../../shared/calendarDisplay";
 import type {
   CollaborationChangeRequest,
@@ -39,15 +40,36 @@ export function ChangeRequestsPanel({
     React.useState<CollaborationTargetType>("proposal");
   const [targetKey, setTargetKey] = React.useState("proposal");
   const [reason, setReason] = React.useState("");
+  const [targetKeyTouched, setTargetKeyTouched] = React.useState(false);
+  const [reasonTouched, setReasonTouched] = React.useState(false);
   const [busy, setBusy] = React.useState(false);
+  const targetTypeId = React.useId();
+  const targetKeyId = React.useId();
+  const reasonId = React.useId();
+
+  const rawTargetKeyError = textLengthError(targetKey, "Target identifier", {
+    required: true,
+    max: INPUT_LIMITS.TITLE,
+  });
+  const rawReasonError = textLengthError(reason, "Reason for required change", {
+    required: true,
+    max: INPUT_LIMITS.REASON,
+  });
+  const visibleTargetKeyError = targetKeyTouched ? rawTargetKeyError : "";
+  const visibleReasonError = reasonTouched || reason.length > 0 ? rawReasonError : "";
+  const submitBlockedReason = busy ? "" : rawTargetKeyError || rawReasonError || "";
 
   const submit = async () => {
-    if (!reason.trim() || !targetKey.trim()) return;
+    setTargetKeyTouched(true);
+    setReasonTouched(true);
+    if (rawTargetKeyError || rawReasonError) return;
     setBusy(true);
     try {
-      await onCreate({ targetType, targetKey, reason: reason.trim() });
+      await onCreate({ targetType, targetKey: targetKey.trim(), reason: reason.trim() });
       setCreating(false);
       setReason("");
+      setTargetKeyTouched(false);
+      setReasonTouched(false);
     } finally {
       setBusy(false);
     }
@@ -81,10 +103,11 @@ export function ChangeRequestsPanel({
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
-                <label className="block text-xs font-semibold text-neutral-700 mb-1">
+                <label htmlFor={targetTypeId} className="block text-xs font-semibold text-neutral-700 mb-1">
                   Target level
                 </label>
                 <select
+                  id={targetTypeId}
                   value={targetType}
                   onChange={(event) =>
                     setTargetType(event.target.value as CollaborationTargetType)
@@ -101,12 +124,17 @@ export function ChangeRequestsPanel({
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-neutral-700 mb-1">
-                  Target identifier or item name
+                <label htmlFor={targetKeyId} className="block text-xs font-semibold text-neutral-700 mb-1">
+                  Target identifier or item name{" "}
+                  <span className="text-[var(--eflow-negative-text)]" aria-hidden="true">*</span>
                 </label>
-                <input
+                <BoundedTextInput
+                  id={targetKeyId}
                   maxLength={INPUT_LIMITS.TITLE}
                   value={targetKey}
+                  aria-required
+                  error={visibleTargetKeyError || undefined}
+                  onBlur={() => setTargetKeyTouched(true)}
                   onChange={(event) => setTargetKey(event.target.value)}
                   placeholder="e.g. Activity 1 / Task title"
                   className="eflow-control w-full"
@@ -114,15 +142,17 @@ export function ChangeRequestsPanel({
               </div>
 
               <div className="sm:col-span-2">
-                <div className="mb-1 flex items-center justify-between gap-2">
-                  <label className="block text-xs font-semibold text-neutral-700">
-                    Reason for required change
-                  </label>
-                  <FieldLengthHint length={reason.length} max={INPUT_LIMITS.REASON} />
-                </div>
-                <textarea
+                <label htmlFor={reasonId} className="mb-1 block text-xs font-semibold text-neutral-700">
+                  Reason for required change{" "}
+                  <span className="text-[var(--eflow-negative-text)]" aria-hidden="true">*</span>
+                </label>
+                <BoundedTextarea
+                  id={reasonId}
                   maxLength={INPUT_LIMITS.REASON}
                   value={reason}
+                  aria-required
+                  error={visibleReasonError || undefined}
+                  onBlur={() => setReasonTouched(true)}
                   onChange={(event) => setReason(event.target.value)}
                   rows={3}
                   placeholder="Explain why this change is necessary and suggest a resolution…"
@@ -135,17 +165,28 @@ export function ChangeRequestsPanel({
               <Button
                 kind="tertiary"
                 size="small"
-                onClick={() => setCreating(false)}
+                onClick={() => {
+                  setCreating(false);
+                  setTargetKeyTouched(false);
+                  setReasonTouched(false);
+                }}
               >
                 Cancel
               </Button>
-              <Button
-                size="small"
-                disabled={!reason.trim() || !targetKey.trim() || busy}
-                onClick={() => void submit()}
+              <WorkspaceTooltip
+                content={submitBlockedReason}
+                disabled={!submitBlockedReason}
               >
-                {busy ? "Submitting…" : "Submit requirement"}
-              </Button>
+                <span className="inline-flex">
+                  <Button
+                    size="small"
+                    disabled={Boolean(rawTargetKeyError || rawReasonError) || busy}
+                    onClick={() => void submit()}
+                  >
+                    {busy ? "Submitting…" : "Submit requirement"}
+                  </Button>
+                </span>
+              </WorkspaceTooltip>
             </div>
           </div>
         )}

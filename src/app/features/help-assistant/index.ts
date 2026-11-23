@@ -1,1 +1,2 @@
-export { HelpAssistantDialog } from './components/HelpAssistantDialog';
+export {};
+

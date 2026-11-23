@@ -1,4 +1,17 @@
-export interface ProjectFundingSource {id:string;name:string;year:number;available:number}
+export interface ProjectFundingSource {
+  id: string;
+  name: string;
+  year: number;
+  available: number;
+  fiscalBudgetId?: string;
+  fiscalAvailable?: number;
+}
+export interface OfficeFundingSourcesPreview {
+  orgId: string;
+  canAuthorize: boolean;
+  hasEligibleAccountingStaff: boolean;
+  sources: ProjectFundingSource[];
+}
 export interface ProjectFunding {id:string;name:string;fiscal_year:number;quarter?:number|null;amount:number;available:number}
 export interface ProjectFundingRequestItem {
   id: string;
@@ -7,7 +20,9 @@ export interface ProjectFundingRequestItem {
   actor_id: string;
   actorName?: string;
   status?: 'pending' | 'pending_accounting' | 'approved' | 'rejected' | 'cancelled';
+  created_at?: string;
   head_approved_by?: string | null;
+  head_approved_at?: string | null;
   headApprovedByName?: string;
   totalAmount?: number;
   canEndorse?: boolean;
@@ -39,12 +54,14 @@ export interface PendingFundingCertification {
   createdAt: string;
   totalAmount: number;
   lines: PendingFundingCertificationLine[];
+  canEndorse?: boolean;
   canCertify: boolean;
 }
 export interface ProjectFlow {
   canExtendTaskFunding?: boolean;
   project: {
     id: string;
+    org_id?: string | null;
     status: string;
     title: string;
     description: string;
@@ -56,6 +73,8 @@ export interface ProjectFlow {
     updated_at: string;
   };
   ready: boolean;
+  canDraftWork?: boolean;
+  hasEligibleAccountingStaff?: boolean;
   canConfigure?: boolean;
   canAuthorize: boolean;
   canCertify?: boolean;

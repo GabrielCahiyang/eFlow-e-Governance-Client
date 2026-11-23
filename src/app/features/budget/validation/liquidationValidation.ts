@@ -196,9 +196,11 @@ export function validateCashLiquidation(input: {
         ? "Use up to 100 purchased items per receipt."
         : "";
 
-    const file = !receipt.file
-      ? "Attach a receipt image (JPG, PNG, WEBP) or PDF."
-      : attachmentError([receipt.file], { extensions: ["jpg", "jpeg", "png", "webp", "pdf"] });
+    const file = receipt.existingFile?.filePath && !receipt.file
+      ? ""
+      : !receipt.file
+        ? "Attach a receipt image (JPG, PNG, WEBP) or PDF."
+        : attachmentError([receipt.file], { extensions: ["jpg", "jpeg", "png", "webp", "pdf"] });
 
     if (vendor) blockingErrors.push(`${label}: ${vendor}`);
     if (receiptDate) blockingErrors.push(`${label}: ${receiptDate}`);

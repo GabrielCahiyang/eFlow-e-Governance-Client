@@ -10,6 +10,7 @@ from gateway_dependencies import (
     AuthenticatedUser,
     _permission_allowed,
     bearer,
+    is_administrator,
     require_user,
 )
 from routers.ai import _proxy
@@ -34,10 +35,10 @@ class ProcessMiningJobRequest(BaseModel):
 def require_process_mining_head(
     user: AuthenticatedUser = Depends(require_user),
 ) -> AuthenticatedUser:
-    if user.role != "head" or not user.org_id:
+    if is_administrator(user.role) or not user.org_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Deep Process Analysis is available only to active Office Heads.",
+            detail="Deep Process Analysis is available only to active operational office accounts.",
         )
     try:
         allowed = _permission_allowed(user, "navigation.team_intelligence")

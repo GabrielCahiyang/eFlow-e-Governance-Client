@@ -292,13 +292,26 @@ export function StaffingReviewPanel({
               </Button>
             )}
             {(canEditAll || editableOrgId) && (
-              <Button
-                size="small"
-                disabled={!dirty || saving || recommending || safety.pending}
-                onClick={() => void save()}
+              <WorkspaceTooltip
+                content={
+                  saving || recommending || safety.pending
+                    ? ""
+                    : !dirty
+                      ? "Make a staffing or task lead change before saving."
+                      : ""
+                }
+                disabled={saving || recommending || safety.pending || dirty}
               >
-                {saving ? "Saving…" : "Save team changes"}
-              </Button>
+                <span className="inline-flex">
+                  <Button
+                    size="small"
+                    disabled={!dirty || saving || recommending || safety.pending}
+                    onClick={() => void save()}
+                  >
+                    {saving ? "Saving…" : "Save team changes"}
+                  </Button>
+                </span>
+              </WorkspaceTooltip>
             )}
           </div>
         </header>

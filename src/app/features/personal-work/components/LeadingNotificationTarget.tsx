@@ -17,6 +17,7 @@ export function LeadingNotificationTarget({ rows, loading, onOpen }: {
 }) {
   const { user } = useAuth();
   const [subitem, setSubitem] = useState<(Subtask & { parentTask: Task })>();
+  const [subitemSection, setSubitemSection] = useState<'work' | 'review'>('work');
   const [origin, setOrigin] = useState<TaskInspectorOrigin>();
   const [error, setError] = useState('');
   useNotificationNavigationIntent(
@@ -58,8 +59,10 @@ export function LeadingNotificationTarget({ rows, loading, onOpen }: {
             if (!isCurrent()) return false;
             return requestNavigation(() => {
               if (!isCurrent()) return;
+              const nextSection = intent.inspectorSection ?? 'work';
               setSubitem(record);
-              setOrigin({ view: 'My Work', section: 'work', returnFocus: opener,
+              setSubitemSection(nextSection);
+              setOrigin({ view: 'My Work', section: nextSection, returnFocus: opener,
                 restoreFocus: () => document.getElementById('personal-work-search')?.focus() });
               setError('');
             });
@@ -99,8 +102,10 @@ export function LeadingNotificationTarget({ rows, loading, onOpen }: {
           if (!isCurrent()) return false;
           return requestNavigation(() => {
             if (!isCurrent()) return;
+            const nextSection = intent.inspectorSection ?? 'work';
             setSubitem(record);
-            setOrigin({ view: 'My Work', section: 'work', returnFocus: opener,
+            setSubitemSection(nextSection);
+            setOrigin({ view: 'My Work', section: nextSection, returnFocus: opener,
               restoreFocus: () => document.getElementById('personal-work-search')?.focus() });
             setError('');
           });
@@ -134,7 +139,7 @@ export function LeadingNotificationTarget({ rows, loading, onOpen }: {
         subtask={subitem}
         parentTask={subitem.parentTask}
         origin={origin}
-        initialSection="work"
+        initialSection={subitemSection}
         onClose={() => setSubitem(undefined)}
       />
     )}

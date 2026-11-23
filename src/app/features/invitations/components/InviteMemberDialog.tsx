@@ -13,6 +13,7 @@ import '../invitations.css';
 
 type Row = { id: string; email: string; account_role: InvitedRole; skills: string[] };
 const emptyRow = (): Row => ({ id: crypto.randomUUID(), email: '', account_role: 'member', skills: [] });
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export function InviteMemberDialog({
   officeName,
@@ -26,6 +27,7 @@ export function InviteMemberDialog({
   onSent: () => void;
 }) {
   const [rows, setRows] = useState<Row[]>(() => [emptyRow()]);
+  const [touchedRows, setTouchedRows] = useState<Record<string, boolean>>({});
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState('');
   const [receipt, setReceipt] = useState('');
@@ -34,6 +36,7 @@ export function InviteMemberDialog({
   const { activeLabels: availableSkillTags, loading: loadingSkillTags } = useSkillTags(open);
   const reset = () => {
     setRows([emptyRow()]);
+    setTouchedRows({});
     setMessage('');
     setReceipt('');
   };
@@ -53,9 +56,51 @@ export function InviteMemberDialog({
   const change = (id: string, values: Partial<Row>) =>
     setRows((current) => current.map((row) => (row.id === id ? { ...row, ...values } : row)));
 
+  const emailCounts = new Map<string, number>();
+  for (const row of rows) {
+    const normalized = row.email.trim().toLowerCase();
+    if (normalized) {
+      emailCounts.set(normalized, (emailCounts.get(normalized) ?? 0) + 1);
+    }
+  }
+  const nonEmptyRows = rows.filter((row) => row.email.trim());
+  const getRowValidationError = (row: Row): string => {
+    const trimmed = row.email.trim();
+    if (!trimmed) return '';
+    if (!EMAIL_PATTERN.test(trimmed)) return 'Enter a valid email address.';
+    if ((emailCounts.get(trimmed.toLowerCase()) ?? 0) > 1) {
+      return 'Duplicate email address — each person can only be invited once.';
+    }
+    return '';
+  };
+  const getVisibleRowError = (row: Row): string => {
+    const issue = getRowValidationError(row);
+    if (issue) return issue;
+    if (touchedRows[row.id] && !row.email.trim() && nonEmptyRows.length === 0) {
+      return 'Enter at least one email address to send invitations.';
+    }
+    return '';
+  };
+  const firstInvalidIndex = rows.findIndex((row) => Boolean(getRowValidationError(row)));
+  const sendDisabledReason = busy
+    ? ''
+    : nonEmptyRows.length === 0
+      ? 'Enter at least one valid email address before sending invitations.'
+      : firstInvalidIndex !== -1
+        ? `Fix Email address ${firstInvalidIndex + 1}: ${getRowValidationError(rows[firstInvalidIndex])}`
+        : '';
+
   async function send(event: React.FormEvent) {
     event.preventDefault();
     if (guard.pendingRef.current) return;
+    if (sendDisabledReason) {
+      setTouchedRows((current) => {
+        const next = { ...current };
+        for (const row of rows) next[row.id] = true;
+        return next;
+      });
+      return;
+    }
     const selected = rows.filter((row) => row.email.trim());
     if (!selected.length) return;
     guard.pendingRef.current = true;
@@ -157,18 +202,25 @@ export function InviteMemberDialog({
             <ModalButton disabled={busy} onClick={close}>
               Remind me later
             </ModalButton>
-            <ModalButton
-              variant="primary"
-              pending={busy}
-              disabled={!rows.some((row) => row.email.trim())}
-              onClick={() => formRef.current?.requestSubmit()}
+            <WorkspaceTooltip
+              content={sendDisabledReason}
+              disabled={!sendDisabledReason}
             >
-              Send invitations
-            </ModalButton>
+              <span className="inline-flex">
+                <ModalButton
+                  variant="primary"
+                  pending={busy}
+                  disabled={Boolean(sendDisabledReason)}
+                  onClick={() => formRef.current?.requestSubmit()}
+                >
+                  Send invitations
+                </ModalButton>
+              </span>
+            </WorkspaceTooltip>
           </>
         }
       >
-        <form ref={formRef} className="eflow-head-dialog-form" onSubmit={send}>
+        <form ref={formRef} className="eflow-head-dialog-form" noValidate onSubmit={send}>
           <div className="eflow-invite-rows">
             {rows.map((row, index) => (
               <InvitationPersonFields
@@ -177,11 +229,16 @@ export function InviteMemberDialog({
                 id={row.id}
                 index={index}
                 email={row.email}
+                emailError={getVisibleRowError(row) || undefined}
+                required={index === 0 || Boolean(row.email.trim())}
                 skills={row.skills}
                 availableSkills={availableSkillTags}
                 loadingSkills={loadingSkillTags}
                 disabled={busy}
                 onEmail={(email) => change(row.id, { email })}
+                onEmailBlur={() =>
+                  setTouchedRows((current) => ({ ...current, [row.id]: true }))
+                }
                 onSkills={(skills) => change(row.id, { skills })}
               >
                 <label className="sr-only" htmlFor={`role-${row.id}`}>

@@ -1,15 +1,28 @@
-import { useLayoutEffect, useRef, type ComponentProps } from 'react';
+import { useLayoutEffect, useRef, type ReactNode } from 'react';
 import { Modal } from '../../../components/ui/Modal';
-import type { InspectorPanel } from '../../../shared/motion';
 import './taskPage.css';
 
 export type InspectorPresentation = 'drawer' | 'page' | 'dialog';
+
+export interface InspectorSurfaceProps {
+  open: boolean;
+  onClose: () => void;
+  ariaLabel: string;
+  ariaDescriptionId?: string;
+  children: ReactNode;
+  className?: string;
+  layer?: number;
+  preventClose?: boolean;
+  returnFocus?: HTMLElement | null;
+  onReturnFocus?: () => void;
+  presentation?: InspectorPresentation;
+}
 
 /** The page variant stays inside the application shell; all overlay variants open in the centered eFlow dialog. */
 export function InspectorSurface({
   presentation = 'dialog',
   ...props
-}: ComponentProps<typeof InspectorPanel> & { presentation?: InspectorPresentation }) {
+}: InspectorSurfaceProps) {
   const page = useRef<HTMLElement>(null);
   const returnTarget = useRef({ element: props.returnFocus, restore: props.onReturnFocus });
   returnTarget.current = { element: props.returnFocus, restore: props.onReturnFocus };
@@ -47,5 +60,9 @@ export function InspectorSurface({
     );
   }
   if (!props.open) return null;
-  return <section ref={page} tabIndex={-1} className="task-page" aria-label={props.ariaLabel}>{props.children}</section>;
+  return (
+    <section ref={page} tabIndex={-1} className="task-page" aria-label={props.ariaLabel}>
+      {props.children}
+    </section>
+  );
 }

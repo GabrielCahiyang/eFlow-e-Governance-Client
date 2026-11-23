@@ -1,19 +1,26 @@
-import { useCallback, useEffect, useState } from "react";
-import { Check, RefreshCw, ShieldCheck, X } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Check, ExternalLink, RefreshCw, ShieldCheck, X } from "lucide-react";
 import { supabase } from "../../../../lib/supabase";
 import { Button } from "../../../components/ui/button";
 import { DecisionModal } from "../../../components/ui/DecisionModal";
 import { readableUiError } from "../../../shared/userFacingError";
+import { formatManilaDateTime } from "../../../shared/calendarDisplay";
 import type { PendingFundingCertification } from "../../project-setup";
+import { writeNavigationLocation } from "../../navigation";
+import { useNotificationNavigationIntent } from "../../notifications";
 import { peso } from "./budgetUi";
 
 interface ProjectFundingCertificationQueueProps {
   orgId: string;
+  focusProjectId?: string;
+  focusRequestId?: string;
   onChanged?: () => Promise<void> | void;
 }
 
 export function ProjectFundingCertificationQueue({
   orgId,
+  focusProjectId,
+  focusRequestId,
   onChanged,
 }: ProjectFundingCertificationQueueProps) {
   const [items, setItems] = useState<PendingFundingCertification[]>([]);
@@ -23,6 +30,24 @@ export function ProjectFundingCertificationQueue({
   const [notice, setNotice] = useState("");
   const [declineTarget, setDeclineTarget] = useState<PendingFundingCertification | null>(null);
   const [declineReason, setDeclineReason] = useState("");
+  const [intentFocus, setIntentFocus] = useState<{ projectId?: string; requestId?: string } | null>(null);
+  const cardRefs = useRef<Record<string, HTMLElement | null>>({});
+
+  useNotificationNavigationIntent(
+    (intent) => intent.kind === "budget" && intent.financialRecordType === "project_funding",
+    (intent) => {
+      if (loading) return false;
+      setIntentFocus({
+        projectId: intent.projectId,
+        requestId: intent.financialRecordId,
+      });
+      return true;
+    },
+    [loading],
+  );
+
+  const activeFocusRequestId = focusRequestId || intentFocus?.requestId;
+  const activeFocusProjectId = focusProjectId || intentFocus?.projectId;
 
   const load = useCallback(async () => {
     if (!orgId) {
@@ -53,6 +78,20 @@ export function ProjectFundingCertificationQueue({
     return () => window.removeEventListener("eflow:project-setup", onSetupUpdate);
   }, [load]);
 
+  useEffect(() => {
+    if (loading || (!activeFocusRequestId && !activeFocusProjectId)) return;
+    const matched = items.find(
+      (item) =>
+        (activeFocusRequestId && item.id === activeFocusRequestId) ||
+        (activeFocusProjectId && item.projectId === activeFocusProjectId),
+    );
+    if (!matched) return;
+    const node = cardRefs.current[matched.id];
+    if (node && typeof node.scrollIntoView === "function") {
+      node.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [activeFocusProjectId, activeFocusRequestId, items, loading]);
+
   const decide = async (
     item: PendingFundingCertification,
     approve: boolean,
@@ -62,24 +101,30 @@ export function ProjectFundingCertificationQueue({
     setBusyId(item.id);
     setError("");
     setNotice("");
+    const isHeadStage = item.status === "pending";
     try {
-      const { error: rpcError } = await supabase.rpc("certify_project_funding", {
+      const rpcName = isHeadStage ? "decide_project_funding" : "certify_project_funding";
+      const { error: rpcError } = await supabase.rpc(rpcName, {
         p_request: item.id,
         p_approve: approve,
         p_reason: reason,
       });
       if (rpcError) throw rpcError;
       setNotice(
-        approve
-          ? `Certified ${peso.format(item.totalAmount)} for "${item.projectTitle}". Funds are now reserved.`
-          : `Declined funding certification for "${item.projectTitle}".`,
+        isHeadStage
+          ? approve
+            ? `Endorsed ${peso.format(item.totalAmount)} for "${item.projectTitle}" and forwarded to Accounting Staff for certification.`
+            : `Declined funding request for "${item.projectTitle}".`
+          : approve
+            ? `Certified ${peso.format(item.totalAmount)} for "${item.projectTitle}". Funds are reserved and the project is now Waiting for activation.`
+            : `Declined funding certification for "${item.projectTitle}".`,
       );
       window.dispatchEvent(new Event("eflow:project-setup"));
       await load();
       await onChanged?.();
       return true;
     } catch (caught) {
-      setError(readableUiError(caught, "Could not process funding certification.", "write"));
+      setError(readableUiError(caught, "Could not process funding approval.", "write"));
       return false;
     } finally {
       setBusyId("");
@@ -99,10 +144,10 @@ export function ProjectFundingCertificationQueue({
         <div>
           <h2 className="flex items-center gap-2 text-sm font-semibold text-neutral-900">
             <ShieldCheck size={16} className="text-amber-700" aria-hidden="true" />
-            Project funding certifications ({items.length})
+            Project funding approvals ({items.length})
           </h2>
           <p className="text-xs text-neutral-600">
-            Independent Accounting Staff certification is required before Head-endorsed project funds are locked from the Office Budget.
+            Funded projects stay Pending approval until both Office Head endorsement and independent Accounting Staff certification pass, then move to Waiting for activation.
           </p>
         </div>
         <Button
@@ -136,14 +181,35 @@ export function ProjectFundingCertificationQueue({
         <div className="space-y-3">
           {items.map((item) => {
             const pending = busyId === item.id;
+            const isHeadStage = item.status === "pending";
+            const submittedAt = item.createdAt ? formatManilaDateTime(item.createdAt, "") : "";
+            const isFocused = Boolean(
+              (activeFocusRequestId && item.id === activeFocusRequestId) ||
+                (!activeFocusRequestId && activeFocusProjectId && item.projectId === activeFocusProjectId),
+            );
             return (
               <article
                 key={item.id}
-                className="rounded-lg border border-amber-200/90 bg-white p-4 shadow-xs space-y-2.5"
+                ref={(node) => {
+                  cardRefs.current[item.id] = node;
+                }}
+                data-focused={isFocused ? "true" : undefined}
+                className={`rounded-lg border bg-white p-4 shadow-xs space-y-2.5 transition-shadow ${
+                  isFocused
+                    ? "border-[var(--eflow-primary)] ring-2 ring-[var(--eflow-primary)]/25"
+                    : "border-amber-200/90"
+                }`}
               >
                 <div className="flex flex-wrap items-start justify-between gap-2">
-                  <div>
-                    <h3 className="text-sm font-semibold text-neutral-900">{item.projectTitle}</h3>
+                  <div className="space-y-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="text-sm font-semibold text-neutral-900">{item.projectTitle}</h3>
+                      <span className="inline-flex items-center rounded-[5px] border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-800">
+                        {isHeadStage
+                          ? "Step 1/2 · Pending Head approval"
+                          : "Step 2/2 · Pending Accounting certification"}
+                      </span>
+                    </div>
                     <p className="text-xs text-neutral-600">
                       Requested by <strong>{item.requestedByName}</strong>
                       {item.headApprovedByName ? (
@@ -151,10 +217,11 @@ export function ProjectFundingCertificationQueue({
                           {" · "}Endorsed by <strong>{item.headApprovedByName}</strong>
                         </>
                       ) : null}
-                      {item.publicationState === "draft" ? " · Draft setup" : ""}
+                      {submittedAt ? ` · ${submittedAt}` : ""}
+                      {item.publicationState === "draft" ? " · Pending project" : ""}
                     </p>
                   </div>
-                  <strong className="text-sm font-semibold text-neutral-900">
+                  <strong className="text-sm font-semibold text-neutral-900 tabular-nums">
                     {peso.format(item.totalAmount)}
                   </strong>
                 </div>
@@ -174,14 +241,58 @@ export function ProjectFundingCertificationQueue({
                           {line.sourceName}
                           <span className="text-neutral-500"> ({peso.format(line.available)} available)</span>
                         </span>
-                        <strong className="text-neutral-900">{peso.format(line.amount)}</strong>
+                        <strong className="text-neutral-900 tabular-nums">{peso.format(line.amount)}</strong>
                       </li>
                     ))}
                   </ul>
                 )}
 
                 <div className="flex flex-wrap items-center justify-end gap-2 pt-1">
-                  {item.canCertify ? (
+                  {item.projectId && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      disabled={Boolean(busyId)}
+                      onClick={() =>
+                        writeNavigationLocation("projects", item.projectTitle, "push", {
+                          parameters: { project: item.projectId, view: "budget" },
+                        })
+                      }
+                    >
+                      <ExternalLink size={13} aria-hidden="true" />
+                      <span className="ml-1.5">Open project</span>
+                    </Button>
+                  )}
+                  {isHeadStage && item.canEndorse ? (
+                    <>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        disabled={Boolean(busyId)}
+                        onClick={() => {
+                          setDeclineTarget(item);
+                          setDeclineReason("");
+                          setError("");
+                        }}
+                      >
+                        <X size={14} aria-hidden="true" />
+                        <span className="ml-1">Decline</span>
+                      </Button>
+                      <Button
+                        type="button"
+                        size="sm"
+                        disabled={Boolean(busyId)}
+                        onClick={() =>
+                          void decide(item, true, "Endorsed by Office Head for Accounting certification")
+                        }
+                      >
+                        <Check size={14} aria-hidden="true" />
+                        <span className="ml-1">{pending ? "Endorsing…" : "Endorse for Accounting"}</span>
+                      </Button>
+                    </>
+                  ) : item.canCertify ? (
                     <>
                       <Button
                         type="button"
@@ -211,7 +322,9 @@ export function ProjectFundingCertificationQueue({
                     </>
                   ) : (
                     <span className="text-xs text-amber-800">
-                      Requires an independent Accounting Staff member (cannot self-certify).
+                      {isHeadStage
+                        ? "Awaiting Office Head endorsement before forwarding to Accounting Staff."
+                        : "Requires an independent Accounting Staff member (cannot self-certify)."}
                     </span>
                   )}
                 </div>
@@ -223,10 +336,14 @@ export function ProjectFundingCertificationQueue({
 
       {declineTarget && (
         <DecisionModal
-          title="Decline project funding certification"
-          description={`Explain why ${peso.format(declineTarget.totalAmount)} for "${declineTarget.projectTitle}" cannot be certified right now.`}
+          title={
+            declineTarget.status === "pending"
+              ? "Decline project funding request"
+              : "Decline project funding certification"
+          }
+          description={`Explain why ${peso.format(declineTarget.totalAmount)} for "${declineTarget.projectTitle}" cannot be approved right now.`}
           decision="changes"
-          confirmLabel="Decline certification"
+          confirmLabel={declineTarget.status === "pending" ? "Decline request" : "Decline certification"}
           requireReason
           reason={declineReason}
           onReasonChange={setDeclineReason}

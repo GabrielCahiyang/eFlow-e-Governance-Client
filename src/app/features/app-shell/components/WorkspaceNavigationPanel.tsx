@@ -32,8 +32,13 @@ export function WorkspaceNavigationPanel({ items, activeSection, activePage, wor
   const allowedProjects = canOpenProjects ? projects : [];
   const { favorites, toggle } = useNavigationFavorites(userId, workspaceId, allowedProjects.map(project => project.id), !projectsLoading);
   const collapsed = preference.value.collapsed && !mobile;
+  const hasDelegatedOfficeTools = items.some(
+    (item) =>
+      item.group === 'workspaces' &&
+      !['projects', 'tasks', 'dashboard'].includes(item.id),
+  );
   const availableSections = (Object.keys(sections) as WorkspaceSectionId[]).filter(id => id === 'office-tools'
-    ? (workspaceKind === 'personal' || role === 'head') && items.some(item => item.group === 'workspaces' && item.id !== 'projects' && item.id !== 'tasks') : canOpenProjects);
+    ? (workspaceKind === 'personal' || role === 'head' || hasDelegatedOfficeTools) && items.some(item => item.group === 'workspaces' && item.id !== 'projects' && item.id !== 'tasks') : canOpenProjects);
   const destinations = (destinations: ShellNavigationItem[]) => destinations.map(item => {
     return <div key={item.id} data-tour-section={item.id}>
       {item.pages.map(page => {const Icon=getEflowNavigationIcon(item.id,page.label);const label=item.pages.length === 1 ? item.label : pageDisplayLabel(item.id,page.label);return <button className="eflow-workspace-navigation__destination" type="button" key={page.label} data-tour-dest={`${item.id}:${page.label}`} aria-label={label} aria-current={activeSection === item.id && activePage === page.label ? 'page' : undefined} onClick={() => onPageSelect(item.id, page.label)}>

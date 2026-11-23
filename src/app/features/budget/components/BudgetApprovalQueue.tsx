@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { forwardRef, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { formatManilaDate } from "../../../shared/calendarDisplay";
 import { Button } from "@vibe/core";
 import { AnimatePresence } from "motion/react";
@@ -10,8 +10,10 @@ import {
   BxsCheckShield,
 } from "../../../components/ui/boxicons";
 import {DecisionModal, DecisionResultModal} from '../../../components/ui/DecisionModal';
+import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import { useToast } from "../../../components/ui/Toast";
 import { useAuth } from "../../../contexts/AuthContext";
+import { INPUT_LIMITS } from "../../../shared/inputLimits";
 import { motionTransition } from "../../../shared/motion/motionTokens";
 import type { DepartmentBudgetBundle } from "../types";
 import {
@@ -472,17 +474,30 @@ export function BudgetApprovalQueue({
           }
           action={
             isDepartmentApprover && tier1DepartmentRequests.length > 1 ? (
-              <Button
-                kind="primary"
-                color="positive"
-                size="small"
-                disabled={batchBusy || Boolean(busy)}
-                loading={batchBusy}
-                onClick={() => void handleBatchAuthorizeTier1()}
+              <WorkspaceTooltip
+                content={
+                  batchBusy
+                    ? "Approving quick-approval requests…"
+                    : busy
+                      ? "Wait for the active decision to finish before batch approving."
+                      : ""
+                }
+                disabled={!(batchBusy || Boolean(busy))}
               >
-                <BxsBolt size={12} className="mr-1" />
-                Approve ≤ {peso.format(threshold)} ({tier1DepartmentRequests.length})
-              </Button>
+                <span className="inline-flex">
+                  <Button
+                    kind="primary"
+                    color="positive"
+                    size="small"
+                    disabled={batchBusy || Boolean(busy)}
+                    loading={batchBusy}
+                    onClick={() => void handleBatchAuthorizeTier1()}
+                  >
+                    <BxsBolt size={12} className="mr-1" />
+                    Approve ≤ {peso.format(threshold)} ({tier1DepartmentRequests.length})
+                  </Button>
+                </span>
+              </WorkspaceTooltip>
             ) : undefined
           }
         >
@@ -652,6 +667,11 @@ export function BudgetApprovalQueue({
                   <DecisionButtons
                     busy={busy === item.id}
                     approveDisabled={needsHead && !isHead}
+                    approveDisabledReason={
+                      needsHead && !isHead
+                        ? "Late liquidations require Office Head authorization before Accounting can settle."
+                        : undefined
+                    }
                     approveLabel={
                       item.status === "pending_leader_review"
                         ? "Submit to Accounting"
@@ -845,16 +865,7 @@ function QueueSection({
   );
 }
 
-function QueueRow({
-  recordId,
-  title,
-  meta,
-  status,
-  actions,
-  details,
-  focused = false,
-  tierBadge,
-}: {
+const QueueRow = forwardRef<HTMLDivElement, {
   recordId: string;
   title: string;
   meta: string;
@@ -863,9 +874,19 @@ function QueueRow({
   details?: ReactNode;
   focused?: boolean;
   tierBadge?: ReactNode;
-}) {
+}>(function QueueRow({
+  recordId,
+  title,
+  meta,
+  status,
+  actions,
+  details,
+  focused = false,
+  tierBadge,
+}, ref) {
   return (
     <m.div
+      ref={ref}
       id={`financial-record-${recordId}`}
       layout
       initial={{ opacity: 0, y: 4 }}
@@ -888,7 +909,7 @@ function QueueRow({
       {actions}
     </m.div>
   );
-}
+});
 
 function DecisionButtons({
   busy,
@@ -896,42 +917,91 @@ function DecisionButtons({
   onReject,
   approveLabel = "Approve",
   approveDisabled = false,
+  approveDisabledReason,
+  rejectTooltip = "Decline or return this item with a required reason.",
 }: {
   busy: boolean;
   onApprove: () => void;
   onReject: () => void;
   approveLabel?: string;
   approveDisabled?: boolean;
+  approveDisabledReason?: string;
+  rejectTooltip?: string;
 }) {
+  const rejectTip = busy ? "Wait for the current action to finish." : rejectTooltip;
+  const approveTip = busy
+    ? "Wait for the current action to finish."
+    : approveDisabled
+      ? approveDisabledReason || "This approval action is currently unavailable."
+      : "";
+
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <Button
-        kind="tertiary"
-        className="!text-[var(--eflow-warning-text)] !bg-[var(--eflow-warning-bg)]"
-        size="small"
-        disabled={busy}
-        onClick={onReject}
-      >
-        <RotateCcw size={11} className="mr-1" />
-        Decline
-      </Button>
-      <Button
-        kind="primary"
-        size="small"
-        disabled={busy || approveDisabled}
-        loading={busy}
-        onClick={onApprove}
-      >
-        <Check size={11} className="mr-1" />
-        {approveLabel}
-      </Button>
+      <WorkspaceTooltip content={rejectTip} disabled={!rejectTip}>
+        <span className="inline-flex">
+          <Button
+            kind="tertiary"
+            className="!text-[var(--eflow-warning-text)] !bg-[var(--eflow-warning-bg)]"
+            size="small"
+            disabled={busy}
+            onClick={onReject}
+          >
+            <RotateCcw size={11} className="mr-1" />
+            Decline
+          </Button>
+        </span>
+      </WorkspaceTooltip>
+      <WorkspaceTooltip content={approveTip} disabled={!approveTip}>
+        <span className="inline-flex">
+          <Button
+            kind="primary"
+            size="small"
+            disabled={busy || approveDisabled}
+            loading={busy}
+            onClick={onApprove}
+          >
+            <Check size={11} className="mr-1" />
+            {approveLabel}
+          </Button>
+        </span>
+      </WorkspaceTooltip>
     </div>
   );
 }
 
-function RejectionDialog({title,busy,error,onClose,onConfirm}:{title:string;busy:boolean;error?:string;onClose:()=>void;onConfirm:(reason:string)=>Promise<void>}) {
-  const [reason,setReason]=useState('');
-  useExplicitDraft('Financial decision reason',Boolean(reason.trim()),busy,()=>setReason(''));
-  const changes=/correction|changes/i.test(title);
-  return <DecisionModal title={title} description="Are you sure? Add a reason so the requester knows what to change." decision={changes?'changes':'reject'} reason={reason} onReasonChange={setReason} reasonLabel="Reason or required correction" requireReason busy={busy} error={error} onCancel={()=>{if(!busy)void requestNavigation(onClose);}} onConfirm={()=>void onConfirm(reason.trim())}/>;
+function RejectionDialog({
+  title,
+  busy,
+  error,
+  onClose,
+  onConfirm,
+}: {
+  title: string;
+  busy: boolean;
+  error?: string;
+  onClose: () => void;
+  onConfirm: (reason: string) => Promise<void>;
+}) {
+  const [reason, setReason] = useState("");
+  useExplicitDraft("Financial decision reason", Boolean(reason.trim()), busy, () => setReason(""));
+  const changes = /correction|changes/i.test(title);
+  return (
+    <DecisionModal
+      title={title}
+      description="Are you sure? Add a reason so the requester knows what to change."
+      decision={changes ? "changes" : "reject"}
+      reason={reason}
+      onReasonChange={setReason}
+      reasonLabel="Reason or required correction"
+      requireReason
+      minReasonLength={5}
+      maxReasonLength={INPUT_LIMITS.REASON}
+      busy={busy}
+      error={error}
+      onCancel={() => {
+        if (!busy) void requestNavigation(onClose);
+      }}
+      onConfirm={() => void onConfirm(reason.trim())}
+    />
+  );
 }

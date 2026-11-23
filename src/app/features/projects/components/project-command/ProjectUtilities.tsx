@@ -1,13 +1,15 @@
 import { readableUiError } from '../../../../shared/userFacingError';
 import type { ProjectCommandTab } from './types';
 import { Button as VibeButton } from '@vibe/core';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { MoreHorizontal, Star } from 'lucide-react';
 import { ActionMenu, WorkspaceTooltip, type WorkspaceAction } from '../../../../components/ui/workspace';
+import { BoundedTextInput } from '../../../../components/ui/BoundedInput';
 import { Button } from '../../../../components/ui/button';
 import { FeedbackState } from '../../../../components/ui/FeedbackState';
 import { Modal } from '../../../../components/ui/Modal';
 import { useToast } from '../../../../components/ui/Toast';
+import { INPUT_LIMITS, textLengthError } from '../../../../shared/inputLimits';
 import {ProjectSetupDialog} from './ProjectSetupDialog';
 import { fetchProjectGroups, tasksInGroup } from '../../../project-table';
 import type { Subtask } from '../../../subtasks';
@@ -31,19 +33,35 @@ export function ProjectUtilities({ setupReady=true, project, canManage, lifecycl
   const [setupOpen,setSetupOpen]=useState(false);
   const [saveTemplateOpen, setSaveTemplateOpen] = useState(false);
   const [templateName, setTemplateName] = useState('');
+  const [templateNameTouched, setTemplateNameTouched] = useState(false);
   const [templateGroups, setTemplateGroups] = useState<ProjectTaskGroup[]>([]);
   const [templateBusy, setTemplateBusy] = useState(false);
   const [templateError, setTemplateError] = useState('');
+  const templateNameId = useId();
   const menuTrigger = useRef<HTMLButtonElement>(null);
   const visibleTasks = tasks.filter(task => !task.archivedAt);
   const canSaveTemplate = canManage && setupReady && visibleTasks.length > 0;
+  const templateNameError = textLengthError(templateName, 'Template name', {
+    required: true,
+    max: INPUT_LIMITS.GROUP_TITLE,
+  });
+  const visibleTemplateNameError = templateNameTouched ? templateNameError : '';
+  const saveTemplateDisabled = templateBusy || Boolean(templateNameError) || !templateGroups.length;
+  const saveTemplateTip = templateBusy
+    ? ''
+    : templateNameError
+      ? templateNameError
+      : !templateGroups.length
+        ? 'No project tasks are available to save in this starter template.'
+        : '';
 
   useEffect(() => {
     if (!saveTemplateOpen) return;
     let live = true;
     setTemplateBusy(true);
     setTemplateError('');
-    setTemplateName(`${project.title} starter`.slice(0, 120));
+    setTemplateNameTouched(false);
+    setTemplateName(`${project.title} starter`.slice(0, INPUT_LIMITS.GROUP_TITLE));
     void fetchProjectGroups(project.id)
       .then(groups => {
         if (!live) return;
@@ -74,7 +92,8 @@ export function ProjectUtilities({ setupReady=true, project, canManage, lifecycl
       live = false;
     };
   }, [saveTemplateOpen, project.id, project.title]);
-  const completion = useProjectCompletionAvailability(project, canManage && Boolean(lifecycle.complete), `${userId}:${contextId}`);
+  const isNonHeadProjectLead = Boolean(!canManage && userId && project.projectLeadId === userId);
+  const completion = useProjectCompletionAvailability(project, (canManage || isNonHeadProjectLead) && Boolean(lifecycle.complete), `${userId}:${contextId}`);
   const openLifecycle = (action: () => void) => requestAnimationFrame(() => {
     // Let the menu close before the existing dialog captures its focus-return target.
     if (!menuTrigger.current) return;
@@ -91,8 +110,22 @@ export function ProjectUtilities({ setupReady=true, project, canManage, lifecycl
     });
   }
   if (lifecycle.complete && !['completed','archived'].includes(project.status)) {
-    actions.push({ id: 'requirements', label: 'View completion requirements', onSelect: () => openLifecycle(lifecycle.complete!) });
-    actions.push({ id: 'complete', label: 'Mark project complete', disabled: !completion.enabled, disabledReason: completion.reason, onSelect: () => {if(completion.enabled)openLifecycle(lifecycle.complete!);} });
+    if (isNonHeadProjectLead) {
+      actions.push({
+        id: 'request-completion-review',
+        label: project.completionReviewStatus === 'requested' ? 'View completion review request' : 'Request completion review',
+        onSelect: () => openLifecycle(lifecycle.complete!),
+      });
+    } else {
+      actions.push({ id: 'requirements', label: 'View completion requirements', onSelect: () => openLifecycle(lifecycle.complete!) });
+      actions.push({
+        id: 'complete',
+        label: project.completionReviewStatus === 'requested' ? 'Review & mark project complete' : 'Mark project complete',
+        disabled: !completion.enabled,
+        disabledReason: completion.reason,
+        onSelect: () => {if(completion.enabled)openLifecycle(lifecycle.complete!);},
+      });
+    }
   }
   if (lifecycle.archive && project.status !== 'archived') actions.push({ id: 'archive', label: 'Archive project', disabled: project.status !== 'completed', disabledReason: 'Complete this project before archiving it.', onSelect: () => openLifecycle(lifecycle.archive!) });
   if (lifecycle.restore && project.status === 'archived') actions.push({ id: 'restore', label: 'Restore project', onSelect: () => openLifecycle(lifecycle.restore!) });
@@ -100,10 +133,20 @@ export function ProjectUtilities({ setupReady=true, project, canManage, lifecycl
   return <div className="eflow-project-identity__utilities">
     {userId && <WorkspaceTooltip content="Personal favorite on this device"><Button variant="ghost" size="icon" aria-label={favorite ? 'Remove project from favorites' : 'Add project to favorites'} aria-pressed={favorite} onClick={() => toggle(project.id)}><Star size={18} fill={favorite ? 'currentColor' : 'none'} /></Button></WorkspaceTooltip>}
     <ProjectPublicationAction projectId={project.id} title={project.title} status={project.status} officeId={project.orgId}/>
-    {canManage && lifecycle.complete && !['completed','archived'].includes(project.status) && <Button variant="outline" onClick={() => { void requestNavigation(lifecycle.complete!); }}>Completion requirements</Button>}
-    {canManage&&['planning','on_hold'].includes(project.status)&&<Button variant="outline" onClick={()=>void requestNavigation(()=>setSetupOpen(value=>!value))} aria-expanded={setupOpen}>Setup & activation</Button>}
+    {(canManage || isNonHeadProjectLead) && lifecycle.complete && !['completed','archived'].includes(project.status) && (
+      <Button variant="outline" onClick={() => { void requestNavigation(lifecycle.complete!); }}>
+        {isNonHeadProjectLead
+          ? project.completionReviewStatus === 'requested'
+            ? 'Completion review requested'
+            : 'Request completion review'
+          : project.completionReviewStatus === 'requested'
+            ? 'Review completion request'
+            : 'Completion requirements'}
+      </Button>
+    )}
+    {(canManage||isNonHeadProjectLead)&&['planning','on_hold'].includes(project.status)&&<Button variant="outline" onClick={()=>void requestNavigation(()=>setSetupOpen(value=>!value))} aria-expanded={setupOpen}>Setup & activation</Button>}
     <ActionMenu tooltip="Project actions" trigger={<Button ref={menuTrigger} variant="outline" size="icon" aria-label="Project actions"><MoreHorizontal size={20} /></Button>} actions={actions} />
-    {setupOpen&&['planning','on_hold'].includes(project.status)&&<ProjectSetupDialog project={project} canManage={canManage} onClose={()=>setSetupOpen(false)} onOpenSettings={onOpenSettings} onOpenOffices={onOpenOffices} onResolve={onResolveView}/>}
+    {setupOpen&&['planning','on_hold'].includes(project.status)&&<ProjectSetupDialog project={project} canManage={canManage||isNonHeadProjectLead} onClose={()=>setSetupOpen(false)} onOpenSettings={onOpenSettings} onOpenOffices={onOpenOffices} onResolve={onResolveView}/>}
     {saveTemplateOpen && (
       <Modal
         isOpen
@@ -116,9 +159,11 @@ export function ProjectUtilities({ setupReady=true, project, canManage, lifecycl
       >
         <form
           className="grid gap-4"
+          noValidate
           onSubmit={event => {
             event.preventDefault();
-            if (templateBusy || !templateGroups.length) return;
+            setTemplateNameTouched(true);
+            if (templateBusy || !templateGroups.length || templateNameError) return;
             setTemplateBusy(true);
             setTemplateError('');
             void saveProjectTaskTemplate(templateName, templateGroups)
@@ -137,17 +182,25 @@ export function ProjectUtilities({ setupReady=true, project, canManage, lifecycl
               {templateError}
             </FeedbackState>
           )}
-          <label className="grid gap-1.5 text-sm font-medium text-neutral-800">
-            Template name
-            <input
+          <div className="grid gap-1.5">
+            <label htmlFor={templateNameId} className="text-sm font-medium text-neutral-800">
+              Template name <span className="text-[var(--eflow-negative-text)]" aria-hidden="true">*</span>
+            </label>
+            <BoundedTextInput
+              id={templateNameId}
               className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm font-normal"
-              required
-              maxLength={120}
+              maxLength={INPUT_LIMITS.GROUP_TITLE}
               disabled={templateBusy}
+              aria-required="true"
               value={templateName}
-              onChange={event => setTemplateName(event.target.value)}
+              error={visibleTemplateNameError || undefined}
+              onChange={event => {
+                setTemplateName(event.target.value);
+                if (!templateNameTouched) setTemplateNameTouched(true);
+              }}
+              onBlur={() => setTemplateNameTouched(true)}
             />
-          </label>
+          </div>
           {templateBusy && !templateGroups.length ? (
             <p role="status" className="text-xs text-neutral-500">Reading project groups and tasks…</p>
           ) : (
@@ -178,14 +231,18 @@ export function ProjectUtilities({ setupReady=true, project, canManage, lifecycl
             >
               Cancel
             </VibeButton>
-            <VibeButton
-              type="submit"
-              kind="primary"
-              size="small"
-              disabled={templateBusy || !templateName.trim() || !templateGroups.length}
-            >
-              {templateBusy ? 'Saving…' : 'Save starter template'}
-            </VibeButton>
+            <WorkspaceTooltip content={saveTemplateTip} disabled={!saveTemplateTip}>
+              <span className="inline-flex">
+                <VibeButton
+                  type="submit"
+                  kind="primary"
+                  size="small"
+                  disabled={saveTemplateDisabled}
+                >
+                  {templateBusy ? 'Saving…' : 'Save starter template'}
+                </VibeButton>
+              </span>
+            </WorkspaceTooltip>
           </div>
         </form>
       </Modal>

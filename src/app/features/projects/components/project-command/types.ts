@@ -5,6 +5,8 @@ import type { DepartmentBudgetBundle } from "../../../budget";
 
 export type PermanentProjectView = "tasks" | "reviews" | "members" | "budget" | "analytics" | "settings";
 
+export type ProjectTool = "reviews" | "activity" | "reports";
+
 export type OptionalProjectView =
   | "board"
   | "gantt"

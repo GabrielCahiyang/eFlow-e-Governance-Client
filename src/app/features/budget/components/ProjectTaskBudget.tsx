@@ -1,12 +1,17 @@
 import { readableUiError } from '../../../shared/userFacingError';
 import {TaskFundingCell,useProjectFlow,useReturnedBudget} from '../../project-setup';
-import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Trash2, Wallet, WalletCards } from 'lucide-react';
+import { BoundedTextarea } from '../../../components/ui/BoundedInput';
 import { FeatureDialog } from '../../../components/ui/FeatureDialog';
+import { FieldValidationTooltip } from '../../../components/ui/FieldValidationTooltip';
 import { Modal, ModalButton } from '../../../components/ui/Modal';
 import { MoneyInput } from '../../../components/ui/MoneyInput';
+import { WorkspaceTooltip } from '../../../components/ui/workspace/WorkspaceTooltip';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useOrgs } from '../../../hooks/useSupabaseData';
+import { exceedsCentavos, formatPeso } from '../../../shared/currency';
+import { INPUT_LIMITS, textLengthError } from '../../../shared/inputLimits';
 import { isAppointedOfficeHead } from '../../../shared/officeAuthority';
 import { useReviewedMutation } from '../../../shared/useReviewedMutation';
 import type { Task } from '../../tasks';
@@ -213,6 +218,13 @@ function SubtaskBudgetModalContent({
   const [reason, setReason] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [touched, setTouched] = useState<{ account?: boolean; amount?: boolean; reason?: boolean }>({});
+  const [accountActive, setAccountActive] = useState(false);
+  const accountRef = useRef<HTMLSelectElement | null>(null);
+  const accountId = useId();
+  const accountTipId = useId();
+  const amountId = useId();
+  const reasonId = useId();
   const attempt = useRef<{ key: string; terms: string } | undefined>(undefined);
   const inFlight = useRef(false);
 
@@ -254,6 +266,43 @@ function SubtaskBudgetModalContent({
   const sourceLocked = Boolean(context?.cap && (row?.hasHistory || row?.finished));
   const poolAvailable = lines.reduce((sum, line) => sum + line.available, 0) - (context?.cap?.amount ?? 0);
   const allocationReason = funding.allocation?.reason;
+  const hasAvailableLines = lines.some(line => line.available > 0);
+  const parsedCents = parsePesoCents(String(amount || ''));
+  const accountError = !selectedLine
+    ? 'Choose a task budget account.'
+    : sourceLocked && context?.cap?.allocationLineId && selectedLine.id !== context.cap.allocationLineId
+      ? 'Keep the same funding account because this subtask already has cash history or finished work.'
+      : '';
+  const visibleAccountError = touched.account ? accountError : '';
+  const amountOverMax = Number.isFinite(amount) && exceedsCentavos(amount, capMaximum);
+  const amountError =
+    parsedCents === null
+      ? 'Enter an amount greater than zero with up to two decimal places.'
+      : exceedsCentavos(amount, INPUT_LIMITS.MONEY_MAX_BUDGET)
+        ? `Amount cannot exceed ${formatPeso(INPUT_LIMITS.MONEY_MAX_BUDGET)}.`
+        : floorCents > 0 && parsedCents < floorCents
+          ? `Keep at least ${formatCents(floorCents)} to cover recorded spending on this subtask.`
+          : amountOverMax
+            ? `Enter a valid amount up to ${peso.format(capMaximum)}.`
+            : '';
+  const visibleAmountError = touched.amount || amountOverMax ? amountError : '';
+  const reasonError = textLengthError(reason, 'Allocation reason', {
+    required: true,
+    min: 5,
+    max: INPUT_LIMITS.FUNDING_REASON,
+  });
+  const visibleReasonError = touched.reason || reason.length > 0 ? reasonError : '';
+  const submitBlockedReason = !hasAvailableLines
+    ? 'All approved Task funds are committed. Free up funds on the parent Task first.'
+    : capHasActiveRequest
+      ? 'Settle, reject, or cancel the active cash request before changing this subtask cap.'
+      : accountError || amountError || reasonError;
+  const submitDisabled =
+    saving || capHasActiveRequest || !hasAvailableLines || Boolean(submitBlockedReason);
+  const cancelAllocationTip =
+    saving || safety.pending
+      ? 'Wait for the current update to finish.'
+      : 'Returns this subtask’s unused budget cap back to the parent task pool.';
 
   async function refreshAll() {
     await Promise.all([budget?.refresh(), funding.refresh()]);
@@ -261,29 +310,9 @@ function SubtaskBudgetModalContent({
 
   async function saveCap() {
     if (!canEdit || capHasActiveRequest || inFlight.current) return;
-    if (!selectedLine) {
-      setError('Choose a task budget account.');
-      return;
-    }
-    if (sourceLocked && context?.cap?.allocationLineId && selectedLine.id !== context.cap.allocationLineId) {
-      setError('Keep the same funding account because this subtask already has cash history or finished work.');
-      return;
-    }
-    const parsedCents = parsePesoCents(String(amount || ''));
-    if (parsedCents === null) {
-      setError('Enter an amount greater than zero with up to two decimal places.');
-      return;
-    }
-    if (floorCents > 0 && parsedCents < floorCents) {
-      setError(`Keep at least ${formatCents(floorCents)} to cover recorded spending on this subtask.`);
-      return;
-    }
-    if (parsedCents > toCents(capMaximum)) {
-      setError(`Enter a valid amount up to ${peso.format(capMaximum)}.`);
-      return;
-    }
-    if (!reason.trim()) {
-      setError('Enter an allocation reason.');
+    setTouched({ account: true, amount: true, reason: true });
+    if (submitBlockedReason) {
+      setError(submitBlockedReason);
       return;
     }
     const terms = JSON.stringify([lineId, amount, reason.trim()]);
@@ -350,9 +379,13 @@ function SubtaskBudgetModalContent({
               {peso.format(context.cap.amount)} allocated · {peso.format(context.cap.available)} available for cash requests
             </p>
             {canEdit && !capHasActiveRequest && (
-              <button type="button" disabled={saving || safety.pending} onClick={() => void removeCap()}>
-                <Trash2 size={14} aria-hidden="true" /> Cancel allocation
-              </button>
+              <WorkspaceTooltip content={cancelAllocationTip} disabled={!cancelAllocationTip}>
+                <span className="inline-flex">
+                  <button type="button" disabled={saving || safety.pending} onClick={() => void removeCap()}>
+                    <Trash2 size={14} aria-hidden="true" /> Cancel allocation
+                  </button>
+                </span>
+              </WorkspaceTooltip>
             )}
           </div>
         </>
@@ -372,19 +405,38 @@ function SubtaskBudgetModalContent({
               <strong>{peso.format(Math.max(0, poolAvailable))}</strong>
             </div>
           </header>
-          {!lines.some(line => line.available > 0) && <p>All approved Task funds are committed. Free up funds on the parent Task before allocating more.</p>}
-          <fieldset disabled={saving || capHasActiveRequest || !lines.some(line => line.available > 0)} className="space-y-3 border-0 p-0 m-0 min-w-0">
+          {!hasAvailableLines && <p>All approved Task funds are committed. Free up funds on the parent Task before allocating more.</p>}
+          <fieldset disabled={saving || capHasActiveRequest || !hasAvailableLines} className="space-y-3 border-0 p-0 m-0 min-w-0">
             <div className="bk-funding-row">
-              <label>
-                Account
+              <div className="grid gap-1.5 text-[13px]">
+                <label htmlFor={accountId} className="inline-flex items-center gap-1">
+                  Account{' '}
+                  <span className="text-[var(--eflow-negative-text)]" aria-hidden="true">
+                    *
+                  </span>
+                </label>
                 <select
+                  ref={accountRef}
+                  id={accountId}
                   aria-label="Subtask budget account"
+                  aria-required="true"
+                  aria-invalid={Boolean(visibleAccountError) || undefined}
+                  aria-describedby={accountActive && visibleAccountError ? accountTipId : undefined}
                   disabled={sourceLocked}
                   value={selectedLine ? lineId : ''}
+                  onFocus={() => setAccountActive(true)}
+                  onMouseEnter={() => setAccountActive(true)}
+                  onMouseLeave={() => setAccountActive(false)}
+                  onBlur={() => {
+                    setAccountActive(false);
+                    setTouched(prev => ({ ...prev, account: true }));
+                  }}
                   onChange={event => {
+                    setTouched(prev => ({ ...prev, account: true }));
                     setLineId(event.target.value);
                     setError('');
                   }}
+                  className={visibleAccountError ? 'eflow-field-invalid' : undefined}
                 >
                   <option value="">Choose account</option>
                   {lines.map(line => (
@@ -393,44 +445,89 @@ function SubtaskBudgetModalContent({
                     </option>
                   ))}
                 </select>
-                {selectedLine && (
-                  <small>
+                <FieldValidationTooltip
+                  id={accountTipId}
+                  anchorRef={accountRef}
+                  message={visibleAccountError}
+                  open={accountActive && Boolean(visibleAccountError)}
+                  tone="error"
+                />
+                {visibleAccountError && (
+                  <small role="alert" className="text-[var(--eflow-negative-text)]">
+                    {visibleAccountError}
+                  </small>
+                )}
+                {selectedLine && !visibleAccountError && (
+                  <small className="text-[11px] text-muted-foreground">
                     {floorCents > 0 ? `${formatCents(floorCents)} min for recorded spending · ` : ''}
                     {peso.format(capMaximum)} max from this account
                   </small>
                 )}
-              </label>
-              <label>
-                Amount
+              </div>
+              <div className="grid gap-1.5 text-[13px]">
+                <label htmlFor={amountId} className="inline-flex items-center gap-1">
+                  Amount{' '}
+                  <span className="text-[var(--eflow-negative-text)]" aria-hidden="true">
+                    *
+                  </span>
+                </label>
                 <MoneyInput
+                  id={amountId}
                   aria-label="Subtask budget amount"
+                  aria-required="true"
                   min={capMinimum}
-                  max={capMaximum}
+                  max={INPUT_LIMITS.MONEY_MAX_BUDGET}
+                  availableMax={capMaximum}
+                  showCeilingHint
+                  externalError={visibleAmountError || undefined}
                   step="0.01"
                   value={amount || ''}
+                  onBlur={() => setTouched(prev => ({ ...prev, amount: true }))}
                   onValueChange={raw => {
+                    setTouched(prev => ({ ...prev, amount: true }));
                     setAmount(Number(raw));
                     setError('');
                   }}
                 />
-              </label>
+              </div>
             </div>
             <div className="bk-task-accounts__totals">
               {context.cap && <div><span>Already allocated</span><strong>{peso.format(context.cap.amount)}</strong></div>}
               <div><span>{context.cap ? 'Updated cap' : 'Subtask budget'}</span><strong>{peso.format(Number.isFinite(amount) ? amount : 0)}</strong></div>
             </div>
-            <label>
-              Allocation reason
-              <textarea
+            <div className="grid gap-1.5 text-[13px]">
+              <label htmlFor={reasonId} className="inline-flex items-center gap-1">
+                Allocation reason{' '}
+                <span className="text-[var(--eflow-negative-text)]" aria-hidden="true">
+                  *
+                </span>
+              </label>
+              <BoundedTextarea
+                id={reasonId}
                 aria-label="Subtask allocation reason"
+                aria-required="true"
                 value={reason}
-                maxLength={3000}
-                onChange={event => setReason(event.target.value)}
+                maxLength={INPUT_LIMITS.FUNDING_REASON}
+                rows={3}
+                error={visibleReasonError || undefined}
+                placeholder="Explain why this subtask budget cap is needed (at least 5 characters)"
+                onBlur={() => setTouched(prev => ({ ...prev, reason: true }))}
+                onChange={event => {
+                  setTouched(prev => ({ ...prev, reason: true }));
+                  setReason(event.target.value);
+                  setError('');
+                }}
               />
-            </label>
-            <button type="button" className="bk-primary" onClick={() => void saveCap()}>
-              {saving ? 'Saving…' : context.cap ? 'Update subtask budget' : 'Allocate subtask budget'}
-            </button>
+            </div>
+            <div>
+              <WorkspaceTooltip content={saving ? '' : submitDisabled ? submitBlockedReason : ''} disabled={saving || !submitDisabled || !submitBlockedReason}>
+                <span className="inline-flex">
+                  <button type="button" className="bk-primary" disabled={submitDisabled} onClick={() => void saveCap()}>
+                    {saving ? 'Saving…' : context.cap ? 'Update subtask budget' : 'Allocate subtask budget'}
+                  </button>
+                </span>
+              </WorkspaceTooltip>
+            </div>
           </fieldset>
         </section>
       )}

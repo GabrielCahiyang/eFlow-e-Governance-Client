@@ -31,6 +31,12 @@ const administrativeDestinations: RoleNavItem[] = [
   { id: "migration", icon: <Folder size={16} />, label: "Data Tools" },
 ];
 
+const delegatedOfficeDestinations: RoleNavItem[] = [
+  { id: "budget", icon: <Report size={16} />, label: "Office Budget" },
+  { id: "team", icon: <UserMultiple size={16} />, label: "Analytics" },
+  { id: "intelligence", icon: <Report size={16} />, label: "Analytics" },
+];
+
 export function getRoleNavigation(role: string): RoleNavigation {
   try {
     return getCoreRoleNavigation(normalizeUserRole(role)) || { navItems: [], defaultSection: "unavailable" };
@@ -39,7 +45,7 @@ export function getRoleNavigation(role: string): RoleNavigation {
   }
 }
 
-/** Explicit account-support permissions can add destinations for operational roles. */
+/** Explicit account-support and delegated office permissions can add destinations for operational roles. */
 export function getRoleNavigationCandidates(role: string): RoleNavItem[] {
   const base = getRoleNavigation(role).navItems;
   let canonical;
@@ -47,8 +53,14 @@ export function getRoleNavigationCandidates(role: string): RoleNavItem[] {
   if (canonical === "admin") return [...personalDestinations(canonical), ...base];
   const existing = new Set(base.map(item => item.id));
   const overview:RoleNavItem[] = existing.has('dashboard')?[]:[{id:'dashboard',label:'Workspace Overview',icon:<Folder size={16}/> }];
+  const delegatedOfficeEntries = delegatedOfficeDestinations.filter(item => {
+    if (existing.has(item.id)) return false;
+    // Accounting Staff already exposes navigation.department_budgets via accounting_budgets.
+    if (canonical === "accounting_staff" && item.id === "budget") return false;
+    return true;
+  });
   const adminEntries = canonical === "accounting_staff" ? [] : administrativeDestinations.filter(item => !existing.has(item.id));
-  return [...personalDestinations(canonical), ...overview, ...base, ...adminEntries];
+  return [...personalDestinations(canonical), ...overview, ...base, ...delegatedOfficeEntries, ...adminEntries];
 }
 
 /** A Task Lead gains contextual destinations while actually leading visible work. */

@@ -1,7 +1,6 @@
 import { Settings } from "@carbon/icons-react";
 import { RolePageRouter, type RolePageSections } from "../../components/Layout/RolePageRouter";
 import { CouncilorPanel } from "./councilor";
-import { sessionPages, sessionDefaultPages } from "./session";
 import { committeePages, committeeDefaultPages } from "../../components/Legislative/CommitteeAffairsContent";
 import { ActiveMeasuresPipeline } from "./components/ActiveMeasuresPipeline";
 import { FirstReading } from "./components/FirstReading";
@@ -25,7 +24,6 @@ export const legislativePages: RolePageSections = {
     "Semantic Search": SemanticSearch,
     "Full Index": FullIndex,
   },
-  ...sessionPages,
   ...committeePages,
   councilor: {
     "Councilor Dashboard": CouncilorPanel,
@@ -34,7 +32,6 @@ export const legislativePages: RolePageSections = {
 
 export const legislativeDefaultPages: Record<string, string> = {
   legdash: "Active Measures Pipeline",
-  ...sessionDefaultPages,
   ...committeeDefaultPages,
   councilor: "Councilor Dashboard",
 };

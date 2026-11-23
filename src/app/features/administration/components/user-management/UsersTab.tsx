@@ -22,6 +22,7 @@ import { useAuth } from "../../../../contexts/AuthContext";
 import { Button } from "../../../../components/ui/button";
 import { FeedbackState } from "../../../../components/ui/FeedbackState";
 import { ActionMenu } from "../../../../components/ui/workspace";
+import { WorkspaceTooltip } from "../../../../components/ui/workspace/WorkspaceTooltip";
 import { DataTable, type Column, type DataTableViewState } from "../../../../components/ui/DataTable";
 import {
   AlertDialog,
@@ -635,15 +636,26 @@ export function UsersTab({
           )}
           <AlertDialogFooter>
             <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
-            <Button
-              type="button"
-              onClick={() => void handleDelete()}
+            <WorkspaceTooltip
+              content={
+                deleting
+                  ? ""
+                  : "Permanently deletes this account and removes login access. This action is irreversible."
+              }
               disabled={deleting}
-              variant="destructive"
-              pending={deleting}
             >
-              {deleting ? "Deleting…" : "Delete account"}
-            </Button>
+              <span className="inline-flex">
+                <Button
+                  type="button"
+                  onClick={() => void handleDelete()}
+                  disabled={deleting}
+                  variant="destructive"
+                  pending={deleting}
+                >
+                  {deleting ? "Deleting…" : "Delete account"}
+                </Button>
+              </span>
+            </WorkspaceTooltip>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

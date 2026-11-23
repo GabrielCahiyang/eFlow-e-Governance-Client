@@ -7,7 +7,7 @@ export function workRpcFailure(error:{code?:string;message:string}):WorkRequestF
  const code=error.code||'';
  if(code==='57014'||/canceling statement due to statement timeout/i.test(error.message))return new WorkRequestFailure('confirmed_failure','The database stopped this change because it took too long. The transaction was rolled back. Reload the latest work, then try again.');
  let kind:WorkRequestFailureKind='unknown_result';
- if(code==='40001')kind='stale_revision';
+ if(code==='40001'||code==='P0049'||/Work (changed|impact changed); reload and review/i.test(error.message))kind='stale_revision';
  else if(code==='42501')kind='revoked_authority';
  // Only explicit transaction rejection/rollback or missing RPC is a known
  // non-commit. Connection/server failures and untyped errors remain uncertain.

@@ -29,7 +29,6 @@ vi.mock('../../src/app/features/budget/services/workFinancialClearanceService',a
 vi.mock('../../src/app/features/subtasks/components/SubtaskDeadlineEditor',()=>({SubtaskDeadlineEditor:()=>null}));
 import {SubitemInspector} from '../../src/app/features/subtasks/components/SubitemInspector';
 import {SubtaskWorkDrawer} from '../../src/app/features/subtasks/components/SubtaskWorkDrawer';
-import {SubtaskWorkDrawerView} from '../../src/app/features/subtasks/components/LegacySubtaskWorkDrawer';
 const task:Task={id:'root',title:'Root work',orgId:'office',linkedProjectId:'project',teamMemberIds:['root-lead'],teamMemberNames:['Root Lead'],status:'todo',createdAt:1,updatedAt:1};
 const allow={allowed:true,reason_code:null} as const;
 const node=(id:string,parent:string|null,depth:number):WorkNode=>({id,task_id:'root',parent_subtask_id:parent,lead_id:'deep-lead',title:`Level ${depth}`,assigned_to_ids:['deep-worker'],depth,sibling_order:0,due_date:'2026-12-15',is_standalone:true,status:'todo',percent_complete:43,can_manage:false,can_appoint:false,can_order:false,can_work:true,can_review:false,capabilities:{execute:allow,create_child:allow,order_children:allow}});
@@ -53,16 +52,6 @@ let uninstall:(()=>void)|undefined;
 beforeEach(()=>{vi.clearAllMocks();api.actor='actor';api.read.mockImplementation(async(_root,id)=>record(id));api.tree.mockImplementation(async()=>tree());api.legacyRead.mockImplementation(async(id)=>record(id).subtask);api.clearance.mockImplementation(async(root,id)=>clearance(root,id));api.review.mockResolvedValue({canProposeProgress:false,canProposeCompletion:false,items:[]});sessionStorage.clear();});
 afterEach(()=>{cleanup();uninstall?.();uninstall=undefined;});
 describe('NW8.1 canonical Subtask Inspector',()=>{
- it('keeps the legacy execution form restricted to the subtask team as well',()=>{
-  api.actor='root-lead';
-  const current={...record('legacy').subtask,status:'in_progress' as const,leadId:'deep-lead',assignedToIds:['deep-worker']};
-  const props={current,parentTask:task,readOnly:false,canManageDeadline:true,reviewersById:{},reviewerLoading:false,submissions:[],progressUpdates:[],reload:vi.fn(),close:vi.fn()};
-  const view=render(<SubtaskWorkDrawerView {...props}/>);
-  expect(screen.queryByLabelText('Work update')).toBeNull();
-  expect(screen.getByText('Work updates belong to this subtask’s assigned Lead and contributors.')).toBeTruthy();
-  api.actor='deep-lead';view.rerender(<SubtaskWorkDrawerView {...props}/>);
-  expect(screen.getByLabelText('Work update')).toBeTruthy();
- });
  it('does not show execution controls to an unassigned Task Lead even with legacy server execute permission',async()=>{
   api.actor='root-lead';
   const data=tree([{...node('n1',null,1),status:'in_progress',started_at:'2026-11-18T00:00:00Z',capabilities:{execute:allow,submit:allow}}]);
@@ -288,8 +277,7 @@ describe('NW8.1 canonical Subtask Inspector',()=>{
   expect(screen.queryByRole('button',{name:'Reorder subtasks',exact:true})).toBeNull();
   expect(api.save).not.toHaveBeenCalled();
  });
- it('routes supported facade opens to the canonical Inspector and keeps excluded work legacy',async()=>{
-  const view=render(<SubtaskWorkDrawer parentTask={task} subtask={record('n8').subtask} controller={controller()} onClose={()=>{}}/>);await screen.findByRole('heading',{name:'Level 8'});expect(api.legacyRead).not.toHaveBeenCalled();
-  view.rerender(<SubtaskWorkDrawer parentTask={{...task,sourceCollaborationDraftId:'governed'}} subtask={record('legacy').subtask} onClose={()=>{}}/>);await screen.findByRole('heading',{name:'Stale root-only title'});expect(api.legacyRead).toHaveBeenCalledWith('legacy');expect(api.read).toHaveBeenCalledOnce();
+ it('routes facade opens directly to the canonical centered SubitemInspector with no legacy drawer fallback',async()=>{
+  render(<SubtaskWorkDrawer parentTask={task} subtask={record('n8').subtask} controller={controller()} onClose={()=>{}}/>);await screen.findByRole('heading',{name:'Level 8'});expect(api.legacyRead).not.toHaveBeenCalled();expect(api.read).toHaveBeenCalledOnce();
  });
 });

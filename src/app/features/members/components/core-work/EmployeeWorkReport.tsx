@@ -62,7 +62,8 @@ function EmployeeWorkReportTableSkeleton() {
 
 export function EmployeeWorkReport() {
   const { mine, loading, error, retry } = useMyTasks();
-  const { userProfile } = useAuth();
+  const { userProfile, can } = useAuth();
+  const canExport = typeof can === "function" ? can("reports.export") : true;
   const [statusFilter, setStatusFilter] = useState("all");
   const [period, setPeriod] = useState("30");
 
@@ -130,11 +131,13 @@ export function EmployeeWorkReport() {
         title="My Work Report"
         description="A personal summary of authorized tasks and progress."
         actions={
-          <ExportMenu
-            onCsv={() => doExport("csv")}
-            onPdf={() => doExport("pdf")}
-            disabled={loading || rows.length === 0 || !!error}
-          />
+          canExport ? (
+            <ExportMenu
+              onCsv={() => doExport("csv")}
+              onPdf={() => doExport("pdf")}
+              disabled={loading || rows.length === 0 || !!error}
+            />
+          ) : undefined
         }
       />
 

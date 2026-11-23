@@ -5,9 +5,11 @@ type IntentListener = (intent: NotificationNavigationIntent) => void;
 let pending: {intent:NotificationNavigationIntent;actorId?:string} | null = null;
 const listeners = new Set<IntentListener>();
 const storageKey=(actorId:string)=>`eflow.notification-intent.v1:${actorId}`;
-const kinds=new Set(['task','subtask','leading_task','personal_work','task_review','subtask_review','announcement','team_intelligence','project','proposal','collaboration','budget']);
-const fields=['notificationId','kind','taskId','projectId','proposalId','entityLabel','entityId','inspectorSection','financialRecordId','financialRecordType'] as const;
-const optionalFields=['taskId','projectId','proposalId','entityLabel','entityId','financialRecordId','financialRecordType'] as const;
+const kinds=new Set(['task','subtask','leading_task','personal_work','task_review','subtask_review','project_approval','project_completion_review','announcement','team_intelligence','project','membership_review','proposal','collaboration','conversation','budget']);
+const projectTabs=new Set(['tasks','reviews','members','budget','analytics','settings']);
+const proposalTabs=new Set(['overview','approvals','governance']);
+const fields=['notificationId','kind','taskId','projectId','proposalId','entityLabel','entityId','inspectorSection','financialRecordId','financialRecordType','conversationId','conversationMessageId','projectTab','proposalTab'] as const;
+const optionalFields=['taskId','projectId','proposalId','entityLabel','entityId','financialRecordId','financialRecordType','conversationId','conversationMessageId'] as const;
 function read(actorId:string):NotificationNavigationIntent|null {
   try{
     if(typeof window==='undefined')return null;
@@ -16,6 +18,8 @@ function read(actorId:string):NotificationNavigationIntent|null {
     if(value?.actorId!==actorId||!value.intent||typeof value.intent.notificationId!=='string'||!value.intent.notificationId||!kinds.has(value.intent.kind))return null;
     const intent:NotificationNavigationIntent={notificationId:value.intent.notificationId,kind:value.intent.kind};
     if(value.intent.inspectorSection!==undefined){if(!['work','review'].includes(value.intent.inspectorSection))return null;intent.inspectorSection=value.intent.inspectorSection;}
+    if(value.intent.projectTab!==undefined){if(!projectTabs.has(value.intent.projectTab))return null;intent.projectTab=value.intent.projectTab;}
+    if(value.intent.proposalTab!==undefined){if(!proposalTabs.has(value.intent.proposalTab))return null;intent.proposalTab=value.intent.proposalTab;}
     for(const field of optionalFields){const part=value.intent[field];if(part!==undefined){if(typeof part!=='string')return null;intent[field]=part;}}
     return Object.freeze(intent);
   }catch{return null;}

@@ -238,8 +238,8 @@ describe("notification navigation", () => {
       financialRecordType: "petty_cash_liquidation",
     }), "accounting_staff")).toMatchObject({
       section: "accounting_releases",
-      page: "Voucher & Cash Releases",
-      label: "Open cash releases",
+      page: "Settlements",
+      label: "Open accounting settlements",
       intent: { kind: "budget", financialRecordId: "liquidation-1" },
     });
   });

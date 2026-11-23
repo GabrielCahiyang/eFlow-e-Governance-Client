@@ -1,9 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { AlertTriangle, ShieldCheck, Trash2 } from "lucide-react";
+import { BoundedTextarea, BoundedTextInput } from "../../../components/ui/BoundedInput";
 import { Button } from "../../../components/ui/button";
 import { FeedbackState } from "../../../components/ui/FeedbackState";
+import { FieldValidationTooltip } from "../../../components/ui/FieldValidationTooltip";
 import { Modal } from "../../../components/ui/Modal";
+import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import { formatManilaDate } from "../../../shared/calendarDisplay";
+import { INPUT_LIMITS } from "../../../shared/inputLimits";
 import {
   executeProjectPurge,
   fetchProjectPurgePreview,
@@ -33,7 +37,16 @@ export function RetentionPurgeDialog({
   const [confirmTitle, setConfirmTitle] = useState("");
   const [reason, setReason] = useState("");
   const [earlyOverride, setEarlyOverride] = useState(false);
+  const [titleTouched, setTitleTouched] = useState(false);
+  const [reasonTouched, setReasonTouched] = useState(false);
+  const [overrideTouched, setOverrideTouched] = useState(false);
+  const [overrideTipOpen, setOverrideTipOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const titleInputId = useId();
+  const reasonInputId = useId();
+  const overrideInputId = useId();
+  const overrideTipId = useId();
+  const overrideAnchorRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -56,10 +69,12 @@ export function RetentionPurgeDialog({
     };
   }, [projectId, mode]);
 
+  const titleMaxLength = Math.max(INPUT_LIMITS.TITLE, preview?.projectTitle.length || 0);
   const titleMatches =
     Boolean(preview?.projectTitle) &&
     confirmTitle.trim().toLowerCase() === (preview?.projectTitle || "").trim().toLowerCase();
-  const reasonValid = reason.trim().length >= 5;
+  const trimmedReason = reason.trim();
+  const reasonValid = trimmedReason.length >= 5;
   const needsEarlyOverride = Boolean(preview && !preview.canPurgeNormally && preview.canPurgeWithEarlyOverride);
   const canExecute =
     Boolean(preview) &&
@@ -69,14 +84,53 @@ export function RetentionPurgeDialog({
     reasonValid &&
     (preview!.canPurgeNormally || (needsEarlyOverride && earlyOverride));
 
+  const rawTitleError = !confirmTitle.trim()
+    ? "Type the exact project title to confirm purge."
+    : !titleMatches
+      ? "Project title does not match. Enter the exact title shown above."
+      : "";
+  const visibleTitleError = titleTouched || confirmTitle.length > 0 ? rawTitleError : "";
+
+  const rawReasonError = !trimmedReason
+    ? "Disposition reason is required (minimum 5 characters)."
+    : !reasonValid
+      ? `Enter at least 5 characters (${5 - trimmedReason.length} more needed).`
+      : "";
+  const visibleReasonError = reasonTouched || reason.length > 0 ? rawReasonError : "";
+
+  const rawOverrideError =
+    needsEarlyOverride && !earlyOverride
+      ? "Confirm Admin Early Purge Override before purging ahead of the retention date."
+      : "";
+  const visibleOverrideError =
+    rawOverrideError && (overrideTouched || titleTouched || reasonTouched || confirmTitle.length > 0 || reason.length > 0)
+      ? rawOverrideError
+      : "";
+
+  const purgeDisabledReason = submitting
+    ? ""
+    : loading || !preview
+      ? "Waiting for purge impact preview to finish loading."
+      : !preview.canPurgeNormally && !preview.canPurgeWithEarlyOverride
+        ? "This archived project cannot be purged under current retention rules."
+        : rawOverrideError || rawTitleError || rawReasonError;
+  const purgeButtonTooltip = !canExecute
+    ? purgeDisabledReason
+    : needsEarlyOverride
+      ? "Permanently purges operational records and queued storage files ahead of retention expiry. Audit, accounting, and blockchain trails stay preserved; this cannot be undone."
+      : "Permanently purges operational records and queued storage files. Audit, accounting, and blockchain trails stay preserved; this cannot be undone.";
+
   const handlePurge = async () => {
+    setTitleTouched(true);
+    setReasonTouched(true);
+    if (needsEarlyOverride) setOverrideTouched(true);
     if (!canExecute || !preview) return;
     setSubmitting(true);
     setError("");
     try {
       const result = await executeProjectPurge(projectId, {
         confirm_title: confirmTitle.trim(),
-        reason: reason.trim(),
+        reason: trimmedReason,
         early_override: needsEarlyOverride && earlyOverride,
         public_mode: mode,
       });
@@ -104,19 +158,23 @@ export function RetentionPurgeDialog({
           <Button type="button" variant="outline" disabled={submitting} onClick={onClose}>
             Cancel
           </Button>
-          <Button
-            type="button"
-            variant="destructive"
-            disabled={!canExecute}
-            onClick={() => void handlePurge()}
-          >
-            <Trash2 size={14} aria-hidden="true" />
-            {submitting
-              ? "Purging…"
-              : needsEarlyOverride
-                ? "Confirm Early Purge"
-                : "Permanently Purge Project"}
-          </Button>
+          <WorkspaceTooltip content={purgeButtonTooltip} disabled={!purgeButtonTooltip}>
+            <span className="inline-flex">
+              <Button
+                type="button"
+                variant="destructive"
+                disabled={!canExecute}
+                onClick={() => void handlePurge()}
+              >
+                <Trash2 size={14} aria-hidden="true" />
+                {submitting
+                  ? "Purging…"
+                  : needsEarlyOverride
+                    ? "Confirm Early Purge"
+                    : "Permanently Purge Project"}
+              </Button>
+            </span>
+          </WorkspaceTooltip>
         </div>
       }
     >
@@ -231,47 +289,91 @@ export function RetentionPurgeDialog({
                   Retention period has not expired yet (expires{" "}
                   {preview.expiresAt ? formatManilaDate(preview.expiresAt, "later") : "later"}).
                 </p>
-                <label className="flex items-start gap-2 cursor-pointer">
+                <div
+                  className="flex items-start gap-2"
+                  onMouseEnter={() => setOverrideTipOpen(true)}
+                  onMouseLeave={() => setOverrideTipOpen(false)}
+                >
                   <input
+                    ref={overrideAnchorRef}
+                    id={overrideInputId}
                     type="checkbox"
                     disabled={submitting}
                     checked={earlyOverride}
-                    onChange={(e) => setEarlyOverride(e.target.checked)}
+                    aria-required
+                    aria-invalid={Boolean(visibleOverrideError) || undefined}
+                    aria-describedby={overrideTipOpen && rawOverrideError ? overrideTipId : undefined}
+                    onFocus={() => setOverrideTipOpen(true)}
+                    onBlur={() => {
+                      setOverrideTipOpen(false);
+                      setOverrideTouched(true);
+                    }}
+                    onChange={(e) => {
+                      setOverrideTouched(true);
+                      setEarlyOverride(e.target.checked);
+                    }}
                   />
-                  <span>
+                  <label htmlFor={overrideInputId} className="cursor-pointer">
                     Admin Early Purge Override — purge this sealed project ahead of its scheduled retention date
                     (audited as <code>admin_early_override</code>).
-                  </span>
-                </label>
+                    <span className="text-[var(--eflow-negative-text)]" aria-hidden="true"> *</span>
+                  </label>
+                  <FieldValidationTooltip
+                    id={overrideTipId}
+                    anchorRef={overrideAnchorRef}
+                    message={rawOverrideError}
+                    open={overrideTipOpen && Boolean(rawOverrideError)}
+                    tone="error"
+                  />
+                </div>
+                {visibleOverrideError && (
+                  <p className="m-0 text-[11.5px] font-medium text-[var(--eflow-negative-text)]">
+                    {visibleOverrideError}
+                  </p>
+                )}
               </div>
             )}
 
             <div className="space-y-3">
-              <label className="block text-xs font-medium">
-                Type exact project title to confirm: <strong>{preview.projectTitle}</strong>
-                <input
+              <div>
+                <label htmlFor={titleInputId} className="mb-1 block text-xs font-medium">
+                  Type exact project title to confirm: <strong>{preview.projectTitle}</strong>
+                  <span className="text-[var(--eflow-negative-text)]" aria-hidden="true"> *</span>
+                </label>
+                <BoundedTextInput
+                  id={titleInputId}
                   type="text"
-                  maxLength={200}
+                  maxLength={titleMaxLength}
                   disabled={submitting}
+                  aria-required
                   value={confirmTitle}
                   placeholder={preview.projectTitle}
+                  error={visibleTitleError || undefined}
+                  onBlur={() => setTitleTouched(true)}
                   onChange={(e) => setConfirmTitle(e.target.value)}
-                  className="mt-1 block w-full rounded-md border border-[var(--eflow-border)] bg-[var(--eflow-surface)] px-3 py-2 text-sm"
+                  className="block w-full rounded-md border border-[var(--eflow-border)] bg-[var(--eflow-surface)] px-3 py-2 text-sm"
                 />
-              </label>
+              </div>
 
-              <label className="block text-xs font-medium">
-                Disposition reason (required, recorded in permanent audit log)
-                <textarea
+              <div>
+                <label htmlFor={reasonInputId} className="mb-1 block text-xs font-medium">
+                  Disposition reason (minimum 5 characters, recorded in permanent audit log)
+                  <span className="text-[var(--eflow-negative-text)]" aria-hidden="true"> *</span>
+                </label>
+                <BoundedTextarea
+                  id={reasonInputId}
                   rows={2}
-                  maxLength={1000}
+                  maxLength={INPUT_LIMITS.REASON}
                   disabled={submitting}
+                  aria-required
                   value={reason}
                   placeholder="e.g. Retention period expired per COA schedule; blockchain proof verified on Polygon Amoy."
+                  error={visibleReasonError || undefined}
+                  onBlur={() => setReasonTouched(true)}
                   onChange={(e) => setReason(e.target.value)}
-                  className="mt-1 block w-full rounded-md border border-[var(--eflow-border)] bg-[var(--eflow-surface)] px-3 py-2 text-sm"
+                  className="block w-full rounded-md border border-[var(--eflow-border)] bg-[var(--eflow-surface)] px-3 py-2 text-sm"
                 />
-              </label>
+              </div>
             </div>
           </>
         )}

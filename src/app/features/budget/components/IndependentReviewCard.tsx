@@ -1,12 +1,16 @@
-import { useRef, useState } from 'react';
+import { useId, useRef, useState } from 'react';
 import { ShieldCheck, UserRoundCheck, RefreshCw } from 'lucide-react';
-import {DecisionModal} from '../../../components/ui/DecisionModal';
-import {useToast} from '../../../components/ui/Toast';
+import { BoundedTextarea } from '../../../components/ui/BoundedInput';
+import { DecisionModal } from '../../../components/ui/DecisionModal';
+import { FieldValidationTooltip } from '../../../components/ui/FieldValidationTooltip';
+import { useToast } from '../../../components/ui/Toast';
 import { Button } from '../../../components/ui/button';
+import { WorkspaceTooltip } from '../../../components/ui/workspace/WorkspaceTooltip';
 import { useExplicitDraft } from '../../../shared/useExplicitDraft';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useConfirmation } from '../../../components/ui/useConfirmation';
 import { formatManilaInstant } from '../../../shared/calendarDisplay';
+import { textLengthError } from '../../../shared/inputLimits';
 import { financialErrorMessage, financialFailureIsUncertain, financialWriteFeedback } from '../financialReceipts';
 import { approveStaffingEscalation, decideIndependentReview, getIndependentReview, routeIndependentReview, type IndependentReviewContext } from '../services/independentReviewService';
 import { fetchCashReturnClearance } from '../services/workFinancialClearanceService';
@@ -19,9 +23,16 @@ export function IndependentReviewCard({ id, version, returnedAmount, context, er
 }) {
   const { userProfile } = useAuth();
   const {toast}=useToast();
-  const [decision,setDecision]=useState<ReviewDecision|null>(null);
+  const [decision, setDecision] = useState<ReviewDecision | null>(null);
   const [reviewer, setReviewer] = useState(''), [reason, setReason] = useState('');
+  const [reviewerTouched, setReviewerTouched] = useState(false);
+  const [reviewerActive, setReviewerActive] = useState(false);
+  const [routingReasonTouched, setRoutingReasonTouched] = useState(false);
   const [busy, setBusy] = useState(false), [message, setMessage] = useState(''), [uncertain, setUncertain] = useState(false);
+  const reviewerRef = useRef<HTMLSelectElement | null>(null);
+  const reviewerId = useId();
+  const reviewerTipId = useId();
+  const routingReasonId = useId();
   const pending = useRef(false);
   const confirmation = useConfirmation();
   const draft = useExplicitDraft('Independent liquidation review', Boolean(reason.trim()), busy, () => { setReason(''); setReviewer(''); });
@@ -131,6 +142,56 @@ export function IndependentReviewCard({ id, version, returnedAmount, context, er
   const canTakeReview = canRoute && context.headAlertStatus === 'notified'
     && !(context.current && context.review?.status === 'pending')
     && context.candidates.some(candidate => candidate.appointment === 'Head' && candidate.id === userProfile?.id);
+
+  const reviewerError = canRoute && !reviewer ? 'Choose an independent leadership reviewer.' : '';
+  const visibleReviewerError = reviewerTouched ? reviewerError : '';
+  const routingReasonError = canRoute
+    ? textLengthError(reason, 'Routing reason', { required: true, min: 5, max: 2000 })
+    : '';
+  const visibleRoutingReasonError =
+    routingReasonTouched || reason.length > 0 ? routingReasonError : '';
+
+  const takeReviewDisabled = busy || uncertain || Boolean(reviewer || reason.trim());
+  const takeReviewTip = busy
+    ? ''
+    : uncertain
+      ? 'Verify the earlier review outcome before continuing.'
+      : Boolean(reviewer || reason.trim())
+        ? 'Clear the reviewer and routing reason fields to take this review yourself.'
+        : 'Assign this independent review directly to yourself as Office Head.';
+
+  const sendReviewDisabled = busy || uncertain || !reviewer || Boolean(routingReasonError);
+  const sendReviewTip = busy
+    ? ''
+    : uncertain
+      ? 'Verify the earlier review outcome before continuing.'
+      : !reviewer
+        ? 'Choose an independent leadership reviewer first.'
+        : routingReasonError || '';
+
+  const decideBlockedTip = busy
+    ? ''
+    : uncertain
+      ? 'Verify the earlier review outcome before continuing.'
+      : '';
+
+  const modalDisabled = uncertain || (decision === 'approve_escalation' ? !canApproveEscalation : !canDecide);
+  const modalDisabledReason = uncertain
+    ? 'Verify the earlier review outcome before recording another decision.'
+    : decision === 'approve_escalation' && !canApproveEscalation
+      ? 'This escalation is no longer awaiting your approval.'
+      : !canDecide
+        ? 'This review is no longer pending your decision.'
+        : '';
+  const modalWarningTooltip =
+    decision === 'approve_escalation' && canPostAsHead
+      ? 'Posts the settlement and accounting journal directly as Office Head.'
+      : decision === 'changes_requested'
+        ? 'Returns the package to the requester for corrections.'
+        : decision === 'rejected'
+          ? 'Formally rejects this liquidation package and notifies the requester.'
+          : '';
+
   return <section className={`mt-3 space-y-3 rounded-xl border p-4 text-sm ${showEscalation ? 'border-amber-300 bg-amber-50 text-amber-950' : 'border-primary/25 bg-primary/5'}`} aria-label="Independent liquidation review">
     {confirmation.dialog}
     {showEscalation ? <div role="status" aria-label={settlementBlocked ? 'Settlement blocked' : 'Settlement escalation'}>
@@ -147,15 +208,141 @@ export function IndependentReviewCard({ id, version, returnedAmount, context, er
       <div><dt className="text-muted-foreground">Routing reason</dt><dd className="break-words">{context.review.route_reason}</dd></div>
       {context.review.decision_reason && <div><dt className="text-muted-foreground">Review note</dt><dd className="break-words">{context.review.decision_reason}</dd></div>}
     </dl></details>}
-    {canApproveEscalation && <Button disabled={busy || uncertain} onClick={() => { setMessage(''); setDecision('approve_escalation'); }}><UserRoundCheck size={15} /> {canPostAsHead ? 'Approve & post settlement' : 'Approve'}</Button>}
+    {canApproveEscalation && (
+      <WorkspaceTooltip
+        content={decideBlockedTip || (canPostAsHead ? 'Settles this cash advance and posts the journal as Office Head.' : '')}
+        disabled={!(decideBlockedTip || canPostAsHead)}
+      >
+        <span className="inline-flex">
+          <Button disabled={busy || uncertain} onClick={() => { setMessage(''); setDecision('approve_escalation'); }}><UserRoundCheck size={15} /> {canPostAsHead ? 'Approve & post settlement' : 'Approve'}</Button>
+        </span>
+      </WorkspaceTooltip>
+    )}
     {!settlementBlocked && !canApproveEscalation && !approved && context.escalationRequired && <p role="status" className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-amber-950">Escalation required: {context.candidates.length === 0 ? 'no independent appointed reviewer is available. ' : ''}{context.eligibleSettlers === 0 ? 'No separate eligible Accounting Officer is available to settle and post. ' : ''}Ask your administrator to resolve the appointment or Accounting assignment. No self-approval or delegated posting is allowed.</p>}
     {(canDecide || canRoute) && <>
-      {canTakeReview && <Button disabled={busy || uncertain || Boolean(reviewer || reason.trim())} onClick={() => void run(undefined, true)}>Take review</Button>}
-      {canRoute && <label className="block">Independent reviewer<select className="mt-1 w-full rounded-lg border border-border bg-background p-2" value={reviewer} disabled={busy || uncertain} onChange={event => setReviewer(event.target.value)}><option value="">Choose leadership reviewer</option>{context.candidates.map(candidate => <option key={candidate.id} value={candidate.id}>{candidate.name} · {candidate.appointment}</option>)}</select></label>}
-      {canRoute && <label className="block">Routing reason<textarea rows={2} maxLength={2000} className="mt-1 w-full rounded-lg border border-border bg-background p-2" value={reason} disabled={busy || uncertain} onChange={event => setReason(event.target.value)} /></label>}
-      <div className="flex flex-wrap gap-2">{canDecide ? <><Button disabled={busy || uncertain} onClick={() => {setMessage('');setDecision('approved');}}><UserRoundCheck size={15} /> Approve review</Button><Button variant="outline" className="border-amber-300 text-amber-800 bg-amber-50" disabled={busy || uncertain} onClick={() => {setMessage('');setDecision('changes_requested');}}>Request changes</Button><Button variant="outline" className="border-amber-300 text-amber-800 bg-amber-50" disabled={busy || uncertain} onClick={() => {setMessage('');setDecision('rejected');}}>Reject package</Button></> : <Button disabled={busy || uncertain || !reviewer || !reason.trim()} onClick={() => void run()}>Send for independent review</Button>}</div>
+      {canTakeReview && (
+        <WorkspaceTooltip content={takeReviewTip} disabled={!takeReviewTip}>
+          <span className="inline-flex">
+            <Button disabled={takeReviewDisabled} onClick={() => void run(undefined, true)}>Take review</Button>
+          </span>
+        </WorkspaceTooltip>
+      )}
+      {canRoute && (
+        <div className="block">
+          <label htmlFor={reviewerId} className="block font-medium">
+            Independent reviewer{' '}
+            <span className="text-[var(--eflow-negative-text)]" aria-hidden="true">
+              *
+            </span>
+          </label>
+          <select
+            ref={reviewerRef}
+            id={reviewerId}
+            aria-required="true"
+            aria-invalid={Boolean(visibleReviewerError) || undefined}
+            aria-describedby={reviewerActive && visibleReviewerError ? reviewerTipId : undefined}
+            className={`mt-1 w-full rounded-lg border bg-background p-2 ${visibleReviewerError ? 'eflow-field-invalid border-destructive' : 'border-border'}`}
+            value={reviewer}
+            disabled={busy || uncertain}
+            onFocus={() => setReviewerActive(true)}
+            onMouseEnter={() => setReviewerActive(true)}
+            onMouseLeave={() => setReviewerActive(false)}
+            onBlur={() => {
+              setReviewerActive(false);
+              setReviewerTouched(true);
+            }}
+            onChange={event => {
+              setReviewerTouched(true);
+              setReviewer(event.target.value);
+            }}
+          >
+            <option value="">Choose leadership reviewer</option>
+            {context.candidates.map(candidate => <option key={candidate.id} value={candidate.id}>{candidate.name} · {candidate.appointment}</option>)}
+          </select>
+          <FieldValidationTooltip
+            id={reviewerTipId}
+            anchorRef={reviewerRef}
+            message={visibleReviewerError}
+            open={reviewerActive && Boolean(visibleReviewerError)}
+            tone="error"
+          />
+          {visibleReviewerError && <p role="alert" className="mt-1 text-xs text-destructive">{visibleReviewerError}</p>}
+        </div>
+      )}
+      {canRoute && (
+        <div className="block">
+          <label htmlFor={routingReasonId} className="block font-medium">
+            Routing reason{' '}
+            <span className="text-[var(--eflow-negative-text)]" aria-hidden="true">
+              *
+            </span>
+          </label>
+          <BoundedTextarea
+            id={routingReasonId}
+            aria-required="true"
+            rows={2}
+            maxLength={2000}
+            className="mt-1 w-full rounded-lg border border-border bg-background p-2"
+            value={reason}
+            error={visibleRoutingReasonError || undefined}
+            disabled={busy || uncertain}
+            placeholder="Explain why this package is being routed for independent review (at least 5 characters)"
+            onBlur={() => setRoutingReasonTouched(true)}
+            onChange={event => {
+              setRoutingReasonTouched(true);
+              setReason(event.target.value);
+            }}
+          />
+        </div>
+      )}
+      <div className="flex flex-wrap gap-2">
+        {canDecide ? (
+          <>
+            <WorkspaceTooltip content={decideBlockedTip} disabled={!decideBlockedTip}>
+              <span className="inline-flex">
+                <Button disabled={busy || uncertain} onClick={() => { setMessage(''); setDecision('approved'); }}><UserRoundCheck size={15} /> Approve review</Button>
+              </span>
+            </WorkspaceTooltip>
+            <WorkspaceTooltip content={decideBlockedTip || 'Returns this liquidation package to the requester for corrections.'}>
+              <span className="inline-flex">
+                <Button variant="outline" className="border-amber-300 text-amber-800 bg-amber-50" disabled={busy || uncertain} onClick={() => { setMessage(''); setDecision('changes_requested'); }}>Request changes</Button>
+              </span>
+            </WorkspaceTooltip>
+            <WorkspaceTooltip content={decideBlockedTip || 'Formally rejects this liquidation package and notifies the requester.'}>
+              <span className="inline-flex">
+                <Button variant="outline" className="border-amber-300 text-amber-800 bg-amber-50" disabled={busy || uncertain} onClick={() => { setMessage(''); setDecision('rejected'); }}>Reject package</Button>
+              </span>
+            </WorkspaceTooltip>
+          </>
+        ) : (
+          <WorkspaceTooltip content={sendReviewTip} disabled={!sendReviewTip}>
+            <span className="inline-flex">
+              <Button disabled={sendReviewDisabled} onClick={() => void run()}>Send for independent review</Button>
+            </span>
+          </WorkspaceTooltip>
+        )}
+      </div>
     </>}
-    {decision && <DecisionModal title={decision==='approve_escalation'?(canPostAsHead?'Approve and post this settlement?':'Approve this liquidation review?'):decision==='approved'?'Approve this independent review?':decision==='rejected'?'Reject this package?':'Request changes to this package?'} description={decision==='approve_escalation'?(canPostAsHead?'No independent Accounting Officer is available. Your approval settles the cash advance and posts the journal.':'This records the Head’s approval. A separate Accounting Officer must settle and post.'):'Are you sure? This records the independent review. Cash settlement and journal posting remain separate Accounting actions.'} decision={decision==='approved'||decision==='approve_escalation'?'approve':decision==='rejected'?'reject':'changes'} reason={reason} onReasonChange={setReason} reasonLabel="Review findings" maxReasonLength={2000} requireReason busy={busy} disabled={uncertain || (decision==='approve_escalation' ? !canApproveEscalation : !canDecide)} error={message} onCancel={()=>{if(!busy){setDecision(null);setMessage('');}}} onConfirm={()=>void run(decision)}/>}
+    {decision && (
+      <DecisionModal
+        title={decision === 'approve_escalation' ? (canPostAsHead ? 'Approve and post this settlement?' : 'Approve this liquidation review?') : decision === 'approved' ? 'Approve this independent review?' : decision === 'rejected' ? 'Reject this package?' : 'Request changes to this package?'}
+        description={decision === 'approve_escalation' ? (canPostAsHead ? 'No independent Accounting Officer is available. Your approval settles the cash advance and posts the journal.' : 'This records the Head’s approval. A separate Accounting Officer must settle and post.') : 'Are you sure? This records the independent review. Cash settlement and journal posting remain separate Accounting actions.'}
+        decision={decision === 'approved' || decision === 'approve_escalation' ? 'approve' : decision === 'rejected' ? 'reject' : 'changes'}
+        reason={reason}
+        onReasonChange={setReason}
+        reasonLabel="Review findings"
+        minReasonLength={5}
+        maxReasonLength={2000}
+        requireReason
+        busy={busy}
+        disabled={modalDisabled}
+        disabledReason={modalDisabledReason}
+        warningTooltip={modalWarningTooltip}
+        error={message}
+        onCancel={() => { if (!busy) { setDecision(null); setMessage(''); } }}
+        onConfirm={() => void run(decision)}
+      />
+    )}
     {!decision && message && <p role="status" className="break-words">{message}</p>}
     {uncertain && <Button variant="outline" disabled={busy} onClick={() => void verify()}><RefreshCw size={14} /> Verify review outcome</Button>}
   </section>;

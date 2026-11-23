@@ -3,6 +3,7 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 const state = vi.hoisted(() => ({
   role: "head",
+  supervision: true,
   intel: true,
   hook: vi.fn(),
   notes: vi.fn(),
@@ -11,9 +12,9 @@ const state = vi.hoisted(() => ({
 vi.mock("../../src/app/contexts/AuthContext", () => ({
   useAuth: () => ({
     user: { id: "head" },
-    userProfile: { id: "head", role: state.role, org_id: "office" },
+    userProfile: { id: "head", role: state.role, org_id: "office", is_active: true },
     can: (key: string) =>
-      key === "navigation.team_supervision" ||
+      (state.supervision && key === "navigation.team_supervision") ||
       key === "navigation.reports" ||
       (state.intel && key === "navigation.team_intelligence"),
   }),
@@ -84,6 +85,7 @@ vi.mock(
 import { EmployeeAnalyticsWorkspace } from "../../src/app/features/team-management/components/analytics/EmployeeAnalyticsWorkspace";
 beforeEach(() => {
   state.role = "head";
+  state.supervision = true;
   state.intel = true;
   vi.clearAllMocks();
   state.hook.mockReturnValue({
@@ -170,9 +172,29 @@ it("renders focused summary without the analytics tab bar in home mode", () => {
   expect(screen.queryByRole("button", { name: "Deep Analysis", exact: true })).toBeNull();
   expect(screen.getByRole("button", { name: /Open full analytics/ })).toBeTruthy();
 });
-it("rejects Member entry before loading department analytics", () => {
+it("rejects Member without analytics permissions and Admin before loading department analytics", () => {
   state.role = "member";
+  state.supervision = false;
+  state.intel = false;
+  const view = render(<EmployeeAnalyticsWorkspace />);
+  expect(screen.getByRole("alert").textContent).toContain("not available");
+  expect(state.hook).not.toHaveBeenCalled();
+
+  view.unmount();
+  state.role = "admin";
+  state.supervision = true;
+  state.intel = true;
   render(<EmployeeAnalyticsWorkspace />);
   expect(screen.getByRole("alert").textContent).toContain("not available");
   expect(state.hook).not.toHaveBeenCalled();
+});
+
+it("allows a Member or custom role granted team analytics permissions to open Employee Analytics", () => {
+  state.role = "member";
+  state.supervision = true;
+  state.intel = true;
+  render(<EmployeeAnalyticsWorkspace />);
+  expect(screen.queryByRole("alert")).toBeNull();
+  expect(state.hook).toHaveBeenCalled();
+  expect(screen.getByRole("button", { name: "Deep Analysis", exact: true })).toBeTruthy();
 });

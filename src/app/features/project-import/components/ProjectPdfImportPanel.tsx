@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { FileUp,LoaderCircle,CheckCircle2,Building2,Sparkles,ArrowRight,AlertTriangle,Play,Trash2,ListTodo,Wallet } from 'lucide-react';
 import { Modal,ModalButton } from '../../../components/ui/Modal';
 import { DateInput } from '../../../components/ui/DateInput';
+import { WorkspaceTooltip } from '../../../components/ui/workspace/WorkspaceTooltip';
 import { getPhilippineCalendarDate,scheduledDateError } from '../../../shared/calendarDates';
 import { useNavigationBlocker } from '../../../shared/navigationGuard';
 import { ProposalPdfForm, type PdfEnrichmentProjectContext, type ProposalImportOptions } from '../../proposal-import';
@@ -12,7 +13,8 @@ import '../projectPdfImport.css';
 
 export function ProjectPdfImportPanel({projectId,projectTitle,startDate,projectContext,projectFunding,onClose,onImported,onOffices,embedded=false,onBusyChange}:{projectId:string;projectTitle:string;startDate?:string;projectContext?:{title?:string;description?:string;scope?:string};projectFunding?:{fundingNotRequired:boolean;total:number;unallocated:number;funds:Array<{id:string;name:string;fiscal_year:number;amount:number;available:number}>};onClose?:()=>void;onImported?:(result:ProjectImportResult)=>void;onOffices?:()=>void;embedded?:boolean;onBusyChange?:(busy:boolean)=>void}){
  const today=getPhilippineCalendarDate();
- const [anchor,setAnchor]=useState(startDate&&startDate>=today?startDate:today),[addOffices,setAddOffices]=useState(false),[autoAssign,setAutoAssign]=useState(true),[localError,setLocalError]=useState('');
+ const scheduleId=useId();
+ const [anchor,setAnchor]=useState(startDate&&startDate>=today?startDate:today),[anchorInvalid,setAnchorInvalid]=useState(false),[anchorTouched,setAnchorTouched]=useState(false),[addOffices,setAddOffices]=useState(false),[autoAssign,setAutoAssign]=useState(true),[localError,setLocalError]=useState('');
  const [addBudget,setAddBudget]=useState(true),[addSubtasks,setAddSubtasks]=useState(true);
  const enrichmentContext:PdfEnrichmentProjectContext|undefined=projectContext||projectFunding?{
   title:projectContext?.title??projectTitle,
@@ -24,20 +26,44 @@ export function ProjectPdfImportPanel({projectId,projectTitle,startDate,projectC
  const activeFunding=flow.projectContext?.authorizedBudget??enrichmentContext?.authorizedBudget;
  const budgetForbidden=!!activeFunding&&(activeFunding.fundingNotRequired||activeFunding.totalAvailable<=0);
  const effectiveAddBudget=budgetForbidden?false:addBudget;
- const budgetDisabledReason=activeFunding?.fundingNotRequired?'Disabled: Head selected No funding required in Step 03 Funding.':budgetForbidden?'Disabled: no unallocated project funding left in Step 03 Funding.':'';
+ const budgetDisabledReason=activeFunding?.fundingNotRequired?'Disabled: Head selected No funding required in Step 04 Funding.':budgetForbidden?'Disabled: no unallocated project funding left in Step 04 Funding.':'';
  const review=state?.stage==='review_offices'&&!state.officesReviewed;
+ const anchorError=anchorInvalid
+  ?'Enter a valid schedule start date in MM/DD/YYYY format.'
+  :!anchor
+   ?'Select a schedule start date before importing.'
+   :scheduledDateError(anchor,{earliest:today,label:'Schedule start'});
+ const visibleAnchorError=anchorInvalid||anchorTouched||Boolean(anchor)?anchorError:'';
+ const choosePdfDisabled=flow.busy||Boolean(anchorError);
+ const choosePdfTip=flow.busy?'':anchorError;
  useEffect(()=>{onBusyChange?.(flow.busy);},[flow.busy,onBusyChange]);
  useNavigationBlocker({label:'PDF import is processing',dirty:false,pending:flow.busy,pendingCheck:()=>flow.busy,onDiscard:()=>{}});
  const close=()=>{if(!flow.busy)onClose?.();};
- const upload=(file:File)=>{const issue=scheduledDateError(anchor,{label:'Schedule start'});if(issue){setLocalError(issue);return;}setLocalError('');void flow.upload(file,anchor,addOffices,autoAssign,{addBudget:effectiveAddBudget,addSubtasks});};
- const schedule = <label>Schedule starts<DateInput aria-label="PDF schedule starts" min={today} value={anchor} onChange={event=>setAnchor(event.target.value)}/><small>“Month 1” starts on this date; the project timeline adjusts automatically to fit all tasks and subtasks.</small></label>;
+ const upload=(file:File)=>{setAnchorTouched(true);if(anchorError){setLocalError(anchorError);return;}setLocalError('');void flow.upload(file,anchor,addOffices,autoAssign,{addBudget:effectiveAddBudget,addSubtasks});};
+ const schedule = <div className="grid gap-1">
+  <label htmlFor={scheduleId}>Schedule starts <span className="text-[var(--eflow-negative-text)]" aria-hidden="true">*</span></label>
+  <DateInput
+   id={scheduleId}
+   aria-label="PDF schedule starts"
+   aria-required="true"
+   min={today}
+   value={anchor}
+   hasError={Boolean(visibleAnchorError)}
+   errorMessage={visibleAnchorError||undefined}
+   onInvalidTextChange={setAnchorInvalid}
+   onBlur={()=>setAnchorTouched(true)}
+   onChange={event=>{setAnchor(event.target.value);setAnchorTouched(true);if(localError)setLocalError('');}}
+  />
+  {visibleAnchorError&&<div className="eflow-bounded-meta"><span className="eflow-bounded-meta__hint" data-tone="error" role="alert">{visibleAnchorError}</span></div>}
+  <small>“Month 1” starts on this date; the project timeline adjusts automatically to fit all tasks and subtasks.</small>
+ </div>;
  const changeOptions = (options:ProposalImportOptions)=>{
   setAddBudget(budgetForbidden?false:options.addBudget);
   setAddSubtasks(options.addSubtasks);
   setAutoAssign(options.assignPeople);
  };
  const content = <section className={embedded?'project-pdf-import pf-task-draft':'project-pdf-import'} aria-label="Import PDF into project" aria-busy={flow.busy}>
-   {embedded&&<header><h2>Import AI PDF</h2><p>Use a proposal PDF to build the task table for {projectTitle}, grounded in Details, Scope, and Head-authorized Funding.</p></header>}
+   {embedded&&<header><h2>Import AI PDF</h2><p>Use a proposal PDF to build the task table for {projectTitle}, grounded in Details, Scope, Dates, and Funding. AI automatically pulls from all active members of your office — no manual Add people step is needed.</p></header>}
    {!state&&!flow.result&&activeFunding&&<p className="pf-starter-hint" role="note">{activeFunding.fundingNotRequired?'Project funding is set to No funding required — AI will not allocate task budgets.':`Head-authorized project funding ceiling: ₱${activeFunding.totalAvailable.toLocaleString('en-US',{minimumFractionDigits:2})} available. AI works strictly within this budget.`}</p>}
    {flow.loading?<p role="status"><LoaderCircle className="project-pdf-import__spin" size={20}/>Checking saved imports…</p>:!state&&!flow.result?embedded?<div className="space-y-4">
     <div className="project-pdf-import__controls">{schedule}</div>
@@ -45,14 +71,20 @@ export function ProjectPdfImportPanel({projectId,projectTitle,startDate,projectC
      options={{addTasks:true,addBudget:effectiveAddBudget,addSubtasks,assignPeople:autoAssign}}
      onOptionsChange={changeOptions}
      onStart={upload}
-     disabled={flow.busy||!anchor}
+     disabled={flow.busy||Boolean(anchorError)}
+     disabledReason={!flow.busy&&anchorError?anchorError:''}
      budgetDisabledReason={budgetDisabledReason}
      hint="Tasks are added to this project. You can review them in the Main table."
     />
    </div>:<>
     <div className="pdf-import-intro"><span><FileUp size={24}/></span><div><h3>From PDF to work plan</h3><p>Import the source groups and tasks. Choose the extra details to include.</p></div></div>
     <div className="project-pdf-import__controls">{schedule}
-     <label className="project-pdf-import__upload"><FileUp size={24}/><span><strong>Choose PDF</strong><small>Up to 20 MB</small></span><input aria-label="Import project PDF" type="file" accept=".pdf,application/pdf" disabled={flow.busy||!anchor} onChange={event=>{const file=event.target.files?.[0];event.target.value='';if(file)upload(file);}}/></label></div>
+     <WorkspaceTooltip content={choosePdfTip} disabled={!choosePdfTip}>
+      <span className="inline-flex">
+       <label className="project-pdf-import__upload"><FileUp size={24}/><span><strong>Choose PDF</strong><small>Up to 20 MB</small></span><input aria-label="Import project PDF" type="file" accept=".pdf,application/pdf" disabled={choosePdfDisabled} onChange={event=>{const file=event.target.files?.[0];event.target.value='';if(file)upload(file);}}/></label>
+      </span>
+     </WorkspaceTooltip>
+    </div>
     <div className="pdf-import-options"><label><input type="checkbox" checked={autoAssign} onChange={event=>setAutoAssign(event.target.checked)}/><Sparkles size={19}/><span><strong>Choose people during import</strong><small>eFlow uses skills and workload to assign eligible office members to imported tasks where it can.</small></span></label>
      <label><input type="checkbox" checked={addSubtasks} onChange={event=>setAddSubtasks(event.target.checked)}/><ListTodo size={19}/><span><strong>Add subtasks</strong><small>Include source steps and practical preparation.</small></span></label>
      <label><input type="checkbox" disabled={budgetForbidden} checked={effectiveAddBudget} onChange={event=>setAddBudget(event.target.checked)}/><Wallet size={19}/><span><strong>Add task budgets</strong><small>{budgetDisabledReason||'Work strictly within the Head-authorized project budget.'}</small></span></label>
@@ -63,7 +95,7 @@ export function ProjectPdfImportPanel({projectId,projectTitle,startDate,projectC
     {!!state.events.length&&<ol className="pdf-import-activity" aria-label="Import activity">{state.events.slice(-8).map((text,index,list)=><li key={text} className={flow.busy&&index===list.length-1?'is-current':''}>{flow.busy&&index===list.length-1?<LoaderCircle size={18} className="project-pdf-import__spin"/>:<CheckCircle2 size={18}/>}<span>{text}</span></li>)}</ol>}
     {flow.busy&&<div className="pdf-import-current" role="status"><Sparkles size={18}/><span>{flow.message||'Preparing your import…'}</span><i/></div>}
     {review&&!flow.busy&&state.draft&&<PdfOfficeReview offices={state.draft.offices} clarification={state.extraction?.clarification||[]} onConfirm={flow.confirmOffices}/>}
-    {!flow.busy&&!review&&<div className="pdf-import-resume"><p>{state.events.length?'Continue from your last saved step.':'Your PDF is saved and ready to process.'}</p><ModalButton variant="primary" onClick={()=>void flow.resume()}><Play size={16}/> Resume import</ModalButton><ModalButton onClick={()=>{void flow.discard().catch(reason=>setLocalError((reason as Error).message));}}><Trash2 size={16}/> Discard saved draft</ModalButton>
+    {!flow.busy&&!review&&<div className="pdf-import-resume"><p>{state.events.length?'Continue from your last saved step.':'Your PDF is saved and ready to process.'}</p><ModalButton variant="primary" onClick={()=>void flow.resume()}><Play size={16}/> Resume import</ModalButton><WorkspaceTooltip content="Permanently deletes this saved PDF import draft and its progress. This cannot be undone."><span className="inline-flex"><ModalButton onClick={()=>{void flow.discard().catch(reason=>setLocalError((reason as Error).message));}}><Trash2 size={16}/> Discard saved draft</ModalButton></span></WorkspaceTooltip>
      {!state.sourceText&&<label className="pdf-source-restore">Restore PDF if needed<input type="file" accept=".pdf,application/pdf" onChange={event=>{const file=event.target.files?.[0];if(file)upload(file);}}/></label>}</div>}
    </>}
    {!flow.result&&(flow.error||localError)&&<div role="alert"><AlertTriangle size={18}/><span>{flow.error||localError}</span><small>Your saved import is kept. Resume retries safely without adding work twice.</small></div>}

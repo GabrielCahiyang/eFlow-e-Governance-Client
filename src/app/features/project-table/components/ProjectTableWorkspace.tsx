@@ -12,7 +12,7 @@ import { CreateWorkDialog } from './CreateWorkDialog';
 
 import { SubtaskWorkDrawer,fetchSubtasksForTasks,type Subtask } from '../../subtasks';
 
-import { isHeadWorkspaceRole } from '../../../shared/roles';
+import { isAdminRole, isHeadWorkspaceRole } from '../../../shared/roles';
 
 import type { UserProfile,Organization } from '../../../types';
 
@@ -45,7 +45,7 @@ export function ProjectTableWorkspace({data,profiles,orgs,canManage,planningOnly
  const ownOffice=officeState.offices.find(o=>o.office_id===officeId);
  const canStaff=canStaffProjectOffice(ownOffice,userProfile,orgs)&&!['completed','archived'].includes(data.project.status);
 
- const editable=canManage&&(planningOnly||isHeadWorkspaceRole(userProfile?.role))&&data.project.orgId===officeId&&!['completed','archived'].includes(data.project.status);
+ const editable=canManage&&!isAdminRole(userProfile?.role)&&data.project.orgId===officeId&&!['completed','archived'].includes(data.project.status);
 
  const {groups,loading,error,refresh}=useProjectGroups(data.project.id);
 
@@ -83,7 +83,7 @@ export function ProjectTableWorkspace({data,profiles,orgs,canManage,planningOnly
 
  const columns=PROJECT_COLUMNS.filter(c=>!hidden.includes(c.id)).map(c=>c.id);
 
- const canSeeUnscheduledTasks=editable||canStaff||canEditProjectWork||isHeadWorkspaceRole(userProfile?.role)||(Boolean(userId)&&data.project.projectLeadId===userId);
+ const canSeeUnscheduledTasks=editable||canStaff||canEditProjectWork||isHeadWorkspaceRole(userProfile?.role)||userProfile?.role==='accounting_staff'||(Boolean(userId)&&data.project.projectLeadId===userId);
  const tasks=useMemo(()=>visibleProjectTasks(data.tasks,query,status,owner,sort).filter(t=>!sharedFilters?.office||t.orgId===sharedFilters.office).filter(t=>matchesProjectDateRange(t,sharedFilters||{})).filter(t=>canSeeUnscheduledTasks||['completed','cancelled','for_review'].includes(t.status)||Boolean((t.deadline||t.dueDate||'').trim())),[data.tasks,query,status,owner,sort,sharedFilters?.office,sharedFilters?.dateFrom,sharedFilters?.dateTo,canSeeUnscheduledTasks]);
  const undatedActiveTaskCount=useMemo(()=>data.tasks.filter(t=>!['completed','cancelled','for_review'].includes(t.status)&&!t.archivedAt&&!(t.deadline||t.dueDate||'').trim()).length,[data.tasks]);
  const shownGroups=useMemo(()=>visibleProjectGroups(groups,data.tasks),[groups,data.tasks]);

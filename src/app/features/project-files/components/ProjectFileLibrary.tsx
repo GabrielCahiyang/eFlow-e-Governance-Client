@@ -1,6 +1,7 @@
 import { readableUiError } from '../../../shared/userFacingError';
 import { formatManilaDate } from '../../../shared/calendarDisplay';
 import { EmptyState } from '../../../components/ui/EmptyState';
+import { WorkspaceTooltip } from '../../../components/ui/workspace/WorkspaceTooltip';
 import { useEffect, useId, useRef, useState } from 'react';
 import { ExternalLink, FileText, FolderPlus, Search, Trash2, Unlink2, UploadCloud } from 'lucide-react';
 import { useAuth } from '../../../contexts/AuthContext';
@@ -101,6 +102,9 @@ function ProjectFileLibraryContent({ projectId, taskId, readOnly = false }: { pr
   const files = data?.files || [];
   const attached = taskId ? files.filter((f) => f.linked) : files;
   const availableToLink = files.filter((f) => !f.linked);
+  const uploadDraftBlockedTip = draft
+    ? 'Save or discard your pending upload draft before modifying other documents.'
+    : '';
   const filteredLibrary = availableToLink.filter((f) => {
     const q = search.trim().toLocaleLowerCase();
     return !q || `${f.file_name} ${f.uploader_name}`.toLocaleLowerCase().includes(q);
@@ -251,14 +255,26 @@ function ProjectFileLibraryContent({ projectId, taskId, readOnly = false }: { pr
                       Insert {file.file_name}
                     </button>
                     {file.can_remove && !file.links && (
-                      <button
-                        type="button"
-                        className="r6-btn r6-btn--danger"
-                        disabled={busy || !!draft}
-                        onClick={() => void run(() => projectFileCommand(projectId, taskId, 'remove', { id: file.id }), 'Document removed from library.')}
+                      <WorkspaceTooltip
+                        content={
+                          busy
+                            ? ''
+                            : uploadDraftBlockedTip ||
+                              `Permanently removes "${file.file_name}" from the project library. This cannot be undone.`
+                        }
+                        disabled={busy}
                       >
-                        Remove {file.file_name}
-                      </button>
+                        <span className="inline-flex">
+                          <button
+                            type="button"
+                            className="r6-btn r6-btn--danger"
+                            disabled={busy || !!draft}
+                            onClick={() => void run(() => projectFileCommand(projectId, taskId, 'remove', { id: file.id }), 'Document removed from library.')}
+                          >
+                            Remove {file.file_name}
+                          </button>
+                        </span>
+                      </WorkspaceTooltip>
                     )}
                   </div>
                 </div>
@@ -307,26 +323,45 @@ function ProjectFileLibraryContent({ projectId, taskId, readOnly = false }: { pr
               {canWrite && (
                 <div className="r6-file-card__actions">
                   {taskId && (
-                    <button
-                      type="button"
-                      className="r6-btn"
-                      disabled={busy || !!draft}
-                      onClick={() => void run(() => projectFileCommand(projectId, taskId, 'unlink', { id: file.id }), 'Document unlinked. Source retained in the project library.')}
+                    <WorkspaceTooltip
+                      content={busy ? '' : uploadDraftBlockedTip}
+                      disabled={busy || !uploadDraftBlockedTip}
                     >
-                      <Unlink2 size={13} aria-hidden="true" />
-                      <span>Unlink document</span>
-                    </button>
+                      <span className="inline-flex">
+                        <button
+                          type="button"
+                          className="r6-btn"
+                          disabled={busy || !!draft}
+                          onClick={() => void run(() => projectFileCommand(projectId, taskId, 'unlink', { id: file.id }), 'Document unlinked. Source retained in the project library.')}
+                        >
+                          <Unlink2 size={13} aria-hidden="true" />
+                          <span>Unlink document</span>
+                        </button>
+                      </span>
+                    </WorkspaceTooltip>
                   )}
                   {file.can_remove && !file.links && (
-                    <button
-                      type="button"
-                      className="r6-btn r6-btn--danger"
-                      disabled={busy || !!draft}
-                      onClick={() => void run(() => projectFileCommand(projectId, taskId, 'remove', { id: file.id }), 'Document removed from the library; provenance retained.')}
+                    <WorkspaceTooltip
+                      content={
+                        busy
+                          ? ''
+                          : uploadDraftBlockedTip ||
+                            `Permanently removes "${file.file_name}" from the project library while retaining provenance. This cannot be undone.`
+                      }
+                      disabled={busy}
                     >
-                      <Trash2 size={13} aria-hidden="true" />
-                      <span>Remove from library</span>
-                    </button>
+                      <span className="inline-flex">
+                        <button
+                          type="button"
+                          className="r6-btn r6-btn--danger"
+                          disabled={busy || !!draft}
+                          onClick={() => void run(() => projectFileCommand(projectId, taskId, 'remove', { id: file.id }), 'Document removed from the library; provenance retained.')}
+                        >
+                          <Trash2 size={13} aria-hidden="true" />
+                          <span>Remove from library</span>
+                        </button>
+                      </span>
+                    </WorkspaceTooltip>
                   )}
                 </div>
               )}

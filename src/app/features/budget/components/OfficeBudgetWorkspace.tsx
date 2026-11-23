@@ -12,6 +12,7 @@ import { useDepartmentBudget } from "../hooks/useDepartmentBudget";
 import { getBudgetUtilizationSignal } from "../selectors/budgetSelectors";
 import { AnnualBudgetSetup } from "./AnnualBudgetSetup";
 import { BudgetApprovalQueue } from "./BudgetApprovalQueue";
+import { ProjectFundingCertificationQueue } from "./ProjectFundingCertificationQueue";
 import { IndependentReviewQueue } from './IndependentReviewQueue';
 import { BudgetEmpty } from "./budgetUi";
 import { FiscalYearControl } from "./FiscalYearControl";
@@ -105,9 +106,8 @@ function OfficeBudgetRoute({ fiscalYear: suppliedYear, embedded = false, dataOwn
   }, [embedded]);
   useNotificationNavigationIntent(
     intent =>
-      !embedded &&
-      (intent.financialRecordType === 'office_petty_cash_staffing' ||
-        intent.financialRecordType === 'office_petty_cash'),
+      intent.financialRecordType === 'office_petty_cash_staffing' ||
+      intent.financialRecordType === 'office_petty_cash',
     intent => {
       if (!intent.financialRecordId) return 'unavailable';
       setFocusRequestId(intent.financialRecordId);
@@ -246,10 +246,19 @@ function OfficeBudgetContent({ orgId, fiscalYear, embedded, tab, setTab, setFisc
                   />
                 )}
                 {tab === "approvals" && (
-                  <><BudgetApprovalQueue
-                    data={budget}
-                    onChanged={budget.refresh}
-                  /><IndependentReviewQueue data={budget} onChanged={budget.refresh} /></>
+                  <div className="space-y-4">
+                    {orgId && (
+                      <ProjectFundingCertificationQueue
+                        orgId={orgId}
+                        onChanged={budget.refresh}
+                      />
+                    )}
+                    <BudgetApprovalQueue
+                      data={budget}
+                      onChanged={budget.refresh}
+                    />
+                    <IndependentReviewQueue data={budget} onChanged={budget.refresh} />
+                  </div>
                 )}
                 {tab === "releases" && (
                   <BudgetReleasesPanel

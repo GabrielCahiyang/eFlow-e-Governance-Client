@@ -1,10 +1,10 @@
 import { supabase } from "../../../../lib/supabase";
 import { notifyProjectListeners } from "./projectQueryService";
-import type { ProjectStatus } from "./types";
+import type { ProjectCompletionReviewStatus, ProjectStatus } from "./types";
 import type { UnusedProjectFunding } from "../../project-setup";
 
 export interface ProjectCompletionBlocker {
-  kind: "work" | "task" | "subtask" | "cash" | "governance" | "funding";
+  kind: "work" | "task" | "subtask" | "cash" | "governance" | "funding" | "lead_review";
   id: string;
   taskId?: string;
   title: string;
@@ -19,6 +19,61 @@ export interface ProjectCompletionReadiness {
   status: ProjectStatus;
   canComplete: boolean;
   blockers: ProjectCompletionBlocker[];
+  workBlockersCount?: number;
+  projectLeadId?: string | null;
+  projectLeadName?: string;
+  requiresHeadCompletionReview?: boolean;
+  completionReviewStatus?: ProjectCompletionReviewStatus;
+  completionRequestedBy?: string | null;
+  completionRequestedByName?: string;
+  completionRequestedAt?: string | null;
+  completionRequestNote?: string;
+  completionReviewFeedback?: string;
+  completionReviewedByName?: string;
+  completionReviewedAt?: string | null;
+  canRequestCompletionReview?: boolean;
+  canApproveCompletion?: boolean;
+}
+export interface PendingProjectCompletionReview {
+  projectId: string;
+  projectTitle: string;
+  orgId: string;
+  projectLeadId: string | null;
+  projectLeadName: string;
+  requestedBy: string | null;
+  requestedByName: string;
+  requestedAt: string | null;
+  note: string;
+  startDate: string | null;
+  targetDate: string | null;
+}
+
+export interface PendingProjectTaskPreview {
+  id: string;
+  title: string;
+  dueDate: string | null;
+  assigneeName: string;
+}
+
+export interface PendingNonHeadProjectApproval {
+  projectId: string;
+  title: string;
+  description: string;
+  scope: string;
+  orgId: string;
+  officeName?: string;
+  startDate: string | null;
+  targetDate: string | null;
+  fundingNotRequired: boolean;
+  requestedBy: string | null;
+  requestedByName: string;
+  requestedAt: string | null;
+  createdAt?: string | null;
+  projectLeadId: string | null;
+  projectLeadName: string;
+  taskCount?: number;
+  memberCount?: number;
+  tasksPreview?: PendingProjectTaskPreview[];
 }
 
 function lifecycleError(error: { code?: string; message: string; details?: string | null }): Error {
@@ -59,6 +114,42 @@ export async function fetchProjectDeletionBlockers(projectId: string): Promise<s
   return data;
 }
 
+export async function requestProjectCompletionReview(
+  projectId: string,
+  note?: string,
+): Promise<ProjectCompletionReadiness> {
+  const { data, error } = await supabase.rpc("request_project_completion_review", {
+    p_project_id: projectId,
+    p_note: note?.trim() || null,
+  });
+  if (error) throw lifecycleError(error);
+  await notifyProjectListeners();
+  return data as ProjectCompletionReadiness;
+}
+
+export async function returnProjectCompletionReview(
+  projectId: string,
+  feedback: string,
+): Promise<ProjectCompletionReadiness> {
+  const { data, error } = await supabase.rpc("return_project_completion_review", {
+    p_project_id: projectId,
+    p_feedback: feedback.trim(),
+  });
+  if (error) throw lifecycleError(error);
+  await notifyProjectListeners();
+  return data as ProjectCompletionReadiness;
+}
+
+export async function listPendingProjectCompletionReviews(
+  orgId?: string,
+): Promise<PendingProjectCompletionReview[]> {
+  const { data, error } = await supabase.rpc("list_pending_project_completion_reviews", {
+    p_org_id: orgId || null,
+  });
+  if (error) throw lifecycleError(error);
+  return Array.isArray(data) ? (data as PendingProjectCompletionReview[]) : [];
+}
+
 export async function completeProject(projectId: string, note?: string): Promise<void> {
   const { error } = await supabase.rpc("complete_project", { p_project_id: projectId, p_note: note?.trim() || null });
   if (error) throw lifecycleError(error);
@@ -69,4 +160,47 @@ export async function archiveCompletedProject(projectId: string, reason?: string
   const { error } = await supabase.rpc("archive_completed_project", { p_project_id: projectId, p_reason: reason?.trim() || null });
   if (error) throw lifecycleError(error);
   await notifyProjectListeners();
+}
+
+export async function decideNonHeadProjectApproval(
+  projectId: string,
+  approve: boolean,
+  feedback = "",
+): Promise<{ projectId: string; status: string; projectApprovalStatus: string }> {
+  const { data, error } = await supabase.rpc("decide_non_head_project_approval", {
+    p_project: projectId,
+    p_approve: approve,
+    p_feedback: feedback.trim(),
+  });
+  if (error) throw lifecycleError(error);
+  await notifyProjectListeners();
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event("eflow:project-setup"));
+  }
+  return data as { projectId: string; status: string; projectApprovalStatus: string };
+}
+
+export async function resubmitProjectForHeadApproval(projectId: string): Promise<void> {
+  const { error } = await supabase.rpc("resubmit_project_for_head_approval", {
+    p_project: projectId,
+  });
+  if (error) throw lifecycleError(error);
+  await notifyProjectListeners();
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event("eflow:project-setup"));
+  }
+}
+
+export async function listPendingProjectApprovals(
+  orgId?: string,
+): Promise<PendingNonHeadProjectApproval[]> {
+  if (typeof supabase.rpc !== "function") return [];
+  const { data, error } = await supabase.rpc("list_pending_project_approvals", {
+    p_org_id: orgId || null,
+  });
+  if (error) {
+    if (error.code === "PGRST202") return [];
+    throw lifecycleError(error);
+  }
+  return Array.isArray(data) ? (data as PendingNonHeadProjectApproval[]) : [];
 }

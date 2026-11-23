@@ -1,5 +1,8 @@
 import { readableUiError } from '../../../shared/userFacingError';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useRef, useState } from 'react';
+import { BoundedTextarea } from '../../../components/ui/BoundedInput';
+import { WorkspaceTooltip } from '../../../components/ui/workspace/WorkspaceTooltip';
+import { INPUT_LIMITS, textLengthError } from '../../../shared/inputLimits';
 import { attachmentError, EVIDENCE_ACCEPT } from '../../../shared/fileValidation';
 import { useExplicitDraft } from '../../../shared/useExplicitDraft';
 import { subscribeWorkChanges } from '../../../shared/workChanges';
@@ -79,13 +82,20 @@ export function SubitemLeadReview({ root, node, actor, readOnly, pending, blocke
     {error && <p role="alert">{error} <button type="button" onClick={() => void load()}>Retry review</button></p>}
     {review?.items.map(item => <SubmissionReview key={item.id} root={root} node={normalizedNode} actor={actor} item={item} disabled={readOnly || pending || !!error} onChanged={changed}/>)}
     {(recovery.error || recoveryError) && <p role="alert">{recovery.error || recoveryError}</p>}
-    {recovery.value && !readOnly && <button type="button" disabled={recovering || pending} onClick={() => void checkSavedProposal()}>
-      {recovering ? 'Checking proposal…' : 'Check saved proposal'}
-    </button>}
-    {chooseKind && !readOnly && !awaitingReview && !selectedKind && recovery.ready && !recovery.value && <div className="flex flex-wrap gap-2">
-      <button type="button" disabled={pending || !!error || !!blocked} onClick={() => setSelectedKind('progress')}>Propose a progress update</button>
-      <button type="button" disabled={pending || !!error || !!blocked || !!completionBlocked} onClick={() => setSelectedKind('completion')}>Propose completion</button>
-    </div>}
+    {recovery.value && !readOnly && (() => {
+      const checkDisabledReason = recovering ? 'Checking saved proposal…' : pending ? 'Waiting for work refresh…' : '';
+      return <WorkspaceTooltip content={checkDisabledReason} disabled={!checkDisabledReason}><span className="inline-flex"><button type="button" disabled={recovering || pending} onClick={() => void checkSavedProposal()}>
+        {recovering ? 'Checking proposal…' : 'Check saved proposal'}
+      </button></span></WorkspaceTooltip>;
+    })()}
+    {chooseKind && !readOnly && !awaitingReview && !selectedKind && recovery.ready && !recovery.value && (() => {
+      const progressReason = pending ? 'Waiting for work refresh…' : error ? 'Reload Lead review before proposing.' : blocked || '';
+      const completionReason = pending ? 'Waiting for work refresh…' : error ? 'Reload Lead review before proposing.' : blocked || completionBlocked || '';
+      return <div className="flex flex-wrap gap-2">
+        <WorkspaceTooltip content={progressReason} disabled={!progressReason}><span className="inline-flex"><button type="button" disabled={Boolean(progressReason)} onClick={() => setSelectedKind('progress')}>Propose a progress update</button></span></WorkspaceTooltip>
+        <WorkspaceTooltip content={completionReason} disabled={!completionReason}><span className="inline-flex"><button type="button" disabled={Boolean(completionReason)} onClick={() => setSelectedKind('completion')}>Propose completion</button></span></WorkspaceTooltip>
+      </div>;
+    })()}
     {chooseKind && selectedKind && !readOnly && !awaitingReview && !recovery.value &&
       <button type="button" onClick={() => void requestNavigation(() => setSelectedKind(undefined))}>Choose another proposal action</button>}
     {kind && !readOnly && !awaitingReview && recovery.ready && !recovery.value && (kind === 'progress' ? <ProgressReviewForm key={(normalizedNode ?? 'root') + (own?.id ?? '')}
@@ -127,19 +137,40 @@ function ReviewForm({ root, node, actor, kind, reviewerName, supersedes, disable
   root: string; node: string | null; actor: string; kind: ReviewKind; reviewerName?: string; supersedes?: string;
   disabled: boolean; blocked?: string; onSubmitted: (item: LeadSubmission) => void;
 }) {
+  const noteId = useId();
+  const filesId = useId();
   const [open, setOpen] = useState(false);
   const [note, setNote] = useState('');
+  const [noteTouched, setNoteTouched] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
+  const [fileError, setFileError] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const attempt = useRef<ReviewAttempt | undefined>(undefined);
   const guard = useExplicitDraft('Lead review submission', !!note || files.length > 0, busy, () => {
-    setNote(''); setFiles([]); setError(''); attempt.current = undefined;
+    setNote(''); setNoteTouched(false); setSubmitted(false); setFiles([]); setFileError(''); setError(''); attempt.current = undefined;
   });
+
+  const noteError = textLengthError(note, 'Work note', { required: true, max: INPUT_LIMITS.FUNDING_REASON });
+  const visibleNoteError = noteTouched || submitted ? noteError : '';
+  const openDisabledReason = disabled ? (blocked || 'Submission is currently unavailable.') : '';
+  const submitDisabledReason = busy
+    ? 'Submitting…'
+    : disabled
+      ? (blocked || 'Submission is currently unavailable.')
+      : noteError
+        ? noteError
+        : fileError
+          ? fileError
+          : '';
+  const submitDisabled = Boolean(submitDisabledReason);
+
   async function submit() {
-    if (disabled || guard.pendingRef.current || !note.trim()) return;
+    setSubmitted(true);
+    if (disabled || guard.pendingRef.current || noteError || fileError) return;
     const issue = attachmentError(files);
-    if (issue) { setError(issue); return; }
+    if (issue) { setFileError(issue); return; }
     attempt.current ??= { id: crypto.randomUUID(), uploaded: [] };
     guard.pendingRef.current = true;
     setBusy(true); setError('');
@@ -153,18 +184,61 @@ function ReviewForm({ root, node, actor, kind, reviewerName, supersedes, disable
   }
   const label = kind === 'completion' ? 'Submit for Lead review' : 'Send update for Lead review';
   if (!open) return <><p>{blocked || (kind === 'completion' ? `When this step is finished, send it to ${reviewerName || 'the assigned Lead'} for approval.` : 'Send your progress and evidence to your lead for review.')}</p>
-    <button className="rounded-md bg-primary px-3 py-2 text-sm text-primary-foreground disabled:opacity-50" type="button" disabled={disabled} onClick={() => setOpen(true)}>{label}</button></>;
-  return <form className="space-y-3" onSubmit={event => { event.preventDefault(); void submit(); }}>
-    <label className="block">Work note<textarea required maxLength={3000} rows={4} className="block w-full rounded-md border bg-background p-2"
-      value={note} disabled={busy} onChange={event => { setNote(event.target.value); attempt.current = undefined; }}/></label>
-    <label className="block">Evidence files (optional)<input className="block" type="file" accept={EVIDENCE_ACCEPT} multiple disabled={busy}
-      onChange={event => { setFiles(Array.from(event.target.files ?? [])); attempt.current = undefined; }}/></label>
+    <WorkspaceTooltip content={openDisabledReason} disabled={!openDisabledReason}><span className="inline-flex"><button className="rounded-md bg-primary px-3 py-2 text-sm text-primary-foreground disabled:opacity-50" type="button" disabled={disabled} onClick={() => setOpen(true)}>{label}</button></span></WorkspaceTooltip></>;
+  return <form noValidate className="space-y-3" onSubmit={event => { event.preventDefault(); void submit(); }}>
+    <div>
+      <label htmlFor={noteId} className="block text-sm font-medium">
+        Work note <span className="text-[var(--eflow-negative-text)]" aria-hidden="true">*</span>
+      </label>
+      <BoundedTextarea
+        id={noteId}
+        aria-required="true"
+        maxLength={INPUT_LIMITS.FUNDING_REASON}
+        rows={4}
+        className="mt-1 block w-full rounded-md border bg-background p-2"
+        value={note}
+        error={visibleNoteError || undefined}
+        disabled={busy}
+        onBlur={() => setNoteTouched(true)}
+        onChange={event => { setNote(event.target.value); setError(''); attempt.current = undefined; }}
+      />
+    </div>
+    <div>
+      <label htmlFor={filesId} className="block text-sm font-medium">Evidence files (optional)</label>
+      <input
+        id={filesId}
+        className="mt-1 block"
+        type="file"
+        accept={EVIDENCE_ACCEPT}
+        multiple
+        disabled={busy}
+        onChange={event => {
+          const chosen = Array.from(event.target.files ?? []);
+          const issue = attachmentError(chosen);
+          if (issue) {
+            setFileError(issue);
+            setFiles([]);
+            event.target.value = '';
+          } else {
+            setFileError('');
+            setFiles(chosen);
+            attempt.current = undefined;
+          }
+        }}
+      />
+      {fileError && <p role="alert" className="eflow-field-error mt-1 text-xs">{fileError}</p>}
+    </div>
     {error && <p role="alert">{error}</p>}
-    <button className="rounded-md bg-primary px-3 py-2 text-sm text-primary-foreground disabled:opacity-50" disabled={disabled || busy || !note.trim()}>{busy ? 'Submitting…' : label}</button>
+    <WorkspaceTooltip content={submitDisabledReason} disabled={!submitDisabledReason}>
+      <span className="inline-flex">
+        <button type="submit" className="rounded-md bg-primary px-3 py-2 text-sm text-primary-foreground disabled:opacity-50" disabled={submitDisabled}>{busy ? 'Submitting…' : label}</button>
+      </span>
+    </WorkspaceTooltip>
   </form>;
 }
 
 function SubmissionReview({ root, node, actor, item, disabled, onChanged }: { root: string; node: string | null; actor: string; item: LeadSubmission; disabled: boolean; onChanged: () => Promise<void> }) {
+  const reviewNoteId = useId();
   const [note, setNote] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
@@ -193,6 +267,14 @@ function SubmissionReview({ root, node, actor, item, disabled, onChanged }: { ro
     finally { inFlight.current = false; setBusy(false); }
   }
   const state = result ?? item.state;
+  const approveDisabledReason = busy ? 'Saving review decision…' : disabled ? 'Review actions are currently unavailable.' : '';
+  const changesDisabledReason = busy
+    ? 'Saving review decision…'
+    : disabled
+      ? 'Review actions are currently unavailable.'
+      : !note.trim()
+        ? 'Enter a review note explaining the requested changes.'
+        : '';
   return <article className="space-y-2 rounded-md border p-3">
     <strong>{item.kind === 'completion' ? 'Completion' : 'Work update'} · {state === 'pending' ? 'Awaiting Lead review' : state === 'approved' ? 'Approved' : 'Changes requested'}</strong>
     <p className="whitespace-pre-wrap">{item.terms.note}</p>
@@ -201,13 +283,32 @@ function SubmissionReview({ root, node, actor, item, disabled, onChanged }: { ro
     {item.terms.attachments?.map(file => <ReviewEvidence key={file.filePath} name={file.fileName} path={file.filePath}/>)}
     {item.decision_note && <p>{item.decision_note}</p>}
     {recovery.value && !disabled && !result &&
-      <button type="button" disabled={busy} onClick={() => void decide(recovery.value!.approve, true)}>Check saved decision</button>}
+      <WorkspaceTooltip content={busy ? 'Checking saved decision…' : ''} disabled={!busy}><span className="inline-flex"><button type="button" disabled={busy} onClick={() => void decide(recovery.value!.approve, true)}>Check saved decision</button></span></WorkspaceTooltip>}
     {item.canDecide && item.author_id !== actor && state === 'pending' && recovery.ready && !recovery.value && <div className="space-y-2">
-      <label className="block">Review note<textarea className="block w-full rounded-md border bg-background p-2" maxLength={3000} value={note} disabled={busy}
-        onChange={event => setNote(event.target.value)}/></label>
+      <div>
+        <label htmlFor={reviewNoteId} className="block text-sm font-medium">Review note</label>
+        <BoundedTextarea
+          id={reviewNoteId}
+          rows={3}
+          className="mt-1 block w-full rounded-md border bg-background p-2"
+          maxLength={INPUT_LIMITS.FUNDING_REASON}
+          value={note}
+          disabled={busy}
+          placeholder="Optional when approving; required when requesting changes…"
+          onChange={event => { setNote(event.target.value); setError(''); }}
+        />
+      </div>
       <div className="flex flex-wrap gap-2">
-        <button type="button" className="rounded-md bg-primary px-3 py-2 text-primary-foreground disabled:opacity-50" disabled={disabled || busy} onClick={() => void decide(true)}>{acceptsWork ? 'Approve work' : 'Approve update'}</button>
-        <button type="button" className="rounded-md border px-3 py-2 disabled:opacity-50" disabled={disabled || busy || !note.trim()} onClick={() => void decide(false)}>Request changes</button>
+        <WorkspaceTooltip content={approveDisabledReason} disabled={!approveDisabledReason}>
+          <span className="inline-flex">
+            <button type="button" className="rounded-md bg-primary px-3 py-2 text-primary-foreground disabled:opacity-50" disabled={disabled || busy} onClick={() => void decide(true)}>{acceptsWork ? 'Approve work' : 'Approve update'}</button>
+          </span>
+        </WorkspaceTooltip>
+        <WorkspaceTooltip content={changesDisabledReason} disabled={!changesDisabledReason}>
+          <span className="inline-flex">
+            <button type="button" className="rounded-md border px-3 py-2 disabled:opacity-50" disabled={disabled || busy || !note.trim()} onClick={() => void decide(false)}>Request changes</button>
+          </span>
+        </WorkspaceTooltip>
       </div>
     </div>}
     {(error || recovery.error) && <p role="alert">{error || recovery.error}</p>}

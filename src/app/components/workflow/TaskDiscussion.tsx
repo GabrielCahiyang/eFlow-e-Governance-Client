@@ -2,16 +2,16 @@ import { WorkspaceTooltip } from "../ui/workspace/WorkspaceTooltip";
 import { EmptyState } from '../ui/EmptyState';
 import { Button } from '../ui/button';
 import { FeatureDialog } from '../ui/FeatureDialog';
+import { BoundedTextarea } from '../ui/BoundedInput';
 import { requestNavigation } from '../../shared/navigationGuard';
 import { useExplicitDraft } from '../../shared/useExplicitDraft';
-import { INPUT_LIMITS } from '../../shared/inputLimits';
-import { FieldLengthHint } from '../ui/FieldLengthHint';
+import { INPUT_LIMITS, textLengthError } from '../../shared/inputLimits';
 // ─── TaskDiscussion ──────────────────────────────────────────────
 // Threaded comments on a task. Participation is restricted to the task's
 // assignees / team members and authorized reviewers. Dept Head / Admin
 // may moderate (soft-delete with a reason → audit event, history preserved).
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { Send, Trash2, MoreHorizontal, ShieldAlert } from "lucide-react";
 import {
   subscribeToComments,
@@ -54,10 +54,51 @@ export function TaskDiscussion({
 
   const draftGuard = useExplicitDraft('Task discussion', !!draft.trim(), sending, () => setDraft(''));
   const currentTask = useRef(taskId); currentTask.current = taskId;
-  const [moderating, setModerating] = useState<string | null>(null), [reason, setReason] = useState(''), [removing, setRemoving] = useState(false);
-  const moderationGuard = useExplicitDraft('Comment moderation reason', !!moderating && !!reason.trim(), removing, () => setReason(''));
-  const closeModeration = () => { if (!moderationGuard.pendingRef.current) void requestNavigation(() => setModerating(null)); };
+  const [moderating, setModerating] = useState<string | null>(null);
+  const [reason, setReason] = useState('');
+  const [reasonTouched, setReasonTouched] = useState(false);
+  const [removing, setRemoving] = useState(false);
+  const moderationReasonId = useId();
+  const moderationGuard = useExplicitDraft('Comment moderation reason', !!moderating && !!reason.trim(), removing, () => {
+    setReason('');
+    setReasonTouched(false);
+  });
+  const closeModeration = () => {
+    if (!moderationGuard.pendingRef.current) {
+      void requestNavigation(() => {
+        setModerating(null);
+        setReason('');
+        setReasonTouched(false);
+      });
+    }
+  };
   const canModerate = userProfile?.role === "head";
+
+  const MIN_MODERATION_REASON = 5;
+  const trimmedReason = reason.trim();
+  const reasonError = textLengthError(reason, "Reason", {
+    required: true,
+    min: MIN_MODERATION_REASON,
+    max: INPUT_LIMITS.REASON,
+  });
+  const visibleReasonError = (reasonTouched || reason.length > 0) && reasonError ? reasonError : undefined;
+  const removeDisabled = removing || Boolean(reasonError);
+  const removeTooltip = removing
+    ? "Removing comment…"
+    : !trimmedReason
+      ? `Enter a removal reason (at least ${MIN_MODERATION_REASON} characters) before removing.`
+      : trimmedReason.length < MIN_MODERATION_REASON
+        ? `Reason must be at least ${MIN_MODERATION_REASON} characters (${MIN_MODERATION_REASON - trimmedReason.length} more needed).`
+        : reasonError
+          ? reasonError
+          : "Removes this comment from the discussion while keeping its record in the audit log.";
+
+  const sendDisabled = !draft.trim() || sending;
+  const sendTooltip = sending
+    ? "Sending…"
+    : !draft.trim()
+      ? "Enter a comment before sending."
+      : "";
 
   useEffect(() => {
     setComments([]); setLoading(true); setLoadError('');
@@ -86,14 +127,15 @@ export function TaskDiscussion({
 
   const remove = async (id: string) => {
     if (!canModerate || !user?.id || moderationGuard.pendingRef.current) return;
-    if (!reason.trim()) {
-      toast("A reason is required to remove a comment.", "error");
+    if (reasonError) {
+      setReasonTouched(true);
+      toast(reasonError, "error");
       return;
     }
     moderationGuard.pendingRef.current = true; setRemoving(true);
     try {
       await moderateDeleteComment(id, { id: user!.id }, reason);
-      setMenuFor(null); setModerating(null); setReason(''); moderationGuard.markClean();
+      setMenuFor(null); setModerating(null); setReason(''); setReasonTouched(false); moderationGuard.markClean();
       toast("Comment removed. History preserved in the audit log.", "success");
     } catch (e: any) {
       toast(e?.message || "We couldn't remove this comment. Check the discussion before trying again.", "error");
@@ -104,7 +146,7 @@ export function TaskDiscussion({
     <><div className="flex flex-col">
       <div className="space-y-3 mb-3">
         {loading && <p role="status">Loading discussion…</p>}
-        {loadError && <div role="alert"><p>{loadError}</p><button onClick={() => setRetry(value => value + 1)}>Retry discussion</button></div>}
+        {loadError && <div role="alert"><p>{loadError}</p><button type="button" onClick={() => setRetry(value => value + 1)}>Retry discussion</button></div>}
         {!loading && !loadError && visible.length === 0 && (
           <EmptyState illustration="chat" size="compact" title="No comments yet. Start the discussion."/>
         )}
@@ -127,7 +169,7 @@ export function TaskDiscussion({
                   {c.editedAt && <span className="text-[10px] text-neutral-300">· edited</span>}
                   {canModerate && !c.deletedAt && (
                     <div className="relative ml-auto opacity-0 group-hover:opacity-100 transition">
-                      <WorkspaceTooltip content="Comment actions"><button aria-label="Comment actions"
+                      <WorkspaceTooltip content="Comment actions"><button type="button" aria-label="Comment actions"
                         onClick={() => setMenuFor(menuFor === c.id ? null : c.id)}
                         className="text-neutral-400 hover:text-neutral-700 p-0.5"
                       >
@@ -138,7 +180,8 @@ export function TaskDiscussion({
                           <div className="fixed inset-0 z-10" onClick={() => setMenuFor(null)} />
                           <div className="absolute right-0 top-6 z-20 bg-white border border-neutral-200 rounded-lg shadow-lg py-1 w-40">
                             <button
-                              onClick={() => { setModerating(c.id); setReason(''); setMenuFor(null); }}
+                              type="button"
+                              onClick={() => { setModerating(c.id); setReason(''); setReasonTouched(false); setMenuFor(null); }}
                               className="flex items-center gap-2 w-full px-3 py-1.5 text-[12px] text-red-600 hover:bg-red-50"
                             >
                               <Trash2 size={12} /> Remove comment
@@ -167,29 +210,33 @@ export function TaskDiscussion({
       {canParticipate ? (
         <div className="border-t border-neutral-100 pt-3">
           <div className="flex items-end gap-2">
-            <textarea
-              aria-label="Task discussion comment"
-              disabled={sending}
-              maxLength={INPUT_LIMITS.COMMENT}
-              value={draft}
-              onChange={(e) => setDraft(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) send();
-              }}
-              rows={2}
-              placeholder="Write a comment…  (⌘/Ctrl + Enter to send)"
-              className="flex-1 resize-none rounded-lg border border-neutral-200 px-3 py-2 text-[12.5px] font-normal text-neutral-800 placeholder:text-neutral-400 focus:outline-none focus:border-neutral-400 focus:ring-1 focus:ring-neutral-200"
-            />
-            <button
-              onClick={send}
-              disabled={!draft.trim() || sending}
-              className="h-9 px-3 rounded-lg bg-neutral-900 text-white text-[12px] font-medium flex items-center gap-1.5 disabled:opacity-40 hover:bg-neutral-800"
-            >
-              <Send size={13} /> Send
-            </button>
-          </div>
-          <div className="mt-1 flex justify-end">
-            <FieldLengthHint length={draft.length} max={INPUT_LIMITS.COMMENT} />
+            <div className="flex-1 min-w-0">
+              <BoundedTextarea
+                aria-label="Task discussion comment"
+                disabled={sending}
+                maxLength={INPUT_LIMITS.COMMENT}
+                value={draft}
+                onChange={(e) => setDraft(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) send();
+                }}
+                rows={2}
+                placeholder="Write a comment…  (⌘/Ctrl + Enter to send)"
+                className="resize-none rounded-lg border border-neutral-200 px-3 py-2 text-[12.5px] font-normal text-neutral-800 placeholder:text-neutral-400 focus:outline-none focus:border-neutral-400 focus:ring-1 focus:ring-neutral-200"
+              />
+            </div>
+            <WorkspaceTooltip content={sendTooltip} disabled={!sendTooltip}>
+              <span className="inline-flex shrink-0">
+                <button
+                  type="button"
+                  onClick={send}
+                  disabled={sendDisabled}
+                  className="h-9 px-3 rounded-lg bg-neutral-900 text-white text-[12px] font-medium flex items-center gap-1.5 disabled:opacity-40 disabled:pointer-events-none hover:bg-neutral-800"
+                >
+                  <Send size={13} /> Send
+                </button>
+              </span>
+            </WorkspaceTooltip>
           </div>
         </div>
       ) : (
@@ -199,7 +246,49 @@ export function TaskDiscussion({
       )}
     </div>
     {moderating && <FeatureDialog title="Remove comment" description="The reason is recorded in the audit log and comment history is preserved." onClose={closeModeration} preventClose={removing} contentClassName="max-w-md">
-     <form className="p-5 space-y-3" onSubmit={event => {event.preventDefault();void remove(moderating);}}><h2 className="text-lg font-semibold">Remove comment</h2><label className="block"><span className="flex items-center justify-between gap-2"><span>Reason</span><FieldLengthHint length={reason.length} max={INPUT_LIMITS.REASON} /></span><textarea aria-label="Comment removal reason" maxLength={INPUT_LIMITS.REASON} className="mt-1 w-full border rounded-md p-2" value={reason} disabled={removing} onChange={event=>setReason(event.target.value)}/></label><Button variant="outline" type="button" onClick={closeModeration} disabled={removing}>Cancel</Button><Button variant="destructive" type="submit" pending={removing} disabled={removing || !reason.trim()}>Remove comment</Button></form>
+      <form
+        className="p-5 space-y-4"
+        onSubmit={(event) => {
+          event.preventDefault();
+          void remove(moderating);
+        }}
+      >
+        <h2 className="text-lg font-semibold">Remove comment</h2>
+        <div className="space-y-1">
+          <label htmlFor={moderationReasonId} className="block text-sm font-medium text-neutral-800">
+            Reason <span className="text-[var(--eflow-negative-text)]" aria-hidden="true">*</span>
+          </label>
+          <BoundedTextarea
+            id={moderationReasonId}
+            aria-label="Comment removal reason"
+            aria-required
+            rows={3}
+            maxLength={INPUT_LIMITS.REASON}
+            className="w-full rounded-md border border-neutral-200 p-2 text-sm text-neutral-900 focus:border-neutral-400 focus:outline-none focus:ring-1 focus:ring-neutral-200"
+            value={reason}
+            disabled={removing}
+            error={visibleReasonError}
+            placeholder="Explain why this comment is being removed (at least 5 characters)…"
+            onBlur={() => setReasonTouched(true)}
+            onChange={(event) => {
+              setReason(event.target.value);
+              if (!reasonTouched) setReasonTouched(true);
+            }}
+          />
+        </div>
+        <div className="flex items-center justify-end gap-2 pt-1">
+          <Button variant="outline" type="button" onClick={closeModeration} disabled={removing}>
+            Cancel
+          </Button>
+          <WorkspaceTooltip content={removeTooltip} disabled={!removeTooltip}>
+            <span className="inline-flex">
+              <Button variant="destructive" type="submit" pending={removing} disabled={removeDisabled}>
+                Remove comment
+              </Button>
+            </span>
+          </WorkspaceTooltip>
+        </div>
+      </form>
     </FeatureDialog>}
     </>
   );

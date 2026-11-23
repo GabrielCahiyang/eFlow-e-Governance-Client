@@ -6,10 +6,11 @@ import { cloneElement, useEffect, useId, useState, type ReactElement } from "rea
 export function WorkspaceTooltip({ content, children, disabled = false }: { content: string; children: ReactElement; disabled?: boolean }) {
   const id = useId();
   const [visible, setVisible] = useState(false);
+  const isDisabled = disabled || !content.trim();
   const childProps = children.props as { 'aria-describedby'?: string };
-  const description = [childProps['aria-describedby'], visible && !disabled ? id : undefined].filter(Boolean).join(' ') || undefined;
+  const description = [childProps['aria-describedby'], visible && !isDisabled ? id : undefined].filter(Boolean).join(' ') || undefined;
   useEffect(() => {
-    if (!visible || disabled) return;
+    if (!visible || isDisabled) return;
     // Vibe dismisses on keyup. Protect the containing Radix dialog/menu from
     // handling the preceding keydown, so Escape dismisses only this layer.
     const dismissLayer = (event: KeyboardEvent) => {
@@ -20,7 +21,7 @@ export function WorkspaceTooltip({ content, children, disabled = false }: { cont
     };
     window.addEventListener('keydown', dismissLayer, true);
     return () => window.removeEventListener('keydown', dismissLayer, true);
-  }, [visible, disabled]);
+  }, [visible, isDisabled]);
   return <Tooltip
     content={<span id={id} role="tooltip">{content}</span>}
     position="bottom"
@@ -28,7 +29,7 @@ export function WorkspaceTooltip({ content, children, disabled = false }: { cont
     hideDelay={100}
     hideTrigger={["mouseleave", "blur", "click", "esckey"]}
     hideWhenReferenceHidden
-    disable={disabled}
+    disable={isDisabled}
     onTooltipShow={() => setVisible(true)}
     onTooltipHide={() => setVisible(false)}
     className="eflow-workspace-tooltip"

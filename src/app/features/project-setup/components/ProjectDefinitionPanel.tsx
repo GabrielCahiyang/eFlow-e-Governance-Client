@@ -13,6 +13,15 @@ import {FlowError} from './FlowError';
 import {ProjectFundingPanel} from './ProjectFundingPanel';
 import {ProjectSetupFields,type SetupDraft} from './ProjectSetupFields';
 import {ProjectSetupWizard} from './ProjectSetupWizard';
+import {
+ EMPTY_OVERLOAD_OVERRIDE,
+ invalidateWorkloadCache,
+ overloadOverrideValidationError,
+ projectMemberWorkload,
+ recordWorkloadOverloadOverride,
+ useOfficeWorkload,
+ type OverloadOverrideState,
+} from '../../workload';
 import '../projectSetup.css';
 
 const toDraft=(p:ProjectFlow['project']):SetupDraft=>({
@@ -37,24 +46,40 @@ export function ProjectDefinitionPanel({projectId,profiles,profilesLoading,organ
  const closed=p?['completed','archived'].includes(p.status):false;
  const planning=!p?.status||p.status==='planning';
  const canConfigure=flow.data?.canConfigure===true||flow.data?.canAuthorize===true;
- const editable=!!flow.data?.ready&&planning&&!closed&&canConfigure&&section!=='funding';
+ const editable=!!(flow.data?.ready||flow.data?.canDraftWork)&&planning&&!closed&&canConfigure&&section!=='funding';
+ const officeHeadId=organizations?.find(org=>org.id===p?.org_id)?.head_user_id||profiles.find(person=>person.is_active!==false&&person.role==='head'&&(!p?.org_id||person.org_id===p.org_id))?.id||'';
+ const defaultLeadId=officeHeadId||user?.id||'';
+ const workload=useOfficeWorkload(p?.org_id,editable);
+ const [leadOverride,setLeadOverride]=useState<OverloadOverrideState>(EMPTY_OVERLOAD_OVERRIDE);
+ const [attemptedSave,setAttemptedSave]=useState(false);
+
+ useEffect(()=>{
+  setLeadOverride(EMPTY_OVERLOAD_OVERRIDE);
+  setAttemptedSave(false);
+ },[draft.lead]);
+
+ const leadSummary=draft.lead?workload.byUserId.get(draft.lead):undefined;
+ const leadProjection=projectMemberWorkload(leadSummary,'project_lead_planning',workload.thresholds,{
+  alreadyAssignedInRole:Boolean(p?.project_lead_id&&p.project_lead_id===draft.lead),
+ });
+ const leadOverloadError=overloadOverrideValidationError(leadProjection,leadOverride);
 
  useEffect(()=>{
   if(!p)return;
   const sig=`${p.id}:${p.updated_at}`;
   if(syncedRef.current!==sig){
    syncedRef.current=sig;
-   setDraft({...toDraft(p),lead:canConfigure&&user?.id&&!p.project_lead_id?user.id:p.project_lead_id||''});
+   setDraft({...toDraft(p),lead:p.project_lead_id||(canConfigure?defaultLeadId:'')});
    setError('');
   }
- },[p?.id,p?.updated_at,canConfigure,user?.id]);
+ },[p?.id,p?.updated_at,canConfigure,defaultLeadId]);
 
  useNavigationBlocker({
   label:'Project settings',
   identity:projectId,
   dirty:editable&&dirty,
   pending:busy,
-  onDiscard:()=>{if(baseDraft)setDraft({...baseDraft,lead:canConfigure&&user?.id&&!baseDraft.lead?user.id:baseDraft.lead});setError('');setNotice('');},
+  onDiscard:()=>{if(baseDraft)setDraft({...baseDraft,lead:baseDraft.lead||(canConfigure?defaultLeadId:'')});setError('');setNotice('');},
  });
 
  if(!flow.data)return <section className="pf-panel"><h2>{section==='funding'?'Project budget':'Project settings'}</h2>{flow.error?<FlowError error={flow.error}/>:<p role="status">{section==='funding'?'Loading project budget…':'Loading project settings…'}</p>}</section>;
@@ -65,9 +90,11 @@ export function ProjectDefinitionPanel({projectId,profiles,profilesLoading,organ
  async function saveInline(event:React.FormEvent){
   event.preventDefault();
   if(busy||!editable)return;
+  setAttemptedSave(true);
   if(!draft.title.trim()||!draft.description.trim()){setError('Enter the project title and description before saving.');return;}
   if(!draft.scope.trim()){setError('Define the project scope before saving.');return;}
   if(!draft.lead){setError('Select a Project Lead before saving.');return;}
+  if(leadOverloadError){setError(leadOverloadError);return;}
   if(draft.start&&draft.end&&draft.end<draft.start){setError('Project target date must be on or after its start date.');return;}
   if(!navigator.onLine){setError('Reconnect before saving project settings.');return;}
   setBusy(true);setError('');setNotice('');
@@ -78,11 +105,30 @@ export function ProjectDefinitionPanel({projectId,profiles,profilesLoading,organ
    if(current.updated_at!==project.updated_at&&meta(current)!==meta(project)){
     throw new Error('Project details changed elsewhere. Refresh before saving your edits.');
    }
-   const proposed={...draft,lead:user?.id||draft.lead,noFunding:latest.total>0?false:draft.noFunding};
+   const proposed={...draft,lead:draft.lead||defaultLeadId,noFunding:latest.total>0?false:draft.noFunding};
    await projectFlowCall<ProjectFlow['project']>('save_project_definition',{
     p_project:projectId,
     p_details:{...proposed,version:current.updated_at},
    });
+   if(leadProjection?.requiresOverride&&proposed.lead){
+    await recordWorkloadOverloadOverride({
+     targetUserId:proposed.lead,
+     contextType:'project',
+     entityId:projectId,
+     proposedRole:'project_lead_planning',
+     reason:leadOverride.reason,
+     snapshot:{
+      currentPoints:leadProjection.currentPoints,
+      projectedPoints:leadProjection.projectedPoints,
+      addedPoints:leadProjection.addedPoints,
+      projectedTier:leadProjection.projectedTier,
+      reasons:leadProjection.reasons,
+     },
+    });
+   }
+   invalidateWorkloadCache();
+   setLeadOverride(EMPTY_OVERLOAD_OVERRIDE);
+   setAttemptedSave(false);
    syncedRef.current='';
    await flow.reload();
    setNotice('Project settings saved.');
@@ -125,20 +171,20 @@ export function ProjectDefinitionPanel({projectId,profiles,profilesLoading,organ
    ?`Editing is locked because this project is ${project.status==='active'?'active':project.status.replace(/_/g,' ')}. Project details and scope can only be changed while the project is in planning.`
    :'Only the Office Head or owning project creator can edit project settings.';
 
- return <div className="space-y-5">{section!=='funding'&&(data.ready?<form className="pf-panel pf-settings-form" aria-label="Project definition" onSubmit={e=>{void saveInline(e);}}>
+ return <div className="space-y-5">{section!=='funding'&&((data.ready||data.canDraftWork)?<form className="pf-panel pf-settings-form" aria-label="Project definition" onSubmit={e=>{void saveInline(e);}}>
   <header>
    <div><h2><ClipboardList size={21}/>Project settings</h2><p>{editable?'Update project details and scope. The project timeline syncs automatically from tasks and subtasks.':readOnlyReason}</p></div>
    {!editable&&<span className="pf-status-badge pf-readonly-badge"><Lock size={13} aria-hidden="true"/>Read-only</span>}
   </header>
   {!editable&&<div className="pf-readonly-notice" role="status"><Lock size={16} aria-hidden="true"/><div><strong>Editing is disabled</strong><p>{readOnlyDetail}</p></div></div>}
-  <ProjectSetupFields step={0} draft={draft} update={update} profiles={profiles} disabled={!editable||busy} readOnlyReason={!editable?readOnlyDetail:undefined} settings/>
-  <ProjectSetupFields step={1} draft={draft} update={update} profiles={profiles} disabled={!editable||busy} readOnlyReason={!editable?readOnlyDetail:undefined} settings/>
+  <ProjectSetupFields step={0} draft={draft} update={update} profiles={profiles.filter(person=>!project.org_id||person.org_id===project.org_id)} officeHeadId={officeHeadId} disabled={!editable||busy} readOnlyReason={!editable?readOnlyDetail:undefined} settings workloadByUser={workload.byUserId} workloadThresholds={workload.thresholds} workloadOrgId={project.org_id} originalLeadId={project.project_lead_id||''} leadOverride={leadOverride} onLeadOverrideChange={setLeadOverride} showLeadOverrideValidation={attemptedSave}/>
+  <ProjectSetupFields step={1} draft={draft} update={update} profiles={profiles.filter(person=>!project.org_id||person.org_id===project.org_id)} officeHeadId={officeHeadId} disabled={!editable||busy} readOnlyReason={!editable?readOnlyDetail:undefined} settings/>
   <dl className="pf-definition-summary"><div><dt>Timeline</dt><dd>{project.start_date&&project.target_date?`${formatManilaDate(project.start_date,project.start_date)} → ${formatManilaDate(project.target_date,project.target_date)}`:'Set automatically from tasks and subtasks'}</dd></div></dl>
   {error&&<FlowError error={error}/>}
   {notice&&<p role="status" className="pf-success">{notice}</p>}
    {editable&&<div className="pf-actions">
     <button type="submit" className="pf-primary" disabled={!dirty||busy}><Check size={16}/>{busy?'Saving…':'Save changes'}</button>
-    <button type="button" disabled={!dirty||busy} onClick={()=>{if(baseDraft)setDraft({...baseDraft,lead:canConfigure&&user?.id&&!baseDraft.lead?user.id:baseDraft.lead});setError('');setNotice('');}}><RotateCcw size={15}/>Discard changes</button>
+    <button type="button" disabled={!dirty||busy} onClick={()=>{if(baseDraft)setDraft({...baseDraft,lead:canConfigure&&user?.id&&!baseDraft.lead?user.id:baseDraft.lead});setLeadOverride(EMPTY_OVERLOAD_OVERRIDE);setAttemptedSave(false);setError('');setNotice('');}}><RotateCcw size={15}/>Discard changes</button>
     <span role="status" className="text-xs text-muted-foreground">{dirty?'Unsaved changes':'All changes saved'}</span>
    </div>}
   </form>:<section className="pf-panel" aria-label="Project definition"><header><div><h2><ClipboardList size={21}/>Project details</h2><p>Complete each section in the setup dialog before adding work or people.</p></div>{planning&&!closed&&canConfigure&&<button className="pf-primary" onClick={()=>launch(0)}>Continue project setup<ArrowRight size={16}/></button>}</header><dl className="pf-definition-summary"><div><dt>Project</dt><dd>{project.title}</dd></div><div><dt>Project lead</dt><dd>{profiles.find(person=>person.id===project.project_lead_id)?.full_name||'Not selected'}</dd></div><div><dt>Timeline</dt><dd>{project.start_date&&project.target_date?`${formatManilaDate(project.start_date,project.start_date)} → ${formatManilaDate(project.target_date,project.target_date)}`:'Set automatically from tasks and subtasks'}</dd></div><div><dt>Scope</dt><dd>{project.scope||'Not defined'}</dd></div></dl></section>)}

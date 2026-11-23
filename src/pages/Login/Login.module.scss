@@ -212,6 +212,17 @@
   }
 }
 
+.scenarioAffordance {
+  display: flex;
+  justify-content: center;
+  margin-top: 4px;
+
+  button {
+    color: #0073ea !important;
+    font-weight: 600 !important;
+  }
+}
+
 .alertBanner {
   border-radius: 8px;
   padding: 10px 14px;
@@ -415,6 +426,14 @@
   display: none;
 }
 
+.scenariosDialog {
+  max-height: calc(100dvh - 32px);
+}
+
+.scenariosList {
+  min-height: 0;
+}
+
 /* ─────────────────────────────────────────────────────────────
    TABLET BREAKPOINT (768px – 1199px)
    ───────────────────────────────────────────────────────────── */
@@ -555,6 +574,11 @@
   .utilityRow {
     align-items: flex-start;
     flex-direction: column;
+    gap: 8px;
+  }
+
+  .scenarioAccount {
+    flex-wrap: wrap;
     gap: 8px;
   }
 }

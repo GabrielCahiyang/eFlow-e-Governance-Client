@@ -63,7 +63,9 @@ const dateInputTime = (value: string, end = false): number | undefined => {
 };
 
 export function HeadReportsWorkspace({ embedded = false }: { embedded?: boolean } = {}) {
-  const { userProfile } = useAuth();
+  const { userProfile, can } = useAuth();
+  const canExport = typeof can === "function" ? can("reports.export") : true;
+  const canVerifyTasks = typeof can === "function" ? can("tasks.verify") : true;
   const { orgs } = useOrgs();
   const office =
     orgs.find((org) => org.id === userProfile?.org_id)?.name ||
@@ -199,7 +201,7 @@ export function HeadReportsWorkspace({ embedded = false }: { embedded?: boolean 
       : exportPdf(rows, columns, meta);
   };
 
-  const headerActions = (
+  const headerActions = canExport ? (
     <ExportMenu
       onCsv={() => exportRows("csv")}
       onPdf={() => exportRows("pdf")}
@@ -207,7 +209,7 @@ export function HeadReportsWorkspace({ embedded = false }: { embedded?: boolean 
         rows.length === 0 || !!analytics.error || analytics.refreshing
       }
     />
-  );
+  ) : undefined;
 
   return (
     <div className="eflow-page-content eflow-analytics min-w-0">
@@ -454,7 +456,7 @@ export function HeadReportsWorkspace({ embedded = false }: { embedded?: boolean 
       <TaskDetailDrawer
         task={selectedTask}
         onClose={() => setSelectedTaskId(undefined)}
-        canReview
+        canReview={canVerifyTasks}
         canPostProgress={false}
       />
     </div>
