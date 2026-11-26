@@ -4,6 +4,7 @@ import { BoundedTextarea } from "../../../components/ui/BoundedInput";
 import { FieldValidationTooltip } from "../../../components/ui/FieldValidationTooltip";
 import { Modal, ModalButton } from "../../../components/ui/Modal";
 import { MoneyInput } from "../../../components/ui/MoneyInput";
+import { ActionBlockerGroup } from "../../../components/ui/action-blockers";
 import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import { exceedsCentavos, formatPeso } from "../../../shared/currency";
 import { INPUT_LIMITS, textLengthError } from "../../../shared/inputLimits";
@@ -14,11 +15,12 @@ import {
   formatCents,
   fromCents,
   parsePesoCents,
-  subtaskAllocationProgressPercent,
+  resolveEffectiveSubtaskFunding,
+  toCents,
   type SubtaskBudgetActionMode,
 } from "../selectors/subtaskDistribution";
 import { removeSubtaskBudgetCap, setSubtaskBudgetCap } from "../services/budgetService";
-import type { SubtaskBudgetRow, TaskFundingContext } from "../types";
+import type { SubtaskBudgetRow, TaskFundingContext, WorkCashAssignment } from "../types";
 import { peso } from "./budgetUi";
 
 export interface SubtaskBudgetDraftTrigger {
@@ -90,6 +92,7 @@ export function SubtaskBudgetDistributionInline({
   taskFinished,
   onOpenRow,
   showTotals = true,
+  assignments,
 }: {
   context: TaskFundingContext;
   subtaskId?: string;
@@ -97,6 +100,7 @@ export function SubtaskBudgetDistributionInline({
   taskFinished: boolean;
   onOpenRow?: (trigger: SubtaskBudgetDraftTrigger) => void;
   showTotals?: boolean;
+  assignments?: WorkCashAssignment[];
 }) {
   const totals = context.distribution;
   if (!context.funded || !totals) return null;
@@ -104,32 +108,20 @@ export function SubtaskBudgetDistributionInline({
   const rows = context.subtaskBudgets ?? [];
   const sources = context.parentSources ?? [];
   const focusedRow = subtaskId ? rows.find((item) => item.id === subtaskId) : undefined;
-  const progress = subtaskAllocationProgressPercent(context);
+  const effective = resolveEffectiveSubtaskFunding(context, assignments);
+  const progress = effective.progressPercent;
+  const effectiveAllocated = fromCents(effective.totalAllocatedCents);
+
+  const showProgressHeader =
+    !subtaskId && context.taskBudget > 0 && (rows.length > 0 || effective.totalAllocatedCents > 0);
 
   return (
-    <div className="space-y-3">
-      {!subtaskId && context.taskBudget > 0 && (rows.length > 0 || totals.allocated > 0) && (
-        <div className="rounded-lg border border-border bg-muted/25 px-3 py-2.5">
-          <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
-            <span className="font-medium text-foreground">Subtask allocation progress</span>
-            <span className="tabular-nums text-muted-foreground">
-              {progress}% · {peso.format(totals.allocated)} of {peso.format(context.taskBudget)}
-            </span>
-          </div>
-          <div
-            className="mt-1.5 h-2 overflow-hidden rounded-full bg-muted"
-            role="progressbar"
-            aria-label="Subtask allocation progress"
-            aria-valuenow={progress}
-            aria-valuemin={0}
-            aria-valuemax={100}
-          >
-            <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${progress}%` }} />
-          </div>
+    <div className={subtaskId ? "space-y-3" : "flex h-full flex-col overflow-hidden rounded-[12px] border border-[var(--eflow-border)] bg-[var(--eflow-surface)] shadow-[0_1px_2px_rgb(12_36_33/4%)]"}>
+      {showTotals && (
+        <div className={subtaskId ? undefined : "border-b border-border p-3.5"}>
+          <SubtaskBudgetTotals context={context} subtask={Boolean(subtaskId)} />
         </div>
       )}
-
-      {showTotals && <SubtaskBudgetTotals context={context} subtask={Boolean(subtaskId)} />}
 
       {subtaskId ? (
         focusedRow && (
@@ -140,7 +132,9 @@ export function SubtaskBudgetDistributionInline({
                 <p className="mt-0.5 text-xs text-muted-foreground">
                   {focusedRow.capId
                     ? `${sources.find((source) => source.id === focusedRow.sourceId)?.name || "Approved account"} · ${peso.format(focusedRow.returnable)} unused`
-                    : "No separate subtask budget allocated yet."}
+                    : (effective.bySubtaskId.get(focusedRow.id)?.taskCashCents ?? 0) > 0
+                      ? `${effective.bySubtaskId.get(focusedRow.id)?.sourceLabels.join(", ") || "Assigned task cash"} · Spent ${formatCents(effective.bySubtaskId.get(focusedRow.id)?.recordedSpentCents ?? 0)}`
+                      : "No separate subtask budget allocated yet."}
                 </p>
                 {focusedRow.reason && (
                   <p className="mt-1 text-xs text-muted-foreground">Reason: {focusedRow.reason}</p>
@@ -152,27 +146,59 @@ export function SubtaskBudgetDistributionInline({
                 )}
               </div>
               <div className="text-right">
-                <div className="text-sm font-semibold tabular-nums">{peso.format(focusedRow.amount)}</div>
+                <div className="text-sm font-semibold tabular-nums">
+                  {formatCents(effective.bySubtaskId.get(focusedRow.id)?.effectiveTaskCents ?? toCents(focusedRow.amount))}
+                </div>
                 <div className="text-[11px] text-muted-foreground">
-                  {focusedRow.capId ? "Allocated cap" : "Unallocated"}
+                  {focusedRow.capId
+                    ? "Allocated cap"
+                    : (effective.bySubtaskId.get(focusedRow.id)?.taskCashCents ?? 0) > 0
+                      ? "Assigned cash"
+                      : "Unallocated"}
                 </div>
               </div>
             </div>
           </div>
         )
       ) : (
-        <div className="rounded-xl border border-border">
-          <div className="flex items-center justify-between border-b border-border bg-muted/35 px-3 py-2">
-            <span className="text-xs font-semibold text-foreground">Subtask allocations</span>
-            <span className="text-xs text-muted-foreground">
-              {rows.length} {rows.length === 1 ? "subtask" : "subtasks"}
-            </span>
+        <>
+          <div className="space-y-2 border-b border-border bg-muted/30 px-4 py-2.5">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-xs font-semibold text-foreground">Subtask allocations</span>
+              <span className="rounded-[5px] border border-border bg-background px-2 py-0.5 text-[11px] font-medium tabular-nums text-muted-foreground">
+                {rows.length} {rows.length === 1 ? "subtask" : "subtasks"}
+              </span>
+            </div>
+            {showProgressHeader && (
+              <div>
+                <div className="flex flex-wrap items-center justify-between gap-2 text-[11.5px]">
+                  <span className="font-medium text-muted-foreground">Subtask allocation progress</span>
+                  <span className="font-medium tabular-nums text-foreground">
+                    {progress}% · {peso.format(effectiveAllocated)} of {peso.format(context.taskBudget)}
+                  </span>
+                </div>
+                <div
+                  className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-muted"
+                  role="progressbar"
+                  aria-label="Subtask allocation progress"
+                  aria-valuenow={progress}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                >
+                  <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${progress}%` }} />
+                </div>
+              </div>
+            )}
           </div>
           {rows.length > 0 ? (
-            <ul className="divide-y divide-border">
+            <ul className="flex-1 divide-y divide-border">
               {rows.map((item) => {
                 const finished = taskFinished || item.finished;
                 const sourceName = sources.find((source) => source.id === item.sourceId)?.name;
+                const rowFunding = effective.bySubtaskId.get(item.id);
+                const hasAssignedTaskCash = (rowFunding?.taskCashCents ?? 0) > 0;
+                const hasAssignedPettyCash = (rowFunding?.pettyCashCents ?? 0) > 0;
+                const displayAmount = fromCents(rowFunding?.effectiveTaskCents ?? 0);
                 return (
                   <li key={item.id} className="flex flex-wrap items-center justify-between gap-3 px-3 py-2.5">
                     <div className="min-w-0 flex-1">
@@ -181,6 +207,16 @@ export function SubtaskBudgetDistributionInline({
                         {finished && (
                           <span className="rounded bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground">
                             Finished
+                          </span>
+                        )}
+                        {hasAssignedTaskCash && rowFunding?.allApproved && (
+                          <span className="rounded border border-emerald-200 bg-emerald-50 px-1.5 py-0.5 text-[11px] font-medium text-emerald-900">
+                            Approved by Accounting
+                          </span>
+                        )}
+                        {hasAssignedTaskCash && !rowFunding?.allApproved && rowFunding?.hasPendingAccounting && (
+                          <span className="rounded border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[11px] font-medium text-amber-900">
+                            Pending Accounting
                           </span>
                         )}
                         {item.blocked && (
@@ -192,7 +228,11 @@ export function SubtaskBudgetDistributionInline({
                       <p className="mt-0.5 text-xs text-muted-foreground">
                         {item.capId
                           ? `${sourceName || "Approved account"} · ${peso.format(item.returnable)} unused`
-                          : "No separate subtask budget"}
+                          : hasAssignedTaskCash
+                            ? `${rowFunding!.sourceLabels.join(", ") || "Assigned task cash"} · Spent ${formatCents(rowFunding!.recordedSpentCents)}`
+                            : hasAssignedPettyCash
+                              ? `Funded via Office Petty Cash (${formatCents(rowFunding!.pettyCashCents)})`
+                              : "No separate subtask budget"}
                       </p>
                       {item.reason && (
                         <p className="mt-0.5 truncate text-[11px] text-muted-foreground" title={item.reason}>
@@ -206,7 +246,14 @@ export function SubtaskBudgetDistributionInline({
                       )}
                     </div>
                     <div className="flex shrink-0 flex-wrap items-center gap-2">
-                      <strong className="text-sm tabular-nums text-foreground">{peso.format(item.amount)}</strong>
+                      <div className="text-right">
+                        <strong className="block text-sm tabular-nums text-foreground">{peso.format(displayAmount)}</strong>
+                        {hasAssignedPettyCash && (
+                          <span className="block text-[11px] tabular-nums text-indigo-800">
+                            + {formatCents(rowFunding!.pettyCashCents)} petty cash
+                          </span>
+                        )}
+                      </div>
                       {canManage && onOpenRow && item.capId && item.returnable > 0 && !item.blocked && (
                         <button
                           type="button"
@@ -231,11 +278,11 @@ export function SubtaskBudgetDistributionInline({
               })}
             </ul>
           ) : (
-            <p className="px-3 py-4 text-center text-xs text-muted-foreground">
+            <p className="px-4 py-4 text-center text-xs text-muted-foreground">
               There are no subtasks to fund yet.
             </p>
           )}
-        </div>
+        </>
       )}
     </div>
   );
@@ -324,22 +371,18 @@ export function SubtaskBudgetManager({
     : "";
   const visibleReasonError =
     touched.reason || Boolean(draft && draft.reason.length > 0) ? reasonError : "";
-  const submitBlockedReason =
+  const submitBlockers =
     !draft || !row
-      ? ""
-      : !canManage
-        ? "Only the current Task Lead can manage subtask budgets."
-        : row.blocked
-          ? "Resolve the open cash request to change this budget."
-          : sourceError || amountError || reasonError;
+      ? []
+      : [
+          !canManage ? "Only the current Task Lead can manage subtask budgets." : "",
+          row.blocked ? "Resolve the open cash request to change this budget." : "",
+          sourceError,
+          amountError,
+          reasonError,
+        ].filter(Boolean);
+  const submitBlockedReason = submitBlockers[0] || "";
   const submitDisabled = busy || !canManage || Boolean(row?.blocked) || Boolean(submitBlockedReason);
-  const submitTooltip = busy
-    ? ""
-    : submitDisabled
-      ? submitBlockedReason
-      : draft?.mode === "return"
-        ? "Returns unused subtask allocation back to the parent task budget."
-        : "";
 
   function edit(item: SubtaskBudgetRow, mode: SubtaskBudgetActionMode) {
     setNotice("");
@@ -447,21 +490,26 @@ export function SubtaskBudgetManager({
                   <strong className="mr-1 text-sm tabular-nums">{peso.format(item.amount)}</strong>
                   {item.capId && item.returnable > 0 && (() => {
                     const returnDisabled = !canManage || busy || item.blocked;
-                    const returnTip = !canManage
-                      ? "Only the Task Lead can return unused subtask funds."
-                      : item.blocked
-                        ? "Resolve the open cash request before returning unused funds."
-                        : busy
-                          ? "Wait for the current update to finish."
-                          : "Returns unused subtask allocation back to the parent task budget.";
+                    const returnBlockers = [
+                      !canManage ? "Only the Task Lead can return unused subtask funds." : "",
+                      item.blocked ? "Resolve the open cash request before returning unused funds." : "",
+                    ];
                     return (
-                      <WorkspaceTooltip content={returnTip} disabled={!returnTip}>
-                        <span className="inline-flex">
+                      <ActionBlockerGroup
+                        actionLabel="Return unused"
+                        blockers={returnDisabled ? returnBlockers : []}
+                        busy={busy}
+                        size="sm"
+                      >
+                        <WorkspaceTooltip
+                          content="Returns unused subtask allocation back to the parent task budget."
+                          disabled={returnDisabled}
+                        >
                           <ModalButton disabled={returnDisabled} onClick={() => edit(item, "return")}>
                             Return unused
                           </ModalButton>
-                        </span>
-                      </WorkspaceTooltip>
+                        </WorkspaceTooltip>
+                      </ActionBlockerGroup>
                     );
                   })()}
                   {!(taskFinished || item.finished) && (() => {
@@ -470,23 +518,24 @@ export function SubtaskBudgetManager({
                       busy ||
                       item.blocked ||
                       (!item.capId && !sources.some((source) => source.available > 0));
-                    const editTip = !canManage
-                      ? "Only the Task Lead can manage subtask budgets."
-                      : item.blocked
-                        ? "Resolve the open cash request to change this budget."
-                        : !item.capId && !sources.some((source) => source.available > 0)
-                          ? "No unallocated parent task funds are available."
-                          : busy
-                            ? "Wait for the current update to finish."
-                            : "";
+                    const editBlockers = [
+                      !canManage ? "Only the Task Lead can manage subtask budgets." : "",
+                      item.blocked ? "Resolve the open cash request to change this budget." : "",
+                      !item.capId && !sources.some((source) => source.available > 0)
+                        ? "No unallocated parent task funds are available."
+                        : "",
+                    ];
                     return (
-                      <WorkspaceTooltip content={editTip} disabled={!editTip}>
-                        <span className="inline-flex">
-                          <ModalButton disabled={editDisabled} onClick={() => edit(item, "save")}>
-                            {item.capId ? "Edit budget" : "Allocate"}
-                          </ModalButton>
-                        </span>
-                      </WorkspaceTooltip>
+                      <ActionBlockerGroup
+                        actionLabel={item.capId ? "Edit budget" : "Allocate"}
+                        blockers={editDisabled ? editBlockers : []}
+                        busy={busy}
+                        size="sm"
+                      >
+                        <ModalButton disabled={editDisabled} onClick={() => edit(item, "save")}>
+                          {item.capId ? "Edit budget" : "Allocate"}
+                        </ModalButton>
+                      </ActionBlockerGroup>
                     );
                   })()}
                 </div>
@@ -615,25 +664,34 @@ export function SubtaskBudgetManager({
                         className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
                       />
                     </div>
-                    <div className="flex justify-end gap-2">
-                      <ModalButton
-                        onClick={() => {
-                          setDraft(undefined);
-                          setTouched({});
-                          setError("");
-                        }}
-                      >
-                        Cancel
-                      </ModalButton>
-                      <WorkspaceTooltip content={submitTooltip} disabled={!submitTooltip}>
-                        <span className="inline-flex">
-                          <ModalButton variant="primary" type="submit" disabled={submitDisabled}>
-                            {busy ? "Saving…" : draft.mode === "return" ? "Confirm return" : "Save budget"}
-                          </ModalButton>
-                        </span>
-                      </WorkspaceTooltip>
-                    </div>
                   </fieldset>
+                  <div className="flex justify-end gap-2">
+                    <ModalButton
+                      disabled={busy}
+                      onClick={() => {
+                        setDraft(undefined);
+                        setTouched({});
+                        setError("");
+                      }}
+                    >
+                      Cancel
+                    </ModalButton>
+                    <ActionBlockerGroup
+                      actionLabel={draft.mode === "return" ? "Confirm return" : "Save budget"}
+                      blockers={submitDisabled ? submitBlockers : []}
+                      busy={busy}
+                      size="md"
+                    >
+                      <WorkspaceTooltip
+                        content="Returns unused subtask allocation back to the parent task budget."
+                        disabled={submitDisabled || draft.mode !== "return"}
+                      >
+                        <ModalButton variant="primary" type="submit" disabled={submitDisabled}>
+                          {busy ? "Saving…" : draft.mode === "return" ? "Confirm return" : "Save budget"}
+                        </ModalButton>
+                      </WorkspaceTooltip>
+                    </ActionBlockerGroup>
+                  </div>
                 </form>
               )}
             </li>

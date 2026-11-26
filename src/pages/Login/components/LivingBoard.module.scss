@@ -1,5 +1,5 @@
 .boardWrapper {
-  perspective: 1400px;
+  perspective: 1550px;
   position: relative;
   display: flex;
   justify-content: center;
@@ -7,47 +7,96 @@
   width: 100%;
 }
 
-/* Three fixed columns with a capped card viewport in each column. */
-.boardContainer {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 18px;
+/* Crisp Beveled Pure-White 3D Board Slab matching the Landing Page */
+.boardShell {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
   width: 100%;
   max-width: 960px;
-  height: var(--login-preview-board-height, 490px);
-  min-height: var(--login-preview-board-height, 490px);
-  max-height: var(--login-preview-board-height, 490px);
+  height: var(--login-preview-board-height, 500px);
+  min-height: var(--login-preview-board-height, 500px);
+  max-height: var(--login-preview-board-height, 500px);
   box-sizing: border-box;
-  overflow: hidden;
-  background: rgba(255, 255, 255, 0.18);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  border-radius: 20px;
-  padding: 18px;
-  box-shadow: 0 24px 55px rgba(0, 0, 0, 0.22), 0 4px 16px rgba(0, 0, 0, 0.08);
-  transform: rotateX(4deg) rotateY(-4deg);
+  background: #ffffff;
+  border: 1px solid #d6deed;
+  border-radius: 18px;
+  padding: 18px 20px 18px;
+  box-shadow:
+    0 34px 82px rgba(4, 9, 26, 0.54),
+    -4px 6px 0 1px #d6deed,
+    -8px 12px 0 2px #aebcd8;
   transform-style: preserve-3d;
   will-change: transform;
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-
-  &:hover {
-    transform: rotateX(2deg) rotateY(-2deg) translateZ(6px);
-  }
+  text-align: left;
+  color: #161b35;
 }
 
-/* Column height stays fixed on desktop while card overflow scrolls locally. */
+.boardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e6ecf6;
+  flex-shrink: 0;
+}
+
+.boardHeaderLeft {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+}
+
+.boardSquare {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  background: #00006b;
+  flex-shrink: 0;
+}
+
+.boardTitle {
+  font-size: 14.5px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #161b35;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.boardMetaBadge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: #e8edff;
+  color: #00006b;
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+/* Three fixed columns inside the white board slab */
+.boardContainer {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  flex: 1;
+  min-height: 0;
+  overflow: visible;
+}
+
 .column {
   display: flex;
   flex-direction: column;
-  background: rgba(255, 255, 255, 0.96);
-  border: 2px solid rgba(255, 255, 255, 0.7);
-  border-radius: 14px;
-  padding: 14px 14px 12px 14px;
+  background: #f5f7fc;
+  border: 1px solid #e2e9f5;
+  border-radius: 12px;
+  padding: 11px;
   box-sizing: border-box;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
-  height: calc(var(--login-preview-board-height, 490px) - 38px);
-  min-height: calc(var(--login-preview-board-height, 490px) - 38px);
-  max-height: calc(var(--login-preview-board-height, 490px) - 38px);
+  min-height: 0;
   overflow: visible;
   position: relative;
   z-index: 1;
@@ -55,12 +104,16 @@
 
   &.isSourceColumn {
     z-index: 100 !important;
+
+    .cardList {
+      overflow: visible !important;
+    }
   }
 
   &.isDropTarget {
-    background: #ffffff;
-    border-color: #0073ea;
-    box-shadow: 0 0 0 3px rgba(0, 115, 234, 0.3), 0 10px 25px rgba(0, 115, 234, 0.18);
+    background: #eef3ff;
+    border-color: #00006b;
+    box-shadow: 0 0 0 2px rgba(0, 0, 107, 0.22), 0 10px 24px rgba(0, 0, 107, 0.12);
   }
 }
 
@@ -68,51 +121,62 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-bottom: 10px;
-  margin-bottom: 10px;
-  border-bottom: 1px solid #e6e9ef;
+  padding: 1px 2px 9px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid #e4ebf6;
   flex-shrink: 0;
 }
 
 .columnTitle {
-  font-size: 12.5px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #64748b;
+  color: #505c77;
 }
 
 .columnBadge {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 24px;
-  height: 24px;
-  padding: 0 7px;
-  border-radius: 12px;
-  background: #f1f5f9;
-  color: #1e293b;
-  font-size: 12px;
+  min-width: 22px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 5px;
+  background: #ffffff;
+  border: 1px solid #d6deed;
+  color: #161b35;
+  font-size: 11px;
   font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  overflow: hidden;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
-/* The next card peeks into view once a column has more than three cards. */
+.columnBadgeDone {
+  background: #00006b;
+  border-color: #00006b;
+  color: #ffffff;
+}
+
 .cardList {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
   flex: 1;
-  height: calc(var(--login-preview-board-height, 490px) - 110px);
-  min-height: calc(var(--login-preview-board-height, 490px) - 110px);
-  max-height: calc(var(--login-preview-board-height, 490px) - 110px);
+  min-height: 0;
   min-width: 0;
-  overflow-x: hidden;
-  overflow-y: auto;
-  padding-right: 2px;
-  /* Hide scrollbar but keep scrollability */
+  overflow: visible;
+  padding-right: 1px;
   scrollbar-width: none;
   -ms-overflow-style: none;
   position: relative;
+
+  &.cardListScrollable {
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
 
   &::-webkit-scrollbar {
     display: none;
@@ -121,14 +185,14 @@
 
 .card {
   background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-left-width: 4px;
-  border-radius: 10px;
-  padding: 12px 14px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid #d6deed;
+  border-left-width: 3px;
+  border-radius: 9px;
+  padding: 10px 11px;
+  box-shadow: 0 3px 10px rgba(10, 16, 40, 0.05);
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 7px;
   position: relative;
   z-index: 2;
   cursor: grab;
@@ -136,12 +200,11 @@
   touch-action: none;
   box-sizing: border-box;
   flex-shrink: 0;
-  /* Promote each card to its own GPU compositing layer for jank-free animation */
   will-change: transform;
   transition: box-shadow 0.18s ease, border-color 0.18s ease;
 
   &:hover {
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.07);
+    box-shadow: 0 8px 18px rgba(10, 16, 40, 0.09);
   }
 
   &:active {
@@ -151,30 +214,57 @@
   &.isDragging {
     cursor: grabbing !important;
     z-index: 9999 !important;
-    box-shadow: 0 26px 52px rgba(0, 0, 0, 0.32), 0 8px 20px rgba(0, 0, 0, 0.14) !important;
+    box-shadow: 0 26px 52px rgba(10, 16, 40, 0.34), 0 8px 20px rgba(10, 16, 40, 0.14) !important;
   }
+}
+
+.cardTodo {
+  border-left-color: #6b7da3;
+}
+
+.cardProgress {
+  border-left-color: #9a6309;
+}
+
+.cardDone {
+  border-left-color: #00006b;
 }
 
 .cardHeader {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 8px;
+  gap: 6px;
 }
 
 .cardHeaderRight {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   flex-shrink: 0;
+}
+
+.cardTitle {
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.28;
+  color: #161b35;
+}
+
+.cardBudget {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #505c77;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 .dragHandle {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #94a3b8;
-  opacity: 0.6;
+  color: #8a99b8;
+  opacity: 0.55;
   cursor: grab;
   padding: 2px;
   border-radius: 4px;
@@ -182,51 +272,77 @@
 
   &:hover {
     opacity: 1;
-    color: #475569;
-    background: #f1f5f9;
+    color: #00006b;
+    background: #e8edff;
   }
 }
 
-.cardTitle {
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 1.3;
-  color: #0f172a;
-}
-
-.checkIcon {
-  color: #00c875;
-  flex-shrink: 0;
-  margin-top: 1px;
-}
-
-.skeletonLine {
-  height: 5px;
-  border-radius: 3px;
-  background: #f1f5f9;
-  width: 82%;
-}
-
 .progressTrack {
-  height: 4px;
+  height: 4.5px;
   width: 100%;
-  border-radius: 2px;
-  background: #f1f5f9;
+  border-radius: 3px;
+  background: #e8edff;
   overflow: hidden;
-  margin-top: 1px;
+}
+
+.progressTrackAmber {
+  background: #fff2d8;
 }
 
 .progressBar {
   height: 100%;
-  transform-origin: left;
-  border-radius: 2px;
+  transform-origin: left center;
+  border-radius: 3px;
+}
+
+.progressBarTodo {
+  background: #7c8db2;
+}
+
+.progressBarProgress {
+  background: #9a6309;
+}
+
+.progressBarDone {
+  background: #00006b;
 }
 
 .cardFooter {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 2px;
+  gap: 6px;
+}
+
+.statusPill {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6.5px;
+  border-radius: 5px;
+  letter-spacing: 0.01em;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pillTodo {
+  background: #f0f4fb;
+  color: #505c77;
+}
+
+.pillProgress {
+  background: #fff2d8;
+  color: #795008;
+}
+
+.pillDone {
+  background: #e8edff;
+  color: #00006b;
+}
+
+.checkIcon {
+  color: #00006b;
+  flex-shrink: 0;
 }
 
 .avatarStack {
@@ -235,32 +351,26 @@
 }
 
 .avatar {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  border: 2px solid #ffffff;
-  margin-left: -6px;
+  width: 20px;
+  height: 20px;
+  border-radius: 5px;
+  border: 1.5px solid #ffffff;
+  margin-left: -5px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 9.5px;
+  font-size: 8.5px;
   font-weight: 700;
   color: #ffffff;
-  background: #0073ea;
+  background: #00006b;
 
   &:first-child {
     margin-left: 0;
   }
-}
 
-.statusPill {
-  font-size: 11px;
-  font-weight: 600;
-  padding: 2.5px 7.5px;
-  border-radius: 5px;
-  letter-spacing: 0.02em;
-  display: inline-flex;
-  align-items: center;
+  &:nth-child(2) {
+    background: #2767a7;
+  }
 }
 
 @media (max-width: 1199px) {
@@ -269,32 +379,26 @@
     padding: 4px 0 18px;
   }
 
-  .boardContainer {
+  .boardShell {
     min-width: 0;
     height: auto;
     min-height: 0;
     max-height: none;
-    transform: none;
-    padding: 12px;
-    gap: 12px;
+    padding: 14px;
   }
 
-  .boardContainer:hover {
-    transform: none;
+  .boardContainer {
+    gap: 10px;
   }
 
   .column {
     min-width: 0;
-    height: auto;
-    min-height: 270px;
-    max-height: none;
-    padding: 10px;
+    min-height: 260px;
+    padding: 9px;
   }
 
   .cardList {
-    height: auto;
-    min-height: 0;
-    max-height: 380px;
+    max-height: 360px;
   }
 
   .card {
@@ -303,11 +407,28 @@
 }
 
 @media (max-width: 767px) {
+  .boardShell {
+    padding: 10px;
+    gap: 10px;
+    border-radius: 14px;
+  }
+
+  .boardHeader {
+    padding-bottom: 8px;
+  }
+
+  .boardTitle {
+    font-size: 12px;
+  }
+
+  .boardMetaBadge {
+    font-size: 9.5px;
+    padding: 3px 7px;
+  }
+
   .boardContainer {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 6px;
-    padding: 8px;
-    border-radius: 14px;
   }
 
   .boardWrapper {
@@ -318,7 +439,6 @@
   .column {
     min-height: 0;
     padding: 7px 5px;
-    border-width: 1px;
     border-radius: 9px;
   }
 
@@ -343,38 +463,27 @@
 
   .cardList {
     gap: 6px;
-    max-height: 350px;
+    max-height: 340px;
   }
 
   .card {
     min-width: 0;
     gap: 5px;
-    padding: 6px 4px;
+    padding: 6px 5px;
     border-left-width: 3px;
     border-radius: 7px;
-    cursor: grab;
-    touch-action: none;
-  }
-
-  .cardHeader {
-    min-width: 0;
-    gap: 2px;
   }
 
   .cardTitle {
     min-width: 0;
     overflow-wrap: anywhere;
-    font-size: clamp(8px, 2.55vw, 11px);
+    font-size: clamp(8px, 2.4vw, 11px);
     line-height: 1.2;
   }
 
+  .cardBudget,
   .dragHandle {
     display: none;
-  }
-
-  .checkIcon {
-    width: 11px;
-    height: 11px;
   }
 
   .cardFooter {
@@ -383,17 +492,16 @@
   }
 
   .avatar {
-    width: 17px;
-    height: 17px;
-    margin-left: -5px;
+    width: 16px;
+    height: 16px;
+    margin-left: -4px;
     font-size: 6px;
   }
 
   .statusPill {
     max-width: 100%;
-    padding: 2px 3px;
+    padding: 2px 4px;
     font-size: 7px;
     line-height: 1.1;
-    white-space: normal;
   }
 }

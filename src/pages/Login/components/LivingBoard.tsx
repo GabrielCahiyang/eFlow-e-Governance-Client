@@ -1,8 +1,11 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import {
+  AnimatePresence,
   motion,
   LayoutGroup,
+  useMotionValue,
   useReducedMotion,
+  useSpring,
   type PanInfo,
 } from "motion/react";
 import { SPRING_ENTER, SPRING_DRIFT } from "../motion";
@@ -13,99 +16,83 @@ type ColumnId = "todo" | "in_progress" | "done";
 interface KanbanCard {
   id: string;
   title: string;
+  budgetLabel: string;
   columnId: ColumnId;
   progress: number;
   avatars: string[];
   statusLabel: string;
-  statusColor: string;
-  borderColor: string;
 }
 
-const COLUMN_CONFIG: Record<
-  ColumnId,
-  { progress: number; statusLabel: string; statusColor: string; borderColor: string }
-> = {
+const COLUMN_CONFIG: Record<ColumnId, { progress: number; statusLabel: string }> = {
   todo: {
-    progress: 0.2,
+    progress: 0.24,
     statusLabel: "Queued",
-    statusColor: "#0073ea",
-    borderColor: "#0073ea",
   },
   in_progress: {
-    progress: 0.65,
+    progress: 0.66,
     statusLabel: "In Progress",
-    statusColor: "#fdab3d",
-    borderColor: "#fdab3d",
   },
   done: {
     progress: 1.0,
     statusLabel: "Completed",
-    statusColor: "#00c875",
-    borderColor: "#00c875",
   },
 };
 
-// Seed TO DO: 2, IN PROGRESS: 2, DONE: 2 (Total 6 cards)
+// Seed TO DO: 2, IN PROGRESS: 2, DONE: 2 (Total 6 cards = ₱3,000,000.00)
 const INITIAL_CARDS: KanbanCard[] = [
   {
     id: "card-1",
     title: "City Hall Solar Inspection",
+    budgetLabel: "₱620,000",
     columnId: "todo",
-    progress: 0.2,
+    progress: 0.24,
     avatars: ["DG", "FB"],
     statusLabel: "Drafting",
-    statusColor: "#0073ea",
-    borderColor: "#0073ea",
   },
   {
     id: "card-2",
     title: "Ormoc Port Wharf Permit",
+    budgetLabel: "₱840,000",
     columnId: "todo",
-    progress: 0.35,
+    progress: 0.34,
     avatars: ["JC", "AL"],
     statusLabel: "Queued",
-    statusColor: "#0073ea",
-    borderColor: "#0073ea",
   },
   {
     id: "card-3",
     title: "Budget Allocation Q3",
+    budgetLabel: "₱480,000",
     columnId: "in_progress",
-    progress: 0.6,
-    avatars: ["AL", "KC", "TB"],
+    progress: 0.62,
+    avatars: ["AL", "KC"],
     statusLabel: "In Review",
-    statusColor: "#fdab3d",
-    borderColor: "#fdab3d",
   },
   {
     id: "card-4",
     title: "Disaster Risk Map Update",
+    budgetLabel: "₱310,000",
     columnId: "in_progress",
-    progress: 0.8,
+    progress: 0.78,
     avatars: ["MR", "DG"],
-    statusLabel: "Verifying",
-    statusColor: "#fdab3d",
-    borderColor: "#fdab3d",
+    statusLabel: "In Progress",
   },
   {
     id: "card-5",
     title: "Review Ordinance 2026-08",
+    budgetLabel: "₱290,000",
     columnId: "done",
     progress: 1.0,
     avatars: ["JC", "MR"],
     statusLabel: "Approved",
-    statusColor: "#00c875",
-    borderColor: "#00c875",
   },
   {
     id: "card-6",
     title: "Business Permit Automation",
+    budgetLabel: "₱460,000",
     columnId: "done",
     progress: 1.0,
     avatars: ["FB", "TB"],
     statusLabel: "Completed",
-    statusColor: "#00c875",
-    borderColor: "#00c875",
   },
 ];
 
@@ -115,7 +102,11 @@ const COLUMNS: { id: ColumnId; label: string }[] = [
   { id: "done", label: "Done" },
 ];
 
-export function LivingBoard() {
+export interface LivingBoardProps {
+  organizationName?: string;
+}
+
+export function LivingBoard({ organizationName = "LEDIPO" }: LivingBoardProps) {
   const shouldReduceMotion = useReducedMotion();
   const [cards, setCards] = useState<KanbanCard[]>(INITIAL_CARDS);
   const [draggingCardId, setDraggingCardId] = useState<string | null>(null);
@@ -131,14 +122,33 @@ export function LivingBoard() {
   const lastInteractionRef = useRef(0);
   const isHoveringBoardRef = useRef(false);
   const isDraggingRef = useRef(false);
-  // Per-column round-robin pointers so every card eventually moves.
   const colPickRef = useRef<Record<ColumnId, number>>({
     todo: 0,
     in_progress: 0,
     done: 0,
   });
 
-  // Determine target column from horizontal cursor coordinate
+  // Subtle interactive 3D tilt matching the landing page board
+  const tiltX = useMotionValue(4);
+  const tiltY = useMotionValue(-5);
+  const smoothTiltX = useSpring(tiltX, { stiffness: 130, damping: 22 });
+  const smoothTiltY = useSpring(tiltY, { stiffness: 130, damping: 22 });
+
+  const handleBoardPointerMove = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (shouldReduceMotion || isDraggingRef.current) return;
+    const rect = event.currentTarget.getBoundingClientRect();
+    const nx = (event.clientX - rect.left) / rect.width - 0.5;
+    const ny = (event.clientY - rect.top) / rect.height - 0.5;
+    tiltX.set(2 - ny * 6);
+    tiltY.set(-2 + nx * 7);
+  };
+
+  const handleBoardPointerLeave = () => {
+    isHoveringBoardRef.current = false;
+    tiltX.set(4);
+    tiltY.set(-5);
+  };
+
   const getTargetColumn = (clientX: number): ColumnId | null => {
     const todoEl = columnRefs.current.todo;
     const inProgEl = columnRefs.current.in_progress;
@@ -162,7 +172,6 @@ export function LivingBoard() {
     return "done";
   };
 
-  // Move card directly to target column
   const moveCardToColumn = (cardId: string, targetColId: ColumnId) => {
     lastInteractionRef.current = Date.now();
     setCards((prev) => {
@@ -177,8 +186,6 @@ export function LivingBoard() {
         columnId: targetColId,
         progress: config.progress,
         statusLabel: config.statusLabel,
-        statusColor: config.statusColor,
-        borderColor: config.borderColor,
       };
 
       const remaining = prev.filter((c) => c.id !== cardId);
@@ -187,21 +194,20 @@ export function LivingBoard() {
     });
   };
 
-  // Keep the preview alive while leaving the three-column layout fixed.
+  // Gentle 1-card-at-a-time autonomous flow (pauses while hovering or dragging)
   useEffect(() => {
     if (shouldReduceMotion) return;
 
-    // Helper: pick the next card from a column using round-robin and advance the pointer.
-    const pickFromColumn = (cards: KanbanCard[], colId: ColumnId): KanbanCard => {
-      const idx = colPickRef.current[colId] % cards.length;
-      colPickRef.current[colId] = (idx + 1) % cards.length;
-      return cards[idx];
+    const pickFromColumn = (items: KanbanCard[], colId: ColumnId): KanbanCard => {
+      const idx = colPickRef.current[colId] % items.length;
+      colPickRef.current[colId] = (idx + 1) % items.length;
+      return items[idx];
     };
 
     const interval = window.setInterval(() => {
       if (typeof document !== "undefined" && document.visibilityState === "hidden") return;
       if (isDraggingRef.current || isHoveringBoardRef.current) return;
-      if (Date.now() - lastInteractionRef.current < 2000) return;
+      if (Date.now() - lastInteractionRef.current < 2200) return;
 
       setCards((prev) => {
         const next = prev.map((c) => ({ ...c }));
@@ -209,83 +215,59 @@ export function LivingBoard() {
         const inProgress = next.filter((c) => c.columnId === "in_progress");
         const done = next.filter((c) => c.columnId === "done");
 
+        const applyCol = (card: KanbanCard, target: ColumnId) => {
+          const cfg = COLUMN_CONFIG[target];
+          card.columnId = target;
+          card.progress = cfg.progress;
+          card.statusLabel = cfg.statusLabel;
+        };
+
         if (inProgress.length === 0 && (todo.length > 1 || done.length > 1)) {
-          const source = todo.length > 1 ? pickFromColumn(todo, "todo") : pickFromColumn(done, "done");
-          source.columnId = "in_progress";
-          source.progress = 0.65;
-          source.statusLabel = "In Progress";
-          source.statusColor = "#fdab3d";
-          source.borderColor = "#fdab3d";
+          const source =
+            todo.length > 1 ? pickFromColumn(todo, "todo") : pickFromColumn(done, "done");
+          applyCol(source, "in_progress");
           return next;
         }
 
         const step = cycleStepRef.current % 3;
         if (step === 0 && inProgress.length > 1) {
-          const card = pickFromColumn(inProgress, "in_progress");
-          card.columnId = "done";
-          card.progress = 1.0;
-          card.statusLabel = "Completed";
-          card.statusColor = "#00c875";
-          card.borderColor = "#00c875";
+          applyCol(pickFromColumn(inProgress, "in_progress"), "done");
           cycleStepRef.current++;
         } else if (step === 1 && done.length > 1) {
-          const card = pickFromColumn(done, "done");
-          card.columnId = "todo";
-          card.progress = 0.2;
-          card.statusLabel = "Queued";
-          card.statusColor = "#0073ea";
-          card.borderColor = "#0073ea";
+          applyCol(pickFromColumn(done, "done"), "todo");
           cycleStepRef.current++;
         } else if (step === 2 && todo.length > 1) {
-          const card = pickFromColumn(todo, "todo");
-          card.columnId = "in_progress";
-          card.progress = 0.65;
-          card.statusLabel = "In Progress";
-          card.statusColor = "#fdab3d";
-          card.borderColor = "#fdab3d";
+          applyCol(pickFromColumn(todo, "todo"), "in_progress");
           cycleStepRef.current++;
         } else if (inProgress.length > 1) {
-          const card = pickFromColumn(inProgress, "in_progress");
-          card.columnId = "done";
-          card.progress = 1.0;
-          card.statusLabel = "Completed";
-          card.statusColor = "#00c875";
-          card.borderColor = "#00c875";
+          applyCol(pickFromColumn(inProgress, "in_progress"), "done");
         } else if (todo.length > 1) {
-          const card = pickFromColumn(todo, "todo");
-          card.columnId = "in_progress";
-          card.progress = 0.65;
-          card.statusLabel = "In Progress";
-          card.statusColor = "#fdab3d";
-          card.borderColor = "#fdab3d";
+          applyCol(pickFromColumn(todo, "todo"), "in_progress");
         } else if (done.length > 1) {
-          const card = pickFromColumn(done, "done");
-          card.columnId = "todo";
-          card.progress = 0.2;
-          card.statusLabel = "Queued";
-          card.statusColor = "#0073ea";
-          card.borderColor = "#0073ea";
+          applyCol(pickFromColumn(done, "done"), "todo");
         }
         return next;
       });
-    }, 3000);
+    }, 3400);
 
     return () => clearInterval(interval);
   }, [shouldReduceMotion]);
 
-  // Counts for each column
-  const columnCounts = useMemo(() => {
-    return {
+  const columnCounts = useMemo(
+    () => ({
       todo: cards.filter((c) => c.columnId === "todo").length,
       in_progress: cards.filter((c) => c.columnId === "in_progress").length,
       done: cards.filter((c) => c.columnId === "done").length,
-    };
-  }, [cards]);
+    }),
+    [cards],
+  );
 
   const handleDragStart = (cardId: string) => {
     isDraggingRef.current = true;
     lastInteractionRef.current = Date.now();
     setDraggingCardId(cardId);
+    tiltX.set(0);
+    tiltY.set(0);
   };
 
   const handleDrag = (_e: unknown, info: PanInfo) => {
@@ -313,185 +295,242 @@ export function LivingBoard() {
       role="region"
       aria-label="Interactive project preview board"
     >
-      <div
-        className={styles.boardContainer}
+      <motion.div
+        className={styles.boardShell}
+        style={
+          shouldReduceMotion
+            ? undefined
+            : {
+                rotateX: smoothTiltX,
+                rotateY: smoothTiltY,
+              }
+        }
         onMouseEnter={() => {
           isHoveringBoardRef.current = true;
         }}
-        onMouseLeave={() => {
-          isHoveringBoardRef.current = false;
-        }}
+        onMouseMove={handleBoardPointerMove}
+        onMouseLeave={handleBoardPointerLeave}
       >
-        <LayoutGroup id="eflow-kanban-board">
-          {COLUMNS.map((column) => {
-            const columnCards = cards.filter((c) => c.columnId === column.id);
-            const count = columnCounts[column.id];
-            const isDropTarget = hoveredColumnId === column.id && draggingCardId !== null;
-            const isSourceColumn = column.id === draggingSourceColId;
+        {/* Crisp Board Top Header matching the Landing Page */}
+        <div className={styles.boardHeader}>
+          <div className={styles.boardHeaderLeft}>
+            <span className={styles.boardSquare} aria-hidden="true" />
+            <span className={styles.boardTitle}>{organizationName} · Q3 Workplan</span>
+          </div>
+          <span className={styles.boardMetaBadge}>FY 2026 · {cards.length} Tasks</span>
+        </div>
 
-            return (
-              <div
-                key={column.id}
-                ref={(el) => {
-                  columnRefs.current[column.id] = el;
-                }}
-                data-column-id={column.id}
-                className={`${styles.column} ${isDropTarget ? styles.isDropTarget : ""} ${isSourceColumn ? styles.isSourceColumn : ""}`}
-                style={{
-                  zIndex: isSourceColumn ? 100 : 1,
-                  transform: isSourceColumn ? "translateZ(30px)" : undefined,
-                }}
-              >
-                <div className={styles.columnHeader}>
-                  <span className={styles.columnTitle}>{column.label}</span>
-                  <span className={styles.columnBadge}>{count}</span>
-                </div>
+        {/* Three-Column Kanban Body */}
+        <div className={styles.boardContainer}>
+          <LayoutGroup id="eflow-kanban-board">
+            {COLUMNS.map((column) => {
+              const columnCards = cards.filter((c) => c.columnId === column.id);
+              const count = columnCounts[column.id];
+              const isDropTarget = hoveredColumnId === column.id && draggingCardId !== null;
+              const isSourceColumn = column.id === draggingSourceColId;
+              const isDoneCol = column.id === "done";
 
-                <div className={styles.cardList}>
-                  {columnCards.map((card) => {
-                    const isDone = card.columnId === "done";
-                    const isThisDragging = draggingCardId === card.id;
+              return (
+                <div
+                  key={column.id}
+                  ref={(el) => {
+                    columnRefs.current[column.id] = el;
+                  }}
+                  data-column-id={column.id}
+                  className={`${styles.column} ${isDropTarget ? styles.isDropTarget : ""} ${
+                    isSourceColumn ? styles.isSourceColumn : ""
+                  }`}
+                  style={{
+                    zIndex: isSourceColumn ? 100 : 1,
+                  }}
+                >
+                  <div className={styles.columnHeader}>
+                    <span className={styles.columnTitle}>{column.label}</span>
+                    <span
+                      className={`${styles.columnBadge} ${
+                        isDoneCol && count === cards.length ? styles.columnBadgeDone : ""
+                      }`}
+                    >
+                      <AnimatePresence mode="popLayout" initial={false}>
+                        <motion.span
+                          key={count}
+                          initial={shouldReduceMotion ? false : { y: -10, opacity: 0 }}
+                          animate={{ y: 0, opacity: 1 }}
+                          exit={shouldReduceMotion ? undefined : { y: 10, opacity: 0 }}
+                          transition={{ type: "spring", stiffness: 360, damping: 26 }}
+                        >
+                          {count}
+                        </motion.span>
+                      </AnimatePresence>
+                    </span>
+                  </div>
 
-                    return (
-                      <motion.div
-                        layout="position"
-                        layoutId={card.id}
-                        key={card.id}
-                        data-card-id={card.id}
-                        className={`${styles.card} ${isThisDragging ? styles.isDragging : ""}`}
-                        style={{
-                          borderLeftColor: card.borderColor,
-                          zIndex: isThisDragging ? 9999 : 2,
-                        }}
-                        drag
-                        dragSnapToOrigin
-                        dragElastic={0.15}
-                        dragTransition={{ bounceStiffness: 500, bounceDamping: 40 }}
-                        whileHover={
-                          shouldReduceMotion
-                            ? undefined
-                            : {
-                                scale: 1.02,
-                                y: -2,
-                                transition: { duration: 0.15 },
-                              }
-                        }
-                        whileTap={
-                          shouldReduceMotion
-                            ? undefined
-                            : {
-                                scale: 0.98,
-                              }
-                        }
-                        whileDrag={{
-                          scale: 1.05,
-                          rotate: 1.5,
-                          zIndex: 9999,
-                          boxShadow:
-                            "0 28px 56px rgba(0, 0, 0, 0.35), 0 8px 22px rgba(0, 0, 0, 0.16)",
-                          cursor: "grabbing",
-                        }}
-                        onDragStart={() => handleDragStart(card.id)}
-                        onDrag={(_e, info) => handleDrag(_e, info)}
-                        onDragEnd={(_e, info) => handleDragEnd(card, _e, info)}
-                        initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.94 }}
-                        animate={
-                          isDone && !shouldReduceMotion
-                            ? {
-                                opacity: 1,
-                                scale: [1, 1.04, 1],
-                                transition: { duration: 0.35, ease: "easeInOut" },
-                              }
-                            : { opacity: 1, scale: 1, transition: SPRING_ENTER }
-                        }
-                        transition={{ type: "spring", stiffness: 420, damping: 38, mass: 0.7 }}
-                      >
-                        <div className={styles.cardHeader}>
-                          <span className={styles.cardTitle}>{card.title}</span>
-                          <div className={styles.cardHeaderRight}>
-                            {isDone && (
-                              <svg
-                                className={styles.checkIcon}
-                                width="16"
-                                height="16"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2.5"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
+                  <div
+                    className={`${styles.cardList} ${
+                      !isSourceColumn && columnCards.length >= 5 ? styles.cardListScrollable : ""
+                    }`}
+                  >
+                    {columnCards.map((card) => {
+                      const isTodo = card.columnId === "todo";
+                      const isProgress = card.columnId === "in_progress";
+                      const isDone = card.columnId === "done";
+                      const isThisDragging = draggingCardId === card.id;
+
+                      return (
+                        <motion.div
+                          layout="position"
+                          layoutId={card.id}
+                          key={card.id}
+                          data-card-id={card.id}
+                          className={`${styles.card} ${
+                            isTodo
+                              ? styles.cardTodo
+                              : isProgress
+                                ? styles.cardProgress
+                                : styles.cardDone
+                          } ${isThisDragging ? styles.isDragging : ""}`}
+                          style={{
+                            zIndex: isThisDragging ? 9999 : 2,
+                          }}
+                          drag
+                          dragSnapToOrigin
+                          dragElastic={0.14}
+                          dragTransition={{ bounceStiffness: 480, bounceDamping: 38 }}
+                          whileHover={
+                            shouldReduceMotion
+                              ? undefined
+                              : {
+                                  scale: 1.015,
+                                  y: -2,
+                                  transition: { duration: 0.15 },
+                                }
+                          }
+                          whileTap={
+                            shouldReduceMotion
+                              ? undefined
+                              : {
+                                  scale: 0.985,
+                                }
+                          }
+                          whileDrag={{
+                            scale: 1.04,
+                            rotate: 1.2,
+                            zIndex: 9999,
+                            boxShadow:
+                              "0 26px 52px rgba(10, 16, 40, 0.34), 0 8px 20px rgba(10, 16, 40, 0.16)",
+                            cursor: "grabbing",
+                          }}
+                          onDragStart={() => handleDragStart(card.id)}
+                          onDrag={(_e, info) => handleDrag(_e, info)}
+                          onDragEnd={(_e, info) => handleDragEnd(card, _e, info)}
+                          initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.95 }}
+                          animate={
+                            isDone && !shouldReduceMotion
+                              ? {
+                                  opacity: 1,
+                                  scale: [1, 1.025, 1],
+                                  transition: { duration: 0.3, ease: "easeInOut" },
+                                }
+                              : { opacity: 1, scale: 1, transition: SPRING_ENTER }
+                          }
+                          transition={{ type: "spring", stiffness: 360, damping: 32, mass: 0.75 }}
+                        >
+                          <div className={styles.cardHeader}>
+                            <span className={styles.cardTitle}>{card.title}</span>
+                            <div className={styles.cardHeaderRight}>
+                              <span className={styles.cardBudget}>{card.budgetLabel}</span>
+                              <div
+                                className={styles.dragHandle}
+                                title="Drag to move task"
+                                aria-hidden="true"
                               >
-                                <motion.path
-                                  d="M20 6L9 17L4 12"
-                                  initial={
-                                    shouldReduceMotion
-                                      ? { pathLength: 1 }
-                                      : { pathLength: 0 }
-                                  }
-                                  animate={{ pathLength: 1 }}
-                                  transition={{ duration: 0.4, ease: "easeOut" }}
-                                />
-                              </svg>
-                            )}
-                            <div
-                              className={styles.dragHandle}
-                              title="Drag to move task"
-                              aria-hidden="true"
-                            >
-                              <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
-                                <circle cx="5" cy="3" r="1.5" />
-                                <circle cx="11" cy="3" r="1.5" />
-                                <circle cx="5" cy="8" r="1.5" />
-                                <circle cx="11" cy="8" r="1.5" />
-                                <circle cx="5" cy="13" r="1.5" />
-                                <circle cx="11" cy="13" r="1.5" />
-                              </svg>
+                                <svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor">
+                                  <circle cx="5" cy="3" r="1.5" />
+                                  <circle cx="11" cy="3" r="1.5" />
+                                  <circle cx="5" cy="8" r="1.5" />
+                                  <circle cx="11" cy="8" r="1.5" />
+                                  <circle cx="5" cy="13" r="1.5" />
+                                  <circle cx="11" cy="13" r="1.5" />
+                                </svg>
+                              </div>
                             </div>
                           </div>
-                        </div>
 
-                        <div className={styles.skeletonLine} />
-
-                        <div className={styles.progressTrack}>
-                          <motion.div
-                            className={styles.progressBar}
-                            style={{
-                              background: card.statusColor,
-                            }}
-                            initial={{ scaleX: 0 }}
-                            animate={{ scaleX: card.progress }}
-                            transition={SPRING_DRIFT}
-                          />
-                        </div>
-
-                        <div className={styles.cardFooter}>
-                          <div className={styles.avatarStack}>
-                            {card.avatars.map((av, idx) => (
-                              <div key={idx} className={styles.avatar}>
-                                {av}
-                              </div>
-                            ))}
+                          <div
+                            className={`${styles.progressTrack} ${
+                              isProgress ? styles.progressTrackAmber : ""
+                            }`}
+                          >
+                            <motion.div
+                              className={`${styles.progressBar} ${
+                                isTodo
+                                  ? styles.progressBarTodo
+                                  : isProgress
+                                    ? styles.progressBarProgress
+                                    : styles.progressBarDone
+                              }`}
+                              initial={{ scaleX: 0 }}
+                              animate={{ scaleX: card.progress }}
+                              transition={SPRING_DRIFT}
+                            />
                           </div>
 
-                          <span
-                            className={styles.statusPill}
-                            style={{
-                              color: card.statusColor,
-                              background: `${card.statusColor}18`,
-                            }}
-                          >
-                            {card.statusLabel}
-                          </span>
-                        </div>
-                      </motion.div>
-                    );
-                  })}
+                          <div className={styles.cardFooter}>
+                            <span
+                              className={`${styles.statusPill} ${
+                                isTodo
+                                  ? styles.pillTodo
+                                  : isProgress
+                                    ? styles.pillProgress
+                                    : styles.pillDone
+                              }`}
+                            >
+                              {isDone && (
+                                <svg
+                                  className={styles.checkIcon}
+                                  width="11"
+                                  height="11"
+                                  viewBox="0 0 16 16"
+                                  fill="none"
+                                  aria-hidden="true"
+                                >
+                                  <motion.path
+                                    d="M3.2 8.4L6.6 11.8L13 4.8"
+                                    stroke="currentColor"
+                                    strokeWidth="2.2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    initial={
+                                      shouldReduceMotion
+                                        ? { pathLength: 1 }
+                                        : { pathLength: 0 }
+                                    }
+                                    animate={{ pathLength: 1 }}
+                                    transition={{ duration: 0.32, ease: "easeOut" }}
+                                  />
+                                </svg>
+                              )}
+                              <span>{card.statusLabel}</span>
+                            </span>
+
+                            <div className={styles.avatarStack} aria-hidden="true">
+                              {card.avatars.map((av, idx) => (
+                                <div key={idx} className={styles.avatar}>
+                                  {av}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
-        </LayoutGroup>
-      </div>
+              );
+            })}
+          </LayoutGroup>
+        </div>
+      </motion.div>
     </div>
   );
 }

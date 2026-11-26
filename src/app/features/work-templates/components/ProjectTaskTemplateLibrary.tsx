@@ -1,4 +1,5 @@
 import { readableUiError } from '../../../shared/userFacingError';
+import { ActionBlockerGroup } from "../../../components/ui/action-blockers";
 import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import { BoundedTextInput } from "../../../components/ui/BoundedInput";
 import { INPUT_LIMITS, textLengthError } from "../../../shared/inputLimits";
@@ -197,14 +198,10 @@ export function ProjectTaskTemplateLibrary({
     : '';
   const visibleTemplateNameError = touched['template-name'] || submitted ? templateNameError : '';
 
-  const addGroupDisabledReason = busy
-    ? 'Saving template…'
-    : totalGroups >= MAX_GROUPS
-      ? `Maximum of ${MAX_GROUPS} groups per template reached.`
-      : totalTasks >= MAX_TOTAL_TASKS
-        ? `Maximum of ${MAX_TOTAL_TASKS} total tasks per template reached.`
-        : '';
-  const saveDisabledReason = busy ? 'Saving template…' : editorValidationError;
+  const addGroupBlockers = [
+    totalGroups >= MAX_GROUPS ? `Maximum of ${MAX_GROUPS} groups per template reached.` : '',
+    totalTasks >= MAX_TOTAL_TASKS ? `Maximum of ${MAX_TOTAL_TASKS} total tasks per template reached.` : '',
+  ].filter(Boolean);
 
   return (
     <section className="eflow-tpl-library" aria-label="Project starter templates">
@@ -217,19 +214,15 @@ export function ProjectTaskTemplateLibrary({
           </p>
         </div>
         {!editor && (
-          <WorkspaceTooltip content={busy ? 'Loading templates…' : ''} disabled={!busy}>
-            <span className="inline-flex">
-              <Button
-                type="button"
-                kind="primary"
-                size="small"
-                disabled={busy}
-                onClick={() => openEditor(createEmptyDraft())}
-              >
-                New template
-              </Button>
-            </span>
-          </WorkspaceTooltip>
+          <Button
+            type="button"
+            kind="primary"
+            size="small"
+            disabled={busy}
+            onClick={() => openEditor(createEmptyDraft())}
+          >
+            New template
+          </Button>
         )}
       </header>
 
@@ -290,9 +283,8 @@ export function ProjectTaskTemplateLibrary({
               textLengthError(group.title, 'Group name', { required: true, max: INPUT_LIMITS.GROUP_TITLE }) ||
               duplicateGroup;
             const visibleGroupError = touched[groupKey] || submitted || Boolean(duplicateGroup) ? groupError : '';
-            const addTaskDisabledReason = busy
-              ? 'Saving template…'
-              : totalTasks >= MAX_TOTAL_TASKS
+            const addTaskBlocker =
+              totalTasks >= MAX_TOTAL_TASKS
                 ? `Maximum of ${MAX_TOTAL_TASKS} total tasks per template reached.`
                 : '';
 
@@ -352,9 +344,8 @@ export function ProjectTaskTemplateLibrary({
                     textLengthError(task.title, `Task ${taskIndex + 1}`, { required: true, max: INPUT_LIMITS.TASK_TITLE }) ||
                     duplicateTask;
                   const visibleTaskError = touched[taskKey] || submitted || Boolean(duplicateTask) ? taskError : '';
-                  const addSubtaskDisabledReason = busy
-                    ? 'Saving template…'
-                    : task.subtasks.length >= MAX_SUBTASKS_PER_TASK
+                  const addSubtaskBlocker =
+                    task.subtasks.length >= MAX_SUBTASKS_PER_TASK
                       ? `Maximum of ${MAX_SUBTASKS_PER_TASK} subtasks per task reached.`
                       : '';
 
@@ -437,19 +428,23 @@ export function ProjectTaskTemplateLibrary({
                           );
                         })}
                         <div className="eflow-tpl-row-actions">
-                          <WorkspaceTooltip content={addSubtaskDisabledReason} disabled={!addSubtaskDisabledReason}>
-                            <span className="inline-flex">
-                              <button
-                                type="button"
-                                className="eflow-tpl-link-btn"
-                                disabled={Boolean(addSubtaskDisabledReason)}
-                                onClick={() => editTask({ ...task, subtasks: [...task.subtasks, ''] })}
-                              >
-                                <Plus size={13} />
-                                Add subtask
-                              </button>
-                            </span>
-                          </WorkspaceTooltip>
+                          <ActionBlockerGroup
+                            actionLabel="Add subtask"
+                            blockers={addSubtaskBlocker}
+                            busy={busy}
+                            compact
+                            size="sm"
+                          >
+                            <button
+                              type="button"
+                              className="eflow-tpl-link-btn"
+                              disabled={busy || Boolean(addSubtaskBlocker)}
+                              onClick={() => editTask({ ...task, subtasks: [...task.subtasks, ''] })}
+                            >
+                              <Plus size={13} />
+                              Add subtask
+                            </button>
+                          </ActionBlockerGroup>
                           {group.tasks.length > 1 && (
                             <WorkspaceTooltip content="Removes this task and its subtasks from the group.">
                               <button
@@ -474,54 +469,64 @@ export function ProjectTaskTemplateLibrary({
                 })}
 
                 <div>
-                  <WorkspaceTooltip content={addTaskDisabledReason} disabled={!addTaskDisabledReason}>
-                    <span className="inline-flex">
-                      <button
-                        type="button"
-                        className="eflow-tpl-link-btn"
-                        disabled={Boolean(addTaskDisabledReason)}
-                        onClick={() => editGroup({ ...group, tasks: [...group.tasks, { title: '', subtasks: [] }] })}
-                      >
-                        <Plus size={13} />
-                        Add task to group
-                      </button>
-                    </span>
-                  </WorkspaceTooltip>
+                  <ActionBlockerGroup
+                    actionLabel="Add task to group"
+                    blockers={addTaskBlocker}
+                    busy={busy}
+                    compact
+                    size="sm"
+                  >
+                    <button
+                      type="button"
+                      className="eflow-tpl-link-btn"
+                      disabled={busy || Boolean(addTaskBlocker)}
+                      onClick={() => editGroup({ ...group, tasks: [...group.tasks, { title: '', subtasks: [] }] })}
+                    >
+                      <Plus size={13} />
+                      Add task to group
+                    </button>
+                  </ActionBlockerGroup>
                 </div>
               </fieldset>
             );
           })}
 
           <div className="eflow-tpl-row-actions">
-            <WorkspaceTooltip content={addGroupDisabledReason} disabled={!addGroupDisabledReason}>
-              <span className="inline-flex">
-                <Button
-                  type="button"
-                  kind="secondary"
-                  size="small"
-                  disabled={Boolean(addGroupDisabledReason)}
-                  onClick={() =>
-                    setEditorState({
-                      ...editor,
-                      groups: [...editor.groups, { title: '', tasks: [{ title: '', subtasks: [] }] }],
-                    })
-                  }
-                >
-                  Add group
-                </Button>
-              </span>
-            </WorkspaceTooltip>
+            <ActionBlockerGroup
+              actionLabel="Add group"
+              blockers={addGroupBlockers}
+              busy={busy}
+              size="sm"
+            >
+              <Button
+                type="button"
+                kind="secondary"
+                size="small"
+                disabled={busy || addGroupBlockers.length > 0}
+                onClick={() =>
+                  setEditorState({
+                    ...editor,
+                    groups: [...editor.groups, { title: '', tasks: [{ title: '', subtasks: [] }] }],
+                  })
+                }
+              >
+                Add group
+              </Button>
+            </ActionBlockerGroup>
             <div className="eflow-tpl-card-actions">
               <Button type="button" kind="tertiary" size="small" disabled={busy} onClick={() => openEditor(undefined)}>
                 Cancel
               </Button>
-              <WorkspaceTooltip content={saveDisabledReason} disabled={!saveDisabledReason}>
-                <span className="inline-flex">
-                  <Button type="submit" kind="primary" size="small" disabled={Boolean(saveDisabledReason)}>
-                    Save template
-                  </Button>
-                </span>
-              </WorkspaceTooltip>
+              <ActionBlockerGroup
+                actionLabel="Save template"
+                blockers={editorValidationError}
+                busy={busy}
+                size="sm"
+              >
+                <Button type="submit" kind="primary" size="small" disabled={busy || Boolean(editorValidationError)}>
+                  Save template
+                </Button>
+              </ActionBlockerGroup>
             </div>
           </div>
         </form>
@@ -585,19 +590,17 @@ export function ProjectTaskTemplateLibrary({
                     <Copy size={13} style={{ marginRight: 5 }} />
                     Duplicate
                   </Button>
-                  <WorkspaceTooltip content={busy ? 'Updating template library…' : 'Removes this starter template from the shared library. You will be asked to confirm.'}>
-                    <span className="inline-flex">
-                      <Button
-                        type="button"
-                        kind="tertiary"
-                        size="small"
-                        disabled={busy}
-                        onClick={() => void runRetire(template)}
-                      >
-                        <Trash2 size={13} style={{ marginRight: 5 }} />
-                        Delete
-                      </Button>
-                    </span>
+                  <WorkspaceTooltip content="Removes this starter template from the shared library. You will be asked to confirm." disabled={busy}>
+                    <Button
+                      type="button"
+                      kind="tertiary"
+                      size="small"
+                      disabled={busy}
+                      onClick={() => void runRetire(template)}
+                    >
+                      <Trash2 size={13} style={{ marginRight: 5 }} />
+                      Delete
+                    </Button>
                   </WorkspaceTooltip>
                 </div>
               </article>

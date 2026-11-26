@@ -1,6 +1,8 @@
 import { supabase } from "../../../../lib/supabase";
 import { assertActionActor } from "../../../shared/actionActor";
 import type {
+  AssignmentReceiptReviewStatus,
+  PendingAssignmentReceiptReview,
   ReceiptItem,
   TaskCashPools,
   WorkCashAssignment,
@@ -53,6 +55,20 @@ export function mapTaskCashPools(raw: unknown): TaskCashPools | undefined {
               allocationLineId: String(line.allocationLineId || ""),
               amount: Number(line.amount || 0),
               sourceName: line.sourceName ? String(line.sourceName) : undefined,
+              allocatedAmount:
+                line.allocatedAmount !== undefined ? Number(line.allocatedAmount) : undefined,
+              unrequestedAmount:
+                line.unrequestedAmount !== undefined ? Number(line.unrequestedAmount) : undefined,
+              assignedToTask:
+                line.assignedToTask !== undefined ? Number(line.assignedToTask) : undefined,
+              assignedToSubtasks:
+                line.assignedToSubtasks !== undefined ? Number(line.assignedToSubtasks) : undefined,
+              unassignedAmount:
+                line.unassignedAmount !== undefined ? Number(line.unassignedAmount) : undefined,
+              recordedReceiptsTotal:
+                line.recordedReceiptsTotal !== undefined
+                  ? Number(line.recordedReceiptsTotal)
+                  : undefined,
             }))
           : [],
         releasedAmount: Number(row.releasedAmount || 0),
@@ -91,6 +107,7 @@ export function mapTaskCashPools(raw: unknown): TaskCashPools | undefined {
           ? "office_petty_cash"
           : "task_cash_release") as WorkCashSourceKind,
         sourceRequestId: String(row.sourceRequestId || ""),
+        allocationLineId: row.allocationLineId ? String(row.allocationLineId) : null,
         sourceLabel: String(row.sourceLabel || ""),
         sourceOrgId: row.sourceOrgId ? String(row.sourceOrgId) : undefined,
         fundingLines: Array.isArray(row.fundingLines)
@@ -98,6 +115,20 @@ export function mapTaskCashPools(raw: unknown): TaskCashPools | undefined {
               allocationLineId: String(line.allocationLineId || ""),
               amount: Number(line.amount || 0),
               sourceName: line.sourceName ? String(line.sourceName) : undefined,
+              allocatedAmount:
+                line.allocatedAmount !== undefined ? Number(line.allocatedAmount) : undefined,
+              unrequestedAmount:
+                line.unrequestedAmount !== undefined ? Number(line.unrequestedAmount) : undefined,
+              assignedToTask:
+                line.assignedToTask !== undefined ? Number(line.assignedToTask) : undefined,
+              assignedToSubtasks:
+                line.assignedToSubtasks !== undefined ? Number(line.assignedToSubtasks) : undefined,
+              unassignedAmount:
+                line.unassignedAmount !== undefined ? Number(line.unassignedAmount) : undefined,
+              recordedReceiptsTotal:
+                line.recordedReceiptsTotal !== undefined
+                  ? Number(line.recordedReceiptsTotal)
+                  : undefined,
             }))
           : [],
         taskId: String(row.taskId || ""),
@@ -109,6 +140,19 @@ export function mapTaskCashPools(raw: unknown): TaskCashPools | undefined {
         status: (row.status === "recalled" || row.status === "settled"
           ? row.status
           : "active") as WorkCashAssignment["status"],
+        receiptReviewStatus: (
+          ["open", "pending_accounting", "approved", "changes_requested"].includes(
+            String(row.receiptReviewStatus || ""),
+          )
+            ? String(row.receiptReviewStatus)
+            : "open"
+        ) as AssignmentReceiptReviewStatus,
+        returnedToPoolAmount:
+          row.returnedToPoolAmount !== undefined ? Number(row.returnedToPoolAmount || 0) : 0,
+        accountingDecisionReason: row.accountingDecisionReason
+          ? String(row.accountingDecisionReason)
+          : null,
+        receiptSubmittedAt: row.receiptSubmittedAt ? String(row.receiptSubmittedAt) : null,
         note: String(row.note || ""),
         assignedBy: String(row.assignedBy || ""),
         assignedByName: String(row.assignedByName || ""),
@@ -120,6 +164,7 @@ export function mapTaskCashPools(raw: unknown): TaskCashPools | undefined {
 
   return {
     canAssignCash: obj.canAssignCash === true,
+    completionSubmitted: obj.completionSubmitted === true,
     taskCashReleases,
     officePettyCashReleases,
     assignments,
@@ -172,6 +217,16 @@ function mapAssignmentReceipts(raw: unknown): WorkCashAssignmentReceipt[] {
     uploadedByName: String(row.uploadedByName || ""),
     createdAt: row.createdAt ? String(row.createdAt) : undefined,
     canDelete: row.canDelete === true,
+    receiptReviewStatus: row.receiptReviewStatus
+      ? (String(row.receiptReviewStatus) as AssignmentReceiptReviewStatus)
+      : undefined,
+    locked: row.locked === true || row.receiptReviewStatus === "approved",
+    accountingDecidedAt: row.accountingDecidedAt
+      ? String(row.accountingDecidedAt)
+      : null,
+    accountingDecidedByName: row.accountingDecidedByName
+      ? String(row.accountingDecidedByName)
+      : undefined,
   }));
 }
 
@@ -180,6 +235,7 @@ export async function assignWorkCash(input: {
   subtaskId?: string | null;
   sourceKind: WorkCashSourceKind;
   sourceRequestId: string;
+  allocationLineId?: string | null;
   amount: number;
   note?: string;
   idempotencyKey?: string;
@@ -189,6 +245,7 @@ export async function assignWorkCash(input: {
     p_subtask_id: input.subtaskId || null,
     p_source_kind: input.sourceKind,
     p_source_request_id: input.sourceRequestId,
+    p_allocation_line_id: input.allocationLineId || null,
     p_amount: input.amount,
     p_note: input.note?.trim() || "",
     p_key: input.idempotencyKey || crypto.randomUUID(),
@@ -349,4 +406,124 @@ export async function createAssignmentReceiptSignedUrl(
     .createSignedUrl(filePath, 600);
   if (error) throw new Error(error.message);
   return data!.signedUrl;
+}
+
+export async function submitSubtaskCashClearance(input: {
+  taskId: string;
+  subtaskId?: string | null;
+  note?: string;
+  idempotencyKey?: string;
+}): Promise<{
+  submittedCount: number;
+  totalSpent: number;
+  totalReturnedToPool: number;
+  autoCompleted: boolean;
+}> {
+  const { data, error } = await supabase.rpc("submit_subtask_cash_clearance", {
+    p_task_id: input.taskId,
+    p_subtask_id: input.subtaskId || null,
+    p_note: input.note?.trim() || "",
+    p_key: input.idempotencyKey || crypto.randomUUID(),
+  });
+  throwIf(error);
+  dispatchCashAssignmentChanged({
+    taskId: input.taskId,
+    subtaskId: input.subtaskId ?? null,
+  });
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("eflow:work-updated", { detail: { taskId: input.taskId } }));
+    window.dispatchEvent(new Event("eflow:finance-updated"));
+  }
+  const obj = (data && typeof data === "object" ? data : {}) as Record<string, unknown>;
+  return {
+    submittedCount: Number(obj.submittedCount || 0),
+    totalSpent: Number(obj.totalSpent || 0),
+    totalReturnedToPool: Number(obj.totalReturnedToPool || 0),
+    autoCompleted: obj.autoCompleted === true,
+  };
+}
+
+export async function fetchPendingAssignmentReceiptReviews(
+  orgId: string,
+): Promise<PendingAssignmentReceiptReview[]> {
+  if (!orgId) return [];
+  const { data, error } = await supabase.rpc("get_pending_assignment_receipt_reviews", {
+    p_org_id: orgId,
+  });
+  if (error) {
+    if (error.code === "PGRST202" || /could not find the function/i.test(error.message)) {
+      return [];
+    }
+    throwIf(error);
+  }
+  if (!Array.isArray(data)) return [];
+  return (data as Array<Record<string, unknown>>).map((row) => ({
+    assignmentId: String(row.assignmentId || ""),
+    orgId: String(row.orgId || ""),
+    taskId: String(row.taskId || ""),
+    taskTitle: String(row.taskTitle || ""),
+    subtaskId: row.subtaskId ? String(row.subtaskId) : null,
+    subtaskTitle: row.subtaskTitle ? String(row.subtaskTitle) : null,
+    sourceKind: (row.sourceKind === "office_petty_cash"
+      ? "office_petty_cash"
+      : "task_cash_release") as WorkCashSourceKind,
+    sourceLabel: String(row.sourceLabel || ""),
+    amount: Number(row.amount || 0),
+    returnedToPoolAmount: Number(row.returnedToPoolAmount || 0),
+    submittedAt: row.submittedAt ? String(row.submittedAt) : null,
+    submittedBy: row.submittedBy ? String(row.submittedBy) : null,
+    submittedByName: String(row.submittedByName || "Team member"),
+    submissionNote: String(row.submissionNote || ""),
+    workAccepted: row.workAccepted === true,
+    canDecide: row.canDecide === true,
+    receipts: Array.isArray(row.receipts)
+      ? (row.receipts as Array<Record<string, unknown>>).map((rcpt) => ({
+          id: String(rcpt.id || ""),
+          vendor: String(rcpt.vendor || ""),
+          receiptNumber: String(rcpt.receiptNumber || ""),
+          receiptDate: String(rcpt.receiptDate || ""),
+          description: String(rcpt.description || ""),
+          amount: Number(rcpt.amount || 0),
+          fileName: String(rcpt.fileName || "receipt"),
+          filePath: String(rcpt.filePath || ""),
+          mimeType: String(rcpt.mimeType || "application/octet-stream"),
+          uploadedByName: String(rcpt.uploadedByName || ""),
+        }))
+      : [],
+  }));
+}
+
+export async function decideAssignmentReceiptReview(input: {
+  assignmentId: string;
+  taskId?: string;
+  subtaskId?: string | null;
+  approve: boolean;
+  reason?: string;
+  idempotencyKey?: string;
+}): Promise<{ assignmentId: string; approved: boolean; autoCompleted: boolean }> {
+  const { data, error } = await supabase.rpc("decide_assignment_receipt_review", {
+    p_assignment_id: input.assignmentId,
+    p_approve: input.approve,
+    p_reason: input.approve ? null : input.reason?.trim() || null,
+    p_key: input.idempotencyKey || crypto.randomUUID(),
+  });
+  throwIf(error);
+  dispatchCashAssignmentChanged({
+    taskId: input.taskId,
+    subtaskId: input.subtaskId ?? null,
+  });
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(
+      new CustomEvent("eflow:work-updated", {
+        detail: input.taskId ? { taskId: input.taskId } : undefined,
+      }),
+    );
+    window.dispatchEvent(new Event("eflow:finance-updated"));
+  }
+  const obj = (data && typeof data === "object" ? data : {}) as Record<string, unknown>;
+  return {
+    assignmentId: String(obj.assignmentId || input.assignmentId),
+    approved: obj.approved === true,
+    autoCompleted: obj.autoCompleted === true,
+  };
 }

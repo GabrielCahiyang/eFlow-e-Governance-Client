@@ -4,7 +4,7 @@ import { Info, Loader2, Lock } from 'lucide-react';
 import { Modal } from '../../../components/ui/Modal';
 import { DateInput } from '../../../components/ui/DateInput';
 import { BoundedTextInput, BoundedTextarea } from '../../../components/ui/BoundedInput';
-import { WorkspaceTooltip } from '../../../components/ui/workspace/WorkspaceTooltip';
+import { ActionBlockerGroup } from '../../../components/ui/action-blockers';
 import { useNavigationBlocker, requestNavigation } from '../../../shared/navigationGuard';
 import { calendarMinDate, getPhilippineCalendarDate } from '../../../shared/calendarDates';
 import { INPUT_LIMITS, textLengthError } from '../../../shared/inputLimits';
@@ -99,28 +99,19 @@ export function ProjectTaskEditDialog({ task, projectStartDate, projectTargetDat
     ? projectPrerequisiteError(tasks, task.linkedProjectId, task.id, prerequisites, task.dependencyIds)
     : '';
 
-  const submitDisabledReason = busy
-    ? 'Saving task…'
-    : policyLoading
-      ? 'Checking current task editing access…'
-      : !verified
-        ? (policyError || 'Task editing access could not be verified.')
-        : !detailsWritable
-          ? 'You do not have permission to edit this task.'
-          : startDateError
-            ? startDateError
-            : dueDateError
-              ? dueDateError
-              : !dirty
-                ? 'Make a change before saving.'
-                : titleError
-                  ? titleError
-                  : reasonError
-                    ? reasonError
-                    : prerequisiteError
-                      ? prerequisiteError
-                      : '';
-  const submitDisabled = Boolean(submitDisabledReason);
+  const submitBlockers = !verified
+    ? [policyError || 'Task editing access could not be verified.']
+    : !detailsWritable
+      ? ['You do not have permission to edit this task.']
+      : [
+          startDateError,
+          dueDateError,
+          !dirty ? 'Make a change before saving.' : '',
+          titleError,
+          reasonError,
+          prerequisiteError,
+        ].filter(Boolean);
+  const submitDisabled = busy || policyLoading || submitBlockers.length > 0;
 
   async function submit() {
     setSubmitted(true);
@@ -176,13 +167,11 @@ export function ProjectTaskEditDialog({ task, projectStartDate, projectTargetDat
       footer={
         <div className="pf-actions">
           <button type="button" disabled={busy} onClick={close}>Cancel</button>
-          <WorkspaceTooltip content={submitDisabledReason} disabled={!submitDisabledReason}>
-            <span className="inline-flex">
-              <button type="button" className="pf-primary" disabled={submitDisabled} onClick={() => void submit()}>
-                {busy ? 'Saving…' : 'Save task'}
-              </button>
-            </span>
-          </WorkspaceTooltip>
+          <ActionBlockerGroup actionLabel="Save task" blockers={submitBlockers} busy={busy || policyLoading}>
+            <button type="button" className="pf-primary" disabled={submitDisabled} onClick={() => void submit()}>
+              {busy ? 'Saving…' : 'Save task'}
+            </button>
+          </ActionBlockerGroup>
         </div>
       }
     >

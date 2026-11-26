@@ -1,6 +1,13 @@
 import { createContext, type Context } from 'react';
 import type { User } from '@supabase/supabase-js';
+import type { LogoutReason } from '../features/session-security/services/logoutNotice';
 import type { UserProfile } from '../types';
+
+export interface LogoutOptions {
+  reason?: LogoutReason;
+  preserveNotice?: boolean;
+  silent?: boolean;
+}
 
 export interface AuthContextValue {
   user: User | null;
@@ -13,7 +20,7 @@ export interface AuthContextValue {
   login: (email: string, password: string) => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   clearPasswordRecovery?: () => void;
-  logout: () => Promise<void>;
+  logout: (options?: LogoutOptions) => Promise<void>;
   updateUserProfile: (changes: Partial<Pick<UserProfile, 'full_name' | 'avatar_path' | 'email_notifications_enabled'>>) => void;
   clearError: () => void;
   // Capability check. UI convenience only — RLS remains the enforcement boundary.

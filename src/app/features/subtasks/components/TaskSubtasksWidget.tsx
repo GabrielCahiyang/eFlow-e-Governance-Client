@@ -1,4 +1,5 @@
 import { readableUiError } from '../../../shared/userFacingError';
+import { ActionBlockerGroup } from "../../../components/ui/action-blockers";
 import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import { BoundedTextInput } from "../../../components/ui/BoundedInput";
 import { DateInput } from "../../../components/ui/DateInput";
@@ -130,14 +131,8 @@ function LegacyTaskSubtasksWidget({
       ? "Choose a subtask due date."
       : scheduledDateError(newDueDate, { latest: parentDue || "", label: "Subtask due date" });
   const visibleDueError = dueInvalidText || Boolean(newDueDate) ? dueError : "";
-  const addDisabledReason = adding
-    ? "Adding subtask…"
-    : titleError
-      ? titleError
-      : dueError
-        ? dueError
-        : "";
-  const addDisabled = Boolean(addDisabledReason);
+  const addBlockers = [titleError, dueError].filter(Boolean);
+  const addDisabled = adding || addBlockers.length > 0;
 
   const handleAdd = async () => {
     setTitleTouched(true);
@@ -323,14 +318,20 @@ function LegacyTaskSubtasksWidget({
               )}
 
               {canManage && (
-                <WorkspaceTooltip
-                  content={executionModeLocked
-                    ? "Work order can’t change after work starts."
-                    : st.isStandalone
-                      ? "Make this subtask follow the order of earlier steps."
-                      : "Let this subtask start without waiting for earlier steps."}
+                <ActionBlockerGroup
+                  actionLabel={st.isStandalone ? "Follow work order" : "Allow out of order"}
+                  blockers={executionModeLocked ? "Work order can’t change after work starts." : []}
+                  compact
+                  size="sm"
                 >
-                  <span className="inline-flex">
+                  <WorkspaceTooltip
+                    content={
+                      st.isStandalone
+                        ? "Make this subtask follow the order of earlier steps."
+                        : "Let this subtask start without waiting for earlier steps."
+                    }
+                    disabled={executionModeLocked}
+                  >
                     <button
                       type="button"
                       onClick={() => void toggleStandalone(st)}
@@ -344,8 +345,8 @@ function LegacyTaskSubtasksWidget({
                     >
                       <Unlink2 size={9} /> {st.isStandalone ? "Follow work order" : "Allow out of order"}
                     </button>
-                  </span>
-                </WorkspaceTooltip>
+                  </WorkspaceTooltip>
+                </ActionBlockerGroup>
               )}
 
               <span className={`rounded-full px-1.5 py-0.5 text-[8.5px] font-medium ${
@@ -529,18 +530,22 @@ function LegacyTaskSubtasksWidget({
               <span className="inline-flex items-center gap-1"><Unlink2 size={11} /> Allow out of order</span>
             </button>
           </WorkspaceTooltip>
-          <WorkspaceTooltip content={addDisabledReason} disabled={!addDisabledReason}>
-            <span className="inline-flex shrink-0">
-              <button
-                type="button"
-                onClick={() => void handleAdd()}
-                disabled={addDisabled}
-                className="h-[32px] px-3 rounded-lg bg-neutral-900 text-white text-[11px] font-medium disabled:opacity-40 hover:bg-neutral-800 shrink-0 inline-flex items-center gap-1"
-              >
-                <Plus size={13} /> Add
-              </button>
-            </span>
-          </WorkspaceTooltip>
+          <ActionBlockerGroup
+            actionLabel="Add subtask"
+            blockers={addBlockers}
+            busy={adding}
+            size="sm"
+            className="shrink-0"
+          >
+            <button
+              type="button"
+              onClick={() => void handleAdd()}
+              disabled={addDisabled}
+              className="h-[32px] px-3 rounded-lg bg-neutral-900 text-white text-[11px] font-medium disabled:opacity-40 hover:bg-neutral-800 shrink-0 inline-flex items-center gap-1"
+            >
+              <Plus size={13} /> Add
+            </button>
+          </ActionBlockerGroup>
         </div>
         {visibleDueError && <p role="alert" className="eflow-field-error text-[10.5px]">{visibleDueError}</p>}
       </div>}

@@ -3,8 +3,8 @@ import { formatManilaDateTime } from '../../../shared/calendarDisplay';
 import { useRef, useState } from "react";
 import { CheckCircle2, ClipboardCheck, Loader2, RotateCcw, Send } from "lucide-react";
 import { Modal } from "../../../components/ui/Modal";
+import { ActionBlockerGroup, type ActionBlockerItem } from "../../../components/ui/action-blockers";
 import { BoundedTextarea } from "../../../components/ui/BoundedInput";
-import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import { INPUT_LIMITS, textLengthError } from "../../../shared/inputLimits";
 import {
   completeProject,
@@ -19,6 +19,8 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { ProjectReadinessPanel, type ReadinessDestination } from '../../project-readiness';
 import { useGuardedProjectDialog } from '../hooks/useGuardedProjectDialog';
 import { CompletionBlockersList } from './CompletionBlockersList';
+import { ProjectFinancialCloseoutCard } from './ProjectFinancialCloseoutCard';
+import { formatPeso, toCentavos } from '../../../shared/currency';
 import { requestNavigation } from '../../../shared/navigationGuard';
 
 export function ProjectCompleteDialog({ projectId, projectTitle, project, onClose, onSuccess, onOpenTask, onOpenGovernance, onResolve, archiveReview = false }: {
@@ -69,8 +71,15 @@ export function ProjectCompleteDialog({ projectId, projectTitle, project, onClos
   });
 
   const leadBlockers = readiness
-    ? readiness.blockers.filter((blocker) => blocker.kind !== 'lead_review')
+    ? readiness.blockers.filter(
+        (blocker) =>
+          blocker.kind !== 'lead_review' &&
+          !(blocker.kind === 'funding' && blocker.status === 'unreturned_project_funding'),
+      )
     : [];
+  const unreturnedFundingBlocker = readiness?.blockers.find(
+    (blocker) => blocker.kind === 'funding' && blocker.status === 'unreturned_project_funding',
+  );
   const completionReviewStatus =
     readiness?.completionReviewStatus ?? project?.completionReviewStatus ?? 'none';
   const requiresHeadCompletionReview = Boolean(readiness?.requiresHeadCompletionReview);
@@ -175,32 +184,79 @@ export function ProjectCompleteDialog({ projectId, projectTitle, project, onClos
   };
 
   const displayedBlockers = isNonHeadProjectLead ? leadBlockers : (readiness?.blockers ?? []);
+  const toModalBlockers = (items: typeof displayedBlockers): ActionBlockerItem[] =>
+    items.map((blocker, idx) => {
+      const isUnreturned = blocker.status === 'unreturned_project_funding';
+      const isCash = blocker.kind === 'cash';
+      const isGov = blocker.kind === 'governance';
+      return {
+        id: `${blocker.kind}-${blocker.id || idx}`,
+        category: isUnreturned
+          ? 'financial_gate'
+          : isCash
+            ? 'accounting_approval'
+            : isGov
+              ? 'partner_approval'
+              : 'readiness',
+        title: blocker.title,
+        detail:
+          blocker.kind === 'cash' && blocker.status === 'pending_department_settlement'
+            ? 'Settle this advance in Accounting → Settlements (Financial Officer). If no independent Financial Officer is available, the Office Head can approve and post it in Reviews → Budget.'
+            : blocker.detail,
+        waitingOn: isUnreturned
+          ? 'Office Head (Return to Office Budget)'
+          : isCash
+            ? 'Financial Officer (Accounting)'
+            : isGov
+              ? 'Partner Office Head'
+              : undefined,
+        statusLabel: isUnreturned
+          ? 'Unreturned Office Budget'
+          : isCash && blocker.status === 'pending_department_settlement'
+            ? 'Pending Financial Officer'
+            : blocker.status.replace(/_/g, ' ').replace(/^./, (letter) => letter.toUpperCase()),
+        amount: blocker.amount,
+        actionLabel:
+          isUnreturned && onResolve
+            ? 'Open Budget tab'
+            : blocker.kind === 'task' && blocker.id
+              ? 'Open task'
+              : blocker.kind === 'governance' && blocker.id
+                ? 'Open governance'
+                : undefined,
+        onAction:
+          isUnreturned && onResolve
+            ? () => onResolve('budget')
+            : blocker.kind === 'task' && blocker.id
+              ? () => onOpenTask(blocker.id)
+              : blocker.kind === 'governance' && blocker.id
+                ? () => onOpenGovernance(blocker.id)
+                : undefined,
+      };
+    });
+
   const submitLeadDisabled = busy || !canSubmitLeadReview || Boolean(error);
-  const submitLeadTip = !submitLeadDisabled || busy
-    ? ''
+  const submitLeadBlockers: ActionBlockerItem[] | string[] = !submitLeadDisabled || busy || loading
+    ? []
     : error
-      ? error
-      : loading
-        ? 'Checking completion requirements…'
-        : checks.error
-          ? checks.error
-          : leadBlockers.length > 0
-            ? `Resolve ${leadBlockers.length} remaining completion requirement${leadBlockers.length === 1 ? '' : 's'} before submitting.`
-            : checks.reason || 'Completion review cannot be submitted right now.';
+      ? [error]
+      : checks.error
+        ? [checks.error]
+        : leadBlockers.length > 0
+          ? toModalBlockers(leadBlockers)
+          : [checks.reason || 'Completion review cannot be submitted right now.'];
   const sendChangesDisabled = busy || Boolean(returnFeedbackError);
-  const sendChangesTip = !sendChangesDisabled || busy ? '' : returnFeedbackError;
+  const sendChangesBlockers = !sendChangesDisabled || busy ? [] : [returnFeedbackError];
   const confirmDisabled = busy || !checks.enabled || Boolean(error);
-  const confirmTip = !confirmDisabled || busy
-    ? ''
+  const confirmBlockers: ActionBlockerItem[] | string[] = !confirmDisabled || busy || loading
+    ? []
     : error
-      ? error
-      : loading
-        ? 'Checking completion requirements…'
-        : checks.error
-          ? checks.error
-          : displayedBlockers.length > 0
-            ? `Resolve ${displayedBlockers.length} remaining completion requirement${displayedBlockers.length === 1 ? '' : 's'} before marking complete.`
-            : checks.reason || 'This project is not ready to be marked complete yet.';
+      ? [error]
+      : checks.error
+        ? [checks.error]
+        : displayedBlockers.length > 0
+          ? toModalBlockers(displayedBlockers)
+          : [checks.reason || 'This project is not ready to be marked complete yet.'];
   const dialogTitle = archiveReview
     ? 'Archive requirements'
     : isNonHeadProjectLead
@@ -213,20 +269,24 @@ export function ProjectCompleteDialog({ projectId, projectTitle, project, onClos
     <div className="flex w-full flex-wrap justify-end gap-2">
       <button type="button" onClick={close} disabled={busy} className="rounded-lg border px-4 py-2 text-sm disabled:opacity-40">{archiveReview ? 'Close' : 'Cancel'}</button>
       {!archiveReview && isNonHeadProjectLead && completionReviewStatus !== 'requested' && (
-        <WorkspaceTooltip content={submitLeadTip} disabled={!submitLeadTip}>
-          <span className="inline-flex">
-            <button
-              type="button"
-              disabled={submitLeadDisabled}
-              aria-describedby="project-completion-reason"
-              onClick={() => void submitForHeadReview()}
-              className="inline-flex items-center gap-2 rounded-lg bg-[#00006b] px-4 py-2 text-sm font-medium text-white disabled:opacity-40"
-            >
-              {busy ? <Loader2 size={15} className="animate-spin" /> : <Send size={15} />}
-              {busy ? 'Submitting…' : 'Submit for Head completion review'}
-            </button>
-          </span>
-        </WorkspaceTooltip>
+        <ActionBlockerGroup
+          actionLabel="Submit for Head completion review"
+          blockers={submitLeadBlockers}
+          busy={busy || loading}
+          onRefresh={() => void checks.refresh()}
+          refreshing={loading}
+        >
+          <button
+            type="button"
+            disabled={submitLeadDisabled}
+            aria-describedby="project-completion-reason"
+            onClick={() => void submitForHeadReview()}
+            className="inline-flex items-center gap-2 rounded-lg bg-[#00006b] px-4 py-2 text-sm font-medium text-white disabled:opacity-40"
+          >
+            {busy ? <Loader2 size={15} className="animate-spin" /> : <Send size={15} />}
+            {busy ? 'Submitting…' : 'Submit for Head completion review'}
+          </button>
+        </ActionBlockerGroup>
       )}
       {!archiveReview && headReviewingSubmission && !returnMode && (
         <button
@@ -248,36 +308,42 @@ export function ProjectCompleteDialog({ projectId, projectTitle, project, onClos
           >
             Back
           </button>
-          <WorkspaceTooltip content={sendChangesTip} disabled={!sendChangesTip}>
-            <span className="inline-flex">
-              <button
-                type="button"
-                disabled={sendChangesDisabled}
-                onClick={() => void sendBackForChanges()}
-                className="inline-flex items-center gap-2 rounded-lg bg-amber-700 px-4 py-2 text-sm font-medium text-white disabled:opacity-40"
-              >
-                {busy ? <Loader2 size={15} className="animate-spin" /> : <RotateCcw size={15} />}
-                {busy ? 'Sending…' : 'Send change request'}
-              </button>
-            </span>
-          </WorkspaceTooltip>
+          <ActionBlockerGroup
+            actionLabel="Send change request"
+            blockers={sendChangesBlockers}
+            busy={busy}
+          >
+            <button
+              type="button"
+              disabled={sendChangesDisabled}
+              onClick={() => void sendBackForChanges()}
+              className="inline-flex items-center gap-2 rounded-lg bg-amber-700 px-4 py-2 text-sm font-medium text-white disabled:opacity-40"
+            >
+              {busy ? <Loader2 size={15} className="animate-spin" /> : <RotateCcw size={15} />}
+              {busy ? 'Sending…' : 'Send change request'}
+            </button>
+          </ActionBlockerGroup>
         </>
       )}
       {!archiveReview && isOfficeHead && !returnMode && (
-        <WorkspaceTooltip content={confirmTip} disabled={!confirmTip}>
-          <span className="inline-flex">
-            <button
-              type="button"
-              disabled={confirmDisabled}
-              aria-describedby="project-completion-reason"
-              onClick={() => void confirm()}
-              className="inline-flex items-center gap-2 rounded-lg bg-emerald-700 px-4 py-2 text-sm text-white disabled:opacity-40"
-            >
-              {busy ? <Loader2 size={15} className="animate-spin" /> : <CheckCircle2 size={15} />}
-              {headReviewingSubmission ? 'Approve & mark complete' : 'Confirm completion'}
-            </button>
-          </span>
-        </WorkspaceTooltip>
+        <ActionBlockerGroup
+          actionLabel={headReviewingSubmission ? 'Approve & mark complete' : 'Confirm completion'}
+          blockers={confirmBlockers}
+          busy={busy || loading}
+          onRefresh={() => void checks.refresh()}
+          refreshing={loading}
+        >
+          <button
+            type="button"
+            disabled={confirmDisabled}
+            aria-describedby="project-completion-reason"
+            onClick={() => void confirm()}
+            className="inline-flex items-center gap-2 rounded-lg bg-emerald-700 px-4 py-2 text-sm text-white disabled:opacity-40"
+          >
+            {busy ? <Loader2 size={15} className="animate-spin" /> : <CheckCircle2 size={15} />}
+            {headReviewingSubmission ? 'Approve & mark complete' : 'Confirm completion'}
+          </button>
+        </ActionBlockerGroup>
       )}
     </div>
   }>
@@ -294,8 +360,18 @@ export function ProjectCompleteDialog({ projectId, projectTitle, project, onClos
         </p>
       ) : (
         <p className="text-sm text-neutral-700">
-          Complete <strong>{projectTitle}</strong>? This changes only this project—not other projects in the work plan. Remaining project funding is retained with this project unless explicitly returned to Office Budget. Archiving and blockchain sealing remain separate steps.
+          Complete <strong>{projectTitle}</strong>? This changes only this project—not other projects in the work plan. All unused project funding must be manually returned to the Office Budget before this project can be marked complete. Archiving and blockchain sealing remain separate steps.
         </p>
+      )}
+
+      {!archiveReview && isNonHeadProjectLead && unreturnedFundingBlocker && (
+        <div role="status" className="rounded-lg border border-amber-200 bg-amber-50/80 p-3 text-xs text-amber-950">
+          <strong>Office Budget return pending Office Head closeout:</strong>{' '}
+          <span className="tabular-nums font-semibold">
+            {formatPeso(unreturnedFundingBlocker.amount ?? readiness?.unreturnedProjectFunding ?? 0)}
+          </span>{' '}
+          in unallocated project funding remains. You can submit delivery handover once all tasks and cash liquidations are settled; the Office Head must manually return these funds to the Office Budget before marking the project complete.
+        </div>
       )}
 
       {!archiveReview && completionReviewStatus === 'requested' && (
@@ -345,17 +421,26 @@ export function ProjectCompleteDialog({ projectId, projectTitle, project, onClos
 
       {readiness && <>
         {(readiness.canComplete || archiveReview || (isNonHeadProjectLead && displayedBlockers.length === 0)) && displayedBlockers.length === 0 ? (
-          <p className="rounded-lg bg-emerald-50 p-3 text-sm text-emerald-800">
-            {archiveReview
-              ? 'No outstanding closeout requirements.'
-              : isNonHeadProjectLead
-                ? completionReviewStatus === 'requested'
-                  ? 'All work and settlement checks passed. Awaiting Office Head final completion approval.'
-                  : 'All work, subtask, and financial settlement checks passed. Ready to submit for Office Head completion review.'
-                : headReviewingSubmission
-                  ? 'All completion checks passed and Project Lead handover is submitted. Ready to approve and mark complete.'
-                  : 'All completion checks passed. This project is ready to complete.'}
-          </p>
+          <div className="space-y-3">
+            <p className="rounded-lg bg-emerald-50 p-3 text-sm text-emerald-800">
+              {archiveReview
+                ? 'No outstanding closeout requirements.'
+                : isNonHeadProjectLead
+                  ? completionReviewStatus === 'requested'
+                    ? 'All work and settlement checks passed. Awaiting Office Head final completion approval.'
+                    : 'All work, subtask, and financial settlement checks passed. Ready to submit for Office Head completion review.'
+                  : headReviewingSubmission
+                    ? 'All completion checks passed and Project Lead handover is submitted. Ready to approve and mark complete.'
+                    : 'All completion checks passed. This project is ready to complete.'}
+            </p>
+            {readiness.financialCloseoutSummary &&
+              (!isNonHeadProjectLead || toCentavos(readiness.financialCloseoutSummary.unreturnedBalance) === 0) && (
+                <ProjectFinancialCloseoutCard
+                  summary={readiness.financialCloseoutSummary}
+                  mode="completion"
+                />
+              )}
+          </div>
         ) : (
           <div className="space-y-3">
             <h4 className="font-semibold text-neutral-900">

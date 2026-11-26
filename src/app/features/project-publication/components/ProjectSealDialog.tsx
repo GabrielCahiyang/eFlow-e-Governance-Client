@@ -10,8 +10,8 @@ import {
 } from "lucide-react";
 import { BoundedTextarea } from "../../../components/ui/BoundedInput";
 import { Modal } from "../../../components/ui/Modal";
+import { ActionBlockerGroup } from "../../../components/ui/action-blockers";
 import { Button } from "../../../components/ui/button";
-import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import { INPUT_LIMITS, textLengthError } from "../../../shared/inputLimits";
 import {
   approveSeal,
@@ -159,9 +159,6 @@ export function ProjectSealDialog({
     : !config?.worker_enabled
       ? "Publishing service is unavailable right now. Check status again or contact your administrator."
       : "";
-  const discardTip = busy
-    ? ""
-    : "Permanently discards this prepared publication preview so you can prepare a new one. This cannot be undone.";
   const retryDisabled =
     busy || (needsConsent && !reviewed) || !config?.worker_enabled;
   const retryTip = busy
@@ -170,7 +167,7 @@ export function ProjectSealDialog({
       ? "Publishing service is unavailable right now."
       : needsConsent && !reviewed
         ? "Check the review confirmation box above before retrying publication."
-        : "Retries publishing the saved record to Polygon Amoy.";
+        : "";
   const correctionDisabled =
     busy || !config?.worker_enabled || Boolean(correctionError);
   const correctionTip = busy
@@ -179,7 +176,7 @@ export function ProjectSealDialog({
       ? "Publishing service is unavailable right now."
       : correctionError
         ? correctionError
-        : "Prepares a new linked correction preview. The original sealed certificate remains permanent.";
+        : "";
   return (
     <Modal
       isOpen
@@ -200,19 +197,25 @@ export function ProjectSealDialog({
               Close
             </Button>
             {ready && (
-              <WorkspaceTooltip content={publishTip} disabled={!publishTip}>
-                <span className="inline-flex">
-                  <Button
-                    disabled={publishDisabled}
-                    onClick={() => void act(() => approveSeal(seal))}
-                  >
-                    <ShieldCheck size={16} />
-                    {config?.mode === "simulation"
-                      ? "Run simulation"
-                      : "Publish and seal"}
-                  </Button>
-                </span>
-              </WorkspaceTooltip>
+              <ActionBlockerGroup
+                actionLabel={
+                  config?.mode === "simulation"
+                    ? "Run simulation"
+                    : "Publish and seal"
+                }
+                blockers={publishDisabled ? publishTip : []}
+                busy={busy}
+              >
+                <Button
+                  disabled={publishDisabled}
+                  onClick={() => void act(() => approveSeal(seal))}
+                >
+                  <ShieldCheck size={16} />
+                  {config?.mode === "simulation"
+                    ? "Run simulation"
+                    : "Publish and seal"}
+                </Button>
+              </ActionBlockerGroup>
             )}
           </div>
         </div>
@@ -301,16 +304,18 @@ export function ProjectSealDialog({
                 After approval, this version is locked. Later corrections keep
                 the original certificate.
               </p>
-              <WorkspaceTooltip content={prepareTip} disabled={!prepareTip}>
-                <span className="inline-flex">
-                  <Button
-                    disabled={prepareDisabled}
-                    onClick={() => void act(() => prepareSeal(projectId))}
-                  >
-                    Prepare project preview
-                  </Button>
-                </span>
-              </WorkspaceTooltip>
+              <ActionBlockerGroup
+                actionLabel="Prepare project preview"
+                blockers={prepareDisabled ? prepareTip : []}
+                busy={busy}
+              >
+                <Button
+                  disabled={prepareDisabled}
+                  onClick={() => void act(() => prepareSeal(projectId))}
+                >
+                  Prepare project preview
+                </Button>
+              </ActionBlockerGroup>
             </div>
           )}
           {seal?.manifest && (
@@ -338,44 +343,44 @@ export function ProjectSealDialog({
                 </span>
               </label>
               {ready && (
-                <WorkspaceTooltip content={discardTip} disabled={!discardTip}>
-                  <span className="inline-flex">
-                    <Button
-                      variant="ghost"
-                      disabled={busy}
-                      onClick={() => void act(() => discardSeal(seal.id))}
-                    >
-                      Discard preview
-                    </Button>
-                  </span>
-                </WorkspaceTooltip>
+                <ActionBlockerGroup
+                  actionLabel="Discard preview"
+                  blockers={[]}
+                  busy={busy}
+                >
+                  <Button
+                    variant="ghost"
+                    disabled={busy}
+                    onClick={() => void act(() => discardSeal(seal.id))}
+                  >
+                    Discard preview
+                  </Button>
+                </ActionBlockerGroup>
               )}
             </div>
           )}
           {seal?.state === "failed" && (
             <>
-              <WorkspaceTooltip content={retryTip} disabled={!retryTip}>
-                <span className="inline-flex">
-                  <Button
-                    disabled={retryDisabled}
-                    onClick={() => void act(() => retrySeal(seal.id))}
-                  >
-                    Retry saved publication
-                  </Button>
-                </span>
-              </WorkspaceTooltip>
+              <ActionBlockerGroup
+                actionLabel="Retry saved publication"
+                blockers={retryDisabled ? retryTip : []}
+                busy={busy}
+              >
+                <Button
+                  disabled={retryDisabled}
+                  onClick={() => void act(() => retrySeal(seal.id))}
+                >
+                  Retry saved publication
+                </Button>
+              </ActionBlockerGroup>
               {!seal.approved_at && (
-                <WorkspaceTooltip content={discardTip} disabled={!discardTip}>
-                  <span className="inline-flex">
-                    <Button
-                      variant="ghost"
-                      disabled={busy}
-                      onClick={() => void act(() => discardSeal(seal.id))}
-                    >
-                      Discard preview
-                    </Button>
-                  </span>
-                </WorkspaceTooltip>
+                <Button
+                  variant="ghost"
+                  disabled={busy}
+                  onClick={() => void act(() => discardSeal(seal.id))}
+                >
+                  Discard preview
+                </Button>
               )}
               {seal.archive_uri && (
                 <p>
@@ -434,27 +439,26 @@ export function ProjectSealDialog({
                   rows={3}
                 />
               </div>
-              <WorkspaceTooltip
-                content={correctionTip}
-                disabled={!correctionTip}
+              <ActionBlockerGroup
+                actionLabel="Prepare linked correction"
+                blockers={correctionDisabled ? correctionTip : []}
+                busy={busy}
               >
-                <span className="inline-flex">
-                  <Button
-                    disabled={correctionDisabled}
-                    onClick={() => {
-                      setCorrectionTouched(true);
-                      if (correctionError) return;
-                      void act(async () => {
-                        await prepareSeal(projectId, correction.trim());
-                        setCorrection("");
-                        setCorrectionTouched(false);
-                      });
-                    }}
-                  >
-                    Prepare linked correction
-                  </Button>
-                </span>
-              </WorkspaceTooltip>
+                <Button
+                  disabled={correctionDisabled}
+                  onClick={() => {
+                    setCorrectionTouched(true);
+                    if (correctionError) return;
+                    void act(async () => {
+                      await prepareSeal(projectId, correction.trim());
+                      setCorrection("");
+                      setCorrectionTouched(false);
+                    });
+                  }}
+                >
+                  Prepare linked correction
+                </Button>
+              </ActionBlockerGroup>
             </section>
           )}
         </>

@@ -6,6 +6,15 @@ export { ActionMenu, type WorkspaceAction } from "./ActionMenu";
 export { SplitActionButton } from "./SplitActionButton";
 export { WorkspacePopover } from "./WorkspacePopover";
 export { WorkspaceTooltip } from "./WorkspaceTooltip";
+export {
+  ActionBlockerGroup,
+  ActionBlockerStopButton,
+  ActionBlockersModal,
+  normalizeBlockers,
+  type ActionBlockerCategory,
+  type ActionBlockerInput,
+  type ActionBlockerItem,
+} from "../action-blockers";
 export { InlineEditableText } from "./InlineEditableText";
 export { AsyncSelectCell } from "./AsyncSelectCell";
 export { PriorityCell, type WorkPriority } from "./PriorityCell";

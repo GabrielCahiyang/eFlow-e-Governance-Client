@@ -7,7 +7,7 @@ import {DeadlineBadge} from '../../../components/ui/DeadlineBadge';
 import {workDateLabel} from '../../../shared/workCalendar';
 import {requestNavigation} from '../../../shared/navigationGuard';
 import type {Task} from '../../tasks';
-import {fetchWorkTree,isAssignedSubtaskParticipant,isCurrentWorkSnapshot,useWorkTree,WorkActivity,WorkTreeEditor,type WorkTreeController} from '../../nested-work';
+import {fetchWorkTree,isAssignedSubtaskParticipant,isCurrentWorkSnapshot,useWorkTree,WorkActivity,WorkTreeEditor,type WorkActivityExtraEntry,type WorkTreeController} from '../../nested-work';
 import type {TaskInspectorOrigin} from '../../task-inspector';
 import type {Subtask} from '../../../services/subtaskService';
 import {useSubitemInspectorData} from '../hooks/useSubitemInspectorData';
@@ -20,6 +20,7 @@ import {selectSubitemInspectorCapabilities} from '../selectors/inspectorCapabili
 import {subitemStartBlocker} from '../selectors/subitemStart';
 import {SubitemStartPanel} from './SubitemStartPanel';
 import {SubitemLeadReview} from './SubitemLeadReview';
+import {SubtaskEvidenceLink} from './SubtaskEvidenceLink';
 import {verifySubtaskProgressAccess} from '../services/subtaskProgressAccess';
 
 export interface SubitemInspectorProps {
@@ -151,7 +152,55 @@ function SubitemInspectorContent(props:SubitemInspectorProps&{controller:WorkTre
     clearanceReadOnly={scopeReadOnly||startPaused||tree.root.project_status==='on_hold'}
     leadReview={leadReview} directUpdates={(!usesLeadReview||leadsStep)&&(tree.root.kind!=='office'||assignedParticipant)} directCompletion={!usesLeadReview||leadsStep&&leadsTask}/>
    {tree.nodes.some(child=>child.parent_subtask_id===itemId)&&<section className="subitem-child-work" aria-label="Child subtasks"><SubitemChildWork itemId={itemId} rootTask={props.rootTask} controller={props.controller} readOnly={scopeReadOnly} executionBlocked={!!props.executionBlocked} onOpenItem={openItem} onReviewItem={reviewNode}/></section>}</div>
-   {section==='activity'&&<section aria-label="Subtask activity"><WorkActivity roots={[props.rootTask.id]} focusedNode={{rootId:props.rootTask.id,nodeId:itemId}} snapshot={data.tree}/></section>}
+   {section==='activity'&&<section aria-label="Subtask activity">
+    <WorkActivity
+     roots={[props.rootTask.id]}
+     focusedNode={{rootId:props.rootTask.id,nodeId:itemId}}
+     snapshot={data.tree}
+     extraEntries={[
+      ...data.data.progressUpdates.map((update):WorkActivityExtraEntry=>{
+       const isCompleted=update.percentComplete===100;
+       const isStuck=Boolean(update.blocker||(update.blockerCategory&&update.blockerCategory!=='None'));
+       return {
+        id:`progress:${update.id}`,
+        kind:isCompleted?'completion':isStuck?'blocker':'progress_update',
+        actorName:update.authorName||'Team member',
+        title:isCompleted?'Subtask completed':isStuck?'Reported a blocker':'Work update',
+        occurredAt:update.createdAt,
+        badge:isCompleted?'Completed':isStuck?'Stuck':'Work update',
+        badgeTone:isCompleted?'success':isStuck?'warning':'info',
+        note:update.note||undefined,
+        blockerCategory:update.blockerCategory,
+        blocker:update.blocker||undefined,
+        nextStep:update.nextStep||undefined,
+        attachments:update.attachmentPath?[{fileName:update.attachmentName||'Progress attachment',filePath:update.attachmentPath}]:undefined,
+        renderAttachment:att=><SubtaskEvidenceLink fileName={att.fileName} filePath={att.filePath}/>,
+       };
+      }),
+      ...data.data.submissions.map((submission):WorkActivityExtraEntry=>{
+       const currentReviewerName=leadsStep?tree.people.find(person=>person.id===tree.root.lead)?.name:undefined;
+       const tone=submission.status==='approved'?'success':submission.status==='changes_requested'?'danger':'info';
+       return {
+        id:`submission:${submission.id}`,
+        kind:'submission',
+        actorName:submission.submitterName||'Team member',
+        title:`Submission attempt ${submission.version}`,
+        occurredAt:submission.submittedAt,
+        badge:submission.status.replace('_',' '),
+        badgeTone:tone,
+        note:submission.note||undefined,
+        reviewerLine:submission.status==='pending'
+         ?`Current reviewer: ${currentReviewerName||'Current reviewer unavailable'}`
+         :`Historical decision by ${submission.decidedByName||'Reviewer unavailable'}`,
+        decisionAt:submission.decidedAt||undefined,
+        decisionFeedback:submission.decisionFeedback?`${submission.decidedByName||'Reviewer unavailable'}: ${submission.decisionFeedback}`:undefined,
+        attachments:submission.attachments,
+        renderAttachment:att=><SubtaskEvidenceLink fileName={att.fileName} filePath={att.filePath}/>,
+       };
+      }),
+     ]}
+    />
+   </section>}
   </div>
   {editingSchedule&&<WorkTreeEditor data={tree} edit={{command:'edit',node}} save={props.controller.save} reload={props.controller.reload}
     readOnly={scopeReadOnly} refreshPending={data.pending} onCancel={()=>setEditingSchedule(false)} onDone={async()=>{setEditingSchedule(false);await reload();}}/>}

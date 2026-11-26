@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { getLoginPortal, validateLoginFields, signInWithAccountProtection } from "../../app/features/authentication";
 import { useAuth } from "../../app/contexts/AuthContext";
-import { SESSION_NOTICE_KEY } from "../../app/features/session-security/constants";
-import { clearAllSessionActivity } from "../../app/features/session-security/services/sessionActivityStorage";
+import { clearLogoutNotice } from "../../app/features/session-security/services/logoutNotice";
+import { clearBrowserSessionActivity } from "../../app/features/session-security/services/sessionActivityStorage";
 import { probeConnectivity } from "../../app/shared/networkConnectivity";
 import { isServerUnavailableError, SERVER_UNAVAILABLE_MESSAGE } from "../../app/shared/userFacingError";
 
@@ -139,8 +139,8 @@ export function useLoginForm(): UseLoginFormReturn {
 
     try {
       if (typeof localStorage !== "undefined") {
-        clearAllSessionActivity(localStorage);
-        localStorage.removeItem(SESSION_NOTICE_KEY);
+        clearBrowserSessionActivity();
+        clearLogoutNotice();
       }
 
       // Execute Supabase Auth call (and sync via AuthContext if available)
@@ -201,8 +201,8 @@ export function useLoginForm(): UseLoginFormReturn {
 
     try {
       if (typeof localStorage !== "undefined") {
-        clearAllSessionActivity(localStorage);
-        localStorage.removeItem(SESSION_NOTICE_KEY);
+        clearBrowserSessionActivity();
+        clearLogoutNotice();
       }
 
       if (authContext && typeof authContext.login === "function") {

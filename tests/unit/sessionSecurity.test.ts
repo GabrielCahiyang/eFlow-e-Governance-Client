@@ -1,11 +1,18 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   clearAllSessionActivity,
+  clearLogoutNotice,
   clearSessionActivity,
+  formatLogoutTimestamp,
   formatRemainingTime,
   getInactivityState,
   getSessionActivityStorageKey,
+  hasPendingLogoutNotice,
   isMeaningfulKeyboardEvent,
+  parseLogoutNotice,
+  readLogoutNotice,
+  SESSION_NOTICE_KEY,
+  writeLogoutNotice,
 } from "../../src/app/features/session-security";
 
 function createMemoryStorage(): Storage {
@@ -72,5 +79,42 @@ describe("session inactivity policy", () => {
     expect(storage.getItem(getSessionActivityStorageKey("super-admin-id"))).toBeNull();
     expect(storage.getItem(getSessionActivityStorageKey("employee-id"))).toBeNull();
     expect(storage.getItem("eflow.theme")).toBe("dark");
+  });
+
+  it("writes, reads, and clears structured logout reasons including inactivity and deactivation", () => {
+    expect(hasPendingLogoutNotice(storage)).toBe(false);
+
+    writeLogoutNotice({ reason: "inactivity", timeoutMinutes: 90 }, storage);
+    expect(hasPendingLogoutNotice(storage)).toBe(true);
+    expect(readLogoutNotice(storage)).toMatchObject({
+      reason: "inactivity",
+      tone: "warning",
+      title: "Signed out due to inactivity",
+      message: expect.stringContaining("1 hour 30 minutes"),
+    });
+
+    writeLogoutNotice({ reason: "deactivated" }, storage);
+    expect(readLogoutNotice(storage)).toMatchObject({
+      reason: "deactivated",
+      tone: "danger",
+      title: "Your account was deactivated",
+    });
+
+    clearLogoutNotice(storage);
+    expect(hasPendingLogoutNotice(storage)).toBe(false);
+    expect(storage.getItem(SESSION_NOTICE_KEY)).toBeNull();
+  });
+
+  it("parses legacy plain-text notices and formats logout timestamps in Philippine time", () => {
+    const legacy = parseLogoutNotice("You were signed out after 1 hour of inactivity.");
+    expect(legacy).toMatchObject({
+      reason: "inactivity",
+      tone: "warning",
+      message: "You were signed out after 1 hour of inactivity.",
+    });
+
+    const formatted = formatLogoutTimestamp(Date.parse("2026-08-19T01:30:00Z"));
+    expect(formatted).toContain("2026");
+    expect(formatted).toMatch(/9:30\s*AM/i);
   });
 });

@@ -20,6 +20,8 @@ export interface OfficeReceipt {
   path: string;
   description?: string;
   originLabel?: string;
+  locked?: boolean;
+  approvedByName?: string;
 }
 
 export interface OfficeAssignmentReceipt {
@@ -34,6 +36,9 @@ export interface OfficeAssignmentReceipt {
   path: string;
   description?: string;
   uploadedByName?: string;
+  receiptReviewStatus?: string;
+  locked?: boolean;
+  accountingDecidedByName?: string;
 }
 
 export interface OfficeCashRequest {

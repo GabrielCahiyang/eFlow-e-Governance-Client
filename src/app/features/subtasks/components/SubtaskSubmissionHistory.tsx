@@ -1,5 +1,5 @@
 import { MessageSquareWarning } from "lucide-react";
-import { formatDate } from "../../../components/workflow/primitives";
+import { formatManilaDateTime } from "../../../shared/calendarDisplay";
 import type { SubtaskSubmission } from "../types";
 import { SubtaskEvidenceLink } from "./SubtaskEvidenceLink";
 
@@ -27,9 +27,9 @@ export function SubtaskSubmissionHistory({ submissions,currentReviewerName }: { 
                 />
               ))}
             </div>
-            <div className="mt-2 text-[10px] text-neutral-400">{formatDate(submission.submittedAt)}</div>
+            <div className="mt-2 text-[10px] tabular-nums text-neutral-400">{formatManilaDateTime(submission.submittedAt)}</div>
             <p className="mt-1 text-[11px] text-neutral-500">{submission.status==='pending'?`Current reviewer: ${currentReviewerName||'Current reviewer unavailable'}`:`Historical decision by ${submission.decidedByName||'Reviewer unavailable'}`}</p>
-            {submission.decidedAt&&<div className="text-[10px] text-neutral-400">Decision: {formatDate(submission.decidedAt)}</div>}
+            {submission.decidedAt&&<div className="text-[10px] tabular-nums text-neutral-400">Decision: {formatManilaDateTime(submission.decidedAt)}</div>}
             {submission.decisionFeedback && (
               <div className="mt-2 flex gap-2 rounded-lg border border-rose-200 bg-rose-50 p-2 text-[11px] text-rose-800">
                 <MessageSquareWarning size={13} className="mt-0.5 shrink-0" />

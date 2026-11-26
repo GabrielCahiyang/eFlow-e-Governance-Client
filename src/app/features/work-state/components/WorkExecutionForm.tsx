@@ -1,4 +1,5 @@
 import { readableUiError } from '../../../shared/userFacingError';
+import { ActionBlockerGroup } from "../../../components/ui/action-blockers";
 import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import { BoundedTextInput, BoundedTextarea } from '../../../components/ui/BoundedInput';
 import { INPUT_LIMITS, textLengthError } from '../../../shared/inputLimits';
@@ -12,9 +13,9 @@ import { CustomWorkStatusSelect, resolveStatus, useWorkStatuses, type WorkStatus
 import { workStateLabel } from '../selectors';
 import './workState.css';
 
-export function WorkExecutionForm({ status, readOnly = false, disabled = false, canSubmit = true, submitBlockedReason = null, blockedBy, onSave, onSubmit, onCommitted, initialAction, initialBlocker = '', completionMode = 'review', freezeFields = false, statusTarget }: {
+export function WorkExecutionForm({ status, readOnly = false, disabled = false, loading = false, disabledReason = null, canSubmit = true, submitBlockedReason = null, blockedBy, onSave, onSubmit, onCommitted, initialAction, initialBlocker = '', completionMode = 'review', freezeFields = false, statusTarget }: {
   statusTarget?: WorkStatusTarget;
-  completionMode?: 'review' | 'direct'; freezeFields?: boolean; initialAction?: 'stuck' | 'submit'; status: string; readOnly?: boolean; disabled?: boolean; canSubmit?: boolean; submitBlockedReason?: string | null; blockedBy?: string; initialBlocker?: string;
+  completionMode?: 'review' | 'direct'; freezeFields?: boolean; initialAction?: 'stuck' | 'submit'; status: string; readOnly?: boolean; disabled?: boolean; loading?: boolean; disabledReason?: string | null; canSubmit?: boolean; submitBlockedReason?: string | null; blockedBy?: string; initialBlocker?: string;
   onSave: (update: WorkUpdate) => Promise<void>; onSubmit?: (update: WorkUpdate) => Promise<void>; onCommitted?: (submitted: boolean) => void;
 }) {
   const blockerId = useId();
@@ -63,18 +64,23 @@ export function WorkExecutionForm({ status, readOnly = false, disabled = false, 
 
   const nextStepError = !submit ? textLengthError(nextStep, 'Next step', { max: INPUT_LIMITS.TASK_TITLE }) : '';
 
-  const submitDisabledReason = busy
-    ? 'Saving…'
-    : disabled
-      ? 'Updating this work is currently unavailable.'
-      : fileError
-        ? fileError
-        : submit && !canSubmit
-          ? (submitBlockedReason || (direct ? 'This step cannot be marked complete right now.' : 'This work cannot be submitted for review right now.'))
-          : submit && !direct && !note.trim()
-            ? 'Add a completion note for the reviewer.'
-            : '';
-  const submitDisabled = Boolean(submitDisabledReason);
+  const submitBusy = busy || loading;
+  const submitBlockers = [
+    disabled && !loading ? (disabledReason || 'Updating this work is currently unavailable.') : '',
+    fileError,
+    submit && !canSubmit
+      ? (submitBlockedReason || (direct ? 'This step cannot be marked complete right now.' : 'This work cannot be submitted for review right now.'))
+      : '',
+    submit && !direct && !note.trim() ? 'Add a completion note for the reviewer.' : '',
+  ].filter(Boolean);
+  const submitDisabled = submitBusy || disabled || submitBlockers.length > 0;
+  const submitActionLabel = submit
+    ? (direct ? (freezeFields ? 'Retry completion' : 'Mark complete') : 'Submit for review')
+    : status === 'todo'
+      ? 'Start work'
+      : mode === 'stuck'
+        ? 'Report blocker'
+        : 'Save update';
 
   async function save() {
     setSubmitted(true);
@@ -194,17 +200,15 @@ export function WorkExecutionForm({ status, readOnly = false, disabled = false, 
       </label>
       {fileError && <p role="alert" className="eflow-field-error mt-1.5 text-xs">{fileError}</p>}
     </div>
-    {files.length > 0 && <ul className="work-evidence-files">{files.map((file, index) => <li key={`${file.name}:${index}`}><Paperclip size={15} /><span>{file.name}</span><WorkspaceTooltip content="Remove attachment"><button type="button" aria-label={`Remove ${file.name}`} disabled={fieldsLocked} onClick={() => { setFiles(current => current.filter((_, i) => i !== index)); setFileError(''); if (error) setError(''); }}><X size={16} /></button></WorkspaceTooltip></li>)}</ul>}
+    {files.length > 0 && <ul className="work-evidence-files">{files.map((file, index) => <li key={`${file.name}:${index}`}><Paperclip size={15} /><span>{file.name}</span><WorkspaceTooltip content="Remove attachment" disabled={fieldsLocked}><button type="button" aria-label={`Remove ${file.name}`} disabled={fieldsLocked} onClick={() => { setFiles(current => current.filter((_, i) => i !== index)); setFileError(''); if (error) setError(''); }}><X size={16} /></button></WorkspaceTooltip></li>)}</ul>}
     {error && <div role="alert" className="work-state-error"><AlertCircle size={18} aria-hidden="true" /><div><strong>{submit ? direct ? "Could not complete this subtask" : "Could not submit this task" : "Could not save this update"}</strong><p>{error}</p></div></div>}
     <div className="work-execution-footer">
       <p>{submit ? direct ? 'Marking complete finishes this subtask step; parent task approval stays with the task.' : 'Your completion note and any attached files go to the reviewer.' : 'Updates are shared with your task team.'}</p>
-      <WorkspaceTooltip content={submitDisabledReason} disabled={!submitDisabledReason}>
-        <span className="inline-flex">
-          <Button size="medium" disabled={submitDisabled} onClick={() => void save()}>
-            {busy ? 'Saving…' : submit ? <><Send size={16} />{direct ? freezeFields ? 'Retry completion' : 'Mark complete' : 'Submit for review'}</> : status === 'todo' ? 'Start work' : mode === 'stuck' ? 'Report blocker' : 'Save update'}
-          </Button>
-        </span>
-      </WorkspaceTooltip>
+      <ActionBlockerGroup actionLabel={submitActionLabel} blockers={submitBlockers} busy={submitBusy} size="md">
+        <Button size="medium" disabled={submitDisabled} onClick={() => void save()}>
+          {busy ? 'Saving…' : submit ? <><Send size={16} />{direct ? freezeFields ? 'Retry completion' : 'Mark complete' : 'Submit for review'}</> : status === 'todo' ? 'Start work' : mode === 'stuck' ? 'Report blocker' : 'Save update'}
+        </Button>
+      </ActionBlockerGroup>
     </div>
   </section>;
 }

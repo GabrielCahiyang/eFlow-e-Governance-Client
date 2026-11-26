@@ -2,7 +2,7 @@ import { readableUiError } from '../../../shared/userFacingError';
 import { useState } from 'react';
 import { FeatureDialog } from '../../../components/ui/FeatureDialog';
 import { DateInput } from '../../../components/ui/DateInput';
-import { WorkspaceTooltip } from '../../../components/ui/workspace/WorkspaceTooltip';
+import { ActionBlockerGroup } from '../../../components/ui/action-blockers';
 import { calendarMinDate } from '../../../shared/calendarDates';
 import { requestNavigation } from '../../../shared/navigationGuard';
 import { useExplicitDraft } from '../../../shared/useExplicitDraft';
@@ -36,10 +36,13 @@ export function TaskDatesDialog({ task, onClose, onSave }: { task: Task; onClose
       ? validation
       : '';
 
-  const submitDisabledReason = busy
-    ? 'Saving dates…'
-    : startError || dueError || (!dirty ? 'Change the start or due date to save.' : validation || '');
-  const submitDisabled = Boolean(submitDisabledReason);
+  const submitBlockers = [
+    startError,
+    dueError,
+    !dirty ? 'Change the start or due date to save.' : '',
+    !startError && !dueError && validation ? validation : '',
+  ].filter(Boolean);
+  const submitDisabled = busy || submitBlockers.length > 0;
 
   const guard = useExplicitDraft('Task dates', dirty, busy, () => setDraft(initial));
   const close = () => { if (!guard.pendingRef.current) void requestNavigation(onClose); };
@@ -94,13 +97,11 @@ export function TaskDatesDialog({ task, onClose, onSave }: { task: Task; onClose
         {error && <p role="alert" className="eflow-field-error mt-2">{error}</p>}
         <div className="flex gap-2 mt-4">
           <button type="button" disabled={busy} onClick={close}>Cancel</button>
-          <WorkspaceTooltip content={submitDisabledReason} disabled={!submitDisabledReason}>
-            <span className="inline-flex">
-              <button type="submit" className="pv-primary" disabled={submitDisabled}>
-                {busy ? 'Saving…' : 'Save dates'}
-              </button>
-            </span>
-          </WorkspaceTooltip>
+          <ActionBlockerGroup actionLabel="Save dates" blockers={submitBlockers} busy={busy}>
+            <button type="submit" className="pv-primary" disabled={submitDisabled}>
+              {busy ? 'Saving…' : 'Save dates'}
+            </button>
+          </ActionBlockerGroup>
         </div>
       </form>
     </FeatureDialog>

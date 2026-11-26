@@ -5,6 +5,7 @@ import { useToast } from '../../../components/ui/Toast';
 import { readableUiError } from '../../../shared/userFacingError';
 import { formatManilaDateTime } from '../../../shared/calendarDisplay';
 import { Modal } from '../../../components/ui/Modal';
+import { ActionBlockerGroup, type ActionBlockerItem } from '../../../components/ui/action-blockers';
 import { EmptyState } from '../../../components/ui/EmptyState';
 import { StatusPill } from '../../../components/ui/workspace/StatusPill';
 import { OfficeCashDialog, actionLabels } from './OfficeCashDialog';
@@ -41,6 +42,234 @@ const eventActionLabels: Record<string, string> = {
   approve_return: 'Cash return approved',
   return_receipts: 'Receipts returned',
 };
+
+const TERMINAL_PETTY_STATUSES = new Set(['settled', 'rejected', 'cancelled']);
+
+function formatCommandToast(command: OfficeCashCommand): string {
+  if (
+    command.action === 'receipts' &&
+    Array.isArray(command.data.receipts) &&
+    command.data.receipts.length === 0
+  ) {
+    return 'Unused cash return submitted — Accounting notified.';
+  }
+  if (command.action === 'settle' && command.data.returnReference) {
+    return 'Cash return confirmed & settled.';
+  }
+  return `${actionLabels[command.action]} saved.`;
+}
+
+function PettyCashRequestsTable({
+  requests,
+  actor,
+  head,
+  accountant,
+  disabled,
+  onStartAction,
+  onOpenReceiptError,
+}: {
+  requests: OfficeCashRequest[];
+  actor: string;
+  head: boolean;
+  accountant: boolean;
+  disabled: boolean;
+  onStartAction: (action: PettyAction, request: OfficeCashRequest, options?: { returnOnly?: boolean }) => void;
+  onOpenReceiptError: (message: string) => void;
+}) {
+  const button = (
+    action: PettyAction,
+    r: OfficeCashRequest,
+    label = actionLabels[action],
+    options?: { returnOnly?: boolean },
+  ) => (
+    <button
+      key={`${action}${options?.returnOnly ? ':return' : ''}`}
+      type="button"
+      disabled={disabled}
+      onClick={() => onStartAction(action, r, options)}
+    >
+      {label}
+    </button>
+  );
+
+  return (
+    <div className="opc-scroll" role="region" aria-label="Petty cash request records" tabIndex={0}>
+      <table>
+        <thead>
+          <tr>
+            {requestColumns.map((label) => (
+              <th key={label} scope="col" className={label === 'Amount' ? 'opc-amount' : undefined}>
+                {label}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {requests.map((r) => {
+            const hasReceiptsSubmitted = ['receipt_review', 'receipt_approved', 'settled'].includes(r.status);
+            const spent = Number(r.spent ?? 0);
+            const returned = computeReturnedAmount(r);
+            const assignedAmount = Number(r.assignedAmount ?? 0);
+            const hasAssignedWork = assignedAmount > 0;
+            const dueStatus = r.status === 'released' ? getLiquidationDueStatus(r.liquidation_due_at) : null;
+            const canStandardSettle =
+              accountant && actor !== r.requester && r.status === 'receipt_approved' && r.canSettle !== false;
+            const canHeadFallbackSettle =
+              head && actor !== r.requester && r.status === 'receipt_approved' && r.headCanSettle === true;
+            const statusLabel =
+              r.status === 'receipt_approved' && spent <= 0 && returned > 0
+                ? 'Awaiting return confirmation'
+                : statusLabels[r.status] || r.status.replace(/_/g, ' ');
+
+            return (
+              <tr key={r.id} id={'office-petty-cash-' + r.id} tabIndex={-1}>
+                <td>
+                  <strong>{r.purpose}</strong>
+                  <small>{r.requesterName}</small>
+                </td>
+                <td className="opc-amount">
+                  <span>{peso.format(r.amount)}</span>
+                  {r.status === 'released' && (
+                    hasAssignedWork ? (
+                      <small className="opc-breakdown">
+                        {peso.format(assignedAmount)} assigned to work ·{' '}
+                        {peso.format(Math.max(0, r.amount - assignedAmount))} unassigned
+                      </small>
+                    ) : (
+                      <small className="opc-breakdown">
+                        Not assigned to any task/subtask — return unused cash
+                      </small>
+                    )
+                  )}
+                  {hasReceiptsSubmitted && (
+                    <small className="opc-breakdown">
+                      Spent {peso.format(spent)} · Returned {peso.format(returned)}
+                    </small>
+                  )}
+                </td>
+                <td>
+                  <span className="opc-status">
+                    <StatusPill
+                      label={statusLabel}
+                      tone={statusTone[r.status as keyof typeof statusTone]}
+                    />
+                  </span>
+                  {dueStatus && (
+                    <small className={dueStatus.isOverdue ? 'opc-overdue' : 'opc-due'}>
+                      {dueStatus.label}
+                    </small>
+                  )}
+                  <OfficeCashReturnBadge request={r} />
+                </td>
+                <td>
+                  <div className="opc-row-actions">
+                    {r.receipts.map((receipt, i) => (
+                      <button
+                        key={receipt.path}
+                        type="button"
+                        onClick={() =>
+                          void openOfficeReceipt(receipt.path).catch((reason) =>
+                            onOpenReceiptError((reason as Error).message),
+                          )
+                        }
+                      >
+                        Receipt {i + 1} · {peso.format(receipt.amount)}
+                      </button>
+                    ))}
+                  </div>
+                </td>
+                <td>
+                  <div className="opc-row-actions">
+                    {actor === r.requester && ['pending', 'approved'].includes(r.status) && button('cancel', r)}
+                    {head &&
+                      actor !== r.requester &&
+                      r.status === 'pending' &&
+                      (['approve', 'reject'] as PettyAction[]).map((a) => button(a, r))}
+                    {accountant && r.status === 'approved' && button('release', r)}
+                    {actor === r.requester && r.status === 'released' && (
+                      hasAssignedWork ? (
+                        <>
+                          {button('receipts', r)}
+                          {r.receipts.length === 0 && !(r.assignmentReceipts?.length) &&
+                            button('receipts', r, 'Return unused cash', { returnOnly: true })}
+                        </>
+                      ) : (
+                        button('receipts', r, 'Return unused cash', { returnOnly: true })
+                      )
+                    )}
+                    {head &&
+                      actor !== r.requester &&
+                      r.status === 'receipt_review' &&
+                      (['endorse', 'return_receipts'] as PettyAction[]).map((a) => button(a, r))}
+                    {canStandardSettle &&
+                      button('settle', r, returned > 0 ? 'Confirm return & settle' : actionLabels.settle)}
+                    {canHeadFallbackSettle &&
+                      button(
+                        'settle',
+                        r,
+                        returned > 0 ? 'Confirm return & settle (Head fallback)' : 'Settle petty cash (Head fallback)',
+                      )}
+                    {r.status === 'receipt_approved' &&
+                      !canStandardSettle &&
+                      !canHeadFallbackSettle &&
+                      (r.settlementBlocked || (accountant && (actor === r.requester || r.canSettle === false))) &&
+                      (() => {
+                        const settleBlockers: ActionBlockerItem[] = [];
+                        if (actor === r.requester) {
+                          settleBlockers.push({
+                            id: `${r.id}-self-settle`,
+                            category: 'separation_of_duties',
+                            title: 'Cannot settle your own petty cash request',
+                            detail: 'Maker-checker rule: an independent Financial Officer (Accounting) must settle and post your request.',
+                            waitingOn: 'Another Financial Officer (Accounting)',
+                            statusLabel: 'Separation of duties',
+                            amount: r.amount,
+                          });
+                        } else if (r.settlementBlocked) {
+                          settleBlockers.push({
+                            id: `${r.id}-indep`,
+                            category: 'accounting_approval',
+                            title: 'Waiting for independent Financial Officer (Accounting)',
+                            detail: r.headNotified
+                              ? 'Escalated to the Office Head. An independent Financial Officer (Accounting) or Office Head fallback is required.'
+                              : 'No independent Financial Officer (Accounting) is currently eligible to settle this request.',
+                            waitingOn: r.headNotified ? 'Office Head / Financial Officer (Accounting)' : 'Financial Officer (Accounting)',
+                            statusLabel: r.headNotified ? 'Escalated to Head' : 'Independent Officer needed',
+                            amount: r.amount,
+                          });
+                        } else {
+                          settleBlockers.push({
+                            id: `${r.id}-acct`,
+                            category: 'accounting_approval',
+                            title: 'Waiting for Financial Officer (Accounting) settlement',
+                            detail: 'An independent Financial Officer (Accounting) must verify receipts and settle this request.',
+                            waitingOn: 'Financial Officer (Accounting)',
+                            statusLabel: 'Pending Financial Officer',
+                            amount: r.amount,
+                          });
+                        }
+                        return (
+                          <ActionBlockerGroup
+                            actionLabel={returned > 0 ? 'Confirm return & settle' : actionLabels.settle}
+                            blockers={settleBlockers}
+                            size="sm"
+                          >
+                            <button type="button" disabled>
+                              {returned > 0 ? 'Confirm return & settle' : actionLabels.settle}
+                            </button>
+                          </ActionBlockerGroup>
+                        );
+                      })()}
+                  </div>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}
 
 export function OfficePettyCash({
   focusRequestId,
@@ -82,7 +311,11 @@ function ScopedOfficeCash({
   const [error, setError] = useState('');
   const [actionError, setActionError] = useState('');
   const [busy, setBusy] = useState(false);
-  const [edit, setEdit] = useState<{ action: PettyAction; request?: OfficeCashRequest } | null>(null);
+  const [edit, setEdit] = useState<{
+    action: PettyAction;
+    request?: OfficeCashRequest;
+    returnOnly?: boolean;
+  } | null>(null);
   const { toast } = useToast();
   const storageKey = `eflow.office-petty.pending:${office}:${actor}`;
   const [pending, setPending] = useState<OfficeCashCommand | null>(() => {
@@ -162,7 +395,7 @@ function ScopedOfficeCash({
       setPending(null);
       setEdit(null);
       toast(
-        `${actionLabels[command.action]} saved.`,
+        formatCommandToast(command),
         ['reject', 'return_receipts'].includes(command.action) ? 'warning' : 'success',
       );
       await reload();
@@ -188,15 +421,14 @@ function ScopedOfficeCash({
     }
   }
 
-  const start = (action: PettyAction, request?: OfficeCashRequest) => {
+  const start = (
+    action: PettyAction,
+    request?: OfficeCashRequest,
+    options?: { returnOnly?: boolean },
+  ) => {
     setActionError('');
-    setEdit({ action, request });
+    setEdit({ action, request, returnOnly: options?.returnOnly });
   };
-  const button = (action: PettyAction, r: OfficeCashRequest, label = actionLabels[action]) => (
-    <button key={action} type="button" disabled={!!error || busy || !!pending} onClick={() => start(action, r)}>
-      {label}
-    </button>
-  );
 
   if (!office) return <p className="opc-error">Active office membership is required.</p>;
 
@@ -319,150 +551,15 @@ function ScopedOfficeCash({
             {!snapshot.requests.length ? (
               <EmptyState size="compact" illustration="budget" title="No office petty cash requests yet." />
             ) : (
-              <div className="opc-scroll" role="region" aria-label="Petty cash request records" tabIndex={0}>
-                <table>
-                  <thead>
-                    <tr>
-                      {requestColumns.map((label) => (
-                        <th key={label} scope="col" className={label === 'Amount' ? 'opc-amount' : undefined}>
-                          {label}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {snapshot.requests.map((r) => {
-                      const hasReceiptsSubmitted = ['receipt_review', 'receipt_approved', 'settled'].includes(r.status);
-                      const spent = Number(r.spent ?? 0);
-                      const returned = computeReturnedAmount(r);
-                      const dueStatus = r.status === 'released' ? getLiquidationDueStatus(r.liquidation_due_at) : null;
-                      const returnCleared = returned <= 0 || r.returnApproved !== false;
-                      const canStandardSettle =
-                        accountant && actor !== r.requester && r.status === 'receipt_approved' && r.canSettle !== false;
-                      const canHeadFallbackSettle =
-                        head && actor !== r.requester && r.status === 'receipt_approved' && r.headCanSettle === true;
-                      const showReturnAck =
-                        r.canAcknowledgeReturn ??
-                        (accountant &&
-                          actor !== r.requester &&
-                          ['receipt_review', 'receipt_approved'].includes(r.status) &&
-                          returned > 0 &&
-                          !r.returnReceived &&
-                          !r.cash_return_received_at &&
-                          r.returnApproved === false);
-                      const showReturnApprove =
-                        r.canApproveReturn ??
-                        (head &&
-                          actor !== r.requester &&
-                          ['receipt_review', 'receipt_approved'].includes(r.status) &&
-                          returned > 0 &&
-                          Boolean(r.returnReceived || r.cash_return_received_at || r.returnHeadFallback) &&
-                          r.returnApproved === false);
-
-                      return (
-                        <tr key={r.id} id={'office-petty-cash-' + r.id} tabIndex={-1}>
-                          <td>
-                            <strong>{r.purpose}</strong>
-                            <small>{r.requesterName}</small>
-                          </td>
-                          <td className="opc-amount">
-                            <span>{peso.format(r.amount)}</span>
-                            {r.status === 'released' && Number(r.assignedAmount ?? 0) > 0 && (
-                              <small className="opc-breakdown">
-                                {peso.format(Number(r.assignedAmount))} assigned to work ·{' '}
-                                {peso.format(Math.max(0, r.amount - Number(r.assignedAmount)))} unassigned
-                              </small>
-                            )}
-                            {hasReceiptsSubmitted && (
-                              <small className="opc-breakdown">
-                                Spent {peso.format(spent)} · Returned {peso.format(returned)}
-                              </small>
-                            )}
-                          </td>
-                          <td>
-                            <span className="opc-status">
-                              <StatusPill
-                                label={statusLabels[r.status] || r.status.replace(/_/g, ' ')}
-                                tone={statusTone[r.status as keyof typeof statusTone]}
-                              />
-                            </span>
-                            {dueStatus && (
-                              <small className={dueStatus.isOverdue ? 'opc-overdue' : 'opc-due'}>
-                                {dueStatus.label}
-                              </small>
-                            )}
-                            <OfficeCashReturnBadge request={r} />
-                          </td>
-                          <td>
-                            <div className="opc-row-actions">
-                              {r.receipts.map((receipt, i) => (
-                                <button
-                                  key={receipt.path}
-                                  type="button"
-                                  onClick={() =>
-                                    void openOfficeReceipt(receipt.path).catch((reason) =>
-                                      setError((reason as Error).message),
-                                    )
-                                  }
-                                >
-                                  Receipt {i + 1} · {peso.format(receipt.amount)}
-                                </button>
-                              ))}
-                            </div>
-                          </td>
-                          <td>
-                            <div className="opc-row-actions">
-                              {actor === r.requester && ['pending', 'approved'].includes(r.status) && button('cancel', r)}
-                              {head &&
-                                actor !== r.requester &&
-                                r.status === 'pending' &&
-                                (['approve', 'reject'] as PettyAction[]).map((a) => button(a, r))}
-                              {accountant && r.status === 'approved' && button('release', r)}
-                              {actor === r.requester && r.status === 'released' && button('receipts', r)}
-                              {head &&
-                                actor !== r.requester &&
-                                r.status === 'receipt_review' &&
-                                (['endorse', 'return_receipts'] as PettyAction[]).map((a) => button(a, r))}
-                              {showReturnAck && button('acknowledge_return', r)}
-                              {showReturnApprove && button('approve_return', r)}
-                              {canStandardSettle && returnCleared && button('settle', r)}
-                              {canHeadFallbackSettle &&
-                                returnCleared &&
-                                button('settle', r, 'Settle petty cash (Head fallback)')}
-                            </div>
-
-                            {r.status === 'receipt_approved' &&
-                              !returnCleared &&
-                              (canStandardSettle || canHeadFallbackSettle) && (
-                                <small>
-                                  {r.returnReceived
-                                    ? 'Waiting for Office Head approval of the returned cash before settlement.'
-                                    : r.returnHeadFallback
-                                      ? 'Confirm and approve the returned cash above before Head-fallback settlement.'
-                                      : 'Accounting must acknowledge physical receipt of the returned cash and the Office Head must approve it before settlement.'}
-                                </small>
-                              )}
-
-                            {r.status === 'receipt_approved' &&
-                              (r.settlementBlocked || (accountant && (actor === r.requester || r.canSettle === false))) && (
-                                <small>
-                                  {canHeadFallbackSettle
-                                    ? 'No independent Accounting Officer is available. Audited Head fallback settlement is enabled.'
-                                    : r.settlementBlocked
-                                      ? r.headNotified
-                                        ? 'Escalated to the Head. An independent Accounting Officer is needed.'
-                                        : 'An independent Accounting Officer is needed.'
-                                      : 'An independent Accounting Officer must settle this request.'}
-                                  {actor === r.requester && ' You can’t settle your own request.'}
-                                </small>
-                              )}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
+              <PettyCashRequestsTable
+                requests={snapshot.requests}
+                actor={actor}
+                head={head}
+                accountant={accountant}
+                disabled={!!error || busy || !!pending}
+                onStartAction={start}
+                onOpenReceiptError={setError}
+              />
             )}
           </section>
 
@@ -515,18 +612,175 @@ function ScopedOfficeCash({
 
       {edit && (
         <OfficeCashDialog
-          key={`${edit.action}:${edit.request?.id || ''}`}
+          key={`${edit.action}:${edit.request?.id || ''}:${edit.returnOnly ? 'return' : 'default'}`}
           action={edit.action}
           request={edit.request}
           maximum={edit.action === 'replenish' ? snapshot?.replenishable || 0 : snapshot?.available || 0}
           busy={busy}
           pending={pending}
           error={actionError}
+          returnOnly={edit.returnOnly}
           onClose={() => setEdit(null)}
           onSubmit={submit}
         />
       )}
     </section>
+  );
+}
+
+export function OfficePettyCashInlineRequests({
+  officeId,
+  onChanged,
+  flush = false,
+}: {
+  officeId?: string;
+  onChanged?: () => void | Promise<void>;
+  flush?: boolean;
+} = {}) {
+  const { userProfile } = useAuth();
+  const office = userProfile?.org_id || officeId || '';
+  const actor = userProfile?.id || '';
+  const role = userProfile?.role || '';
+  const requestsHeading = useId();
+  const [snapshot, setSnapshot] = useState<OfficeCashSnapshot | null>(null);
+  const [receiptError, setReceiptError] = useState('');
+  const [actionError, setActionError] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [edit, setEdit] = useState<{
+    action: PettyAction;
+    request?: OfficeCashRequest;
+    returnOnly?: boolean;
+  } | null>(null);
+  const { toast } = useToast();
+  const storageKey = `eflow.office-petty.pending:${office}:${actor}`;
+  const [pending, setPending] = useState<OfficeCashCommand | null>(() => {
+    if (!office || !actor || typeof sessionStorage === 'undefined') return null;
+    try {
+      return JSON.parse(sessionStorage.getItem(storageKey) || 'null');
+    } catch {
+      return null;
+    }
+  });
+  const active = useRef(true);
+  const saving = useRef(false);
+  const accountant = role === 'accounting_staff';
+  const head = role === 'head';
+
+  const reload = useCallback(async () => {
+    if (!office) return;
+    try {
+      const next = await loadOfficeCash(office);
+      if (active.current) {
+        setSnapshot(next);
+        setReceiptError('');
+      }
+    } catch {
+      // Quietly omit inline table when office petty cash snapshot is unavailable.
+    }
+  }, [office]);
+
+  useEffect(() => {
+    active.current = true;
+    if (office) void reload();
+    const update = () => {
+      if (!saving.current && document.visibilityState === 'visible') void reload();
+    };
+    window.addEventListener('focus', update);
+    document.addEventListener('visibilitychange', update);
+    window.addEventListener('eflow:office-petty', update);
+    return () => {
+      active.current = false;
+      window.removeEventListener('focus', update);
+      document.removeEventListener('visibilitychange', update);
+      window.removeEventListener('eflow:office-petty', update);
+    };
+  }, [reload, office]);
+
+  async function submit(command: OfficeCashCommand) {
+    if (saving.current || !office) return;
+    saving.current = true;
+    setBusy(true);
+    setActionError('');
+    try {
+      sessionStorage.setItem(storageKey, JSON.stringify(command));
+      setPending(command);
+      await commandOfficeCash(office, command);
+      sessionStorage.removeItem(storageKey);
+      setPending(null);
+      setEdit(null);
+      toast(
+        formatCommandToast(command),
+        ['reject', 'return_receipts'].includes(command.action) ? 'warning' : 'success',
+      );
+      await reload();
+      window.dispatchEvent(new Event('eflow:office-petty'));
+      await onChanged?.();
+    } catch (reason) {
+      const problem = reason as Error & { definite?: boolean };
+      if (problem.definite) {
+        setActionError(
+          readableUiError(
+            reason,
+            'The cash action could not be saved. Check the request before continuing.',
+            'read',
+          ),
+        );
+        sessionStorage.removeItem(storageKey);
+        setPending(null);
+      } else {
+        setActionError('Choose Resume cash action to check the same attempt.');
+      }
+    } finally {
+      saving.current = false;
+      setBusy(false);
+    }
+  }
+
+  const activeRequests = (snapshot?.requests ?? []).filter(
+    (r) => !TERMINAL_PETTY_STATUSES.has(r.status),
+  );
+
+  if (!office || (!activeRequests.length && !edit)) return null;
+
+  return (
+    <div className={flush ? 'opc opc--inline opc--flush' : 'opc opc--inline'}>
+      {receiptError && (
+        <div className="opc-error" role="alert">
+          {receiptError}
+        </div>
+      )}
+      {activeRequests.length > 0 && (
+        <section className="opc-records" aria-labelledby={requestsHeading}>
+          <h3 id={requestsHeading}>Petty cash requests</h3>
+          <PettyCashRequestsTable
+            requests={activeRequests}
+            actor={actor}
+            head={head}
+            accountant={accountant}
+            disabled={busy || !!pending}
+            onStartAction={(action, request, options) => {
+              setActionError('');
+              setEdit({ action, request, returnOnly: options?.returnOnly });
+            }}
+            onOpenReceiptError={setReceiptError}
+          />
+        </section>
+      )}
+      {edit && (
+        <OfficeCashDialog
+          key={`${edit.action}:${edit.request?.id || ''}:${edit.returnOnly ? 'return' : 'default'}`}
+          action={edit.action}
+          request={edit.request}
+          maximum={edit.action === 'replenish' ? snapshot?.replenishable || 0 : snapshot?.available || 0}
+          busy={busy}
+          pending={pending}
+          error={actionError}
+          returnOnly={edit.returnOnly}
+          onClose={() => setEdit(null)}
+          onSubmit={submit}
+        />
+      )}
+    </div>
   );
 }
 

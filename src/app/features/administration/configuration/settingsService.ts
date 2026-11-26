@@ -1,6 +1,14 @@
 import { supabase } from "../../../../lib/supabase";
 import { jsonRequest, phase2Request } from "../../../shared/phase2Api";
-import { setRuntimeSystemSettings } from "../../../shared/systemRuntimeConfig";
+import {
+  DEFAULT_SESSION_IDLE_TIMEOUT_MINUTES,
+  DEFAULT_SESSION_WARNING_LEAD_MINUTES,
+  SESSION_IDLE_TIMEOUT_MAX_MINUTES,
+  SESSION_IDLE_TIMEOUT_MIN_MINUTES,
+  SESSION_WARNING_LEAD_MAX_MINUTES,
+  SESSION_WARNING_LEAD_MIN_MINUTES,
+  setRuntimeSystemSettings,
+} from "../../../shared/systemRuntimeConfig";
 
 export type PresentationSettings = {
   organization_name: string | null;
@@ -16,6 +24,8 @@ export type GeneralSystemSettings = {
   maintenance_banner_enabled: "true" | "false";
   maintenance_banner_message: string;
   due_soon_days: "1" | "2" | "3" | "5" | "7";
+  session_idle_timeout_minutes: string;
+  session_warning_lead_minutes: string;
 };
 
 export const DEFAULT_PRESENTATION = {
@@ -32,6 +42,8 @@ export const DEFAULT_GENERAL_SETTINGS: GeneralSystemSettings = {
   maintenance_banner_enabled: "false",
   maintenance_banner_message: "",
   due_soon_days: "3",
+  session_idle_timeout_minutes: String(DEFAULT_SESSION_IDLE_TIMEOUT_MINUTES),
+  session_warning_lead_minutes: String(DEFAULT_SESSION_WARNING_LEAD_MINUTES),
 };
 
 export const GENERAL_SETTINGS_KEYS = [
@@ -43,7 +55,57 @@ export const GENERAL_SETTINGS_KEYS = [
   "maintenance_banner_enabled",
   "maintenance_banner_message",
   "due_soon_days",
+  "session_idle_timeout_minutes",
+  "session_warning_lead_minutes",
 ] as const;
+
+export function validateSessionIdleTimeoutInput(raw: string): string | undefined {
+  const trimmed = raw.trim();
+  if (!trimmed) {
+    return `Enter an inactivity timeout between ${SESSION_IDLE_TIMEOUT_MIN_MINUTES} and ${SESSION_IDLE_TIMEOUT_MAX_MINUTES} minutes.`;
+  }
+  if (!/^\d+$/.test(trimmed)) {
+    return "Enter a whole number of minutes (digits only).";
+  }
+  const value = Number(trimmed);
+  if (
+    !Number.isInteger(value) ||
+    value < SESSION_IDLE_TIMEOUT_MIN_MINUTES ||
+    value > SESSION_IDLE_TIMEOUT_MAX_MINUTES
+  ) {
+    return `Inactivity timeout must be between ${SESSION_IDLE_TIMEOUT_MIN_MINUTES} and ${SESSION_IDLE_TIMEOUT_MAX_MINUTES} minutes (8 hours).`;
+  }
+  return undefined;
+}
+
+export function validateSessionWarningLeadInput(
+  raw: string,
+  timeoutRaw: string,
+): string | undefined {
+  const trimmed = raw.trim();
+  if (!trimmed) {
+    return `Enter a warning countdown between ${SESSION_WARNING_LEAD_MIN_MINUTES} and ${SESSION_WARNING_LEAD_MAX_MINUTES} minutes.`;
+  }
+  if (!/^\d+$/.test(trimmed)) {
+    return "Enter a whole number of minutes (digits only).";
+  }
+  const value = Number(trimmed);
+  if (
+    !Number.isInteger(value) ||
+    value < SESSION_WARNING_LEAD_MIN_MINUTES ||
+    value > SESSION_WARNING_LEAD_MAX_MINUTES
+  ) {
+    return `Warning countdown must be between ${SESSION_WARNING_LEAD_MIN_MINUTES} and ${SESSION_WARNING_LEAD_MAX_MINUTES} minutes.`;
+  }
+  const timeoutTrimmed = timeoutRaw.trim();
+  if (/^\d+$/.test(timeoutTrimmed)) {
+    const timeoutVal = Number(timeoutTrimmed);
+    if (Number.isInteger(timeoutVal) && timeoutVal >= SESSION_IDLE_TIMEOUT_MIN_MINUTES && value >= timeoutVal) {
+      return `Warning countdown must be shorter than the ${timeoutVal}-minute inactivity timeout.`;
+    }
+  }
+  return undefined;
+}
 
 export class SettingsWriteError extends Error {
   constructor(
@@ -226,6 +288,8 @@ export async function saveLoginBrandingSettings(
 }
 
 function syncRuntimeFromGeneral(values: GeneralSystemSettings) {
+  const timeoutMinutes = Number(values.session_idle_timeout_minutes);
+  const warningMinutes = Number(values.session_warning_lead_minutes);
   setRuntimeSystemSettings({
     organizationName: values.organization_name || DEFAULT_GENERAL_SETTINGS.organization_name,
     organizationSubtitle: values.organization_subtitle,
@@ -233,6 +297,12 @@ function syncRuntimeFromGeneral(values: GeneralSystemSettings) {
     dueSoonDays: Number(values.due_soon_days) || 3,
     maintenanceBannerEnabled: values.maintenance_banner_enabled === "true",
     maintenanceBannerMessage: values.maintenance_banner_message,
+    sessionIdleTimeoutMinutes: Number.isInteger(timeoutMinutes)
+      ? timeoutMinutes
+      : DEFAULT_SESSION_IDLE_TIMEOUT_MINUTES,
+    sessionWarningLeadMinutes: Number.isInteger(warningMinutes)
+      ? warningMinutes
+      : DEFAULT_SESSION_WARNING_LEAD_MINUTES,
   });
 }
 
@@ -265,6 +335,15 @@ export function fetchGeneralSystemSettings(): Promise<GeneralSystemSettings> {
         if (val === "true" || val === "false") result[key] = val;
       } else if (key === "due_soon_days") {
         if (val === "1" || val === "2" || val === "3" || val === "5" || val === "7") result.due_soon_days = val;
+      } else if (key === "session_idle_timeout_minutes") {
+        if (!validateSessionIdleTimeoutInput(val)) result.session_idle_timeout_minutes = String(Number(val.trim()));
+      } else if (key === "session_warning_lead_minutes") {
+        if (/^\d+$/.test(val.trim())) {
+          const parsed = Number(val.trim());
+          if (parsed >= SESSION_WARNING_LEAD_MIN_MINUTES && parsed <= SESSION_WARNING_LEAD_MAX_MINUTES) {
+            result.session_warning_lead_minutes = String(parsed);
+          }
+        }
       } else if (key === "organization_name") {
         result.organization_name = val || DEFAULT_GENERAL_SETTINGS.organization_name;
       } else if (key === "organization_subtitle" || key === "support_email" || key === "maintenance_banner_message") {
@@ -323,6 +402,17 @@ export function validateGeneralSystemSettings(values: GeneralSystemSettings) {
   }
   if (!["1", "2", "3", "5", "7"].includes(values.due_soon_days)) {
     throw new Error("Select a valid due-soon warning window.");
+  }
+  const timeoutError = validateSessionIdleTimeoutInput(values.session_idle_timeout_minutes);
+  if (timeoutError) {
+    throw new Error(timeoutError);
+  }
+  const warningError = validateSessionWarningLeadInput(
+    values.session_warning_lead_minutes,
+    values.session_idle_timeout_minutes,
+  );
+  if (warningError) {
+    throw new Error(warningError);
   }
 }
 

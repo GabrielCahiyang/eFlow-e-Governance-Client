@@ -301,7 +301,7 @@ describe('EarlyStartConfirmModal — Distance-Aware Escalation (Near / Weeks / F
     // Attempt submit without checkbox or reason
     fireEvent.click(screen.getByRole('button', { name: /Confirm early start/i }));
     expect(onConfirm).not.toHaveBeenCalled();
-    expect(screen.getByText(/Confirm that you reviewed how far away/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Confirm that you reviewed how far away/i).length).toBeGreaterThan(0);
 
     // Check box + enter valid justification
     fireEvent.click(screen.getByRole('checkbox'));

@@ -91,6 +91,7 @@ function hasAtMostTwoDecimals(value: number): boolean {
 
 export function validateOfficeReceiptsSubmission(input: {
   releasedAmount: number;
+  assignedAmount?: number;
   transactionDate: string;
   reference: string;
   receipts: OfficeReceipt[];
@@ -100,12 +101,17 @@ export function validateOfficeReceiptsSubmission(input: {
 }): OfficeReceiptsValidationResult {
   const today = input.todayManila ?? getPhilippineCalendarDate();
   const releasedCents = Math.max(0, toCents(input.releasedAmount));
+  const assignedCents =
+    input.assignedAmount !== undefined
+      ? Math.max(0, toCents(input.assignedAmount))
+      : releasedCents;
   const receiptTotalCents = input.receipts.reduce(
     (sum, receipt) => sum + (Number.isFinite(receipt.amount) && receipt.amount > 0 ? toCents(receipt.amount) : 0),
     0,
   );
   const overReleasedCents = receiptTotalCents > releasedCents ? receiptTotalCents - releasedCents : 0;
-  const exceedsReleased = overReleasedCents > 0;
+  const overAssignedCents = receiptTotalCents > assignedCents ? receiptTotalCents - assignedCents : 0;
+  const exceedsReleased = overReleasedCents > 0 || overAssignedCents > 0;
   const unusedCents = releasedCents > receiptTotalCents ? releasedCents - receiptTotalCents : 0;
   const requiresCashReturn = unusedCents > 0;
 
@@ -131,12 +137,17 @@ export function validateOfficeReceiptsSubmission(input: {
   const countError =
     input.receipts.length > OFFICE_PETTY_MAX_RECEIPTS
       ? `Add at most ${OFFICE_PETTY_MAX_RECEIPTS} receipts.`
-      : '';
+      : input.receipts.length > 0 && assignedCents <= 0
+        ? 'This office petty cash was not assigned to any task or subtask. Return the unused cash instead.'
+        : '';
   if (countError) blockingErrors.push(countError);
 
-  const totalError = exceedsReleased
-    ? `Receipt total (${peso.format(receiptTotalCents / 100)}) exceeds the released cash (${peso.format(releasedCents / 100)}) by ${peso.format(overReleasedCents / 100)}.`
-    : '';
+  const totalError =
+    overReleasedCents > 0
+      ? `Receipt total (${peso.format(receiptTotalCents / 100)}) exceeds the released cash (${peso.format(releasedCents / 100)}) by ${peso.format(overReleasedCents / 100)}.`
+      : overAssignedCents > 0
+        ? `Receipt total (${peso.format(receiptTotalCents / 100)}) exceeds the ${peso.format(assignedCents / 100)} assigned to tasks/subtasks. Return the unassigned balance as unused cash.`
+        : '';
   if (totalError) blockingErrors.push(totalError);
 
   const seenFingerprints = new Set<string>();
@@ -216,11 +227,9 @@ export function validateOfficeReceiptsSubmission(input: {
 
   const refundNoTrimmed = input.refundReceiptNumber.trim();
   const refundReceiptNumberError = requiresCashReturn
-    ? !refundNoTrimmed
-      ? `Enter the official refund receipt number for the ${peso.format(unusedCents / 100)} being returned.`
-      : refundNoTrimmed.length > 100
-        ? 'Official refund receipt number must be 100 characters or less.'
-        : ''
+    ? refundNoTrimmed.length > 100
+      ? 'Official refund receipt number must be 100 characters or less.'
+      : ''
     : '';
 
   const refundDateError = requiresCashReturn

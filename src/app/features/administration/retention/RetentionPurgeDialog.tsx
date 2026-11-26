@@ -5,6 +5,7 @@ import { Button } from "../../../components/ui/button";
 import { FeedbackState } from "../../../components/ui/FeedbackState";
 import { FieldValidationTooltip } from "../../../components/ui/FieldValidationTooltip";
 import { Modal } from "../../../components/ui/Modal";
+import { ActionBlockerGroup } from "../../../components/ui/action-blockers";
 import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import { formatManilaDate } from "../../../shared/calendarDisplay";
 import { INPUT_LIMITS } from "../../../shared/inputLimits";
@@ -107,18 +108,14 @@ export function RetentionPurgeDialog({
       ? rawOverrideError
       : "";
 
-  const purgeDisabledReason = submitting
-    ? ""
-    : loading || !preview
-      ? "Waiting for purge impact preview to finish loading."
-      : !preview.canPurgeNormally && !preview.canPurgeWithEarlyOverride
-        ? "This archived project cannot be purged under current retention rules."
-        : rawOverrideError || rawTitleError || rawReasonError;
-  const purgeButtonTooltip = !canExecute
-    ? purgeDisabledReason
-    : needsEarlyOverride
-      ? "Permanently purges operational records and queued storage files ahead of retention expiry. Audit, accounting, and blockchain trails stay preserved; this cannot be undone."
-      : "Permanently purges operational records and queued storage files. Audit, accounting, and blockchain trails stay preserved; this cannot be undone.";
+  const purgeBlockers = !preview
+    ? [error || "Purge impact preview could not be loaded."]
+    : !preview.canPurgeNormally && !preview.canPurgeWithEarlyOverride
+      ? ["This archived project cannot be purged under current retention rules."]
+      : [rawOverrideError, rawTitleError, rawReasonError].filter(Boolean);
+  const enabledPurgeTooltip = needsEarlyOverride
+    ? "Permanently purges operational records and queued storage files ahead of retention expiry. Audit, accounting, and blockchain trails stay preserved; this cannot be undone."
+    : "Permanently purges operational records and queued storage files. Audit, accounting, and blockchain trails stay preserved; this cannot be undone.";
 
   const handlePurge = async () => {
     setTitleTouched(true);
@@ -158,8 +155,12 @@ export function RetentionPurgeDialog({
           <Button type="button" variant="outline" disabled={submitting} onClick={onClose}>
             Cancel
           </Button>
-          <WorkspaceTooltip content={purgeButtonTooltip} disabled={!purgeButtonTooltip}>
-            <span className="inline-flex">
+          <ActionBlockerGroup
+            actionLabel={needsEarlyOverride ? "Confirm Early Purge" : "Permanently Purge Project"}
+            blockers={purgeBlockers}
+            busy={loading || submitting}
+          >
+            <WorkspaceTooltip content={enabledPurgeTooltip} disabled={!canExecute}>
               <Button
                 type="button"
                 variant="destructive"
@@ -173,8 +174,8 @@ export function RetentionPurgeDialog({
                     ? "Confirm Early Purge"
                     : "Permanently Purge Project"}
               </Button>
-            </span>
-          </WorkspaceTooltip>
+            </WorkspaceTooltip>
+          </ActionBlockerGroup>
         </div>
       }
     >

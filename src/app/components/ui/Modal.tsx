@@ -61,10 +61,10 @@ export function Modal({
     <VibeModal
       closeButtonAriaLabel="Close dialog"
       id={modalId}
-      onClose={() => { if (!preventClose && !document.querySelector("[data-slot='alert-dialog-content']")) onClose(); }}
+      onClose={() => { if (!preventClose && !document.querySelector("[data-slot='alert-dialog-content'], [data-slot='action-blockers-modal']")) onClose(); }}
       show={isOpen}
       alertModal={preventClose}
-      allowFocusEscapeTo={["[data-slot='alert-dialog-content']", "[data-slot='select-content']", "[data-slot='popover-content']", "[data-slot='dropdown-menu-content']"]}
+      allowFocusEscapeTo={["[data-slot='alert-dialog-content']", "[data-slot='action-blockers-modal']", "[data-slot='select-content']", "[data-slot='popover-content']", "[data-slot='dropdown-menu-content']"]}
       size={modalSizeForWidth(width)}
       className={`eflow-responsive-modal ${preventClose ? "eflow-modal-locked" : ""} ${overlayClassName}`}
       useFixedPosition

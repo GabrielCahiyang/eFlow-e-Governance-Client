@@ -1,3 +1,4 @@
+import { ActionBlockerGroup } from "../ui/action-blockers";
 import { WorkspaceTooltip } from "../ui/workspace/WorkspaceTooltip";
 import { EmptyState } from '../ui/EmptyState';
 import { Button } from '../ui/button';
@@ -83,22 +84,14 @@ export function TaskDiscussion({
   });
   const visibleReasonError = (reasonTouched || reason.length > 0) && reasonError ? reasonError : undefined;
   const removeDisabled = removing || Boolean(reasonError);
-  const removeTooltip = removing
-    ? "Removing comment…"
-    : !trimmedReason
+  const removeBlocker =
+    !trimmedReason
       ? `Enter a removal reason (at least ${MIN_MODERATION_REASON} characters) before removing.`
       : trimmedReason.length < MIN_MODERATION_REASON
         ? `Reason must be at least ${MIN_MODERATION_REASON} characters (${MIN_MODERATION_REASON - trimmedReason.length} more needed).`
-        : reasonError
-          ? reasonError
-          : "Removes this comment from the discussion while keeping its record in the audit log.";
+        : reasonError;
 
   const sendDisabled = !draft.trim() || sending;
-  const sendTooltip = sending
-    ? "Sending…"
-    : !draft.trim()
-      ? "Enter a comment before sending."
-      : "";
 
   useEffect(() => {
     setComments([]); setLoading(true); setLoadError('');
@@ -225,18 +218,23 @@ export function TaskDiscussion({
                 className="resize-none rounded-lg border border-neutral-200 px-3 py-2 text-[12.5px] font-normal text-neutral-800 placeholder:text-neutral-400 focus:outline-none focus:border-neutral-400 focus:ring-1 focus:ring-neutral-200"
               />
             </div>
-            <WorkspaceTooltip content={sendTooltip} disabled={!sendTooltip}>
-              <span className="inline-flex shrink-0">
-                <button
-                  type="button"
-                  onClick={send}
-                  disabled={sendDisabled}
-                  className="h-9 px-3 rounded-lg bg-neutral-900 text-white text-[12px] font-medium flex items-center gap-1.5 disabled:opacity-40 disabled:pointer-events-none hover:bg-neutral-800"
-                >
-                  <Send size={13} /> Send
-                </button>
-              </span>
-            </WorkspaceTooltip>
+            <ActionBlockerGroup
+              actionLabel="Send comment"
+              blockers={!draft.trim() ? "Enter a comment before sending." : []}
+              busy={sending}
+              compact
+              size="sm"
+              className="shrink-0"
+            >
+              <button
+                type="button"
+                onClick={send}
+                disabled={sendDisabled}
+                className="h-9 px-3 rounded-lg bg-neutral-900 text-white text-[12px] font-medium flex items-center gap-1.5 disabled:opacity-40 disabled:pointer-events-none hover:bg-neutral-800 shrink-0"
+              >
+                <Send size={13} /> Send
+              </button>
+            </ActionBlockerGroup>
           </div>
         </div>
       ) : (
@@ -280,13 +278,21 @@ export function TaskDiscussion({
           <Button variant="outline" type="button" onClick={closeModeration} disabled={removing}>
             Cancel
           </Button>
-          <WorkspaceTooltip content={removeTooltip} disabled={!removeTooltip}>
-            <span className="inline-flex">
+          <ActionBlockerGroup
+            actionLabel="Remove comment"
+            blockers={removeDisabled ? removeBlocker : []}
+            busy={removing}
+            size="md"
+          >
+            <WorkspaceTooltip
+              content="Removes this comment from the discussion while keeping its record in the audit log."
+              disabled={removeDisabled}
+            >
               <Button variant="destructive" type="submit" pending={removing} disabled={removeDisabled}>
                 Remove comment
               </Button>
-            </span>
-          </WorkspaceTooltip>
+            </WorkspaceTooltip>
+          </ActionBlockerGroup>
         </div>
       </form>
     </FeatureDialog>}

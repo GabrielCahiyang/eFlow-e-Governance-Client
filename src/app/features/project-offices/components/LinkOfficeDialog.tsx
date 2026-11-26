@@ -1,6 +1,7 @@
 import { useId, useRef, useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '../../../components/ui/dialog';
 import { FieldValidationTooltip } from '../../../components/ui/FieldValidationTooltip';
+import { ActionBlockerGroup } from '../../../components/ui/action-blockers';
 import { WorkspaceTooltip } from '../../../components/ui/workspace/WorkspaceTooltip';
 import type { Organization } from '../../../types';
 import type { OfficeIdentity } from '../types';
@@ -19,11 +20,8 @@ export function LinkOfficeDialog({ identity, organizations, leadOffice, onClose,
   const officeError = touched && !office ? 'Choose a directory Office before confirming.' : '';
   const showSelectTip = Boolean(officeError) && (focused || hovered);
   const confirmDisabled = busy || !office;
-  const confirmTip = busy
-    ? ''
-    : !office
-      ? 'Choose a directory Office before confirming the link.'
-      : 'Permanently links this Office record to the official directory. This cannot be changed later.';
+  const confirmBlocker = !office ? 'Choose a directory Office before confirming the link.' : '';
+  const confirmEnabledTip = 'Permanently links this Office record to the official directory. This cannot be changed later.';
   const close = () => { if (!busy) { if (office && !done) setDiscard(true); else onClose(); } };
   return <Dialog open onOpenChange={value => { if (!value) close(); }}><DialogContent className="po-local-dialog">
     <DialogTitle>Link {identity.display_name}</DialogTitle>
@@ -63,11 +61,11 @@ export function LinkOfficeDialog({ identity, organizations, leadOffice, onClose,
       <p className="po-help">{identity.display_name} → {organizations.find(o => o.id === office)?.name || 'Choose a directory record'}. No account membership changes. Each proposed task still requires explicit handover after participation is confirmed.</p>
       <footer>
         <button type="button" disabled={busy} onClick={close}>Cancel</button>
-        <WorkspaceTooltip content={confirmTip} disabled={!confirmTip}>
-          <span className="inline-flex">
+        <ActionBlockerGroup actionLabel="Confirm Office link" blockers={confirmBlocker} busy={busy}>
+          <WorkspaceTooltip content={confirmEnabledTip} disabled={confirmDisabled}>
             <button type="submit" className="po-primary" disabled={confirmDisabled}>{busy ? 'Linking…' : 'Confirm Office link'}</button>
-          </span>
-        </WorkspaceTooltip>
+          </WorkspaceTooltip>
+        </ActionBlockerGroup>
       </footer>
     </form>}
     {error && <p role="alert" className="po-error">{error}</p>}

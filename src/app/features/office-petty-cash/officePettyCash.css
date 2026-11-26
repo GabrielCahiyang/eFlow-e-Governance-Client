@@ -79,6 +79,17 @@
 .opc-records h3 { padding: var(--eflow-space-4); font-size: var(--eflow-text-base); font-weight: 600; }
 .opc-scroll { max-width: 100%; overflow-x: auto; }
 .opc table { width: 100%; min-width: 720px; border-collapse: collapse; text-align: left; font-size: var(--eflow-text-sm); }
+.opc--inline { gap: var(--eflow-space-2); }
+.opc--inline.opc--flush { gap: 0; }
+.opc--inline.opc--flush .opc-records { border: 0; border-top: 1px solid var(--eflow-border); border-radius: 0; background: transparent; }
+.opc--inline.opc--flush .opc-records h3 { display: none; }
+.opc--inline .opc-records { border-radius: 10px; border-color: color-mix(in srgb, var(--eflow-border) 85%, transparent); }
+.opc--inline .opc-records h3 { padding: 10px 14px; font-size: 12.5px; margin: 0; border-bottom: 1px solid var(--eflow-border); background: var(--eflow-subtle); }
+.opc--inline table { min-width: 620px; font-size: 12.5px; }
+.opc--inline th, .opc--inline td { padding: 10px 14px; }
+.opc--inline button { min-height: 32px; padding: 5px 12px; font-size: 12px; white-space: nowrap; }
+.opc--inline .opc-status, .opc--inline .opc-status > *, .opc--inline .opc-due, .opc--inline .opc-overdue { white-space: nowrap; }
+.opc--inline .opc-breakdown { white-space: normal; }
 .opc th, .opc td { padding: var(--eflow-space-3); border-bottom: 1px solid var(--eflow-border); vertical-align: middle; }
 .opc th { background: var(--eflow-subtle); color: var(--eflow-text-secondary); font-weight: 600; }
 .opc tr:last-child td { border-bottom: 0; }
@@ -188,6 +199,22 @@
 }
 .opc-banner--info { background: #eff6ff; border-color: #bfdbfe; color: #1e40af; }
 .opc-banner--warning { background: #fffbeb; border-color: #fde68a; color: #92400e; }
+.opc-locked-badge {
+  display: inline-flex;
+  align-items: center;
+  margin-inline-start: var(--eflow-space-2);
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  color: #065f46;
+  font-size: var(--eflow-text-xs);
+  font-weight: 600;
+}
+.opc-fieldset--locked {
+  background: color-mix(in srgb, #ecfdf5 45%, var(--eflow-surface));
+  border-color: #a7f3d0;
+}
 @media (max-width: 639px) {
   .opc-metrics { grid-template-columns: 1fr; }
   .opc-metrics > div { grid-template-columns: 1fr auto; align-items: center; }

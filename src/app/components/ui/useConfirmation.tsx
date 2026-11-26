@@ -15,6 +15,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "./alert-dialog";
+import { ActionBlockerGroup } from "./action-blockers";
 import { BoundedTextInput, BoundedTextarea } from "./BoundedInput";
 import { Button } from "./button";
 import { FeedbackState } from "./FeedbackState";
@@ -130,16 +131,22 @@ export function useConfirmation() {
     Boolean(confirmTextTarget && typed !== confirmTextTarget) ||
     reasonTooShort;
 
-  const confirmTooltip = confirmDisabled
-    ? options?.blockers?.[0] ||
-      (confirmTextTarget && typed !== confirmTextTarget
-        ? `Type "${confirmTextTarget}" to enable confirmation.`
-        : reasonTooShort
-          ? reasonTrimmed.length === 0
+  const confirmBlockers: string[] = [
+    ...(options?.blockers || []),
+    ...(confirmTextTarget && typed !== confirmTextTarget
+      ? [`Type "${confirmTextTarget}" to enable confirmation.`]
+      : []),
+    ...(reasonTooShort
+      ? [
+          reasonTrimmed.length === 0
             ? `Enter ${options?.reason?.label?.toLowerCase() || "a reason"} before confirming.`
-            : `Enter at least ${reasonMinLen} characters (${reasonMissingChars} more needed).`
-          : "")
-    : options?.danger
+            : `Enter at least ${reasonMinLen} characters (${reasonMissingChars} more needed).`,
+        ]
+      : []),
+  ];
+
+  const confirmWarningTip =
+    !confirmDisabled && options?.danger
       ? options.warningTooltip || "This action cannot be undone."
       : "";
 
@@ -236,18 +243,23 @@ export function useConfirmation() {
             <AlertDialogCancel onClick={() => finish(false)}>
               {options?.cancelLabel || "Cancel"}
             </AlertDialogCancel>
-            <WorkspaceTooltip content={confirmTooltip} disabled={!confirmTooltip}>
-              <span className="inline-flex">
-                <Button
-                  type="button"
-                  disabled={confirmDisabled}
-                  variant={options?.danger ? "destructive" : "default"}
-                  onClick={() => finish(true)}
-                >
-                  {options?.actionLabel || "Confirm"}
-                </Button>
-              </span>
-            </WorkspaceTooltip>
+            <ActionBlockerGroup
+              actionLabel={options?.actionLabel || "Confirm"}
+              blockers={confirmDisabled ? confirmBlockers : []}
+            >
+              <WorkspaceTooltip content={confirmWarningTip} disabled={!confirmWarningTip}>
+                <span className="inline-flex">
+                  <Button
+                    type="button"
+                    disabled={confirmDisabled}
+                    variant={options?.danger ? "destructive" : "default"}
+                    onClick={() => finish(true)}
+                  >
+                    {options?.actionLabel || "Confirm"}
+                  </Button>
+                </span>
+              </WorkspaceTooltip>
+            </ActionBlockerGroup>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

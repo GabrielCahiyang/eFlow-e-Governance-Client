@@ -241,10 +241,8 @@ export function getCashWorkflowProgress(
       break;
     case "liquidation_submitted":
     case "pending_leader_liquidation_review":
-      nextAction = "Next: Task Lead endorses receipts, then Accounting settles the request.";
-      break;
     case "pending_department_settlement":
-      nextAction = "Next: Accounting verifies receipts and finalizes settlement.";
+      nextAction = "Next: Accounting verifies receipts and any returned cash to finalize settlement.";
       break;
     case "settled":
       nextAction = "Completed: Accounting verified the receipts and settled this cash request.";

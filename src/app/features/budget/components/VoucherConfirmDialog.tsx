@@ -12,7 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../../../components/ui/dialog";
-import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
+import { ActionBlockerGroup } from "../../../components/ui/action-blockers";
 import { INPUT_LIMITS } from "../../../shared/inputLimits";
 import { motionTransition } from "../../../shared/motion/motionTokens";
 import { readableUiError } from "../../../shared/userFacingError";
@@ -52,9 +52,8 @@ export function VoucherConfirmDialog({
       : "";
   const visibleVoucherError = touched || input.length > 0 ? voucherError : "";
   const confirmDisabled = busy || !matches;
-  const confirmTooltip = busy
-    ? ""
-    : !input.trim()
+  const confirmBlocker =
+    !input.trim()
       ? "Enter the Disbursement Voucher number provided by the releasing officer."
       : !matches
         ? "Entered voucher number does not match this release's voucher code."
@@ -168,19 +167,22 @@ export function VoucherConfirmDialog({
           >
             Cancel
           </Button>
-          <WorkspaceTooltip content={confirmTooltip} disabled={!confirmTooltip}>
-            <span className="inline-flex">
-              <Button
-                kind="primary"
-                size="small"
-                disabled={confirmDisabled}
-                loading={busy}
-                onClick={() => { void confirm(); }}
-              >
-                Confirm Receipt
-              </Button>
-            </span>
-          </WorkspaceTooltip>
+          <ActionBlockerGroup
+            actionLabel="Confirm Receipt"
+            blockers={confirmDisabled ? confirmBlocker : []}
+            busy={busy}
+            size="sm"
+          >
+            <Button
+              kind="primary"
+              size="small"
+              disabled={confirmDisabled}
+              loading={busy}
+              onClick={() => { void confirm(); }}
+            >
+              Confirm Receipt
+            </Button>
+          </ActionBlockerGroup>
         </DialogFooter>
       </DialogContent>
     </Dialog>

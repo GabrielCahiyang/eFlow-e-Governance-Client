@@ -12,7 +12,69 @@ export interface OfficeFundingSourcesPreview {
   hasEligibleAccountingStaff: boolean;
   sources: ProjectFundingSource[];
 }
-export interface ProjectFunding {id:string;name:string;fiscal_year:number;quarter?:number|null;amount:number;available:number}
+export interface ProjectFunding {
+  id: string;
+  name: string;
+  fiscal_year: number;
+  quarter?: number | null;
+  amount: number;
+  available: number;
+  budget_before_activation?: number;
+  supplemental_added?: number;
+  total_certified?: number;
+  actual_spent?: number;
+  returned_to_office?: number;
+  last_returned_at?: string | null;
+  last_returned_by_name?: string;
+}
+
+export interface ProjectFinancialCloseoutSource {
+  sourceId: string;
+  partitionId: string;
+  name: string;
+  fiscalYear: number;
+  quarter?: number | null;
+  budgetBeforeActivation: number;
+  supplementalAdded: number;
+  totalCertified: number;
+  currentCertified: number;
+  allocatedToTasks: number;
+  actualSpent: number;
+  returnedToOfficeBudget: number;
+  unreturnedBalance: number;
+  unusedTaskAllocations: number;
+  lastReturnedAt?: string | null;
+  lastReturnedByName?: string;
+}
+
+export interface ProjectFinancialCloseoutSummary {
+  projectId: string;
+  projectTitle: string;
+  status: string;
+  fundingNotRequired: boolean;
+  activatedAt?: string | null;
+  completedAt?: string | null;
+  archivedAt?: string | null;
+  capturedAt?: string | null;
+  capturedStage?: string | null;
+  capturedBy?: string | null;
+  capturedByName?: string | null;
+  archivedBy?: string | null;
+  archivedByName?: string | null;
+  budgetBeforeActivation: number;
+  supplementalBudgetAdded: number;
+  totalCertifiedBudget: number;
+  actualSpent: number;
+  returnedToOfficeBudget: number;
+  allocatedToTasks: number;
+  unreturnedBalance: number;
+  unusedTaskAllocations: number;
+  taskCashReleased: number;
+  taskCashReturned: number;
+  outstandingAdvances: number;
+  isFullyReconciled: boolean;
+  sources: ProjectFinancialCloseoutSource[];
+}
 export interface ProjectFundingRequestItem {
   id: string;
   reason: string;
@@ -88,6 +150,7 @@ export interface ProjectFlow {
   spent: number;
   returned?: number;
   outstanding?: number;
+  closeoutSummary?: ProjectFinancialCloseoutSummary;
   requests: { id: string; purpose: string; amount: number; status: string; requester: string; canReview: boolean }[];
   taskFunding: { sourceId?: string; fiscalYear?: number; id: string; taskId: string; task: string; source: string; amount: number; available: number }[];
   liquidations: { id: string; purpose: string; spent: number; canReview: boolean }[];

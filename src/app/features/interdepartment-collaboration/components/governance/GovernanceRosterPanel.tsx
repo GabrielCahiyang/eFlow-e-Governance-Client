@@ -1,5 +1,6 @@
 import { readableUiError } from '../../../../shared/userFacingError';
 import { FieldValidationTooltip } from "../../../../components/ui/FieldValidationTooltip";
+import { ActionBlockerGroup } from "../../../../components/ui/action-blockers";
 import { WorkspaceTooltip } from "../../../../components/ui/workspace/WorkspaceTooltip";
 import { useExplicitDraft } from "../../../../shared/useExplicitDraft";
 import { INPUT_LIMITS, blockInvalidNumberKey, maxDigitsForNumber } from "../../../../shared/inputLimits";
@@ -189,21 +190,21 @@ export function GovernanceRosterPanel({
           </p>
         </div>
         {editable && (
-          <WorkspaceTooltip
-            content={busy || saving ? "" : rosterConfigError}
-            disabled={busy || saving || !rosterConfigError}
+          <ActionBlockerGroup
+            actionLabel="Save governance"
+            blockers={rosterConfigError || []}
+            busy={busy || saving}
+            size="sm"
           >
-            <span className="inline-flex">
-              <button
-                type="button"
-                disabled={busy || saving || Boolean(rosterConfigError)}
-                onClick={() => void save()}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-neutral-900 px-3 py-2 text-[10px] text-white disabled:opacity-40"
-              >
-                <Save size={12} /> Save governance
-              </button>
-            </span>
-          </WorkspaceTooltip>
+            <button
+              type="button"
+              disabled={busy || saving || Boolean(rosterConfigError)}
+              onClick={() => void save()}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-neutral-900 px-3 py-2 text-[10px] text-white disabled:opacity-40"
+            >
+              <Save size={12} /> Save governance
+            </button>
+          </ActionBlockerGroup>
         )}
       </div>
       {error && (
@@ -429,18 +430,20 @@ export function GovernanceRosterPanel({
               </option>
             ))}
           </select>
-          <WorkspaceTooltip content={addDisabledReason} disabled={!addDisabledReason}>
-            <span className="inline-flex">
-              <button
-                type="button"
-                disabled={Boolean(addDisabledReason)}
-                onClick={addPerson}
-                className="inline-flex h-9 w-full items-center justify-center gap-1 rounded-lg bg-primary px-3 text-[10px] text-primary-foreground transition hover:bg-primary/90 disabled:opacity-40"
-              >
-                <Plus size={12} /> Add
-              </button>
-            </span>
-          </WorkspaceTooltip>
+          <ActionBlockerGroup
+            actionLabel="Add person"
+            blockers={addDisabledReason || []}
+            size="sm"
+          >
+            <button
+              type="button"
+              disabled={Boolean(addDisabledReason)}
+              onClick={addPerson}
+              className="inline-flex h-9 w-full items-center justify-center gap-1 rounded-lg bg-primary px-3 text-[10px] text-primary-foreground transition hover:bg-primary/90 disabled:opacity-40"
+            >
+              <Plus size={12} /> Add
+            </button>
+          </ActionBlockerGroup>
         </div>
       )}
     </section>

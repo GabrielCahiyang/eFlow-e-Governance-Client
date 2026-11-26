@@ -495,6 +495,22 @@ export function resolveNotificationDestination(
     notification.type.startsWith("petty_cash_") ||
     notification.financialRecordType === "office_petty_cash"
   ) {
+    if (
+      notification.financialRecordType === "work_cash_assignment" &&
+      notification.workNodeId &&
+      [
+        "petty_cash_liquidation_decision",
+        "petty_cash_liquidation_changes",
+      ].includes(notification.type)
+    ) {
+      return makeDestination(
+        notification,
+        destinationForSubtask(role),
+        "subtask",
+        "Open subtask",
+        messageLabels[0],
+      );
+    }
     const budgetTarget = destinationForBudget(notification, role);
     return makeDestination(
       notification,

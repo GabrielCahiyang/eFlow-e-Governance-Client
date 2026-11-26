@@ -1,6 +1,12 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { phase2Request } from "../../app/shared/phase2Api";
 import { INPUT_LIMITS } from "../../app/shared/inputLimits";
+import {
+  LANDING_PREFERENCE_EVENT,
+  openLandingPageExplicitly,
+  readSkipLandingPreference,
+  writeSkipLandingPreference,
+} from "../../app/shared/landingPreference";
 import {
   Heading,
   TextField,
@@ -18,8 +24,16 @@ import {
 
 import { useLoginForm } from "./useLoginForm";
 import { LivingBoard } from "./components/LivingBoard";
+import { LogoutReasonModal } from "./components/LogoutReasonModal";
 import { UsageScenariosModal } from "./UsageScenariosModal";
 import { EFlowMark } from "./components/EFlowMark";
+import { SESSION_NOTICE_KEY } from "../../app/features/session-security/constants";
+import {
+  clearLogoutNotice,
+  LOGOUT_NOTICE_EVENT,
+  readLogoutNotice,
+  type LogoutNotice,
+} from "../../app/features/session-security/services/logoutNotice";
 import type { QuickLoginAccount } from "../../app/shared/quickLoginAccounts";
 import {
   isAdminLoginPath,
@@ -85,7 +99,49 @@ export function Login() {
   const [forgotSentTo, setForgotSentTo] = useState<string | null>(null);
   const [forgotSubmitting, setForgotSubmitting] = useState(false);
   const [loginBranding, setLoginBranding] = useState(readCachedLoginBranding);
+  const [skipLandingPage, setSkipLandingPage] = useState(readSkipLandingPreference);
+  const [logoutNotice, setLogoutNotice] = useState<LogoutNotice | null>(() => readLogoutNotice());
   const isAdminPortal = isAdminLoginPath();
+
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      document.title = isAdminPortal ? "eFlow Admin" : "eFlow";
+    }
+  }, [isAdminPortal]);
+
+  useEffect(() => {
+    const syncLogoutNotice = () => setLogoutNotice(readLogoutNotice());
+    const onStorage = (event: StorageEvent) => {
+      if (event.key === null || event.key === SESSION_NOTICE_KEY) {
+        syncLogoutNotice();
+      }
+    };
+    window.addEventListener(LOGOUT_NOTICE_EVENT, syncLogoutNotice);
+    window.addEventListener("storage", onStorage);
+    return () => {
+      window.removeEventListener(LOGOUT_NOTICE_EVENT, syncLogoutNotice);
+      window.removeEventListener("storage", onStorage);
+    };
+  }, []);
+
+  const handleDismissLogoutNotice = useCallback(() => {
+    clearLogoutNotice();
+    setLogoutNotice(null);
+    window.requestAnimationFrame(() => {
+      const emailInput = document.getElementById("login-email") as HTMLInputElement | null;
+      emailInput?.focus();
+    });
+  }, []);
+
+  useEffect(() => {
+    const syncPreference = () => setSkipLandingPage(readSkipLandingPreference());
+    window.addEventListener(LANDING_PREFERENCE_EVENT, syncPreference);
+    window.addEventListener("storage", syncPreference);
+    return () => {
+      window.removeEventListener(LANDING_PREFERENCE_EVENT, syncPreference);
+      window.removeEventListener("storage", syncPreference);
+    };
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -242,6 +298,16 @@ export function Login() {
               <EFlowMark variant="white" height={36} state={markState} />
               <span>{loginBranding.organization_name}</span>
             </div>
+            {!isAdminPortal && (
+              <button
+                type="button"
+                className={styles.backToHomeLink}
+                onClick={openLandingPageExplicitly}
+              >
+                <ArrowLeft size={14} aria-hidden="true" />
+                <span>Back</span>
+              </button>
+            )}
             {/* Heading & Subhead */}
             <motion.div className={styles.headerGroup} variants={formItemVariants}>
               {viewMode === "forgot" && (
@@ -525,20 +591,34 @@ export function Login() {
                 )}
               </motion.div>
 
-              {/* Utility Row */}
-              <motion.div className={styles.utilityRow} variants={formItemVariants}>
-                <Checkbox
-                  label={<span className={styles.checkboxLabel}>Keep me signed in</span>}
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                />
-                <button
-                  type="button"
-                  className={styles.forgotLinkButton}
-                  onClick={openForgotPassword}
-                >
-                  Forgot password?
-                </button>
+              {/* Utility Row & Local Preference */}
+              <motion.div className={styles.utilityStack} variants={formItemVariants}>
+                <div className={styles.utilityRow}>
+                  <Checkbox
+                    label={<span className={styles.checkboxLabel}>Keep me signed in</span>}
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                  />
+                  <button
+                    type="button"
+                    className={styles.forgotLinkButton}
+                    onClick={openForgotPassword}
+                  >
+                    Forgot password?
+                  </button>
+                </div>
+                <div className={styles.preferenceRow}>
+                  <Checkbox
+                    id="login-skip-landing"
+                    label={<span className={styles.checkboxLabel}>Skip landing page</span>}
+                    checked={skipLandingPage}
+                    onChange={(e) => {
+                      const next = e.target.checked;
+                      setSkipLandingPage(next);
+                      writeSkipLandingPreference(next);
+                    }}
+                  />
+                </div>
               </motion.div>
 
               {/* Primary CTA */}
@@ -603,6 +683,13 @@ export function Login() {
           className={styles.heroColumn}
           aria-label="eFlow Living Kanban Overview"
         >
+          <div className={styles.heroReticles} aria-hidden="true">
+            <span className={`${styles.heroReticle} ${styles.heroReticleTL}`} />
+            <span className={`${styles.heroReticle} ${styles.heroReticleTR}`} />
+            <span className={`${styles.heroReticle} ${styles.heroReticleBL}`} />
+            <span className={`${styles.heroReticle} ${styles.heroReticleBR}`} />
+          </div>
+
           <motion.div
             className={styles.heroContent}
             variants={heroPanelVariants}
@@ -614,10 +701,24 @@ export function Login() {
               className={styles.heroBrandWrapper}
               onMouseEnter={() => setIsMarkHovered(true)}
               onMouseLeave={() => setIsMarkHovered(false)}
+              onClick={isAdminPortal ? undefined : openLandingPageExplicitly}
+              role={isAdminPortal ? undefined : "button"}
+              tabIndex={isAdminPortal ? undefined : 0}
+              onKeyDown={
+                isAdminPortal
+                  ? undefined
+                  : (event) => {
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        openLandingPageExplicitly();
+                      }
+                    }
+              }
+              aria-label={isAdminPortal ? undefined : "Return to eFlow overview"}
             >
               <EFlowMark
                 variant="white"
-                height={50}
+                height={48}
                 state={markState}
                 isHovered={isMarkHovered}
               />
@@ -625,10 +726,10 @@ export function Login() {
               <span className={styles.heroBrandOrgText}>{loginBranding.organization_name}</span>
             </div>
 
-            {/* Bigger Living 3D Kanban Board (strictly static) */}
+            {/* Bigger Living 3D Kanban Board */}
             <p className={styles.boardHint}>Project preview</p>
             <div className={styles.kanbanWrapper}>
-              <LivingBoard />
+              <LivingBoard organizationName={loginBranding.organization_name} />
             </div>
           </motion.div>
         </section>
@@ -639,6 +740,13 @@ export function Login() {
           onClose={() => setScenariosModalOpen(false)}
           onSelectAccount={handleSelectScenario}
           portal={isAdminPortal ? "admin" : "client"}
+        />
+
+        {/* Post-Logout Reason Modal (Client & Admin portals) */}
+        <LogoutReasonModal
+          notice={logoutNotice}
+          isAdminPortal={isAdminPortal}
+          onDismiss={handleDismissLogoutNotice}
         />
 
       </main>

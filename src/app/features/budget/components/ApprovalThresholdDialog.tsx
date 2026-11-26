@@ -3,7 +3,7 @@ import { AttentionBox, Button } from "@vibe/core";
 import * as m from "motion/react-m";
 import { Check, RotateCcw } from "lucide-react";
 import { MoneyInput } from "../../../components/ui/MoneyInput";
-import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
+import { ActionBlockerGroup } from "../../../components/ui/action-blockers";
 import { BxSliderAlt, BxsBolt, BxsCheckShield } from "../../../components/ui/boxicons";
 import {
   Dialog,
@@ -188,19 +188,21 @@ export function ApprovalThresholdDialog({
             >
               Cancel
             </Button>
-            <WorkspaceTooltip content={validationError} disabled={!saveDisabled}>
-              <span className="inline-flex">
-                <Button
-                  kind="primary"
-                  size="small"
-                  disabled={saveDisabled}
-                  onClick={handleSave}
-                >
-                  <Check size={12} className="mr-1" />
-                  Save limit
-                </Button>
-              </span>
-            </WorkspaceTooltip>
+            <ActionBlockerGroup
+              actionLabel="Save limit"
+              blockers={saveDisabled ? validationError : []}
+              size="sm"
+            >
+              <Button
+                kind="primary"
+                size="small"
+                disabled={saveDisabled}
+                onClick={handleSave}
+              >
+                <Check size={12} className="mr-1" />
+                Save limit
+              </Button>
+            </ActionBlockerGroup>
           </div>
         </DialogFooter>
       </DialogContent>

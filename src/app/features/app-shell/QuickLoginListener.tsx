@@ -2,8 +2,8 @@ import { useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { useToast } from "../../components/ui/Toast";
 import { isAdminLoginPath } from "../../shared/loginPortal";
-import { SESSION_NOTICE_KEY } from "../session-security/constants";
-import { clearAllSessionActivity } from "../session-security/services/sessionActivityStorage";
+import { clearLogoutNotice } from "../session-security/services/logoutNotice";
+import { clearBrowserSessionActivity } from "../session-security/services/sessionActivityStorage";
 import { replaceNavigationHistory } from "../../shared/navigationHistory";
 import { getQuickLoginAccount } from "../../shared/quickLoginAccounts";
 
@@ -19,9 +19,9 @@ export function QuickLoginListener() {
       event.preventDefault();
       toast("Quick switching to " + account.label + "...", "info");
       try {
-        await logout();
-        clearAllSessionActivity(localStorage);
-        localStorage.removeItem(SESSION_NOTICE_KEY);
+        await logout({ silent: true });
+        clearBrowserSessionActivity();
+        clearLogoutNotice();
         if (account.roleLabel === "Admin" && !isAdminLoginPath()) {
           replaceNavigationHistory("/admin");
         } else if (account.roleLabel !== "Admin" && isAdminLoginPath()) {

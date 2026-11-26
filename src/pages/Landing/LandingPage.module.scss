@@ -1,0 +1,2175 @@
+/* ==========================================================================
+   eFlow Landing Page — Pure Visual Scroll Cinema (Polished Hardware Edition)
+   Palette: foundation-tokens.css (Midnight Navy #0a1028, Alabaster #f5f7fc, Royal Navy #00006b, Ice #94baff)
+   Font: Figtree Variable
+   ========================================================================== */
+
+/* Scoped global scrollbar hiding ONLY while LandingPage is mounted */
+:global(html.eflow-landing-no-scrollbar),
+:global(body.eflow-landing-no-scrollbar) {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+:global(html.eflow-landing-no-scrollbar::-webkit-scrollbar),
+:global(body.eflow-landing-no-scrollbar::-webkit-scrollbar) {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.landingRoot {
+  --lp-dark-bg: #0a1028;
+  --lp-dark-surface: #131d42;
+  --lp-dark-border: #2c3d6e;
+  --lp-dark-text: #eef3ff;
+  --lp-dark-text-muted: #9eaecc;
+  --lp-ice: #94baff;
+
+  --lp-light-bg: #f5f7fc;
+  --lp-light-surface: #ffffff;
+  --lp-light-subtle: #f0f4fb;
+  --lp-light-selected: #e8edff;
+  --lp-light-border: #d6deed;
+  --lp-light-text: #161b35;
+  --lp-light-text-secondary: #505c77;
+  --lp-light-text-muted: #5e6b85;
+  --lp-royal: #00006b;
+  --lp-royal-hover: #00004f;
+
+  --lp-amber-bg: #fff2d8;
+  --lp-amber-text: #795008;
+  --lp-amber-bar: #9a6309;
+
+  position: relative;
+  width: 100%;
+  min-height: 100dvh;
+  background: var(--lp-dark-bg);
+  color: var(--lp-dark-text);
+  font-family: var(--eflow-font, "Figtree Variable", "Figtree", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+  overflow-x: clip;
+  -webkit-font-smoothing: antialiased;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+/* --------------------------------------------------------------------------
+   Fast Curtain Preloader & Top-Left Reset Veil (uses official EFlowMark)
+   -------------------------------------------------------------------------- */
+.preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  background: var(--lp-dark-bg);
+  color: var(--lp-dark-text);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+
+.preloaderTrack {
+  width: 180px;
+  height: 2px;
+  background: rgba(148, 186, 255, 0.16);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.preloaderFill {
+  height: 100%;
+  background: var(--lp-ice);
+  transform-origin: left center;
+}
+
+.preloaderPct {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--lp-dark-text-muted);
+}
+
+.resetVeil {
+  position: fixed;
+  inset: 0;
+  z-index: 110;
+  background: var(--lp-dark-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+}
+
+.resetVeilInner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+
+/* --------------------------------------------------------------------------
+   Clean Fixed Top Bar: ONLY Official Logo (Left) + Sign in (Right)
+   -------------------------------------------------------------------------- */
+.stickyHeader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22px clamp(20px, 3.6vw, 48px);
+  pointer-events: none;
+  transition: color 280ms ease, background 280ms ease;
+}
+
+.stickyHeader > * {
+  pointer-events: auto;
+}
+
+.headerDark {
+  color: var(--lp-dark-text);
+  background: linear-gradient(180deg, rgba(10, 16, 40, 0.82) 0%, rgba(10, 16, 40, 0) 100%);
+}
+
+.headerLight {
+  color: var(--lp-light-text);
+  background: linear-gradient(180deg, rgba(245, 247, 252, 0.9) 0%, rgba(245, 247, 252, 0) 100%);
+}
+
+.brandButton {
+  display: inline-flex;
+  align-items: center;
+  background: transparent;
+  border: 0;
+  padding: 2px 4px;
+  margin: -2px -4px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.brandButton:focus-visible {
+  outline: 2px solid var(--lp-ice);
+  outline-offset: 3px;
+}
+
+.headerLight .brandButton:focus-visible {
+  outline-color: var(--lp-royal);
+}
+
+.signInButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 700;
+  padding: 9px 16px;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: background 180ms ease, color 180ms ease, border-color 180ms ease, transform 160ms ease, box-shadow 180ms ease;
+}
+
+.headerDark .signInButton {
+  background: #ffffff;
+  color: var(--lp-royal);
+  border: 1px solid #ffffff;
+}
+
+.headerDark .signInButton:hover {
+  background: var(--lp-light-selected);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(148, 186, 255, 0.22);
+}
+
+.headerLight .signInButton {
+  background: var(--lp-royal);
+  color: #ffffff;
+  border: 1px solid var(--lp-royal);
+}
+
+.headerLight .signInButton:hover {
+  background: var(--lp-royal-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 22px rgba(0, 0, 107, 0.2);
+}
+
+.signInButton:focus-visible {
+  outline: 2px solid var(--lp-ice);
+  outline-offset: 2px;
+}
+
+.headerLight .signInButton:focus-visible {
+  outline-color: var(--lp-royal);
+}
+
+/* Razor-thin ambient top progress hairline */
+.progressHairlineTrack {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  z-index: 90;
+  pointer-events: none;
+  background: transparent;
+}
+
+.progressHairlineFill {
+  height: 100%;
+  width: 100%;
+  transform-origin: left center;
+  background: linear-gradient(90deg, #94baff 0%, #ffffff 100%);
+  opacity: 0.72;
+  transition: background 280ms ease;
+}
+
+.progressHairlineFillLight {
+  background: linear-gradient(90deg, #00006b 0%, #2767a7 100%);
+  opacity: 0.85;
+}
+
+/* --------------------------------------------------------------------------
+   CONTINUOUS 1480vh SCROLL CINEMA RUNWAY (Split Hero -> Center Glide -> 1-by-1 -> Lock -> Public)
+   -------------------------------------------------------------------------- */
+.cinemaRunway {
+  position: relative;
+  width: 100%;
+  height: 1480vh;
+}
+
+.stickyViewport {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 1750px;
+}
+
+/* Studio Backdrops + Cursor-Reactive Spotlight + Architectural Framing */
+.backdropDark,
+.backdropLight {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.backdropDark {
+  background:
+    radial-gradient(60% 56% at 50% 48%, rgba(36, 52, 96, 0.62) 0%, rgba(16, 25, 62, 0.5) 44%, #0a1028 100%),
+    #0a1028;
+}
+
+.backdropDark::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(148, 186, 255, 0.14) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+.lightSiphonCanvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 38;
+}
+
+/* Architectural Signal Grid — razor-thin ice-blue workflow light streaks */
+.signalGridHost {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  overflow: hidden;
+  mask-image: radial-gradient(88% 82% at 50% 50%, #000 42%, rgba(0, 0, 0, 0.28) 78%, transparent 100%);
+  -webkit-mask-image: radial-gradient(88% 82% at 50% 50%, #000 42%, rgba(0, 0, 0, 0.28) 78%, transparent 100%);
+}
+
+.signalGridLayer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.signalGridLines {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, rgba(148, 186, 255, 0.055) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(148, 186, 255, 0.055) 1px, transparent 1px);
+  background-size: 72px 72px;
+}
+
+.signalTrackH {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(148, 186, 255, 0.08);
+  overflow: hidden;
+}
+
+.signalTrackV {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: rgba(148, 186, 255, 0.08);
+  overflow: hidden;
+}
+
+.signalBeamH {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 1.5px;
+  border-radius: 2px;
+  background: linear-gradient(
+    90deg,
+    rgba(148, 186, 255, 0) 0%,
+    rgba(148, 186, 255, 0.55) 68%,
+    rgba(255, 255, 255, 0.92) 96%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  box-shadow: 0 0 10px rgba(148, 186, 255, 0.45);
+  will-change: transform, opacity;
+  animation: signalTravelRight 8s cubic-bezier(0.35, 0, 0.25, 1) infinite;
+}
+
+.signalBeamHReverse {
+  background: linear-gradient(
+    270deg,
+    rgba(148, 186, 255, 0) 0%,
+    rgba(148, 186, 255, 0.55) 68%,
+    rgba(255, 255, 255, 0.92) 96%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation-name: signalTravelLeft;
+}
+
+.signalBeamV {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1.5px;
+  border-radius: 2px;
+  background: linear-gradient(
+    180deg,
+    rgba(148, 186, 255, 0) 0%,
+    rgba(148, 186, 255, 0.52) 68%,
+    rgba(255, 255, 255, 0.9) 96%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  box-shadow: 0 0 10px rgba(148, 186, 255, 0.42);
+  will-change: transform, opacity;
+  animation: signalTravelDown 8.6s cubic-bezier(0.35, 0, 0.25, 1) infinite;
+}
+
+.signalBeamVReverse {
+  background: linear-gradient(
+    0deg,
+    rgba(148, 186, 255, 0) 0%,
+    rgba(148, 186, 255, 0.52) 68%,
+    rgba(255, 255, 255, 0.9) 96%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation-name: signalTravelUp;
+}
+
+.signalNode {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 1.5px;
+  background: #94baff;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 12px rgba(148, 186, 255, 0.65);
+  animation: signalNodePulse 5.6s ease-in-out infinite;
+}
+
+@keyframes signalTravelRight {
+  0% {
+    transform: translate3d(-240px, 0, 0);
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.95;
+  }
+  82% {
+    opacity: 0.85;
+  }
+  100% {
+    transform: translate3d(calc(100vw + 240px), 0, 0);
+    opacity: 0;
+  }
+}
+
+@keyframes signalTravelLeft {
+  0% {
+    transform: translate3d(calc(100vw + 240px), 0, 0);
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.95;
+  }
+  82% {
+    opacity: 0.85;
+  }
+  100% {
+    transform: translate3d(-240px, 0, 0);
+    opacity: 0;
+  }
+}
+
+@keyframes signalTravelDown {
+  0% {
+    transform: translate3d(0, -220px, 0);
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.92;
+  }
+  82% {
+    opacity: 0.82;
+  }
+  100% {
+    transform: translate3d(0, calc(100vh + 220px), 0);
+    opacity: 0;
+  }
+}
+
+@keyframes signalTravelUp {
+  0% {
+    transform: translate3d(0, calc(100vh + 220px), 0);
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.92;
+  }
+  82% {
+    opacity: 0.82;
+  }
+  100% {
+    transform: translate3d(0, -220px, 0);
+    opacity: 0;
+  }
+}
+
+@keyframes signalNodePulse {
+  0%, 100% {
+    opacity: 0.14;
+    transform: translate(-50%, -50%) scale(0.8);
+  }
+  45% {
+    opacity: 0.72;
+    transform: translate(-50%, -50%) scale(1.2);
+  }
+  65% {
+    opacity: 0.25;
+    transform: translate(-50%, -50%) scale(0.95);
+  }
+}
+
+.boardFloatCarrier {
+  position: relative;
+  width: 100%;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.backdropLight {
+  background:
+    radial-gradient(70% 60% at 50% 45%, rgba(232, 237, 255, 0.78) 0%, #f5f7fc 74%),
+    #f5f7fc;
+}
+
+.backdropLight::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, rgba(0, 0, 107, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 107, 0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* Precision architectural corner reticles (pure visual framing, zero text) */
+.stageReticleFrame {
+  position: absolute;
+  inset: clamp(68px, 8vh, 88px) clamp(24px, 4vw, 56px) clamp(28px, 4vh, 44px);
+  pointer-events: none;
+  z-index: 6;
+}
+
+.reticleCorner {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-color: rgba(148, 186, 255, 0.24);
+  border-style: solid;
+  border-width: 0;
+  transition: border-color 300ms ease;
+}
+
+.reticleLight .reticleCorner {
+  border-color: rgba(0, 0, 107, 0.16);
+}
+
+.reticleTL { top: 0; left: 0; border-top-width: 1.5px; border-left-width: 1.5px; }
+.reticleTR { top: 0; right: 0; border-top-width: 1.5px; border-right-width: 1.5px; }
+.reticleBL { bottom: 0; left: 0; border-bottom-width: 1.5px; border-left-width: 1.5px; }
+.reticleBR { bottom: 0; right: 0; border-bottom-width: 1.5px; border-right-width: 1.5px; }
+
+/* --------------------------------------------------------------------------
+   RIGHT-EDGE SWISS VERNIER SCALE (Zero background, zero border box, zero rounded corners)
+   -------------------------------------------------------------------------- */
+.vernierRail {
+  position: absolute;
+  right: clamp(18px, 2.8vw, 40px);
+  top: 50%;
+  transform: translateY(-50%);
+  height: 216px;
+  width: 54px;
+  z-index: 44;
+  pointer-events: auto;
+  user-select: none;
+}
+
+.vernierSpine {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: 1px;
+  background: rgba(148, 186, 255, 0.2);
+  transition: background 600ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.vernierLight .vernierSpine {
+  background: rgba(0, 0, 107, 0.14);
+}
+
+.vernierSpineFill {
+  position: absolute;
+  inset: 0;
+  background: #94baff;
+  transform-origin: top center;
+  transition: background 600ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.vernierLight .vernierSpineFill {
+  background: var(--lp-royal);
+}
+
+.vernierMinorTick {
+  position: absolute;
+  right: 0;
+  width: 5px;
+  height: 1px;
+  background: rgba(148, 186, 255, 0.22);
+  transform: translateY(-50%);
+  transition: background 600ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.vernierLight .vernierMinorTick {
+  background: rgba(0, 0, 107, 0.16);
+}
+
+.vernierNeedle {
+  position: absolute;
+  top: 0;
+  right: -3px;
+  width: 9px;
+  height: 2px;
+  background: #ffffff;
+  box-shadow: 0 0 10px rgba(148, 186, 255, 0.85);
+  margin-top: -1px;
+  will-change: transform;
+  transition:
+    background 600ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 600ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.vernierLight .vernierNeedle {
+  background: var(--lp-royal);
+  box-shadow: none;
+}
+
+.vernierStop {
+  position: absolute;
+  right: 0;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 7px;
+  padding: 6px 0 6px 6px;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  cursor: pointer;
+  color: rgba(158, 174, 204, 0.56);
+  transition: color 580ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.vernierLight .vernierStop {
+  color: rgba(80, 92, 119, 0.56);
+}
+
+.vernierStop:hover {
+  color: #ffffff;
+}
+
+.vernierLight .vernierStop:hover {
+  color: var(--lp-royal);
+}
+
+.vernierStop:focus-visible {
+  outline: 1px solid var(--lp-ice);
+  outline-offset: 3px;
+}
+
+.vernierLight .vernierStop:focus-visible {
+  outline-color: var(--lp-royal);
+}
+
+.vernierStopActive {
+  color: #ffffff;
+}
+
+.vernierLight .vernierStopActive {
+  color: var(--lp-royal);
+}
+
+.vernierIndex {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1;
+}
+
+.vernierTick {
+  display: block;
+  height: 1.5px;
+  background: rgba(148, 186, 255, 0.45);
+  transition: background 600ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.vernierLight .vernierTick {
+  background: rgba(0, 0, 107, 0.3);
+}
+
+.vernierStop:hover .vernierTick,
+.vernierStopActive .vernierTick {
+  background: #ffffff;
+}
+
+.vernierLight .vernierStop:hover .vernierTick,
+.vernierLight .vernierStopActive .vernierTick {
+  background: var(--lp-royal);
+}
+
+/* --------------------------------------------------------------------------
+   SPLIT HERO LEFT EDITORIAL PANEL (eFlow · LEDIPO — fades out on scroll)
+   -------------------------------------------------------------------------- */
+.heroSplitCopy {
+  position: absolute;
+  left: clamp(36px, 5vw, 88px);
+  top: 0;
+  bottom: 0;
+  width: min(540px, 39vw);
+  z-index: 24;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 20px;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+.heroBrandKicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: clamp(16px, 1.3vw, 20px);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #eef3ff;
+}
+
+.heroKickerDot {
+  color: var(--lp-ice);
+  font-weight: 800;
+  line-height: 1;
+}
+
+.heroKickerOrg {
+  color: var(--lp-ice);
+  letter-spacing: 0.06em;
+}
+
+.heroStarToggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  margin-left: -2px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  transition:
+    color 380ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 380ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 420ms cubic-bezier(0.22, 1, 0.36, 1),
+    filter 380ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.heroStarToggleOn {
+  color: #ffffff;
+  opacity: 0.96;
+  transform: scale(1) rotate(0deg);
+  filter: drop-shadow(0 0 7px rgba(176, 216, 255, 0.92));
+}
+
+.heroStarToggleOn:hover {
+  transform: scale(1.18) rotate(22deg);
+  filter: drop-shadow(0 0 11px rgba(214, 234, 255, 1));
+}
+
+.heroStarToggleOff {
+  color: rgba(148, 186, 255, 0.42);
+  opacity: 0.72;
+  transform: scale(0.84) rotate(45deg);
+  filter: none;
+}
+
+.heroStarToggleOff:hover {
+  color: rgba(196, 222, 255, 0.85);
+  opacity: 0.95;
+  transform: scale(1) rotate(22deg);
+}
+
+.heroStarToggle:focus-visible {
+  outline: 1.5px solid var(--lp-ice);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.heroSplitTitle {
+  margin: 0;
+  font-size: clamp(46px, 4.9vw, 74px);
+  font-weight: 800;
+  line-height: 1.02;
+  letter-spacing: -0.038em;
+  color: #ffffff;
+}
+
+.heroSplitSub {
+  margin: 0;
+  font-size: clamp(16px, 1.28vw, 19px);
+  line-height: 1.55;
+  font-weight: 400;
+  color: var(--lp-dark-text-muted);
+  max-width: 470px;
+}
+
+.heroSplitPillars {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #c5d6f7;
+  padding-top: 12px;
+  border-top: 1px solid rgba(148, 186, 255, 0.18);
+  width: 100%;
+  max-width: 440px;
+}
+
+.heroPillarSep {
+  color: rgba(148, 186, 255, 0.42);
+}
+
+/* Minimal animated hairline scroll indicator (pure visual cue, zero clutter) */
+.heroScrollCue {
+  margin-top: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: rgba(158, 174, 204, 0.75);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.heroScrollLine {
+  position: relative;
+  width: 1.5px;
+  height: 28px;
+  border-radius: 2px;
+  background: rgba(148, 186, 255, 0.22);
+  overflow: hidden;
+}
+
+.heroScrollPulse {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 12px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, rgba(148, 186, 255, 0) 0%, #ffffff 100%);
+  animation: heroScrollDrop 2.2s cubic-bezier(0.45, 0, 0.25, 1) infinite;
+}
+
+@keyframes heroScrollDrop {
+  0% {
+    transform: translateY(-12px);
+    opacity: 0;
+  }
+  25% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   GIANT FLOATING 3D BOARD
+   -------------------------------------------------------------------------- */
+.boardStageWrap {
+  position: relative;
+  z-index: 16;
+  width: min(1000px, 88vw);
+  transform-style: preserve-3d;
+  will-change: transform, opacity;
+}
+
+/* Ambient halo beneath 3D board (inscribed 50% 50% radial gradient — zero box edges, zero filter blur) */
+.boardAmbientGlow {
+  position: absolute;
+  inset: -110px -90px -120px;
+  background: radial-gradient(
+    50% 50% at 50% 50%,
+    rgba(148, 186, 255, 0.22) 0%,
+    rgba(100, 152, 245, 0.11) 42%,
+    rgba(48, 96, 210, 0.03) 74%,
+    rgba(0, 0, 107, 0) 100%
+  );
+  pointer-events: none;
+  z-index: -1;
+}
+
+.boardSlab {
+  position: relative;
+  width: 100%;
+  border-radius: 18px;
+  background: #ffffff;
+  border: 1px solid var(--lp-light-border);
+  padding: clamp(18px, 2vw, 26px);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  color: var(--lp-light-text);
+  box-shadow:
+    0 38px 90px rgba(4, 9, 26, 0.56),
+    -5px 7px 0 1px #d6deed,
+    -10px 14px 0 2px #aebcd8;
+  transition: box-shadow 350ms ease, border-color 350ms ease;
+  overflow: visible;
+  backface-visibility: hidden;
+}
+
+.boardEffectsClip {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 22;
+  contain: layout paint;
+}
+
+.boardSlabLight {
+  box-shadow:
+    0 30px 72px rgba(10, 16, 40, 0.14),
+    -5px 7px 0 1px #d6deed,
+    -10px 14px 0 2px #b9c7e2;
+}
+
+.boardSlabSealed {
+  border-color: rgba(148, 186, 255, 0.65);
+  box-shadow:
+    0 0 0 1px rgba(148, 186, 255, 0.35),
+    0 40px 100px rgba(0, 0, 107, 0.65);
+}
+
+/* Diagonal specular glass sheen drifting across the white board during 3D spin */
+.boardSheen {
+  position: absolute;
+  inset: -40% -20%;
+  background: linear-gradient(
+    115deg,
+    rgba(255, 255, 255, 0) 36%,
+    rgba(148, 186, 255, 0.15) 48%,
+    rgba(255, 255, 255, 0.55) 52%,
+    rgba(255, 255, 255, 0) 64%
+  );
+  pointer-events: none;
+  z-index: 22;
+}
+
+.scanBeam {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 90px;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 107, 0) 0%,
+    rgba(148, 186, 255, 0.34) 50%,
+    rgba(0, 0, 107, 0) 100%
+  );
+  border-top: 1.5px solid rgba(148, 186, 255, 0.58);
+  pointer-events: none;
+  z-index: 25;
+}
+
+.boardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #e6ecf6;
+}
+
+.boardHeaderLeft {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.boardSquare {
+  width: 11px;
+  height: 11px;
+  border-radius: 3px;
+  background: var(--lp-royal);
+}
+
+.boardTitle {
+  font-size: clamp(14px, 1.4vw, 17px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--lp-light-text);
+}
+
+/* Cursor-to-Table Chunked Light Siphon illumination layers (inscribed 50% 50% gradient — zero box edges, zero filter blur) */
+.siphonBoardHalo {
+  position: absolute;
+  inset: -175px -150px -185px;
+  background: radial-gradient(
+    50% 50% at 50% 50%,
+    rgba(222, 238, 255, 0.78) 0%,
+    rgba(136, 194, 255, 0.54) 36%,
+    rgba(68, 136, 255, 0.24) 62%,
+    rgba(32, 86, 212, 0.06) 84%,
+    rgba(0, 0, 107, 0) 100%
+  );
+  pointer-events: none;
+  z-index: -1;
+  will-change: opacity;
+}
+
+.siphonBoardHaloLight {
+  background: radial-gradient(
+    50% 50% at 50% 50%,
+    rgba(68, 140, 245, 0.44) 0%,
+    rgba(39, 103, 167, 0.26) 40%,
+    rgba(39, 103, 167, 0.09) 68%,
+    rgba(0, 0, 107, 0.02) 86%,
+    rgba(245, 247, 252, 0) 100%
+  );
+}
+
+/* Subtle cool resting shade while energy is held by the mouse (lifts cleanly when lit) */
+.siphonRestingVeil {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(10, 18, 48, 0.18) 0%,
+    rgba(10, 18, 48, 0.25) 100%
+  );
+  pointer-events: none;
+  z-index: 20;
+  will-change: opacity;
+}
+
+.siphonRestingVeilLight {
+  background: linear-gradient(
+    180deg,
+    rgba(14, 28, 66, 0.05) 0%,
+    rgba(14, 28, 66, 0.1) 100%
+  );
+}
+
+.siphonRimHighlight {
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 26;
+  box-shadow:
+    inset 0 0 0 2.5px rgba(242, 248, 255, 1),
+    inset 0 2px 36px rgba(132, 190, 255, 0.44),
+    0 0 36px rgba(138, 196, 255, 0.88),
+    0 0 68px rgba(72, 142, 255, 0.48);
+  will-change: opacity;
+}
+
+.siphonRimHighlightLight {
+  inset: 0;
+  box-shadow:
+    inset 0 0 0 2.25px rgba(39, 103, 167, 0.84),
+    inset 0 2px 32px rgba(68, 140, 245, 0.3),
+    0 14px 40px rgba(39, 103, 167, 0.32);
+}
+
+/* Orbiting luminous highlight beam tracing the exact rounded border */
+.siphonBorderOrbit {
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  padding: 2.5px;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 27;
+  contain: layout paint;
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  will-change: opacity;
+}
+
+.siphonBorderOrbitLight {
+  inset: 0;
+}
+
+.siphonBorderOrbitSpinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 145%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%) rotate(0deg);
+  background: conic-gradient(
+    from 0deg,
+    rgba(148, 186, 255, 0.14) 0deg,
+    rgba(148, 198, 255, 0.48) 56deg,
+    rgba(255, 255, 255, 1) 90deg,
+    rgba(116, 180, 255, 0.96) 118deg,
+    rgba(148, 186, 255, 0.18) 164deg,
+    rgba(148, 186, 255, 0.14) 236deg,
+    rgba(255, 255, 255, 0.96) 270deg,
+    rgba(104, 172, 255, 0.88) 298deg,
+    rgba(148, 186, 255, 0.14) 360deg
+  );
+  animation: siphonBorderRotate 15s linear infinite;
+  will-change: transform;
+}
+
+.siphonBorderOrbitLight .siphonBorderOrbitSpinner {
+  background: conic-gradient(
+    from 0deg,
+    rgba(39, 103, 167, 0.12) 0deg,
+    rgba(56, 128, 232, 0.44) 56deg,
+    rgba(0, 0, 107, 0.96) 90deg,
+    rgba(92, 162, 255, 0.94) 118deg,
+    rgba(39, 103, 167, 0.16) 164deg,
+    rgba(39, 103, 167, 0.12) 236deg,
+    rgba(0, 0, 107, 0.92) 270deg,
+    rgba(92, 162, 255, 0.86) 298deg,
+    rgba(39, 103, 167, 0.12) 360deg
+  );
+}
+
+@keyframes siphonBorderRotate {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+.siphonSurfaceCrown {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      90% 60% at 50% 0%,
+      rgba(156, 206, 255, 0.44) 0%,
+      rgba(86, 152, 255, 0.18) 44%,
+      rgba(255, 255, 255, 0) 78%
+    ),
+    radial-gradient(
+      72% 46% at 50% 100%,
+      rgba(148, 200, 255, 0.28) 0%,
+      rgba(255, 255, 255, 0) 74%
+    );
+  pointer-events: none;
+  z-index: 21;
+  will-change: opacity;
+}
+
+.siphonSurfaceCrownLight {
+  background:
+    radial-gradient(
+      90% 58% at 50% 0%,
+      rgba(68, 140, 245, 0.32) 0%,
+      rgba(39, 103, 167, 0.13) 46%,
+      rgba(255, 255, 255, 0) 78%
+    ),
+    radial-gradient(
+      72% 46% at 50% 100%,
+      rgba(68, 140, 245, 0.2) 0%,
+      rgba(255, 255, 255, 0) 74%
+    );
+}
+
+.siphonSurfaceSweep {
+  position: absolute;
+  inset: -30% -25%;
+  background: linear-gradient(
+    108deg,
+    rgba(255, 255, 255, 0) 30%,
+    rgba(136, 194, 255, 0.28) 44%,
+    rgba(255, 255, 255, 0.86) 50%,
+    rgba(72, 144, 248, 0.26) 56%,
+    rgba(255, 255, 255, 0) 70%
+  );
+  pointer-events: none;
+  z-index: 21;
+  will-change: transform, opacity;
+}
+
+.boardHeaderRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.boardChip {
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 5px 11px;
+  border-radius: 6px;
+  background: var(--lp-light-selected);
+  color: var(--lp-royal);
+  transition: background 240ms ease, color 240ms ease;
+}
+
+.boardChipSealed {
+  background: var(--lp-royal);
+  color: #ffffff;
+}
+
+.boardGridStage {
+  position: relative;
+  width: 100%;
+  height: 492px;
+}
+
+.boardColumns {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  width: 100%;
+  height: 100%;
+}
+
+.boardCol {
+  border-radius: 12px;
+  background: var(--lp-light-bg);
+  border: 1px solid #e2e9f5;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  transition: border-color 180ms ease, background 180ms ease, box-shadow 180ms ease;
+}
+
+.boardColDropTarget {
+  background: #eef3ff;
+  border-color: var(--lp-royal);
+  box-shadow:
+    0 0 0 2px rgba(0, 0, 107, 0.2),
+    0 10px 24px rgba(0, 0, 107, 0.1);
+}
+
+.boardColHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--lp-light-text-secondary);
+  height: 28px;
+  padding: 0 2px;
+}
+
+.boardColCount {
+  position: relative;
+  min-width: 24px;
+  height: 22px;
+  padding: 0 7px;
+  border-radius: 5px;
+  background: #ffffff;
+  border: 1px solid var(--lp-light-border);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--lp-light-text);
+  overflow: hidden;
+  transition: background 240ms ease, color 240ms ease, border-color 240ms ease;
+}
+
+.boardColCountDone {
+  background: var(--lp-royal);
+  border-color: var(--lp-royal);
+  color: #ffffff;
+}
+
+/* Local-space floating tile layer so cards glide cleanly across columns with ZERO 3D FLIP jitter */
+.boardCardsLayer {
+  position: absolute;
+  top: 48px;
+  left: 0;
+  right: 0;
+  bottom: 12px;
+  pointer-events: none;
+  z-index: 6;
+}
+
+.taskCardSlot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 64px;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.taskCard {
+  position: relative;
+  width: 100%;
+  height: 64px;
+  box-sizing: border-box;
+  border-radius: 9px;
+  background: #ffffff;
+  border: 1px solid var(--lp-light-border);
+  border-left-width: 3px;
+  padding: 8px 11px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 5px;
+  box-shadow: 0 4px 12px rgba(10, 16, 40, 0.05);
+  backface-visibility: hidden;
+  will-change: transform;
+  transition: border-left-color 260ms ease, box-shadow 200ms ease, border-color 200ms ease;
+}
+
+.taskCardDraggable {
+  pointer-events: auto;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+}
+
+.taskCardDraggable:hover {
+  border-color: #b7c6e4;
+  box-shadow: 0 10px 22px rgba(10, 16, 40, 0.11);
+}
+
+.taskCardDragging {
+  cursor: grabbing !important;
+  border-color: rgba(0, 0, 107, 0.38);
+  box-shadow:
+    0 26px 52px rgba(10, 16, 40, 0.34),
+    0 8px 20px rgba(10, 16, 40, 0.15) !important;
+}
+
+.taskHeadRight {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.taskDragHandle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #8a99b8;
+  opacity: 0.6;
+  transition: opacity 150ms ease, color 150ms ease;
+}
+
+.taskCardDraggable:hover .taskDragHandle,
+.taskCardDragging .taskDragHandle {
+  opacity: 1;
+  color: var(--lp-royal);
+}
+
+.taskCardStaticList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.taskCardStatic {
+  position: relative;
+  height: auto;
+  padding: 10px 11px;
+  gap: 7px;
+}
+
+.taskCardTodo {
+  border-left-color: #6b7da3;
+}
+
+.taskCardProgress {
+  border-left-color: var(--lp-amber-bar);
+  box-shadow: 0 8px 20px rgba(154, 99, 9, 0.08);
+}
+
+.taskCardDone {
+  border-left-color: var(--lp-royal);
+}
+
+.taskCardHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.taskTitle {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--lp-light-text);
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.taskBudget {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--lp-light-text-secondary);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.progressTrack {
+  height: 5px;
+  width: 100%;
+  border-radius: 3px;
+  background: var(--lp-light-selected);
+  overflow: hidden;
+}
+
+.progressTrackAmber {
+  background: var(--lp-amber-bg);
+}
+
+.progressBar {
+  height: 100%;
+  border-radius: 3px;
+  background: var(--lp-royal);
+  transform-origin: left center;
+}
+
+.progressBarAmber {
+  background: var(--lp-amber-bar);
+}
+
+.progressBarMuted {
+  background: #7c8db2;
+}
+
+.taskFoot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 2.5px 7px;
+  border-radius: 5px;
+}
+
+.badgeTodo {
+  background: var(--lp-light-subtle);
+  color: var(--lp-light-text-secondary);
+}
+
+.badgeProgress {
+  background: var(--lp-amber-bg);
+  color: var(--lp-amber-text);
+}
+
+.badgeDone {
+  background: var(--lp-light-selected);
+  color: var(--lp-royal);
+}
+
+.avatarStack {
+  display: inline-flex;
+  align-items: center;
+}
+
+.avatarChip {
+  width: 20px;
+  height: 20px;
+  border-radius: 5px;
+  background: var(--lp-royal);
+  color: #ffffff;
+  font-size: 9px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid #ffffff;
+}
+
+.avatarChip + .avatarChip {
+  margin-left: -5px;
+  background: #2767a7;
+}
+
+/* --------------------------------------------------------------------------
+   ACT 3: SWISS-INDUSTRIAL FROSTED-GLASS & STEEL VAULT LOCK (ZERO TEXT, ZERO CLIPART)
+   -------------------------------------------------------------------------- */
+.lockOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 32;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.lockVisualWrap {
+  position: relative;
+  width: clamp(270px, 32vw, 380px);
+  height: clamp(270px, 32vw, 380px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Architectural snapping corner brackets around lock */
+.lockBrackets {
+  position: absolute;
+  inset: -34px;
+  pointer-events: none;
+}
+
+.lockBracket {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border-color: rgba(148, 186, 255, 0.55);
+  border-style: solid;
+  border-width: 0;
+}
+
+.lbTL { top: 0; left: 0; border-top-width: 1.5px; border-left-width: 1.5px; }
+.lbTR { top: 0; right: 0; border-top-width: 1.5px; border-right-width: 1.5px; }
+.lbBL { bottom: 0; left: 0; border-bottom-width: 1.5px; border-left-width: 1.5px; }
+.lbBR { bottom: 0; right: 0; border-bottom-width: 1.5px; border-right-width: 1.5px; }
+
+.lockRingPulse {
+  position: absolute;
+  inset: -18px;
+  border-radius: 999px;
+  border: 1.5px solid rgba(148, 186, 255, 0.55);
+  box-shadow: 0 0 80px rgba(148, 186, 255, 0.25);
+}
+
+.lockRingOuter {
+  position: absolute;
+  inset: -66px;
+  border-radius: 999px;
+  border: 1px dashed rgba(148, 186, 255, 0.22);
+}
+
+.lockSvg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 36px 80px rgba(3, 8, 24, 0.72));
+}
+
+/* --------------------------------------------------------------------------
+   ACT 4: LIVE ANIMATED PUBLIC VIEW TRANSPARENCY TABLE
+   -------------------------------------------------------------------------- */
+.publicViewOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 36;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 84px clamp(16px, 3.6vw, 48px) 32px;
+}
+
+.publicTableStageWrap {
+  position: relative;
+  width: min(1140px, 100%);
+  max-height: calc(100dvh - 118px);
+  display: flex;
+  flex-direction: column;
+}
+
+.publicTableShell {
+  position: relative;
+  width: 100%;
+  max-height: calc(100dvh - 118px);
+  display: flex;
+  flex-direction: column;
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid var(--lp-light-border);
+  box-shadow: 0 28px 72px rgba(10, 16, 40, 0.13);
+  color: var(--lp-light-text);
+  overflow: hidden;
+}
+
+.publicHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 24px;
+  background: var(--lp-light-bg);
+  border-bottom: 1px solid var(--lp-light-border);
+}
+
+.publicHeaderLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.publicTitle {
+  font-size: clamp(15px, 1.5vw, 18px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--lp-light-text);
+}
+
+.publicHeaderStats {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  flex-wrap: wrap;
+}
+
+.publicStat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.2;
+}
+
+.publicStatLabel {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--lp-light-text-muted);
+}
+
+.publicStatValue {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--lp-royal);
+}
+
+.publicTableScroll {
+  overflow: auto;
+  flex: 1;
+}
+
+.publicTable {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 13px;
+}
+
+.publicTable thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--lp-light-bg);
+  color: var(--lp-light-text-secondary);
+  font-size: 10.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--lp-light-border);
+  white-space: nowrap;
+}
+
+.publicRow {
+  position: relative;
+  border-bottom: 1px solid #edf1f8;
+  cursor: pointer;
+  transition: background 180ms ease;
+}
+
+.publicRow:focus-visible {
+  outline: 2px solid var(--lp-royal);
+  outline-offset: -2px;
+}
+
+.publicRow:last-child {
+  border-bottom: 0;
+}
+
+.publicRowHovered {
+  background: #f3f6fe;
+}
+
+.publicTable tbody td {
+  padding: 14px 20px;
+  vertical-align: middle;
+  position: relative;
+}
+
+.rowActiveBar {
+  position: absolute;
+  left: 0;
+  top: 4px;
+  bottom: 4px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--lp-royal);
+}
+
+.rowProjectName {
+  font-weight: 700;
+  color: var(--lp-light-text);
+}
+
+.rowProjectSub {
+  margin-top: 2px;
+  font-size: 11px;
+  color: var(--lp-light-text-muted);
+}
+
+.rowAmount {
+  font-weight: 800;
+  color: var(--lp-light-text);
+  white-space: nowrap;
+}
+
+.rowProgressWrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 110px;
+}
+
+.rowProgressBarBg {
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--lp-light-selected);
+  overflow: hidden;
+}
+
+.rowProgressBarFill {
+  height: 100%;
+  background: var(--lp-royal);
+  border-radius: 3px;
+}
+
+.rowPct {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--lp-royal);
+}
+
+.rowHash {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 5px;
+  background: var(--lp-light-subtle);
+  color: var(--lp-royal);
+  border: 1px solid #dce5f7;
+}
+
+.rowStatusSealed {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 9px;
+  border-radius: 5px;
+  background: var(--lp-light-selected);
+  color: var(--lp-royal);
+  white-space: nowrap;
+}
+
+/* Interactive Verified Public Record Sheet (sharp architectural geometry) */
+.recordInspectorBackdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  background: rgba(10, 16, 40, 0.42);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.recordInspectorSheet {
+  width: min(560px, 100%);
+  background: #ffffff;
+  border: 1px solid var(--lp-light-border);
+  border-radius: 10px;
+  padding: 22px 24px;
+  box-shadow: 0 28px 64px rgba(10, 16, 40, 0.28);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.recordSheetTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.recordSheetStamp {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  color: var(--lp-royal);
+}
+
+.recordSheetClose {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--lp-light-border);
+  border-radius: 5px;
+  background: var(--lp-light-bg);
+  color: var(--lp-light-text-secondary);
+  cursor: pointer;
+  transition: background 150ms ease, color 150ms ease, border-color 150ms ease;
+}
+
+.recordSheetClose:hover {
+  background: var(--lp-light-selected);
+  border-color: var(--lp-royal);
+  color: var(--lp-royal);
+}
+
+.recordSheetHeading {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.recordSheetTitle {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--lp-light-text);
+}
+
+.recordSheetCode {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--lp-light-text-muted);
+}
+
+.recordLedgerGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border: 1px solid var(--lp-light-border);
+  border-radius: 7px;
+  background: var(--lp-light-bg);
+  overflow: hidden;
+}
+
+.recordLedgerCell {
+  padding: 11px 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.recordLedgerCell + .recordLedgerCell {
+  border-left: 1px solid var(--lp-light-border);
+}
+
+.recordLedgerLabel {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--lp-light-text-muted);
+}
+
+.recordLedgerVal {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--lp-light-text);
+}
+
+.recordGatesRow {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.recordGateStep {
+  border: 1px solid #dce5f7;
+  border-left: 2.5px solid var(--lp-royal);
+  border-radius: 6px;
+  padding: 10px 11px;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.recordGateHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.recordGateIdx {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--lp-light-text-muted);
+}
+
+.recordGateCheck {
+  width: 17px;
+  height: 17px;
+  border-radius: 4px;
+  background: var(--lp-royal);
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.recordGateRole {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--lp-light-text);
+}
+
+.recordGateActor {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--lp-light-text-secondary);
+}
+
+.recordHashBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 9px 12px;
+  border-radius: 6px;
+  background: #0a1028;
+  color: #eef3ff;
+}
+
+.recordHashLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  color: var(--lp-ice);
+}
+
+.recordHashFull {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 11px;
+  color: #dce7ff;
+  word-break: break-all;
+}
+
+/* --------------------------------------------------------------------------
+   MINIMAL FOOTER
+   -------------------------------------------------------------------------- */
+.footerSection {
+  background: #070c1f;
+  color: var(--lp-dark-text);
+  border-top: 1px solid rgba(148, 186, 255, 0.14);
+  padding: 36px clamp(20px, 3.6vw, 48px);
+}
+
+.footerInner {
+  max-width: 1140px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.footerBrandLockup {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.footerBrandDivider {
+  width: 1px;
+  height: 28px;
+  background: rgba(148, 186, 255, 0.24);
+}
+
+.footerBrandOrg {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: #dce7ff;
+}
+
+.footerCopyright {
+  margin: 0;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--lp-dark-text-muted);
+}
+
+/* --------------------------------------------------------------------------
+   Responsive & Reduced Motion
+   -------------------------------------------------------------------------- */
+@media (max-width: 1024px) {
+  .vernierRail {
+    display: none;
+  }
+
+  .cinemaRunway {
+    height: auto;
+  }
+
+  .stickyViewport {
+    position: relative;
+    height: auto;
+    min-height: 100dvh;
+    flex-direction: column;
+    padding: 96px 20px 56px;
+    gap: 32px;
+  }
+
+  .heroSplitCopy {
+    position: relative;
+    left: auto;
+    top: auto;
+    transform: none;
+    width: 100%;
+    max-width: 620px;
+    align-items: center;
+    text-align: center;
+  }
+
+  .heroSplitSub {
+    max-width: 520px;
+  }
+
+  .heroSplitPillars {
+    justify-content: center;
+  }
+
+  .heroScrollCue {
+    display: none;
+  }
+
+  .boardStageWrap {
+    width: 100%;
+  }
+
+  .boardGridStage {
+    height: auto;
+  }
+
+  .lockOverlay,
+  .publicViewOverlay {
+    position: relative;
+    inset: auto;
+    padding: 0;
+    width: 100%;
+  }
+
+  .publicTableStageWrap,
+  .publicTableShell {
+    max-height: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .recordLedgerGrid,
+  .recordGatesRow {
+    grid-template-columns: 1fr;
+  }
+
+  .recordLedgerCell + .recordLedgerCell {
+    border-left: 0;
+    border-top: 1px solid var(--lp-light-border);
+  }
+
+  .boardColumns {
+    grid-template-columns: 1fr;
+    min-height: auto;
+  }
+
+  .stageReticleFrame,
+  .lightSiphonCanvas,
+  .siphonBoardHalo,
+  .siphonRestingVeil,
+  .siphonRimHighlight,
+  .siphonBorderOrbit,
+  .siphonSurfaceCrown,
+  .siphonSurfaceSweep,
+  .signalBeamH,
+  .signalBeamV,
+  .signalNode {
+    display: none;
+    animation: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vernierRail {
+    display: none;
+  }
+
+  .cinemaRunway {
+    height: auto;
+  }
+
+  .stickyViewport {
+    position: relative;
+    height: auto;
+    padding: 96px 24px 64px;
+    flex-direction: column;
+    gap: 36px;
+  }
+
+  .heroSplitCopy {
+    position: relative;
+    left: auto;
+    top: auto;
+    transform: none;
+    width: 100%;
+    max-width: 640px;
+    align-items: center;
+    text-align: center;
+  }
+
+  .heroScrollCue,
+  .heroKickerDot {
+    animation: none;
+  }
+
+  .lockOverlay,
+  .publicViewOverlay {
+    position: relative;
+    inset: auto;
+    padding: 0;
+  }
+
+  .lightSiphonCanvas,
+  .siphonBoardHalo,
+  .siphonRestingVeil,
+  .siphonRimHighlight,
+  .siphonBorderOrbit,
+  .siphonSurfaceCrown,
+  .siphonSurfaceSweep,
+  .signalBeamH,
+  .signalBeamV,
+  .signalNode {
+    display: none;
+    animation: none;
+  }
+}

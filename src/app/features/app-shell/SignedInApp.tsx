@@ -1,4 +1,5 @@
 import { SessionSecurityProvider } from "../session-security";
+import { WorkStatusProvider } from "../work-status";
 import { EflowAppShell } from "./EflowAppShell";
 import {useLayoutEffect,useState} from 'react';
 import {claimNavigationIdentity} from '../../shared/navigationIdentity';
@@ -20,8 +21,10 @@ export function SignedInApp({ role,actorId }: { role: string;actorId:string }) {
   },[actorId,role,can,permissionsLoading]);
   if(!ready)return <LoadingScreen/>;
   return (
-    <SessionSecurityProvider>
-      <EflowAppShell role={role} />
-    </SessionSecurityProvider>
+    <WorkStatusProvider>
+      <SessionSecurityProvider>
+        <EflowAppShell role={role} />
+      </SessionSecurityProvider>
+    </WorkStatusProvider>
   );
 }

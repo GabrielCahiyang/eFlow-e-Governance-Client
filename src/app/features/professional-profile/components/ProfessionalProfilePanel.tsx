@@ -3,7 +3,7 @@ import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 import { useAuth } from '../../../contexts/AuthContext';
 import { BoundedTextarea } from '../../../components/ui/BoundedInput';
 import { FieldValidationTooltip } from '../../../components/ui/FieldValidationTooltip';
-import { WorkspaceTooltip } from '../../../components/ui/workspace/WorkspaceTooltip';
+import { ActionBlockerGroup } from '../../../components/ui/action-blockers';
 import { FeedbackState } from '../../../components/ui/FeedbackState';
 import { Button } from '../../../components/ui/button';
 import { useExplicitDraft } from '../../../shared/useExplicitDraft';
@@ -276,24 +276,14 @@ export function ProfessionalProfilePanel({
       : 'No confirmed summary';
 
   const saveDisabled = busy || !dirty;
-  const saveTooltip = busy
-    ? 'Saving your profile changes…'
-    : !dirty
-      ? 'Edit at least one field before saving changes.'
-      : '';
-  const saveAndConfirmTooltip = busy
-    ? 'Saving and confirming your profile…'
-    : !dirty
-      ? 'Edit at least one field before saving and confirming.'
-      : '';
+  const saveBlocker = !dirty ? 'Edit at least one field before saving changes.' : '';
+  const saveAndConfirmBlocker = !dirty ? 'Edit at least one field before saving and confirming.' : '';
   const confirmDisabled = busy || !profile || profile.confirmed_by_user;
-  const confirmTooltip = busy
-    ? 'Updating your profile…'
-    : !profile
-      ? 'Save your professional profile before confirming it.'
-      : profile.confirmed_by_user
-        ? 'Your current professional summary is already confirmed.'
-        : '';
+  const confirmBlocker = !profile
+    ? 'Save your professional profile before confirming it.'
+    : profile.confirmed_by_user
+      ? 'Your current professional summary is already confirmed.'
+      : '';
 
   return (
     <section className="eflow-professional-panel" aria-label="Professional profile">
@@ -373,27 +363,23 @@ export function ProfessionalProfilePanel({
               />
             </label>
             <div className="flex flex-wrap items-center gap-2 pt-1">
-              <WorkspaceTooltip content={saveTooltip} disabled={!saveDisabled || !saveTooltip}>
-                <span className="inline-flex">
-                  <Button type="submit" size="sm" disabled={saveDisabled}>
-                    Save changes
-                  </Button>
-                </span>
-              </WorkspaceTooltip>
+              <ActionBlockerGroup actionLabel="Save changes" blockers={saveBlocker} busy={busy} size="sm">
+                <Button type="submit" size="sm" disabled={saveDisabled}>
+                  Save changes
+                </Button>
+              </ActionBlockerGroup>
               {own && !fromExtraction && (
-                <WorkspaceTooltip content={saveAndConfirmTooltip} disabled={!saveDisabled || !saveAndConfirmTooltip}>
-                  <span className="inline-flex">
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="secondary"
-                      disabled={saveDisabled}
-                      onClick={() => saveDraft(true)}
-                    >
-                      Save &amp; confirm
-                    </Button>
-                  </span>
-                </WorkspaceTooltip>
+                <ActionBlockerGroup actionLabel="Save & confirm" blockers={saveAndConfirmBlocker} busy={busy} size="sm">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="secondary"
+                    disabled={saveDisabled}
+                    onClick={() => saveDraft(true)}
+                  >
+                    Save &amp; confirm
+                  </Button>
+                </ActionBlockerGroup>
               )}
               <Button
                 type="button"
@@ -451,18 +437,16 @@ export function ProfessionalProfilePanel({
               >
                 Edit profile
               </Button>
-              <WorkspaceTooltip content={confirmTooltip} disabled={!confirmDisabled || !confirmTooltip}>
-                <span className="inline-flex">
-                  <Button
-                    type="button"
-                    size="sm"
-                    disabled={confirmDisabled}
-                    onClick={() => void confirmProfile()}
-                  >
-                    Confirm profile
-                  </Button>
-                </span>
-              </WorkspaceTooltip>
+              <ActionBlockerGroup actionLabel="Confirm profile" blockers={confirmBlocker} busy={busy} size="sm">
+                <Button
+                  type="button"
+                  size="sm"
+                  disabled={confirmDisabled}
+                  onClick={() => void confirmProfile()}
+                >
+                  Confirm profile
+                </Button>
+              </ActionBlockerGroup>
             </div>
           )}
         </>

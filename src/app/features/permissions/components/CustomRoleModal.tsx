@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { Link2, ShieldPlus, X } from "lucide-react";
 import { BoundedTextInput } from "../../../components/ui/BoundedInput";
-import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
+import { ActionBlockerGroup } from "../../../components/ui/action-blockers";
 import { INPUT_LIMITS } from "../../../shared/inputLimits";
 import {
   ACTION_PERMISSION_KEYS,
@@ -181,7 +181,7 @@ export function CustomRoleModal({
   const inlineNameError =
     validationError ||
     (labelTouched || labelDirty || label.trim().length >= 2 ? liveNameError : null);
-  const submitBlockedReason = saving ? "" : validationError || liveNameError || "";
+  const submitBlocker = validationError || liveNameError || "";
   const displayError = inlineNameError || error;
 
   return (
@@ -344,20 +344,19 @@ export function CustomRoleModal({
             >
               Cancel
             </button>
-            <WorkspaceTooltip
-              content={submitBlockedReason}
-              disabled={!submitBlockedReason}
+            <ActionBlockerGroup
+              actionLabel={mode === "create" ? "Create role" : "Save changes"}
+              blockers={submitBlocker}
+              busy={saving}
             >
-              <span className="inline-flex">
-                <button
-                  type="submit"
-                  disabled={saving || Boolean(validationError || liveNameError)}
-                  className="inline-flex min-h-[36px] items-center rounded-lg bg-[#0d544f] px-4 text-[13px] font-medium text-white hover:bg-[#0b4642] disabled:opacity-60"
-                >
-                  {saving ? "Saving…" : mode === "create" ? "Create role" : "Save changes"}
-                </button>
-              </span>
-            </WorkspaceTooltip>
+              <button
+                type="submit"
+                disabled={saving || Boolean(validationError || liveNameError)}
+                className="inline-flex min-h-[36px] items-center rounded-lg bg-[#0d544f] px-4 text-[13px] font-medium text-white hover:bg-[#0b4642] disabled:opacity-60"
+              >
+                {saving ? "Saving…" : mode === "create" ? "Create role" : "Save changes"}
+              </button>
+            </ActionBlockerGroup>
           </div>
         </form>
       </div>

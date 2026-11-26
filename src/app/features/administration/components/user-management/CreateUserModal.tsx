@@ -9,7 +9,7 @@ import {
 import { FeedbackState } from "../../../../components/ui/FeedbackState";
 import { Modal, ModalButton } from "../../../../components/ui/Modal";
 import { useToast } from "../../../../components/ui/Toast";
-import { WorkspaceTooltip } from "../../../../components/ui/workspace/WorkspaceTooltip";
+import { ActionBlockerGroup } from "../../../../components/ui/action-blockers";
 import { INPUT_LIMITS } from "../../../../shared/inputLimits";
 import type { Organization, UserProfile } from "../../../../types";
 import {
@@ -166,14 +166,14 @@ export function CreateUserModal({
     ? "You cannot assign this role."
     : "";
   const liveSkillsIssue = mode === 'ledipo_create' ? accountSkillsError(skills) : '';
-  const submitBlockedReason =
-    orgUnavailableIssue ||
-    liveFullNameIssue ||
-    liveEmailIssue ||
-    liveRoleIssue ||
-    leadershipConflict ||
-    liveSkillsIssue ||
-    '';
+  const submitBlockers = [
+    orgUnavailableIssue,
+    liveFullNameIssue,
+    liveEmailIssue,
+    liveRoleIssue,
+    leadershipConflict,
+    liveSkillsIssue,
+  ].filter(Boolean);
 
   const validate = () => {
     const errs: Record<string, string> = {};
@@ -244,21 +244,20 @@ export function CreateUserModal({
           <ModalButton disabled={saving} onClick={close}>
             Cancel
           </ModalButton>
-          <WorkspaceTooltip
-            content={saving ? "" : submitBlockedReason}
-            disabled={saving || !submitBlockedReason}
+          <ActionBlockerGroup
+            actionLabel="Send activation email"
+            blockers={submitBlockers}
+            busy={saving}
           >
-            <span className="inline-flex">
-              <ModalButton
-                variant="primary"
-                onClick={handleSubmit}
-                pending={saving}
-                disabled={Boolean(submitBlockedReason)}
-              >
-                {saving ? "Saving invitation…" : "Send activation email"}
-              </ModalButton>
-            </span>
-          </WorkspaceTooltip>
+            <ModalButton
+              variant="primary"
+              onClick={handleSubmit}
+              pending={saving}
+              disabled={submitBlockers.length > 0}
+            >
+              {saving ? "Saving invitation…" : "Send activation email"}
+            </ModalButton>
+          </ActionBlockerGroup>
         </>
       }
     >

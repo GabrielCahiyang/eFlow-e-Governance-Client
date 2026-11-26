@@ -3,7 +3,7 @@ import { Plus, Trash2 } from "lucide-react";
 import { BoundedTextInput } from "../../../components/ui/BoundedInput";
 import { FieldValidationTooltip } from "../../../components/ui/FieldValidationTooltip";
 import { MoneyInput } from "../../../components/ui/MoneyInput";
-import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
+import { ActionBlockerGroup } from "../../../components/ui/action-blockers";
 import { fromCentavos, toCentavos } from "../../../shared/currency";
 import { INPUT_LIMITS, blockInvalidNumberKey, maxDigitsForNumber } from "../../../shared/inputLimits";
 import type { CashFundingLine, ReceiptItem } from "../types";
@@ -27,6 +27,8 @@ function ReceiptItemRow({
   err,
   exceedsReleased,
   disabled,
+  busy = false,
+  locked = false,
   show,
   markTouched,
   onPatch,
@@ -39,6 +41,8 @@ function ReceiptItemRow({
   err?: ReceiptItemValidation;
   exceedsReleased: boolean;
   disabled: boolean;
+  busy?: boolean;
+  locked?: boolean;
   show: (itemId: string, fieldName: string) => boolean;
   markTouched: (key: string) => void;
   onPatch: (id: string, value: Partial<ReceiptItem>) => void;
@@ -84,10 +88,6 @@ function ReceiptItemRow({
   const sourceTipId = `${idPrefix}-source-tip`;
   const purposeId = `${idPrefix}-purpose`;
 
-  const removeTip = disabled
-    ? "Editing is locked."
-    : `Remove item ${index + 1} from this receipt.`;
-
   return (
     <div
       className={`space-y-3 rounded-xl border bg-card p-3.5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ${
@@ -96,8 +96,14 @@ function ReceiptItemRow({
     >
       <div className="flex items-center justify-between border-b border-border/70 pb-2">
         <span className="text-[12px] font-semibold text-foreground">Item {index + 1}</span>
-        <WorkspaceTooltip content={removeTip} disabled={!removeTip}>
-          <span className="inline-flex">
+        {!locked && (
+          <ActionBlockerGroup
+            actionLabel={`Remove item ${index + 1}`}
+            blockers={disabled ? "Editing is locked." : []}
+            busy={busy}
+            compact
+            size="sm"
+          >
             <button
               type="button"
               aria-label={`Remove item ${index + 1}`}
@@ -108,8 +114,8 @@ function ReceiptItemRow({
               <Trash2 size={12} aria-hidden="true" />
               <span>Remove</span>
             </button>
-          </span>
-        </WorkspaceTooltip>
+          </ActionBlockerGroup>
+        )}
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2">
@@ -334,6 +340,8 @@ export function ReceiptItemEditor({
   exceedsReleased = false,
   onChange,
   disabled,
+  busy = false,
+  locked = false,
 }: {
   items: ReceiptItem[];
   sources: CashFundingLine[];
@@ -343,15 +351,18 @@ export function ReceiptItemEditor({
   exceedsReleased?: boolean;
   onChange: (items: ReceiptItem[]) => void;
   disabled: boolean;
+  busy?: boolean;
+  locked?: boolean;
 }) {
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const markTouched = (key: string) => setTouched((prev) => (prev[key] ? prev : { ...prev, [key]: true }));
   const show = (itemId: string, fieldName: string) => showAllErrors || Boolean(touched[`${itemId}:${fieldName}`]);
-  const patch = (id: string, value: Partial<ReceiptItem>) =>
+  const patch = (id: string, value: Partial<ReceiptItem>) => {
+    if (locked || disabled) return;
     onChange(items.map((item) => (item.id === id ? { ...item, ...value } : item)));
+  };
 
   const sourceUsageById = new Map(sourceUsage.map((entry) => [entry.allocationLineId, entry]));
-  const addItemTip = disabled ? "Item editing is currently locked." : "";
 
   return (
     <div className="mt-4 space-y-3 rounded-xl border border-[var(--eflow-border,#d6e1df)] bg-muted/25 p-3.5">
@@ -361,7 +372,9 @@ export function ReceiptItemEditor({
             Purchased items
           </p>
           <p className="text-[11px] text-muted-foreground">
-            Actual cost is the total amount paid for each line item (not per unit).
+            {locked
+              ? "Verified and locked by Accounting — item details cannot be modified."
+              : "Actual cost is the total amount paid for each line item (not per unit)."}
           </p>
         </div>
         <span className="rounded-md bg-background px-2 py-0.5 text-[11px] font-medium tabular-nums text-muted-foreground border border-border">
@@ -384,16 +397,26 @@ export function ReceiptItemEditor({
           usage={sourceUsageById.get(item.allocationLineId)}
           err={itemErrors[index]}
           exceedsReleased={exceedsReleased}
-          disabled={disabled}
+          disabled={disabled || locked}
+          busy={busy}
+          locked={locked}
           show={show}
           markTouched={markTouched}
           onPatch={patch}
-          onRemove={() => onChange(items.filter((entry) => entry.id !== item.id))}
+          onRemove={() => {
+            if (locked || disabled) return;
+            onChange(items.filter((entry) => entry.id !== item.id));
+          }}
         />
       ))}
 
-      <WorkspaceTooltip content={addItemTip} disabled={!addItemTip}>
-        <span className="inline-flex">
+      {!locked && (
+        <ActionBlockerGroup
+          actionLabel="Add purchased item"
+          blockers={disabled ? "Item editing is currently locked." : []}
+          busy={busy}
+          size="sm"
+        >
           <button
             type="button"
             disabled={disabled}
@@ -416,8 +439,8 @@ export function ReceiptItemEditor({
             <Plus size={13} aria-hidden="true" />
             Add purchased item
           </button>
-        </span>
-      </WorkspaceTooltip>
+        </ActionBlockerGroup>
+      )}
     </div>
   );
 }

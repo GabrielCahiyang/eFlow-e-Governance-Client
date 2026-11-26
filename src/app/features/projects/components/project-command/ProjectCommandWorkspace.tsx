@@ -1,4 +1,5 @@
 import {ProjectDefinitionPanel,useProjectFlow,ProjectFlowProvider,projectWorkAvailable} from '../../../project-setup';
+import { formatPeso, toCentavos } from '../../../../shared/currency';
 import { ProjectPdfImportPanel,hasPendingPdfImport } from '../../../project-import';
 import { ProjectChatLink } from '../../../chat-calls';
 import { useMemo, useState, useEffect } from "react";
@@ -210,6 +211,57 @@ export function ProjectCommandWorkspace({
         participants={<ProjectParticipants scope={`${userProfile?.id}:${favoriteContextId}:${project.id}`} profilesLoading={profilesLoading} offices={officeState} profiles={profiles} contributorIds={collectProjectParticipantIds({ project, profiles, projectMemberIds: data.members.map(member => member.userId), officeMemberIds: resolvedMemberIds ?? officeState.members.map(member => member.user_id), tasks: projectTasks })} />}
         utilities={<ProjectUtilities setupReady={setupReady} project={project} canManage={canManage} lifecycle={canManage?lifecycleActions:canPlan?{delete:lifecycleActions.delete}:{}} userId={authorizedProjectIds.length ? userProfile?.id || '' : ''} contextId={favoriteContextId} authorizedProjectIds={authorizedProjectIds} view={activeTabId} tasks={projectTasks} subtasks={data.facts.subtasks} onOpenOffices={() => selectTab('members')} onResolveView={selectTab} onOpenSettings={() => selectTab('settings')} />}
         />
+      {project.status === 'archived' && activeTabId !== 'budget' && activeTabId !== 'overview' && flow.data?.closeoutSummary && (
+        <section
+          aria-label="Archived financial closeout summary"
+          className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-neutral-200 bg-neutral-50/80 px-4 py-3 text-xs"
+        >
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5">
+            <span className="font-bold uppercase tracking-wider text-[10.5px] text-neutral-500">
+              Archived financial record
+            </span>
+            {flow.data.closeoutSummary.fundingNotRequired && toCentavos(flow.data.closeoutSummary.totalCertifiedBudget) === 0 ? (
+              <span className="text-neutral-700">No Office Budget funding required</span>
+            ) : (
+              <>
+                <span className="text-neutral-600">
+                  Before activation:{' '}
+                  <strong className="tabular-nums text-neutral-950">
+                    {formatPeso(flow.data.closeoutSummary.budgetBeforeActivation)}
+                  </strong>
+                </span>
+                {toCentavos(flow.data.closeoutSummary.supplementalBudgetAdded) > 0 && (
+                  <span className="text-blue-700">
+                    Supplemental:{' '}
+                    <strong className="tabular-nums text-blue-950">
+                      +{formatPeso(flow.data.closeoutSummary.supplementalBudgetAdded)}
+                    </strong>
+                  </span>
+                )}
+                <span className="text-neutral-600">
+                  Actual spent:{' '}
+                  <strong className="tabular-nums text-neutral-950">
+                    {formatPeso(flow.data.closeoutSummary.actualSpent)}
+                  </strong>
+                </span>
+                <span className="text-emerald-800">
+                  Returned before completion:{' '}
+                  <strong className="tabular-nums text-emerald-950">
+                    {formatPeso(flow.data.closeoutSummary.returnedToOfficeBudget)}
+                  </strong>
+                </span>
+              </>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={() => selectTab('budget')}
+            className="font-semibold text-[var(--eflow-primary,#00006b)] hover:underline cursor-pointer"
+          >
+            View budget breakdown
+          </button>
+        </section>
+      )}
       {/* Extensible Workspace Tab Bar (Permanent core views + optional dynamic views) */}
       {pdfOpen&&canManage&&!closed&&<ProjectPdfImportPanel key={project.id} projectId={project.id} projectTitle={project.title} startDate={project.startDate} onClose={()=>setPdfOpen(false)} onOffices={()=>selectTab('members')} onImported={result=>{setImportGroupId(result.groupIds[0]||'');setImportRevision(value=>value+1);setFilters({...filters,query:'',owner:'',status:'',office:'',dateFrom:'',dateTo:''});selectTab('tasks');}}/>}
       <ProjectViewTabBar
@@ -250,6 +302,7 @@ export function ProjectCommandWorkspace({
               data={data}
               profiles={profiles}
               onOpenTask={setOpenTaskId}
+              closeoutSummary={flow.data?.closeoutSummary}
             />
           )}
           {setupReady && activeTabId === "tasks" && (

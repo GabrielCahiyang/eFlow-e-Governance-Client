@@ -1,7 +1,12 @@
 export {ProjectDefinitionPanel} from './components/ProjectDefinitionPanel';
 export {useProjectFlow} from './useProjectFlow';
 export {ProjectFlowError,projectFlowCall} from './services/projectFlow';
-export type {ProjectFlow,PendingFundingCertification} from './types';
+export type {
+  ProjectFlow,
+  PendingFundingCertification,
+  ProjectFinancialCloseoutSummary,
+  ProjectFinancialCloseoutSource,
+} from './types';
 export {TaskProjectFunding} from './components/TaskProjectFunding';
 export {TaskFundingCell} from './components/TaskFundingCell';
 export {ReturnedBudgetNote} from './components/ReturnedBudgetNote';

@@ -4,6 +4,7 @@ import { BoundedTextarea } from "../../../components/ui/BoundedInput";
 import { useAuth } from "../../../contexts/AuthContext";
 import { useConfirmation } from "../../../components/ui/useConfirmation";
 import { useToast } from "../../../components/ui/Toast";
+import { ActionBlockerGroup } from "../../../components/ui/action-blockers";
 import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import { textLengthError } from "../../../shared/inputLimits";
 import { readableUiError } from "../../../shared/userFacingError";
@@ -178,8 +179,8 @@ export function CashReturnPanel({
               : "Approve this cash return?",
           description:
             kind === "acknowledge"
-              ? `Confirm you physically received ${peso.format(amount)}. This does not approve the return.`
-              : `Verify the ${peso.format(amount)} return and Accounting acknowledgment. Settlement is a separate action.`,
+              ? `Confirm you physically received ${peso.format(amount)}.`
+              : `Confirm the ${peso.format(amount)} cash return verification.`,
           actionLabel:
             kind === "acknowledge" ? "Acknowledge receipt" : "Approve return",
           tone: "approve",
@@ -220,8 +221,8 @@ export function CashReturnPanel({
       setReferenceTouched(false);
       toast(
         expected === "acknowledge"
-          ? "Cash receipt acknowledged. Head approval is still required."
-          : "Cash return approved. Settlement is still required.",
+          ? "Cash return verified by Accounting."
+          : "Cash return verified.",
         "success",
       );
       loadRecovery();
@@ -282,16 +283,14 @@ export function CashReturnPanel({
         <p
           role="status"
           className={`rounded-lg border px-3 py-2 ${
-            current?.approved
+            current?.received || current?.approved
               ? "border-emerald-200 bg-emerald-50 text-emerald-900"
-              : "border-amber-200 bg-amber-50 text-amber-900"
+              : "border-blue-200 bg-blue-50/70 text-blue-900"
           }`}
         >
-          {current?.approved
-            ? "Return approved by the Office Head. Financial settlement remains separate."
-            : current?.received
-              ? "Cash received by Accounting — awaiting Office Head approval."
-              : "Accounting must acknowledge the actual cash received before the Office Head can approve the return."}
+          {current?.received || current?.approved
+            ? `Returned cash (${peso.format(amount)}) verified by Accounting.`
+            : `Accounting verifies physical receipt of the ${peso.format(amount)} unused cash return and records the receiving OR # during settlement.`}
         </p>
       )}
 
@@ -320,28 +319,16 @@ export function CashReturnPanel({
 
       {!readOnly &&
         permitted &&
-        (current.canAcknowledge || current.canApprove) &&
+        current.canAcknowledge &&
         !recovery &&
         !recoveryError && (() => {
-          const referenceLabel = current.canAcknowledge
-            ? "Receiving reference"
-            : "Return approval note";
+          const referenceLabel = "Receiving reference";
           const referenceError = textLengthError(reference, referenceLabel, {
             required: true,
             max: 2000,
           });
           const visibleReferenceError = referenceTouched ? referenceError : "";
           const actionDisabled = busy || Boolean(referenceError);
-          const acknowledgeTip = busy
-            ? "Recording cash receipt acknowledgment…"
-            : referenceError
-              ? referenceError
-              : "Confirms you physically received the returned cash. Office Head approval remains separate.";
-          const approveTip = busy
-            ? "Recording cash return approval…"
-            : referenceError
-              ? referenceError
-              : "Approves the verified cash return. Financial settlement remains separate.";
 
           return (
             <div className="space-y-2 pt-1">
@@ -366,17 +353,21 @@ export function CashReturnPanel({
                     setReferenceTouched(true);
                     setReference(event.target.value);
                   }}
-                  placeholder={
-                    current.canAcknowledge
-                      ? "Enter the official receiving reference or receipt note"
-                      : "Enter the return verification or approval note"
-                  }
+                  placeholder="Enter the official receiving OR # or receipt reference"
                   className="mt-1 block w-full rounded-lg border border-border bg-background p-2 text-xs font-normal text-foreground"
                 />
               </div>
               {current.canAcknowledge && (
-                <WorkspaceTooltip content={acknowledgeTip} disabled={!acknowledgeTip}>
-                  <span className="inline-flex">
+                <ActionBlockerGroup
+                  actionLabel="Acknowledge cash received"
+                  blockers={actionDisabled ? referenceError : []}
+                  busy={busy}
+                  size="sm"
+                >
+                  <WorkspaceTooltip
+                    content="Confirms you physically received the returned cash."
+                    disabled={actionDisabled}
+                  >
                     <button
                       type="button"
                       disabled={actionDisabled}
@@ -386,36 +377,27 @@ export function CashReturnPanel({
                       <CheckCircle2 size={13} />
                       {busy ? "Saving…" : "Acknowledge cash received"}
                     </button>
-                  </span>
-                </WorkspaceTooltip>
-              )}
-              {current.canApprove && (
-                <WorkspaceTooltip content={approveTip} disabled={!approveTip}>
-                  <span className="inline-flex">
-                    <button
-                      type="button"
-                      disabled={actionDisabled}
-                      onClick={() => void send("approve")}
-                      className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-700 px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
-                    >
-                      <CheckCircle2 size={13} />
-                      {busy ? "Saving…" : "Approve cash return"}
-                    </button>
-                  </span>
-                </WorkspaceTooltip>
+                  </WorkspaceTooltip>
+                </ActionBlockerGroup>
               )}
             </div>
           );
         })()}
 
       {!readOnly && !!recovery && (() => {
-        const checkDisabled = loading || !!error || !!recoveryError || busy;
-        const checkTip = loading
-          ? "Checking cash return status…"
-          : error || recoveryError || (busy ? "Checking saved return action…" : "Verify whether the earlier cash return action was saved.");
+        const checkBusy = loading || busy;
+        const checkDisabled = checkBusy || !!error || !!recoveryError;
         return (
-          <WorkspaceTooltip content={checkTip} disabled={!checkTip}>
-            <span className="inline-flex">
+          <ActionBlockerGroup
+            actionLabel="Check saved return action"
+            blockers={checkDisabled ? [error, recoveryError] : []}
+            busy={checkBusy}
+            size="sm"
+          >
+            <WorkspaceTooltip
+              content="Verify whether the earlier cash return action was saved."
+              disabled={checkDisabled}
+            >
               <button
                 type="button"
                 disabled={checkDisabled}
@@ -428,8 +410,8 @@ export function CashReturnPanel({
               >
                 <RefreshCw size={12} /> Check saved return action
               </button>
-            </span>
-          </WorkspaceTooltip>
+            </WorkspaceTooltip>
+          </ActionBlockerGroup>
         );
       })()}
     </section>

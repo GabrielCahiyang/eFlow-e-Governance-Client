@@ -1,6 +1,7 @@
 import { readableUiError } from "../../../shared/userFacingError";
 import { BoundedTextInput } from '../../../components/ui/BoundedInput';
 import { EmptyState } from '../../../components/ui/EmptyState';
+import { ActionBlockerGroup } from '../../../components/ui/action-blockers';
 import { WorkspaceTooltip } from '../../../components/ui/workspace/WorkspaceTooltip';
 import {fetchAccess,RemovalDialog,type AccessSnapshot} from '../../project-access';
 import {useEffect,useId,useRef,useState} from 'react';
@@ -40,11 +41,9 @@ function Content({project,office,root,node,canRequest,onChanged}:{project:string
  {data?.can_designate&&!data.office_id&&data.workspace_id&&<div className="grid gap-2">
   <label htmlFor={sponsorId}>Sponsoring Office ID <span className="text-[var(--eflow-negative-text)]" aria-hidden="true">*</span></label>
   <BoundedTextInput id={sponsorId} maxLength={INPUT_LIMITS.SHORT_TAG} value={sponsorDraft} disabled={busy} aria-required="true" error={visibleSponsorError||undefined} onChange={e=>{setSponsorDraft(e.target.value);if(!sponsorTouched)setSponsorTouched(true);}} onBlur={()=>setSponsorTouched(true)} placeholder="Office ID provided by its appointed Head"/>
-  <WorkspaceTooltip content={!busy&&!sponsorTrimmed?'Enter the sponsoring Office ID before designating.':''} disabled={busy||Boolean(sponsorTrimmed)}>
-   <span className="inline-flex">
-    <button type="button" disabled={busy||!sponsorTrimmed} onClick={()=>{setSponsorTouched(true);if(!sponsorTrimmed)return;void act(()=>designateSponsor(data.workspace_id!,sponsorTrimmed));}}>Designate sponsoring Office</button>
-   </span>
-  </WorkspaceTooltip>
+  <ActionBlockerGroup actionLabel="Designate sponsoring Office" blockers={!sponsorTrimmed?'Enter the sponsoring Office ID before designating.':[]} busy={busy}>
+   <button type="button" disabled={busy||!sponsorTrimmed} onClick={()=>{setSponsorTouched(true);if(!sponsorTrimmed)return;void act(()=>designateSponsor(data.workspace_id!,sponsorTrimmed));}}>Designate sponsoring Office</button>
+  </ActionBlockerGroup>
  </div>}
  {error&&<p role={error.includes('require the R8 database migration')?'status':'alert'}>{readableUiError(error, "We couldn't confirm this invitation action. Check the invitation list before trying again.", "write")}<button type="button" disabled={busy} onClick={()=>void reload()}>Retry invitations</button></p>}{receipt&&<p role="status">{receipt}</p>}
  {data?.requests.map(item=><article key={item.id}><h4>{item.email}</h4><p>{item.state==='pending'?'Pending Head approval':item.state} · {item.engagement} · {item.access_end?`Ends ${new Date(item.access_end).toLocaleString('en-US',{timeZone:data.timezone||'Asia/Singapore'})}`:item.until_close?'Until project closes':'Permanent membership'}</p><p>Scope: {item.root_id?'Task':'Project'}{item.node_id?" / subtask":''} · {item.skills.join(', ')||'No requested skills'} · {item.summary||'No summary provided'}</p>

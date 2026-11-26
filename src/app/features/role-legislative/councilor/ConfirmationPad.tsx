@@ -2,6 +2,7 @@ import * as Carbon from "@carbon/icons-react";
 import * as Lucide from "lucide-react";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { FieldValidationTooltip } from "../../../components/ui/FieldValidationTooltip";
+import { ActionBlockerGroup } from "../../../components/ui/action-blockers";
 import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import type { TaskCard } from "./councilorData";
 
@@ -78,11 +79,10 @@ export function ConfirmationPad({
   const actionInfo = actionLabels[action] || { label: action, color: "text-neutral-600" };
   const isVote = task.type === "Floor Vote";
   const pinComplete = pin.length === 4;
-  const submitTooltip = !pinComplete
-    ? "Enter your 4-digit PIN to continue."
-    : isVote
-      ? "Casts your vote and seals it permanently in the immutable ledger. This cannot be undone."
-      : "Applies your digital signature and seals this action in the immutable ledger. This cannot be undone.";
+  const submitBlocker = !pinComplete ? "Enter your 4-digit PIN to continue." : "";
+  const enabledSubmitTooltip = isVote
+    ? "Casts your vote and seals it permanently in the immutable ledger. This cannot be undone."
+    : "Applies your digital signature and seals this action in the immutable ledger. This cannot be undone.";
 
   return (
     <div
@@ -193,37 +193,34 @@ export function ConfirmationPad({
         </div>
 
         {/* Actions */}
-        <div className="flex gap-3">
+        <div className="flex items-center gap-2.5">
           <button
             type="button"
             onClick={onCancel}
-            className="flex-1 py-3 bg-neutral-100 text-neutral-600 rounded-xl text-[14px] font-normal cursor-pointer hover:bg-neutral-200 transition-colors"
+            className="shrink-0 px-5 py-3 bg-neutral-100 text-neutral-600 rounded-xl text-[14px] font-normal cursor-pointer hover:bg-neutral-200 transition-colors"
           >
             Cancel
           </button>
-          <WorkspaceTooltip content={submitTooltip} disabled={!submitTooltip}>
-            <span
-              className={`inline-flex flex-1${!pinComplete ? " cursor-not-allowed" : ""}`}
-              onClick={() => {
-                if (!pinComplete) {
-                  setPinError("Please enter a valid 4-digit PIN.");
-                }
-              }}
-            >
+          <ActionBlockerGroup
+            actionLabel={isVote ? "Cast Vote" : "Confirm & Seal"}
+            blockers={submitBlocker}
+            className="flex-1 min-w-0"
+          >
+            <WorkspaceTooltip content={enabledSubmitTooltip} disabled={!pinComplete}>
               <button
                 type="button"
                 disabled={!pinComplete}
                 onClick={handleSubmit}
-                className={`w-full py-3 rounded-xl text-[14px] font-normal transition-all disabled:pointer-events-none ${
+                className={`flex-1 min-w-0 px-3 py-3 rounded-xl text-[14px] font-normal whitespace-nowrap transition-all ${
                   pinComplete
                     ? "bg-emerald-600 text-white cursor-pointer hover:bg-emerald-700"
-                    : "bg-neutral-200 text-neutral-400"
+                    : "bg-neutral-200 text-neutral-400 cursor-not-allowed"
                 }`}
               >
                 {isVote ? "Cast Vote" : "Confirm & Seal"}
               </button>
-            </span>
-          </WorkspaceTooltip>
+            </WorkspaceTooltip>
+          </ActionBlockerGroup>
         </div>
 
         <p className="text-[10px] font-normal text-neutral-400 text-center mt-4 flex items-center justify-center gap-1">

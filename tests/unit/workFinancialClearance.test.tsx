@@ -37,6 +37,7 @@ vi.mock("../../src/app/shared/workChanges", () => ({
 vi.mock("../../src/app/features/budget/services/budgetService", () => ({
   submitPettyCashLiquidation: mocks.submitLiquidation,
   findSavedLiquidation: mocks.findLiquidation,
+  createReceiptSignedUrl: vi.fn(),
 }));
 
 import {
@@ -307,12 +308,12 @@ describe("WorkFinancialClearancePanel & CashReturnPanel & CashLiquidationDialog"
 
     const onSaved = vi.fn();
     render(<WorkFinancialClearancePanel root="root-1" onSaved={onSaved} />);
-    await screen.findByText(/Work accepted and financial clearance confirmed/);
-    fireEvent.click(screen.getByRole("button", { name: "Mark as complete" }));
+    await screen.findByText(/All approvals complete/);
+    fireEvent.click(screen.getByRole("button", { name: "Finalize completion" }));
     const dialog = await screen.findByRole("alertdialog", {
-      name: "Mark this work complete?",
+      name: "Finalize completed work?",
     });
-    fireEvent.click(within(dialog).getByRole("button", { name: "Mark as complete" }));
+    fireEvent.click(within(dialog).getByRole("button", { name: "Finalize completion" }));
 
     await waitFor(() => expect(onSaved).toHaveBeenCalledOnce());
     expect(mocks.rpc).toHaveBeenCalledWith("finalize_cleared_work", {
@@ -322,8 +323,67 @@ describe("WorkFinancialClearancePanel & CashReturnPanel & CashLiquidationDialog"
     expect(mocks.toast).toHaveBeenCalledWith("Work completed.", "success");
   });
 
-  it("records Accounting acknowledgment and Office Head return approval with stable keys", async () => {
-    let stage: "initial" | "acknowledged" | "approved" = "initial";
+  it("stays mounted without flickering on background focus refresh and shows pending Accounting state", async () => {
+    let resolveSecond!: (val: unknown) => void;
+    let callCount = 0;
+    mocks.rpc.mockImplementation((name: string) => {
+      if (name === "work_financial_clearance") {
+        callCount++;
+        if (callCount === 1) {
+          return Promise.resolve({
+            data: {
+              version: 1,
+              rootId: "root-1",
+              nodeId: "sub-1",
+              workAccepted: true,
+              completionSubmitted: true,
+              cashOutstanding: true,
+              completed: false,
+              canFinalize: false,
+              workReviewState: "approved",
+              financeState: "pending_accounting",
+              financeMessage:
+                "Receipts submitted — awaiting Accounting Officer review and settlement.",
+            },
+            error: null,
+          });
+        }
+        return new Promise((resolve) => {
+          resolveSecond = resolve;
+        });
+      }
+      return Promise.resolve({ data: null, error: null });
+    });
+
+    render(<WorkFinancialClearancePanel root="root-1" node="sub-1" />);
+    expect(await screen.findByText("Awaiting Accounting")).toBeTruthy();
+    expect(screen.getByText("Pending Accounting approval")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Finalize completion" })).toBeNull();
+
+    // Trigger background focus refresh — panel must NOT unmount while RPC is in-flight!
+    fireEvent(window, new Event("focus"));
+    expect(screen.getByText("Awaiting Accounting")).toBeTruthy();
+
+    resolveSecond({
+      data: {
+        version: 1,
+        rootId: "root-1",
+        nodeId: "sub-1",
+        workAccepted: true,
+        completionSubmitted: true,
+        cashOutstanding: false,
+        completed: true,
+        canFinalize: false,
+        workReviewState: "approved",
+        financeState: "cleared",
+      },
+      error: null,
+    });
+    expect(await screen.findByText("Completed")).toBeTruthy();
+  });
+
+  it("records 1-step Accounting cash return verification without Office Head return approval", async () => {
+    let stage: "initial" | "verified" = "initial";
     mocks.rpc.mockImplementation(async (name: string, args: Record<string, unknown>) => {
       if (name === "cash_return_clearance") {
         return {
@@ -332,19 +392,19 @@ describe("WorkFinancialClearancePanel & CashReturnPanel & CashLiquidationDialog"
             liquidationId: "liq-1",
             packageVersion: 2,
             amount: 1500,
-            received: stage !== "initial",
-            approved: stage === "approved",
-            receivedBy: stage !== "initial" ? "acc-1" : null,
-            approvedBy: stage === "approved" ? "head-1" : null,
-            reference: stage !== "initial" ? "OR-555" : null,
+            received: stage === "verified",
+            approved: stage === "verified",
+            receivedBy: stage === "verified" ? "acc-1" : null,
+            approvedBy: stage === "verified" ? "acc-1" : null,
+            reference: stage === "verified" ? "OR-555" : null,
             canAcknowledge: stage === "initial",
-            canApprove: stage === "acknowledged",
+            canApprove: false,
           },
           error: null,
         };
       }
       if (name === "record_cash_return") {
-        stage = args.p_action === "acknowledge" ? "acknowledged" : "approved";
+        stage = "verified";
         return {
           data: {
             version: 1,
@@ -352,12 +412,12 @@ describe("WorkFinancialClearancePanel & CashReturnPanel & CashLiquidationDialog"
             packageVersion: 2,
             amount: 1500,
             received: true,
-            approved: stage === "approved",
+            approved: true,
             receivedBy: "acc-1",
-            approvedBy: stage === "approved" ? "head-1" : null,
+            approvedBy: "acc-1",
             reference: "OR-555",
             canAcknowledge: false,
-            canApprove: stage === "acknowledged",
+            canApprove: false,
           },
           error: null,
         };
@@ -376,7 +436,8 @@ describe("WorkFinancialClearancePanel & CashReturnPanel & CashLiquidationDialog"
       />,
     );
 
-    await screen.findByText(/Accounting must acknowledge the actual cash received/);
+    await screen.findByText(/Accounting verifies physical receipt of the ₱1,500\.00 unused cash return/);
+    expect(screen.queryByText(/Office Head/i)).toBeNull();
     fireEvent.change(screen.getByLabelText(/Receiving reference/), {
       target: { value: "OR-555" },
     });
@@ -386,7 +447,8 @@ describe("WorkFinancialClearancePanel & CashReturnPanel & CashLiquidationDialog"
     });
     fireEvent.click(within(ackDialog).getByRole("button", { name: "Acknowledge receipt" }));
 
-    await screen.findByText(/Cash received by Accounting — awaiting Office Head approval/);
+    await screen.findByText(/Returned cash \(₱1,500\.00\) verified by Accounting/);
+    expect(screen.queryByRole("button", { name: "Approve cash return" })).toBeNull();
     expect(mocks.rpc).toHaveBeenCalledWith(
       "record_cash_return",
       expect.objectContaining({
@@ -395,27 +457,6 @@ describe("WorkFinancialClearancePanel & CashReturnPanel & CashLiquidationDialog"
         p_action: "acknowledge",
         p_amount: 1500,
         p_reference: "OR-555",
-      }),
-    );
-
-    fireEvent.change(screen.getByLabelText(/Return approval note/), {
-      target: { value: "Verified OR-555 cash return" },
-    });
-    fireEvent.click(screen.getByRole("button", { name: "Approve cash return" }));
-    const approveDialog = await screen.findByRole("alertdialog", {
-      name: "Approve this cash return?",
-    });
-    fireEvent.click(within(approveDialog).getByRole("button", { name: "Approve return" }));
-
-    await screen.findByText(/Return approved by the Office Head/);
-    expect(mocks.rpc).toHaveBeenCalledWith(
-      "record_cash_return",
-      expect.objectContaining({
-        p_liquidation: "liq-1",
-        p_version: 2,
-        p_action: "approve",
-        p_amount: 1500,
-        p_reference: "Verified OR-555 cash return",
       }),
     );
   });
@@ -496,13 +537,76 @@ describe("WorkFinancialClearancePanel & CashReturnPanel & CashLiquidationDialog"
 
     await screen.findByText("Receipts become available after the work is accepted.");
     expect(
-      (screen.getByLabelText("Vendor / payee") as HTMLInputElement).disabled,
+      (screen.getByLabelText(/Vendor \/ payee/) as HTMLInputElement).disabled,
     ).toBe(true);
     const submitBtn = screen.getByRole("button", { name: /Submit liquidation/ }) as HTMLButtonElement;
     expect(
       submitBtn.disabled || submitBtn.getAttribute("aria-disabled") === "true",
     ).toBe(true);
     expect(mocks.submitLiquidation).not.toHaveBeenCalled();
+  });
+
+  it("locks Accounting-approved rolled-up receipts read-only inside CashLiquidationDialog", async () => {
+    mocks.rpc.mockImplementation(async (name: string) => {
+      if (name === "receipt_submission_clearance") {
+        return {
+          data: { version: 1, requestId: "request-1", workAccepted: true, canSubmit: true },
+          error: null,
+        };
+      }
+      if (name === "get_request_assignment_receipts") {
+        return {
+          data: [
+            {
+              id: "rcpt-1",
+              assignmentId: "assign-1",
+              taskId: "root-1",
+              subtaskId: "sub-1",
+              subtaskTitle: "POTCHI",
+              vendor: "omsik",
+              receiptNumber: "231",
+              receiptDate: "2026-11-25",
+              description: "dsadsd",
+              amount: 500,
+              items: [],
+              fileName: "gabriel-cahiyang.jpg",
+              filePath: "org-1/request-1/assignments/assign-1/gabriel-cahiyang.jpg",
+              mimeType: "image/jpeg",
+              fileSize: 1024,
+              uploadedBy: "user-1",
+              uploadedByName: "Gabriel Cahiyang",
+              receiptReviewStatus: "approved",
+              locked: true,
+              accountingDecidedByName: "Kurt Dichosa",
+            },
+          ],
+          error: null,
+        };
+      }
+      return { data: null, error: null };
+    });
+
+    render(
+      <CashLiquidationDialog
+        request={cashRequest({ status: "released", releasedAmount: 800 })}
+        orgId="org-1"
+        perReceiptLimit={50000}
+        liquidationDueDays={15}
+        allowReceiptOverride={false}
+        onClose={vi.fn()}
+        onSaved={vi.fn()}
+      />,
+    );
+
+    expect(
+      await screen.findByText(/Approved by Accounting \(Kurt Dichosa\) · Locked/),
+    ).toBeTruthy();
+    expect((screen.getByLabelText(/Vendor \/ payee/) as HTMLInputElement).disabled).toBe(true);
+    expect((screen.getByLabelText(/OR\/AR number/) as HTMLInputElement).disabled).toBe(true);
+    expect((screen.getByLabelText(/Expense description/) as HTMLInputElement).disabled).toBe(true);
+    expect(screen.queryByRole("button", { name: "Remove receipt 1" })).toBeNull();
+    expect(screen.queryByLabelText("Receipt image or PDF")).toBeNull();
+    expect(screen.getByRole("button", { name: /View receipt/ })).toBeTruthy();
   });
 
   it('recovers a saved receipt package after the request is no longer eligible to submit', async () => {

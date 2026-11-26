@@ -3,7 +3,7 @@ import { UserPlus, Mail, AlertTriangle } from 'lucide-react';
 import { BoundedTextInput } from '../../../components/ui/BoundedInput';
 import { Modal, ModalButton } from '../../../components/ui/Modal';
 import { FormField, SelectInput } from '../../../components/ui/FormField';
-import { WorkspaceTooltip } from '../../../components/ui/workspace/WorkspaceTooltip';
+import { ActionBlockerGroup } from '../../../components/ui/action-blockers';
 import { INPUT_LIMITS } from '../../../shared/inputLimits';
 import { useNavigationBlocker } from '../../../shared/navigationGuard';
 import { inviteOfficePerson } from '../services/officePeople';
@@ -21,7 +21,6 @@ export function OfficePeopleDialog({ office, onClose, onSaved }: { office: Offic
       : '';
   const visibleEmailError = emailTouched || email.length > 0 ? emailError : '';
   const sendDisabled = busy || Boolean(emailError);
-  const sendTip = busy ? '' : emailError;
   const send = async () => {
     setEmailTouched(true);
     if (pending.current || emailError) return;
@@ -41,11 +40,9 @@ export function OfficePeopleDialog({ office, onClose, onSaved }: { office: Offic
     footer={<>
       <ModalButton disabled={busy} onClick={onClose}>{done ? 'Done' : 'Close'}</ModalButton>
       {!done && (
-        <WorkspaceTooltip content={sendTip} disabled={!sendTip}>
-          <span className="inline-flex">
-            <ModalButton variant="primary" pending={busy} disabled={sendDisabled} onClick={() => void send()}><Mail size={16} /> Send invitation</ModalButton>
-          </span>
-        </WorkspaceTooltip>
+        <ActionBlockerGroup actionLabel="Send invitation" blockers={emailError} busy={busy}>
+          <ModalButton variant="primary" pending={busy} disabled={sendDisabled} onClick={() => void send()}><Mail size={16} /> Send invitation</ModalButton>
+        </ActionBlockerGroup>
       )}
     </>}>
     {done ? <p role="status">{done}</p> : <div className="eflow-head-dialog-form">

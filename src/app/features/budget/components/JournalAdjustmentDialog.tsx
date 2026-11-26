@@ -6,6 +6,7 @@ import { BoundedTextarea, BoundedTextInput } from "../../../components/ui/Bounde
 import { DateInput } from "../../../components/ui/DateInput";
 import { FieldValidationTooltip } from "../../../components/ui/FieldValidationTooltip";
 import { MoneyInput } from "../../../components/ui/MoneyInput";
+import { ActionBlockerGroup } from "../../../components/ui/action-blockers";
 import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import { getPhilippineCalendarDate, historicalDateError } from "../../../shared/calendarDates";
 import { diffCentavos, sumCentavos, toCentavos } from "../../../shared/currency";
@@ -290,25 +291,22 @@ export function JournalAdjustmentDialog({
     Boolean(memoError) ||
     !balanced;
 
-  const postTooltip = busy
-    ? ""
-    : financialOutcome(key)
+  const postBlockers = [
+    financialOutcome(key)
       ? "A previous posting already completed or requires verification."
-      : entryDateError
-        ? entryDateError
-        : referenceError
-          ? referenceError
-          : memoError
-            ? memoError
-            : missingAccount
-              ? "Select an account for every journal line."
-              : !balanced
-                ? toCentavos(totals.debit) <= 0 && toCentavos(totals.credit) <= 0
-                  ? "Enter debit and credit amounts to balance this entry."
-                  : toCentavos(totals.debit) !== toCentavos(totals.credit)
-                    ? `Debits (${peso.format(totals.debit)}) must equal credits (${peso.format(totals.credit)}). Difference: ${peso.format(Math.abs(delta))}.`
-                    : "Each line needs a valid account and a positive debit or credit amount."
-                : "Posts an immutable correcting entry to the general journal. This cannot be edited or deleted.";
+      : "",
+    entryDateError,
+    referenceError,
+    memoError,
+    missingAccount ? "Select an account for every journal line." : "",
+    !balanced
+      ? toCentavos(totals.debit) <= 0 && toCentavos(totals.credit) <= 0
+        ? "Enter debit and credit amounts to balance this entry."
+        : toCentavos(totals.debit) !== toCentavos(totals.credit)
+          ? `Debits (${peso.format(totals.debit)}) must equal credits (${peso.format(totals.credit)}). Difference: ${peso.format(Math.abs(delta))}.`
+          : "Each line needs a valid account and a positive debit or credit amount."
+      : "",
+  ];
 
   return (
     <Dialog
@@ -455,6 +453,7 @@ export function JournalAdjustmentDialog({
                 index={index}
                 line={line}
                 accounts={accounts}
+                busy={busy}
                 canRemove={lines.length > 2}
                 touched={Boolean(touchedLines[index])}
                 onTouch={() =>
@@ -498,8 +497,16 @@ export function JournalAdjustmentDialog({
           <Button kind="secondary" size="small" disabled={busy} onClick={close}>
             Cancel
           </Button>
-          <WorkspaceTooltip content={postTooltip} disabled={!postTooltip}>
-            <span className="inline-flex">
+          <ActionBlockerGroup
+            actionLabel="Post balanced entry"
+            blockers={invalid ? postBlockers : []}
+            busy={busy}
+            size="sm"
+          >
+            <WorkspaceTooltip
+              content="Posts an immutable correcting entry to the general journal. This cannot be edited or deleted."
+              disabled={invalid}
+            >
               <Button
                 kind="primary"
                 size="small"
@@ -509,8 +516,8 @@ export function JournalAdjustmentDialog({
               >
                 Post balanced entry
               </Button>
-            </span>
-          </WorkspaceTooltip>
+            </WorkspaceTooltip>
+          </ActionBlockerGroup>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -521,6 +528,7 @@ function JournalLineRow({
   index,
   line,
   accounts,
+  busy,
   canRemove,
   touched,
   onTouch,
@@ -530,6 +538,7 @@ function JournalLineRow({
   index: number;
   line: JournalAdjustmentLineInput;
   accounts: AccountingAccount[];
+  busy: boolean;
   canRemove: boolean;
   touched: boolean;
   onTouch: () => void;
@@ -554,14 +563,11 @@ function JournalLineRow({
   const accountTipId = `${idPrefix}-account-tip`;
   const debitId = `${idPrefix}-debit`;
   const creditId = `${idPrefix}-credit`;
-  const removeTip = canRemove
-    ? `Remove line ${index + 1}.`
-    : "A journal entry requires at least 2 lines.";
 
   return (
     <m.div
       layout
-      className="grid min-w-0 grid-cols-2 gap-2 rounded-xl border border-neutral-200 p-3 md:grid-cols-[minmax(0,1fr)_minmax(0,112px)_minmax(0,112px)_32px]"
+      className="grid min-w-0 grid-cols-2 gap-2 rounded-xl border border-neutral-200 p-3 md:grid-cols-[minmax(0,1fr)_minmax(0,112px)_minmax(0,112px)_auto]"
     >
       <div className="col-span-2 min-w-0 text-[10px] text-neutral-600 md:col-span-1">
         <label htmlFor={accountId} className="block">
@@ -661,8 +667,14 @@ function JournalLineRow({
         />
       </div>
       <div className="col-span-2 justify-self-end md:col-span-1 md:self-end">
-        <WorkspaceTooltip content={removeTip} disabled={!removeTip}>
-          <span className="inline-flex">
+        <ActionBlockerGroup
+          actionLabel={`Remove line ${index + 1}`}
+          blockers={!canRemove ? "A journal entry requires at least 2 lines." : []}
+          busy={busy}
+          compact
+          size="sm"
+        >
+          <WorkspaceTooltip content={`Remove line ${index + 1}.`} disabled={!canRemove}>
             <button
               aria-label={`Remove line ${index + 1}`}
               type="button"
@@ -672,8 +684,8 @@ function JournalLineRow({
             >
               <X size={14} />
             </button>
-          </span>
-        </WorkspaceTooltip>
+          </WorkspaceTooltip>
+        </ActionBlockerGroup>
       </div>
     </m.div>
   );

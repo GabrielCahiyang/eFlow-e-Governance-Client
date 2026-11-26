@@ -5,6 +5,7 @@ import { BoundedTextInput } from '../../../components/ui/BoundedInput';
 import { Button } from '../../../components/ui/button';
 import { FeatureDialog } from '../../../components/ui/FeatureDialog';
 import { FeedbackState } from '../../../components/ui/FeedbackState';
+import { ActionBlockerGroup } from '../../../components/ui/action-blockers';
 import { StatusPill, WorkspaceHeader } from '../../../components/ui/workspace';
 import { WorkspaceTooltip } from '../../../components/ui/workspace/WorkspaceTooltip';
 import { INPUT_LIMITS } from '../../../shared/inputLimits';
@@ -308,13 +309,11 @@ export function StatusMaintenance({ embedded = false }: { embedded?: boolean }) 
                 <Button type="button" variant="outline" disabled={busy} onClick={closeDraft}>
                   Cancel
                 </Button>
-                <WorkspaceTooltip content={busy ? '' : rawNameIssue} disabled={busy || !rawNameIssue}>
-                  <span className="inline-flex">
-                    <Button type="submit" disabled={busy || Boolean(rawNameIssue)}>
-                      {busy ? 'Saving…' : 'Save status'}
-                    </Button>
-                  </span>
-                </WorkspaceTooltip>
+                <ActionBlockerGroup actionLabel="Save status" blockers={rawNameIssue} busy={busy}>
+                  <Button type="submit" disabled={busy || Boolean(rawNameIssue)}>
+                    {busy ? 'Saving…' : 'Save status'}
+                  </Button>
+                </ActionBlockerGroup>
               </div>
             </div>
           </form>

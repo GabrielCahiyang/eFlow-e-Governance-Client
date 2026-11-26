@@ -1,3 +1,4 @@
+import { ActionBlockerGroup, type ActionBlockerItem } from '../../../components/ui/action-blockers';
 import { WorkspaceTooltip } from '../../../components/ui/workspace/WorkspaceTooltip';
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import { useNavigationBlocker } from '../../../shared/navigationGuard';
@@ -344,33 +345,72 @@ export function ProjectFundingPanel({
         : sumCentavos(request.lines.map((item) => Number(item?.amount || 0))),
     ),
   );
+  const isClosed = ['completed', 'archived'].includes(data.project.status);
+  const closeout = data.closeoutSummary;
+  const hasReturnedToOffice = Boolean(closeout && toCentavos(closeout.returnedToOfficeBudget) > 0);
+  const hasSupplemental = Boolean(closeout && toCentavos(closeout.supplementalBudgetAdded) > 0);
+  const showHistoricalColumns = !wizard && Boolean(closeout) && (isClosed || hasReturnedToOffice || hasSupplemental);
+  const hasAnyBudgetHistory = Boolean(closeout && toCentavos(closeout.totalCertifiedBudget) > 0);
+  const showCloseoutActionColumn = !wizard && data.canAuthorize && data.project.status !== 'archived';
+
   const statusTone = data.project.funding_not_required
     ? 'neutral'
-    : data.total > 0
-      ? 'positive'
-      : data.fundingRequests.length
+    : isClosed
+      ? closeout && !closeout.isFullyReconciled && toCentavos(closeout.unreturnedBalance) > 0
         ? 'warning'
-        : 'attention';
+        : 'positive'
+      : data.total > 0 || hasAnyBudgetHistory
+        ? 'positive'
+        : data.fundingRequests.length
+          ? 'warning'
+          : 'attention';
   const statusLabel = data.project.funding_not_required
     ? 'Funding not required'
-    : data.total > 0
-      ? 'Funding certified'
-      : hasPendingAccounting
-        ? 'Awaiting Accounting certification'
-        : data.fundingRequests.length
-          ? 'Awaiting Head endorsement'
-          : 'Funding required · not yet certified';
+    : isClosed
+      ? closeout && toCentavos(closeout.unreturnedBalance) > 0
+        ? 'Closed · Unreturned funds'
+        : 'Closed · Reconciled'
+      : data.total > 0 || hasAnyBudgetHistory
+        ? 'Funding certified'
+        : hasPendingAccounting
+          ? 'Awaiting Accounting certification'
+          : data.fundingRequests.length
+            ? 'Awaiting Head endorsement'
+            : 'Funding required · not yet certified';
+
+  const summaryItems: [string, number][] =
+    showHistoricalColumns && closeout
+      ? [
+          ['Budget before activation', closeout.budgetBeforeActivation],
+          ...(hasSupplemental ? ([['Supplemental added', closeout.supplementalBudgetAdded]] as [string, number][]) : []),
+          ['Actual spent', closeout.actualSpent],
+          ['Returned to Office Budget', closeout.returnedToOfficeBudget],
+          ...(!isClosed ? ([['Unallocated remaining', data.unallocated]] as [string, number][]) : []),
+          ['Cash released', data.released],
+          ['Cash returned', data.returned ?? 0],
+          ...(!isClosed ? ([['Outstanding advances', data.outstanding ?? 0]] as [string, number][]) : []),
+        ]
+      : [
+          ['Certified budget', data.total],
+          ['Allocated to tasks', data.allocated],
+          ['Unallocated', data.unallocated],
+          ['Cash released', data.released],
+          ['Actual spent', data.spent],
+          ['Cash returned', data.returned ?? 0],
+          ['Outstanding advances', data.outstanding ?? 0],
+        ];
 
   return (
     <section className="pf-panel" aria-label="Project budget">
       <header>
         <div>
           <h2>
-            <Wallet size={20} /> Project budget
+            <Wallet size={20} /> {isClosed ? 'Project financial closeout' : 'Project budget'}
           </h2>
           <p>
-            Submit funding from named Office Budget sources{wizard ? ` for FY ${currentYear}` : ''}. Independent
-            Accounting Staff must certify fund availability before funds are reserved.
+            {isClosed
+              ? 'Preserved financial closeout record showing budget before activation, actual money spent, and unused funds returned to the Office Budget before completion.'
+              : `Submit funding from named Office Budget sources${wizard ? ` for FY ${currentYear}` : ''}. Independent Accounting Staff must certify fund availability before funds are reserved.`}
           </p>
         </div>
         <span className="pf-status-badge" data-tone={statusTone}>
@@ -397,16 +437,8 @@ export function ProjectFundingPanel({
         )
       ) : (
         <div className="pf-summary">
-          {[
-            ['Certified budget', data.total],
-            ['Allocated to tasks', data.allocated],
-            ['Unallocated', data.unallocated],
-            ['Cash released', data.released],
-            ['Actual spent', data.spent],
-            ['Cash returned', data.returned ?? 0],
-            ['Outstanding advances', data.outstanding ?? 0],
-          ].map(([label, value]) => (
-            <div key={String(label)}>
+          {summaryItems.map(([label, value]) => (
+            <div key={label}>
               <small>{label}</small>
               <strong>{formatPeso(Number(value))}</strong>
             </div>
@@ -421,68 +453,131 @@ export function ProjectFundingPanel({
               <tr>
                 <th>Funding source</th>
                 <th>Fiscal year</th>
-                <th>Certified</th>
-                <th>Unallocated</th>
-                {!wizard && data.canAuthorize && <th>Closeout</th>}
+                {showHistoricalColumns ? (
+                  <>
+                    <th>Budget before activation</th>
+                    <th>Actual spent</th>
+                    <th>Returned to Office Budget</th>
+                    {!isClosed && <th>Unallocated</th>}
+                  </>
+                ) : (
+                  <>
+                    <th>Certified</th>
+                    <th>Unallocated</th>
+                  </>
+                )}
+                {showCloseoutActionColumn && <th>Closeout</th>}
               </tr>
             </thead>
             <tbody>
-              {data.funds.map((source) => (
+              {data.funds.map((source) => {
+                const returnedAmount = source.returned_to_office ?? 0;
+                const returnedCompletely = toCentavos(source.available) <= 0 && toCentavos(returnedAmount) > 0;
+                const initialAmount = source.budget_before_activation ?? source.total_certified ?? source.amount;
+                const supplementalAmount = source.supplemental_added ?? 0;
+                const spentAmount = source.actual_spent ?? 0;
+                return (
                 <tr key={source.id}>
-                  <td>{source.name}</td>
+                  <td>
+                    <div>{source.name}</div>
+                    {source.last_returned_at && toCentavos(returnedAmount) > 0 && (
+                      <div className="text-[11px] text-neutral-500">
+                        Returned {formatManilaDateTime(source.last_returned_at, '')}
+                        {source.last_returned_by_name ? ` by ${source.last_returned_by_name}` : ''}
+                      </div>
+                    )}
+                  </td>
                   <td>FY {source.fiscal_year}</td>
-                  <td>{formatPeso(source.amount)}</td>
-                  <td>{formatPeso(source.available)}</td>
-                  {!wizard && data.canAuthorize && (
+                  {showHistoricalColumns ? (
+                    <>
+                      <td className="tabular-nums">
+                        <div>{formatPeso(initialAmount)}</div>
+                        {toCentavos(supplementalAmount) > 0 && (
+                          <div className="text-[11px] text-blue-700">+{formatPeso(supplementalAmount)} supplemental</div>
+                        )}
+                      </td>
+                      <td className="tabular-nums">{formatPeso(spentAmount)}</td>
+                      <td className="tabular-nums">{formatPeso(returnedAmount)}</td>
+                      {!isClosed && <td className="tabular-nums">{formatPeso(source.available)}</td>}
+                    </>
+                  ) : (
+                    <>
+                      <td className="tabular-nums">{formatPeso(source.amount)}</td>
+                      <td className="tabular-nums">{formatPeso(source.available)}</td>
+                    </>
+                  )}
+                  {showCloseoutActionColumn && (
                     <td>
-                      {(() => {
+                      {returnedCompletely ? (
+                        <WorkspaceTooltip
+                          content={
+                            source.last_returned_at
+                              ? `Returned ${formatPeso(returnedAmount)} to Office Budget on ${formatManilaDateTime(source.last_returned_at, '')}.`
+                              : `Returned ${formatPeso(returnedAmount)} to Office Budget.`
+                          }
+                        >
+                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-800">
+                            <Check size={13} aria-hidden="true" />
+                            Returned
+                          </span>
+                        </WorkspaceTooltip>
+                      ) : (() => {
                         const returnDisabled = busy || toCentavos(source.available) <= 0;
-                        const returnTip = busy
-                          ? ''
-                          : toCentavos(source.available) <= 0
-                            ? 'No unallocated funds remain on this source to return to Office Budget.'
-                            : `Return up to ${formatPeso(source.available)} of unallocated funds to Office Budget.`;
+                        const returnBlocker = !busy && toCentavos(source.available) <= 0
+                          ? 'No unallocated funds remain on this source to return to Office Budget.'
+                          : '';
+                        const returnTip = !returnDisabled
+                          ? `Return up to ${formatPeso(source.available)} of unallocated funds to Office Budget.`
+                          : '';
                         return (
-                          <WorkspaceTooltip content={returnTip} disabled={!returnTip}>
-                            <span className="inline-flex">
-                              <button
-                                className="pf-closeout-button"
-                                disabled={returnDisabled}
-                                onClick={() => {
-                                  const requestId = crypto.randomUUID();
-                                  confirmDecision({
-                                    title: 'Return unused funding to Office Budget',
-                                    description:
-                                      'Only the unallocated amount is returned to Office Budget. Task allocations and cash records stay recorded. ' +
-                                      source.name +
-                                      ' · ' +
-                                      formatPeso(source.available),
-                                    label: 'Return to Office Budget',
-                                    decision: 'changes',
-                                    requireReason: true,
-                                    action: (r) =>
-                                      projectFlowCall('release_project_funding', {
-                                        p_project: data.project.id,
-                                        p_source: source.id,
-                                        p_amount: source.available,
-                                        p_reason: r,
-                                        p_key: requestId,
-                                      }),
-                                    success: 'Unused funding returned to Office Budget with an audit record.',
-                                  });
-                                }}
-                              >
-                                <Undo2 size={14} />
-                                Return to Office Budget
-                              </button>
-                            </span>
-                          </WorkspaceTooltip>
+                          <ActionBlockerGroup
+                            actionLabel="Return to Office Budget"
+                            blockers={returnBlocker}
+                            busy={busy}
+                            size="sm"
+                          >
+                            <WorkspaceTooltip content={returnTip} disabled={!returnTip}>
+                              <span className="inline-flex">
+                                <button
+                                  className="pf-closeout-button"
+                                  disabled={returnDisabled}
+                                  onClick={() => {
+                                    const requestId = crypto.randomUUID();
+                                    confirmDecision({
+                                      title: 'Return unused funding to Office Budget',
+                                      description:
+                                        'Only the unallocated amount is returned to Office Budget. Task allocations, spending, and audit records stay preserved. ' +
+                                        source.name +
+                                        ' · ' +
+                                        formatPeso(source.available),
+                                      label: 'Return to Office Budget',
+                                      decision: 'changes',
+                                      requireReason: true,
+                                      action: (r) =>
+                                        projectFlowCall('release_project_funding', {
+                                          p_project: data.project.id,
+                                          p_source: source.id,
+                                          p_amount: source.available,
+                                          p_reason: r,
+                                          p_key: requestId,
+                                        }),
+                                      success: 'Unused funding returned to Office Budget with an audit record.',
+                                    });
+                                  }}
+                                >
+                                  <Undo2 size={14} />
+                                  Return to Office Budget
+                                </button>
+                              </span>
+                            </WorkspaceTooltip>
+                          </ActionBlockerGroup>
                         );
                       })()}
                     </td>
                   )}
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
         </div>
@@ -543,9 +638,6 @@ export function ProjectFundingPanel({
               const sourceFieldId = `${entryHintId}-source-${index}`;
               const amountFieldId = `${entryHintId}-amount-${index}`;
               const removeDisabled = lines.length === 1;
-              const removeTip = removeDisabled
-                ? 'At least one funding source row is required.'
-                : `Remove funding row ${index + 1}`;
               return (
                 <div key={index} className="pf-funding-row">
                   <div className="pf-field">
@@ -588,32 +680,39 @@ export function ProjectFundingPanel({
                       }}
                     />
                   </div>
-                  <WorkspaceTooltip content={removeTip} disabled={!removeTip}>
-                    <span className="inline-flex">
-                      <button
-                        type="button"
-                        className="pf-remove-funding"
-                        aria-label={`Remove funding row ${index + 1}`}
-                        disabled={removeDisabled}
-                        onClick={() => {
-                          setLines((rows) => rows.filter((_, i) => i !== index));
-                          const shiftMap = (prev: Record<number, boolean>) => {
-                            const next: Record<number, boolean> = {};
-                            Object.entries(prev).forEach(([k, v]) => {
-                              const idx = Number(k);
-                              if (idx < index) next[idx] = v;
-                              else if (idx > index) next[idx - 1] = v;
-                            });
-                            return next;
-                          };
-                          setTouchedSources(shiftMap);
-                          setTouchedAmounts(shiftMap);
-                        }}
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </span>
-                  </WorkspaceTooltip>
+                  <ActionBlockerGroup
+                    actionLabel={`Remove funding row ${index + 1}`}
+                    blockers={removeDisabled ? 'At least one funding source row is required.' : []}
+                    compact
+                    size="sm"
+                  >
+                    <WorkspaceTooltip content={!removeDisabled ? `Remove funding row ${index + 1}` : ''} disabled={removeDisabled}>
+                      <span className="inline-flex">
+                        <button
+                          type="button"
+                          className="pf-remove-funding"
+                          aria-label={`Remove funding row ${index + 1}`}
+                          disabled={removeDisabled}
+                          onClick={() => {
+                            setLines((rows) => rows.filter((_, i) => i !== index));
+                            const shiftMap = (prev: Record<number, boolean>) => {
+                              const next: Record<number, boolean> = {};
+                              Object.entries(prev).forEach(([k, v]) => {
+                                const idx = Number(k);
+                                if (idx < index) next[idx] = v;
+                                else if (idx > index) next[idx - 1] = v;
+                              });
+                              return next;
+                            };
+                            setTouchedSources(shiftMap);
+                            setTouchedAmounts(shiftMap);
+                          }}
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </span>
+                    </WorkspaceTooltip>
+                  </ActionBlockerGroup>
                 </div>
               );
             })}
@@ -634,20 +733,22 @@ export function ProjectFundingPanel({
                   : 'All available Office Budget sources are already listed.'
                 : '';
               return (
-                <WorkspaceTooltip content={addTip} disabled={!addTip}>
-                  <span className="inline-flex">
-                    <button
-                      type="button"
-                      disabled={addDisabled}
-                      onClick={() =>
-                        setLines((rows) => (rows.length >= sources.length ? rows : [...rows, { partitionId: '', amount: 0 }]))
-                      }
-                    >
-                      <Plus size={16} />
-                      Add funding source
-                    </button>
-                  </span>
-                </WorkspaceTooltip>
+                <ActionBlockerGroup
+                  actionLabel="Add funding source"
+                  blockers={addTip}
+                  size="sm"
+                >
+                  <button
+                    type="button"
+                    disabled={addDisabled}
+                    onClick={() =>
+                      setLines((rows) => (rows.length >= sources.length ? rows : [...rows, { partitionId: '', amount: 0 }]))
+                    }
+                  >
+                    <Plus size={16} />
+                    Add funding source
+                  </button>
+                </ActionBlockerGroup>
               );
             })()}
             <div className="pf-field">
@@ -677,24 +778,30 @@ export function ProjectFundingPanel({
               <strong className="pf-funding-total" data-over={hardError ? 'true' : undefined}>
                 Additional funding total: {formatPeso(total)}
               </strong>
-              <WorkspaceTooltip content={!busy && entryIssue ? entryIssue : ''} disabled={busy || !entryIssue}>
-                <span className="inline-flex">
-                  <button
-                    type="button"
-                    className="pf-primary disabled:cursor-not-allowed"
-                    aria-describedby={showEntryHint ? entryHintId : undefined}
-                    disabled={!!entryIssue || busy}
-                    onClick={promptSubmitFunding}
-                  >
-                    <Check size={16} />
-                    {busy
-                      ? 'Saving…'
-                      : data.canAuthorize
-                        ? 'Submit for Accounting certification'
-                        : 'Request funding'}
-                  </button>
-                </span>
-              </WorkspaceTooltip>
+              <ActionBlockerGroup
+                actionLabel={
+                  data.canAuthorize
+                    ? 'Submit for Accounting certification'
+                    : 'Request funding'
+                }
+                blockers={!busy && entryIssue ? entryIssue : []}
+                busy={busy}
+              >
+                <button
+                  type="button"
+                  className="pf-primary disabled:cursor-not-allowed"
+                  aria-describedby={showEntryHint ? entryHintId : undefined}
+                  disabled={!!entryIssue || busy}
+                  onClick={promptSubmitFunding}
+                >
+                  <Check size={16} />
+                  {busy
+                    ? 'Saving…'
+                    : data.canAuthorize
+                      ? 'Submit for Accounting certification'
+                      : 'Request funding'}
+                </button>
+              </ActionBlockerGroup>
             </div>
           </fieldset>
         )}
@@ -824,6 +931,54 @@ export function ProjectFundingPanel({
                   </button>
                 </>
               )}
+              {!canEndorse && !canCertify && (() => {
+                const waitBlockers: ActionBlockerItem[] = isAccountingStage
+                  ? [
+                      {
+                        id: `${request.id}-acct`,
+                        category: 'accounting_approval',
+                        title: 'Waiting for Financial Officer (Accounting) certification',
+                        detail:
+                          'Office Head endorsement is complete. An independent Financial Officer (Accounting) must certify fund availability before funds are locked.',
+                        waitingOn: 'Financial Officer (Accounting)',
+                        statusLabel: 'Step 2/2 · Pending Financial Officer',
+                        amount: requestTotal,
+                      },
+                    ]
+                  : [
+                      {
+                        id: `${request.id}-head`,
+                        category: 'head_approval',
+                        title: 'Waiting for Office Head endorsement',
+                        detail:
+                          'Step 1 of 2: The Office Head must endorse this funding request first.',
+                        waitingOn: 'Office Head',
+                        statusLabel: 'Step 1/2 · Pending Head',
+                        amount: requestTotal,
+                      },
+                      {
+                        id: `${request.id}-acct`,
+                        category: 'accounting_approval',
+                        title: 'Waiting for Financial Officer (Accounting) certification',
+                        detail:
+                          'Step 2 of 2: Independent Financial Officer (Accounting) certification follows Office Head endorsement.',
+                        waitingOn: 'Financial Officer (Accounting)',
+                        statusLabel: 'Step 2/2 · Queued',
+                        amount: requestTotal,
+                      },
+                    ];
+                return (
+                  <ActionBlockerGroup
+                    actionLabel="Certify & reserve funds"
+                    blockers={waitBlockers}
+                    size="sm"
+                  >
+                    <button type="button" disabled>
+                      Certify &amp; reserve funds
+                    </button>
+                  </ActionBlockerGroup>
+                );
+              })()}
               {canCancel && (
                 <button
                   type="button"
@@ -857,43 +1012,51 @@ export function ProjectFundingPanel({
           <h3>Task allocations</h3>
           {data.taskFunding.map((line) => {
             const returnTaskDisabled = busy || toCentavos(line.available) <= 0;
-            const returnTaskTip = busy
-              ? ''
-              : toCentavos(line.available) <= 0
-                ? 'No unused funds remain on this task allocation to return.'
-                : `Return ${formatPeso(line.available)} of unused task funds back to the project budget.`;
+            const returnTaskBlocker = !busy && toCentavos(line.available) <= 0
+              ? 'No unused funds remain on this task allocation to return.'
+              : '';
+            const returnTaskTip = !returnTaskDisabled
+              ? `Return ${formatPeso(line.available)} of unused task funds back to the project budget.`
+              : '';
             return (
               <div key={line.id} className="pf-actions py-2">
                 <span>
                   {line.task} · {line.source} · {formatPeso(line.amount)} allocated · {formatPeso(line.available)} unused
                 </span>
-                <WorkspaceTooltip content={returnTaskTip} disabled={!returnTaskTip}>
-                  <span className="inline-flex">
-                    <button
-                      disabled={returnTaskDisabled}
-                      onClick={() => {
-                        const requestId = crypto.randomUUID();
-                        confirmDecision({
-                          title: 'Return unused task funding',
-                          description: line.task + ' · ' + formatPeso(line.available),
-                          label: 'Return unused funding',
-                          decision: 'changes',
-                          requireReason: true,
-                          action: (r) =>
-                            projectFlowCall('release_project_task_funding', {
-                              p_line: line.id,
-                              p_amount: line.available,
-                              p_reason: r,
-                              p_key: requestId,
-                            }),
-                          success: 'Unused task funding returned to the project.',
-                        });
-                      }}
-                    >
-                      Return unused to project
-                    </button>
-                  </span>
-                </WorkspaceTooltip>
+                <ActionBlockerGroup
+                  actionLabel="Return unused to project"
+                  blockers={returnTaskBlocker}
+                  busy={busy}
+                  size="sm"
+                >
+                  <WorkspaceTooltip content={returnTaskTip} disabled={!returnTaskTip}>
+                    <span className="inline-flex">
+                      <button
+                        disabled={returnTaskDisabled}
+                        onClick={() => {
+                          const requestId = crypto.randomUUID();
+                          confirmDecision({
+                            title: 'Return unused task funding',
+                            description: line.task + ' · ' + formatPeso(line.available),
+                            label: 'Return unused funding',
+                            decision: 'changes',
+                            requireReason: true,
+                            action: (r) =>
+                              projectFlowCall('release_project_task_funding', {
+                                p_line: line.id,
+                                p_amount: line.available,
+                                p_reason: r,
+                                p_key: requestId,
+                              }),
+                            success: 'Unused task funding returned to the project.',
+                          });
+                        }}
+                      >
+                        Return unused to project
+                      </button>
+                    </span>
+                  </WorkspaceTooltip>
+                </ActionBlockerGroup>
               </div>
             );
           })}

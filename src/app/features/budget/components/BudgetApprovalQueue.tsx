@@ -10,6 +10,7 @@ import {
   BxsCheckShield,
 } from "../../../components/ui/boxicons";
 import {DecisionModal, DecisionResultModal} from '../../../components/ui/DecisionModal';
+import { ActionBlockerGroup } from "../../../components/ui/action-blockers";
 import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import { useToast } from "../../../components/ui/Toast";
 import { useAuth } from "../../../contexts/AuthContext";
@@ -28,7 +29,6 @@ import {
 } from "../services/budgetService";
 import { BudgetEmpty, peso, StatusPill } from "./budgetUi";
 import { CashReturnPanel } from "./CashReturnPanel";
-import { fetchCashReturnClearance } from "../services/workFinancialClearanceService";
 import { useApprovalThreshold } from "../hooks/useApprovalThreshold";
 import { ApprovalThresholdDialog } from "./ApprovalThresholdDialog";
 import { DEFAULT_BUDGET_PAGE_SIZE, useBudgetPagination } from "../hooks/useBudgetPagination";
@@ -697,14 +697,6 @@ export function BudgetApprovalQueue({
                           );
                           return;
                         }
-                        if (
-                          item.returnedAmount > 0 &&
-                          !(await fetchCashReturnClearance(item.id)).approved
-                        ) {
-                          throw new Error(
-                            "Accounting must acknowledge the cash received and the Office Head must approve the return before settlement.",
-                          );
-                        }
                         await decidePettyCashLiquidation(
                           item.id,
                           true,
@@ -928,12 +920,11 @@ function DecisionButtons({
   approveDisabledReason?: string;
   rejectTooltip?: string;
 }) {
-  const rejectTip = busy ? "Wait for the current action to finish." : rejectTooltip;
-  const approveTip = busy
-    ? "Wait for the current action to finish."
-    : approveDisabled
-      ? approveDisabledReason || "This approval action is currently unavailable."
-      : "";
+  const rejectTip = !busy ? rejectTooltip : "";
+  const approveBlockers =
+    !busy && approveDisabled
+      ? [approveDisabledReason || "This approval action is currently unavailable."]
+      : [];
 
   return (
     <div className="flex flex-wrap items-center gap-2">
@@ -951,8 +942,12 @@ function DecisionButtons({
           </Button>
         </span>
       </WorkspaceTooltip>
-      <WorkspaceTooltip content={approveTip} disabled={!approveTip}>
-        <span className="inline-flex">
+      <ActionBlockerGroup
+        actionLabel={approveLabel}
+        blockers={approveBlockers}
+        busy={busy}
+        size="sm"
+      >
           <Button
             kind="primary"
             size="small"
@@ -963,8 +958,7 @@ function DecisionButtons({
             <Check size={11} className="mr-1" />
             {approveLabel}
           </Button>
-        </span>
-      </WorkspaceTooltip>
+      </ActionBlockerGroup>
     </div>
   );
 }

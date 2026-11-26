@@ -15,6 +15,7 @@ export {
   resubmitProjectForHeadApproval,
   listPendingProjectApprovals,
   fetchProjectCompletionReadiness,
+  fetchProjectFinancialCloseoutSummary,
   requestProjectCompletionReview,
   returnProjectCompletionReview,
   listPendingProjectCompletionReviews,

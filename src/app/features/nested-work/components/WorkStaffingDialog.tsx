@@ -2,7 +2,7 @@ import {useEffect,useRef,useState} from 'react';
 import {useAuth} from '../../../contexts/AuthContext';
 import {FeatureDialog} from '../../../components/ui/FeatureDialog';
 import {Modal} from '../../../components/ui/Modal';
-import {WorkspaceTooltip} from '../../../components/ui/workspace/WorkspaceTooltip';
+import {ActionBlockerGroup} from '../../../components/ui/action-blockers';
 import {useWorkImpactConfirmation} from '../hooks/useWorkImpactConfirmation';
 import {useExplicitDraft} from '../../../shared/useExplicitDraft';
 import {WorkPeoplePicker} from './WorkPeoplePicker';
@@ -298,8 +298,8 @@ function WorkStaffingDialogContent({controller,nodeId,readOnly=false,executionBl
    <div className="nw-staffing-footer"><button type="button" className="nw-staffing-btn nw-staffing-btn--secondary" disabled={busy} onClick={close}>{saved?'Close':'Cancel changes'}</button>
     {!saved&&(()=>{
      const submitDisabled=busy||(!request.current&&!!draftError);
-     const submitTooltip=busy?'Saving changes…':!request.current&&draftError?draftError:'';
-     return <WorkspaceTooltip content={submitTooltip} disabled={!submitTooltip}><span className="inline-flex"><button type="submit" className="nw-staffing-btn nw-staffing-btn--primary" disabled={submitDisabled}>{busy?'Saving…':request.current?'Try again':'Save changes'}</button></span></WorkspaceTooltip>;
+     const submitBlocker=!request.current&&draftError?draftError:'';
+     return <ActionBlockerGroup actionLabel={request.current?'Try again':'Save changes'} blockers={submitBlocker} busy={busy}><button type="submit" className="nw-staffing-btn nw-staffing-btn--primary" disabled={submitDisabled}>{busy?'Saving…':request.current?'Try again':'Save changes'}</button></ActionBlockerGroup>;
     })()}
    </div>
    {confirmation.dialog}

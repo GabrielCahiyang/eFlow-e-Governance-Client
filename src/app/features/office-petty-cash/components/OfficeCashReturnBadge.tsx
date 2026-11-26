@@ -10,22 +10,13 @@ export function OfficeCashReturnBadge({ request }: { request: OfficeCashRequest 
   if (returned <= 0) return null;
 
   const received = Boolean(request.returnReceived ?? request.cash_return_received_at);
-  const approved = Boolean(
-    request.returnApproved !== undefined
-      ? request.returnApproved
-      : request.status === 'settled' || Boolean(request.cash_return_approved_at),
-  );
-
-  const tone = approved ? 'positive' : received ? 'info' : 'warning';
-  const stepText = approved
-    ? request.status === 'settled'
-      ? `Returned ${peso.format(returned)} to fund`
-      : `Return ${peso.format(returned)} approved by Head`
-    : received
-      ? `Return ${peso.format(returned)} received by Accounting — awaiting Head approval`
-      : request.returnHeadFallback
-        ? `Return ${peso.format(returned)} — awaiting Head fallback confirmation`
-        : `Return ${peso.format(returned)} — awaiting Accounting receipt`;
+  const settled = request.status === 'settled';
+  const tone = settled ? 'positive' : received ? 'info' : 'warning';
+  const stepText = settled
+    ? `Returned ${peso.format(returned)} to fund`
+    : request.returnHeadFallback
+      ? `Returning ${peso.format(returned)} — awaiting Head fallback confirmation & settlement`
+      : `Returning ${peso.format(returned)} — awaiting Accounting confirmation & settlement`;
 
   return (
     <div className={`opc-return-status opc-return-status--${tone}`}>
@@ -36,7 +27,7 @@ export function OfficeCashReturnBadge({ request }: { request: OfficeCashRequest 
           {request.refund_date ? ` · ${formatManilaDate(request.refund_date, request.refund_date)}` : ''}
         </small>
       )}
-      {request.cash_return_receive_reference && received && (
+      {request.cash_return_receive_reference && (received || settled) && (
         <small>
           Receiving ref: {request.cash_return_receive_reference}
           {request.cashReturnReceivedByName ? ` (${request.cashReturnReceivedByName})` : ''}

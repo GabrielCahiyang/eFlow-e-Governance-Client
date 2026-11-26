@@ -1,5 +1,6 @@
 import { readableUiError } from '../../../shared/userFacingError';
 import {useEffect,useId,useRef,useState} from 'react';
+import { ActionBlockerGroup } from '../../../components/ui/action-blockers';
 import { BoundedTextarea } from '../../../components/ui/BoundedInput';
 import { WorkspaceTooltip } from '../../../components/ui/workspace/WorkspaceTooltip';
 import { INPUT_LIMITS, textLengthError } from '../../../shared/inputLimits';
@@ -18,22 +19,25 @@ export function CancelTaskFunding({line,onChanged,onBusyChange,disabled=false}:{
  const visibleReasonError = reasonTouched || reason.length > 0 ? reasonError : '';
  const confirmDisabled = disabled || busy || (!uncertain && (!canReturn || Boolean(reasonError)));
  const initialDisabled = disabled || !canReturn;
- const initialTip = !initialDisabled
-  ? ''
+ const initialBlockedList = !initialDisabled
+  ? []
   : !canReturn
-   ? 'No unused funding remains to return — all funds on this account are locked or spent.'
-   : 'Wait for the ongoing budget action to finish before returning funding.';
- const confirmTip = busy
+   ? ['No unused funding remains to return — all funds on this account are locked or spent.']
+   : [];
+ const confirmBlockers = busy || !confirmDisabled
+  ? []
+  : disabled
+   ? []
+   : !canReturn && !uncertain
+    ? ['This account’s remaining funding is locked and cannot be returned.']
+    : reasonError
+     ? [reasonError]
+     : [];
+ const confirmEnabledTip = busy || confirmDisabled
   ? ''
-  : confirmDisabled
-   ? disabled
-    ? 'Wait for the ongoing budget action to finish.'
-    : !canReturn && !uncertain
-     ? 'This account’s remaining funding is locked and cannot be returned.'
-     : reasonError
-   : uncertain
-    ? 'Re-check and finish returning this unused funding to the project budget.'
-    : `Returns ₱${returnAmount.toLocaleString('en-PH')} from this task back to the project budget. This cannot be undone.`;
+  : uncertain
+   ? 'Re-check and finish returning this unused funding to the project budget.'
+   : `Returns ₱${returnAmount.toLocaleString('en-PH')} from this task back to the project budget. This cannot be undone.`;
  useEffect(()=>{onBusyChange(line.id,busy||uncertain);return()=>onBusyChange(line.id,false);},[busy,uncertain,onBusyChange,line.id]);
  async function cancel(){
   setReasonTouched(true);
@@ -44,13 +48,16 @@ export function CancelTaskFunding({line,onChanged,onBusyChange,disabled=false}:{
    attempt.current=null;setUncertain(false);setOpen(false);setReason('');setReasonTouched(false);await onChanged();window.dispatchEvent(new Event('eflow:project-setup'));
   }catch(problem){setError(readableUiError(problem, "Could not cancel the allocation. Try again.", 'write'));}finally{pending.current=false;setBusy(false);}
  }
- if (!open) return <WorkspaceTooltip content={initialTip} disabled={!initialTip}>
-  <span className="inline-flex">
-   <button type="button" disabled={initialDisabled} onClick={() => setOpen(true)}>
-    {line.available === line.amount ? 'Cancel allocation' : 'Return unused funding'}
-   </button>
-  </span>
- </WorkspaceTooltip>;
+ if (!open) return <ActionBlockerGroup
+  actionLabel={line.available === line.amount ? 'Cancel allocation' : 'Return unused funding'}
+  blockers={initialBlockedList}
+  busy={disabled}
+  size="sm"
+ >
+  <button type="button" disabled={initialDisabled} onClick={() => setOpen(true)}>
+   {line.available === line.amount ? 'Cancel allocation' : 'Return unused funding'}
+  </button>
+ </ActionBlockerGroup>;
  return <section className="pf-warning">
   {canReturn || uncertain
    ? <p>Return ₱{returnAmount.toLocaleString('en-PH')} from {line.source} to the project budget.</p>
@@ -72,13 +79,20 @@ export function CancelTaskFunding({line,onChanged,onBusyChange,disabled=false}:{
   </div>
   <div className="pf-actions">
    <button type="button" disabled={disabled || busy || uncertain} onClick={() => { setOpen(false); setReason(''); setReasonTouched(false); setError(''); }}>Keep allocation</button>
-   <WorkspaceTooltip content={confirmTip} disabled={!confirmTip}>
-    <span className="inline-flex">
-     <button type="button" className="pf-primary" disabled={confirmDisabled} onClick={() => void cancel()}>
-      {busy ? 'Cancelling…' : uncertain ? 'Retry cancellation' : 'Confirm cancellation'}
-     </button>
-    </span>
-   </WorkspaceTooltip>
+   <ActionBlockerGroup
+    actionLabel={uncertain ? 'Retry cancellation' : 'Confirm cancellation'}
+    blockers={confirmBlockers}
+    busy={busy || disabled}
+    size="sm"
+   >
+    <WorkspaceTooltip content={confirmEnabledTip} disabled={!confirmEnabledTip}>
+     <span className="inline-flex">
+      <button type="button" className="pf-primary" disabled={confirmDisabled} onClick={() => void cancel()}>
+       {busy ? 'Cancelling…' : uncertain ? 'Retry cancellation' : 'Confirm cancellation'}
+      </button>
+     </span>
+    </WorkspaceTooltip>
+   </ActionBlockerGroup>
   </div>
   <FlowError error={error} />
  </section>;

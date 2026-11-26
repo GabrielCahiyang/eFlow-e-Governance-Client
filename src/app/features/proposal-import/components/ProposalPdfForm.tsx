@@ -1,7 +1,7 @@
 import { useId, useState } from 'react';
 import { Button } from '@vibe/core';
 import { Upload } from '@vibe/icons';
-import { WorkspaceTooltip } from '../../../components/ui/workspace/WorkspaceTooltip';
+import { ActionBlockerGroup } from '../../../components/ui/action-blockers';
 import type { ProposalImportOptions } from '../types';
 
 const taskOptions = [
@@ -10,26 +10,29 @@ const taskOptions = [
   { key: 'assignPeople', label: 'Suggest people', hint: 'Match eligible staff to tasks using skills and workload.' },
 ] as const;
 
-export function ProposalPdfForm({ options, onOptionsChange, onStart, allowDocumentOnly = false, hint, disabled = false, disabledReason = '', budgetDisabledReason = '' }: {
+export function ProposalPdfForm({ options, onOptionsChange, onStart, allowDocumentOnly = false, hint, busy = false, disabled = false, disabledReason = '', budgetDisabledReason = '' }: {
   options: ProposalImportOptions;
   onOptionsChange: (options: ProposalImportOptions) => void;
   onStart: (file: File) => void;
   allowDocumentOnly?: boolean;
   hint: string;
+  busy?: boolean;
   disabled?: boolean;
   disabledReason?: string;
   budgetDisabledReason?: string;
 }) {
   const id = useId();
   const [file, setFile] = useState<File | null>(null);
-  const startDisabled = disabled || !file;
-  const startTip = !startDisabled
-    ? ''
-    : disabled
+  const startDisabled = busy || disabled || !file;
+  const startBlockers = [
+    disabled && !busy
       ? disabledReason || 'Complete the required schedule settings above before starting import.'
-      : 'Choose or drop a government proposal PDF file before starting import.';
+      : '',
+    !file ? 'Choose or drop a government proposal PDF file before starting import.' : '',
+  ].filter(Boolean);
 
-  return <fieldset disabled={disabled} className="min-w-0 border-0 p-0">
+  return <>
+    <fieldset disabled={busy || disabled} className="min-w-0 border-0 p-0">
     <fieldset className="mb-5 rounded-xl border border-neutral-200 p-4">
       <legend className="px-2 font-semibold">Import options</legend>
       {allowDocumentOnly && <label className="flex items-start gap-3 p-2">
@@ -73,12 +76,11 @@ export function ProposalPdfForm({ options, onOptionsChange, onStart, allowDocume
         }}
       />
     </label>
+    </fieldset>
     <div className="mt-4 flex justify-end">
-      <WorkspaceTooltip content={startTip} disabled={!startTip}>
-        <span className="inline-flex">
-          <Button kind="primary" disabled={startDisabled} onClick={() => { if (file) onStart(file); }}>Start import</Button>
-        </span>
-      </WorkspaceTooltip>
+      <ActionBlockerGroup actionLabel="Start import" blockers={startBlockers} busy={busy}>
+        <Button kind="primary" disabled={startDisabled} onClick={() => { if (file) onStart(file); }}>Start import</Button>
+      </ActionBlockerGroup>
     </div>
-  </fieldset>;
+  </>;
 }

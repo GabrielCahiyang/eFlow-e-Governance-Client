@@ -16,15 +16,10 @@ import type { TaskCashPools, TaskFundingContext } from "../../src/app/features/b
 
 const assignWorkCashMock = vi.fn();
 const recallWorkCashMock = vi.fn();
-const setSubtaskBudgetCapMock = vi.fn();
 
 vi.mock("../../src/app/features/budget/services/workCashAssignmentService", () => ({
   assignWorkCash: (...args: unknown[]) => assignWorkCashMock(...args),
   recallWorkCash: (...args: unknown[]) => recallWorkCashMock(...args),
-}));
-
-vi.mock("../../src/app/features/budget/services/budgetService", () => ({
-  setSubtaskBudgetCap: (...args: unknown[]) => setSubtaskBudgetCapMock(...args),
 }));
 
 import { AssignMoneyModal } from "../../src/app/features/budget/components/AssignMoneyModal";
@@ -39,8 +34,28 @@ const basePools: TaskCashPools = {
       status: "released",
       sourceLabels: ["Maintainance · FY 2026", "MOAE · FY 2026"],
       fundingLines: [
-        { allocationLineId: "line-maint", amount: 500, sourceName: "Maintainance" },
-        { allocationLineId: "line-moae", amount: 300, sourceName: "MOAE" },
+        {
+          allocationLineId: "line-maint",
+          amount: 500,
+          sourceName: "Maintainance",
+          allocatedAmount: 500,
+          unrequestedAmount: 0,
+          assignedToTask: 0,
+          assignedToSubtasks: 400,
+          unassignedAmount: 100,
+          recordedReceiptsTotal: 100,
+        },
+        {
+          allocationLineId: "line-moae",
+          amount: 300,
+          sourceName: "MOAE",
+          allocatedAmount: 500,
+          unrequestedAmount: 200,
+          assignedToTask: 0,
+          assignedToSubtasks: 0,
+          unassignedAmount: 300,
+          recordedReceiptsTotal: 0,
+        },
       ],
       releasedAmount: 800,
       assignedToTask: 0,
@@ -74,7 +89,8 @@ const basePools: TaskCashPools = {
       id: "assign-sub-1",
       sourceKind: "task_cash_release",
       sourceRequestId: "req-fr-1",
-      sourceLabel: "FR-00001 · ewqdw",
+      allocationLineId: "line-maint",
+      sourceLabel: "Maintainance · FR-00001",
       sourceOrgId: "org-ledipo",
       fundingLines: [
         { allocationLineId: "line-maint", amount: 500, sourceName: "Maintainance" },
@@ -176,43 +192,65 @@ describe("work cash distribution & 3-bucket funding pools", () => {
   beforeEach(() => {
     assignWorkCashMock.mockReset().mockResolvedValue("assign-new");
     recallWorkCashMock.mockReset().mockResolvedValue("assign-sub-1");
-    setSubtaskBudgetCapMock.mockReset().mockResolvedValue("cap-new");
   });
 
-  it("prioritizes released task cash over office petty cash and unrequested budget", () => {
+  it("splits released task cash cleanly per funding source line instead of lumping into one total", () => {
     const groups = buildUnifiedFundingOptions(baseContext, "__new__", {
-      includeUnrequestedBudgetCap: true,
+      includeUnrequestedBudgetCap: false,
     });
-    expect(groups.taskCashOptions).toHaveLength(1);
+    expect(groups.taskCashOptions).toHaveLength(2);
     expect(groups.officePettyCashOptions).toHaveLength(1);
-    expect(groups.budgetCapOptions).toHaveLength(2);
+    expect(groups.budgetCapOptions).toHaveLength(0);
+
+    expect(groups.taskCashOptions[0]).toMatchObject({
+      key: "task_cash_release:req-fr-1:line-maint",
+      allocationLineId: "line-maint",
+      sourceName: "Maintainance",
+      releasedAmount: 500,
+      available: 100,
+      maxForTarget: 100,
+    });
+    expect(groups.taskCashOptions[1]).toMatchObject({
+      key: "task_cash_release:req-fr-1:line-moae",
+      allocationLineId: "line-moae",
+      sourceName: "MOAE",
+      releasedAmount: 300,
+      available: 300,
+      maxForTarget: 300,
+    });
 
     const best = pickDefaultFundingOption(groups.allOptions);
     expect(best?.kind).toBe("task_cash_release");
-    expect(best?.available).toBe(400);
-    expect(best?.label).toContain("FR-00001");
+    expect(best?.allocationLineId).toBe("line-maint");
+    expect(best?.label).toBe("Maintainance · FR-00001");
   });
 
-  it("allows direct task self-assignment from released task cash and office petty cash only", () => {
+  it("allows direct task self-assignment per released funding source and office petty cash only", () => {
     const taskSelf = buildUnifiedFundingOptions(baseContext, null);
-    expect(taskSelf.taskCashOptions).toHaveLength(1);
+    expect(taskSelf.taskCashOptions).toHaveLength(2);
     expect(taskSelf.officePettyCashOptions).toHaveLength(1);
     expect(taskSelf.budgetCapOptions).toHaveLength(0);
-    expect(taskSelf.taskCashOptions[0].maxForTarget).toBe(400);
+    expect(taskSelf.taskCashOptions[0].maxForTarget).toBe(100);
+    expect(taskSelf.taskCashOptions[1].maxForTarget).toBe(300);
     expect(taskSelf.officePettyCashOptions[0].maxForTarget).toBe(600);
   });
 
-  it("enforces centavo bounds including floor of logged receipts when editing existing assignment", () => {
+  it("enforces per-line centavo bounds including floor of logged receipts when editing existing assignment", () => {
     const sub1 = buildUnifiedFundingOptions(baseContext, "sub-1");
-    const frOption = sub1.taskCashOptions[0];
-    // Existing ₱400 + ₱400 unassigned = ₱800 max; ₱100 already logged in receipts = ₱100 min
-    expect(frOption.maxForTarget).toBe(800);
-    expect(frOption.minForTarget).toBe(100);
+    const maintOption = sub1.taskCashOptions[0];
+    const moaeOption = sub1.taskCashOptions[1];
+    // Maintainance: ₱400 existing + ₱100 unassigned = ₱500 max (NOT ₱800); ₱100 logged receipts = ₱100 min
+    expect(maintOption.maxForTarget).toBe(500);
+    expect(maintOption.minForTarget).toBe(100);
+    // MOAE: completely separate ₱300 released pool
+    expect(moaeOption.maxForTarget).toBe(300);
+    expect(moaeOption.minForTarget).toBe(0);
 
-    expect(validateCashAssignmentAmount("99.99", frOption)).toMatch(/Keep at least/);
-    expect(validateCashAssignmentAmount("800.01", frOption)).toMatch(/exceeds/);
-    expect(validateCashAssignmentAmount("100.123", frOption)).toMatch(/two decimal places/);
-    expect(validateCashAssignmentAmount("550.50", frOption)).toBe("");
+    expect(validateCashAssignmentAmount("99.99", maintOption)).toMatch(/Keep at least/);
+    expect(validateCashAssignmentAmount("500.01", maintOption)).toMatch(/exceeds/);
+    expect(validateCashAssignmentAmount("300.01", moaeOption)).toMatch(/exceeds/);
+    expect(validateCashAssignmentAmount("100.123", maintOption)).toMatch(/two decimal places/);
+    expect(validateCashAssignmentAmount("450.50", maintOption)).toBe("");
   });
 
   it("derives fallback cash-on-hand totals when cashPools is absent from older server payload", () => {
@@ -261,7 +299,7 @@ describe("work cash distribution & 3-bucket funding pools", () => {
     expect(fallback.totals.unrequestedBudget).toBe(200);
   });
 
-  it("AssignMoneyModal lets Task Lead assign remaining ₱400 directly to the task itself", async () => {
+  it("AssignMoneyModal lets Task Lead assign per-source released cash directly to the task itself with clean target label", async () => {
     const onChanged = vi.fn().mockResolvedValue(undefined);
     const onClose = vi.fn();
     render(
@@ -275,12 +313,19 @@ describe("work cash distribution & 3-bucket funding pools", () => {
       />,
     );
 
-    expect(screen.getByText("Released task cash on hand")).toBeTruthy();
-    expect(screen.getByText("Released office petty cash")).toBeTruthy();
-    expect(screen.getByText("Unrequested task budget")).toBeTruthy();
+    expect(screen.getByText("Released task cash")).toBeTruthy();
+    expect(screen.getByText("Office petty cash")).toBeTruthy();
+    expect(screen.queryByText(/Unrequested task budget/i)).toBeNull();
+    expect(screen.getByRole("option", { name: "test Test (This task)" })).toBeTruthy();
+    expect(screen.getByRole("option", { name: "Maintainance · FR-00001 — ₱100.00" })).toBeTruthy();
+    expect(screen.getByRole("option", { name: "MOAE · FR-00001 — ₱300.00" })).toBeTruthy();
+
+    fireEvent.change(screen.getByLabelText("Funding source"), {
+      target: { value: "task_cash_release:req-fr-1:line-moae" },
+    });
 
     const amountInput = screen.getByLabelText(/Amount \(PHP\)/i);
-    fireEvent.change(amountInput, { target: { value: "400" } });
+    fireEvent.change(amountInput, { target: { value: "250" } });
 
     const submitBtn = screen.getByRole("button", { name: /Assign cash/i });
     fireEvent.click(submitBtn);
@@ -292,7 +337,8 @@ describe("work cash distribution & 3-bucket funding pools", () => {
           subtaskId: null,
           sourceKind: "task_cash_release",
           sourceRequestId: "req-fr-1",
-          amount: 400,
+          allocationLineId: "line-moae",
+          amount: 250,
         }),
       );
     });
@@ -327,6 +373,7 @@ describe("work cash distribution & 3-bucket funding pools", () => {
           subtaskId: "sub-2",
           sourceKind: "office_petty_cash",
           sourceRequestId: "opc-shalama",
+          allocationLineId: null,
           amount: 250,
         }),
       );
@@ -342,8 +389,7 @@ describe("work cash distribution & 3-bucket funding pools", () => {
     });
   });
 
-  it("AssignMoneyModal supports B1 unrequested task budget cap on an existing subtask", async () => {
-    const onChanged = vi.fn().mockResolvedValue(undefined);
+  it("AssignMoneyModal excludes unrequested task budget and blocks amounts higher than the selected funding source's released cash", () => {
     render(
       <AssignMoneyModal
         taskTitle="test Test"
@@ -351,34 +397,34 @@ describe("work cash distribution & 3-bucket funding pools", () => {
         pools={basePools}
         initialTarget={{ kind: "subtask", subtaskId: "sub-2" }}
         lockTarget
-        onChanged={onChanged}
+        onChanged={vi.fn().mockResolvedValue(undefined)}
         onClose={vi.fn()}
       />,
     );
 
-    fireEvent.change(screen.getByLabelText("Funding source"), {
-      target: { value: "budget_cap:line-moae" },
-    });
-    fireEvent.change(screen.getByLabelText(/Amount \(PHP\)/i), {
-      target: { value: "150" },
-    });
-    fireEvent.change(screen.getByPlaceholderText(/Why this subtask needs this budget cap/i), {
-      target: { value: "Materials for step 2" },
+    const sourceSelect = screen.getByLabelText("Funding source") as HTMLSelectElement;
+    const optionValues = Array.from(sourceSelect.options).map((o) => o.value);
+    expect(optionValues).toEqual([
+      "task_cash_release:req-fr-1:line-maint",
+      "task_cash_release:req-fr-1:line-moae",
+      "office_petty_cash:opc-shalama",
+    ]);
+
+    // Switch to MOAE (₱300.00 released) and try entering ₱350.00
+    fireEvent.change(sourceSelect, {
+      target: { value: "task_cash_release:req-fr-1:line-moae" },
     });
 
-    fireEvent.click(screen.getByRole("button", { name: /Allocate budget cap/i }));
+    const amountInput = screen.getByLabelText(/Amount \(PHP\)/i);
+    fireEvent.change(amountInput, { target: { value: "350" } });
 
-    await waitFor(() => {
-      expect(setSubtaskBudgetCapMock).toHaveBeenCalledWith(
-        expect.objectContaining({
-          taskId: "task-1",
-          subtaskId: "sub-2",
-          allocationLineId: "line-moae",
-          amount: 150,
-          reason: "Materials for step 2",
-        }),
-      );
-    });
+    expect(amountInput).toHaveAttribute("aria-invalid", "true");
+    expect(screen.getByText(/Exceeds ₱300\.00 by ₱50\.00/i)).toBeTruthy();
+    const submitBtn = screen.getByRole("button", { name: /Assign cash/i });
+    expect(submitBtn).toHaveAttribute("aria-disabled", "true");
+    fireEvent.click(submitBtn);
+    fireEvent.submit(amountInput.closest("form")!);
+    expect(assignWorkCashMock).not.toHaveBeenCalled();
   });
 
   it("A1 rolled-up receipts with existingFile pass liquidation validation without re-upload", () => {

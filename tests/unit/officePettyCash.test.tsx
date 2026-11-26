@@ -6,7 +6,7 @@ const mocks=vi.hoisted(()=>({profile:{id:'member',org_id:'office',role:'member'}
 vi.mock('../../src/app/contexts/AuthContext',()=>({useAuth:()=>({userProfile:mocks.profile})}));
 vi.mock('../../src/app/features/office-petty-cash/services/officeCash',()=>({loadOfficeCash:mocks.load,commandOfficeCash:mocks.command,openOfficeReceipt:vi.fn(),uploadOfficeReceipt:vi.fn()}));
 vi.mock('../../src/app/components/ui/Modal',()=>({Modal:({children,footer,title}:any)=><div role="dialog" aria-label={title}>{children}{footer}</div>}));
-import {OfficePettyCash,OfficePettyCashLauncher} from '../../src/app/features/office-petty-cash';
+import {OfficePettyCash,OfficePettyCashInlineRequests,OfficePettyCashLauncher} from '../../src/app/features/office-petty-cash';
 beforeEach(()=>{sessionStorage.clear();mocks.profile.role='member';mocks.load.mockResolvedValue({ceiling:30000,receiptLimit:5000,cash:30000,reserved:0,available:30000,outstanding:0,replenishable:0,requests:[],events:[]});mocks.command.mockResolvedValue({});});
 afterEach(()=>{cleanup();vi.clearAllMocks();});
 it.each([['Approve request','approve'],['Reject request','reject']])('confirms %s in a centered dialog before submitting',async(action,command)=>{
@@ -14,7 +14,7 @@ it.each([['Approve request','approve'],['Reject request','reject']])('confirms %
  render(<OfficePettyCash/>);fireEvent.click(await screen.findByRole('button',{name:action}));expect(mocks.command).not.toHaveBeenCalled();
  const dialog=screen.getByRole('dialog',{name:`${action}?`});expect(within(dialog).getByRole('button',{name:action})).toBeDisabled();
  fireEvent.click(within(dialog).getByRole('button',{name:'Cancel'}));expect(mocks.command).not.toHaveBeenCalled();
- fireEvent.click(screen.getByRole('button',{name:action}));fireEvent.change(screen.getByLabelText('Reason / transaction reference'),{target:{value:'Reviewed the request'}});fireEvent.click(within(screen.getByRole('dialog',{name:`${action}?`})).getByRole('button',{name:action}));
+ fireEvent.click(screen.getByRole('button',{name:action}));fireEvent.change(screen.getByLabelText(/Reason \/ transaction reference/),{target:{value:'Reviewed the request'}});fireEvent.click(within(screen.getByRole('dialog',{name:`${action}?`})).getByRole('button',{name:action}));
  await waitFor(()=>expect(mocks.command).toHaveBeenCalledWith('office',expect.objectContaining({action:command,data:expect.objectContaining({request:'petty-1',reference:'Reviewed the request'})})));
 });
 it('allows an office request without project/task funding and never exposes replenishment to a member',async()=>{render(<OfficePettyCash/>);await waitFor(()=>expect(screen.getByRole('button',{name:/Request petty cash/})).toBeEnabled());expect(screen.queryByRole('button',{name:/Replenish fund/})).toBeNull();fireEvent.click(screen.getByRole('button',{name:/Request petty cash/}));expect(screen.getByRole('dialog',{name:'Request petty cash'})).toBeVisible();expect(screen.getByText(/Does not deduct from a project or task budget/)).toBeVisible();});
@@ -27,7 +27,7 @@ it('opens a request at zero balance, explains the funding requirement and allows
  const dialog=screen.getByRole('dialog',{name:'Request petty cash'});
  expect(within(dialog).getByRole('alert')).toHaveTextContent('ask Accounting to replenish settled expenses');
  fireEvent.change(within(dialog).getByRole('spinbutton'),{target:{value:'1200'}});
- fireEvent.change(within(dialog).getByLabelText('Purpose'),{target:{value:'Office stationery'}});
+ fireEvent.change(within(dialog).getByLabelText(/Purpose/),{target:{value:'Office stationery'}});
  expect(within(dialog).getByRole('button',{name:'Request petty cash'})).toBeDisabled();
  expect(mocks.command).not.toHaveBeenCalled();
  fireEvent.click(within(dialog).getByRole('button',{name:'Cancel'}));
@@ -41,12 +41,12 @@ it('keeps the request draft and enables submission after Accounting funds the of
  fireEvent.click(screen.getByRole('button',{name:'Request petty cash'}));
  const dialog=screen.getByRole('dialog',{name:'Request petty cash'});
  fireEvent.change(within(dialog).getByRole('spinbutton'),{target:{value:'1200'}});
- fireEvent.change(within(dialog).getByLabelText('Purpose'),{target:{value:'Office stationery'}});
+ fireEvent.change(within(dialog).getByLabelText(/Purpose/),{target:{value:'Office stationery'}});
  mocks.load.mockResolvedValue({...empty,cash:30000,available:30000,replenishable:0});
  window.dispatchEvent(new Event('eflow:office-petty'));
  await waitFor(()=>expect(within(dialog).getByRole('button',{name:'Request petty cash'})).toBeEnabled());
  expect(within(dialog).queryByRole('alert')).not.toBeInTheDocument();
- expect(within(dialog).getByLabelText('Purpose')).toHaveValue('Office stationery');
+ expect(within(dialog).getByLabelText(/Purpose/)).toHaveValue('Office stationery');
  fireEvent.click(within(dialog).getByRole('button',{name:'Request petty cash'}));
  await waitFor(()=>expect(mocks.command).toHaveBeenCalledWith('office',expect.objectContaining({action:'request',data:expect.objectContaining({amount:1200,reference:'Office stationery'})})));
 });
@@ -57,7 +57,7 @@ it('recovers an uncertain command after reload with its original key and visible
  const retry=await screen.findByRole('button',{name:'Resume cash action'});
  expect(screen.getByRole('status')).toHaveTextContent('We couldn’t confirm this cash action.');
  expect(screen.queryByText(/Saved transaction/)).not.toBeInTheDocument();
- expect(screen.getByLabelText('Purpose')).toHaveValue('Office stationery');
+ expect(screen.getByLabelText(/Purpose/)).toHaveValue('Office stationery');
  fireEvent.click(retry);
  await waitFor(()=>expect(mocks.command).toHaveBeenCalledWith('office',saved));
  await waitFor(()=>expect(sessionStorage.getItem('eflow.office-petty.pending:office:member')).toBeNull());
@@ -79,14 +79,19 @@ it('shows Request petty cash inside the task/subtask launcher by default and hid
  await screen.findByText('No office petty cash requests yet.');
  expect(screen.queryByRole('button',{name:/Request petty cash/})).toBeNull();
 });
-it('requires Refund OR # when returning ₱200 unspent out of ₱500 released and submits refund details',async()=>{
+it('allows assigned petty cash to submit receipts with optional Refund OR # and locks Accounting-approved receipts read-only',async()=>{
  mocks.profile.role='member';
  mocks.load.mockResolvedValue({
   ceiling:30000,receiptLimit:5000,cash:29500,reserved:0,available:29500,outstanding:500,replenishable:0,events:[],
   requests:[{
-   id:'petty-500',purpose:'Office supplies',requester:'member',requesterName:'Alex',amount:500,spent:0,status:'released',
+   id:'petty-500',purpose:'Office supplies',requester:'member',requesterName:'Alex',amount:500,spent:0,assignedAmount:500,status:'released',
    liquidation_due_at:'2026-11-10T08:00:00Z',
-   receipts:[{vendor:'National Book Store',number:'OR-300',date:'2026-11-18',amount:300,path:'petty-500/r1'}],
+   receipts:[],
+   assignmentReceipts:[{
+    id:'ar-1',assignmentId:'asg-1',taskTitle:'Task A',subtaskTitle:'POTCHI',
+    vendor:'National Book Store',number:'OR-300',date:'2026-11-18',amount:300,path:'petty-500/r1',
+    receiptReviewStatus:'approved',locked:true,accountingDecidedByName:'Kurt Dichosa',
+   }],
   }],
  });
  render(<OfficePettyCash/>);
@@ -94,103 +99,121 @@ it('requires Refund OR # when returning ₱200 unspent out of ₱500 released an
  fireEvent.click(screen.getByRole('button',{name:'Submit receipts'}));
  const dialog=screen.getByRole('dialog',{name:'Submit receipts'});
  expect(within(dialog).getByText(/Return unused cash · ₱200\.00/)).toBeVisible();
- fireEvent.change(within(dialog).getByLabelText('Liquidation note / transaction reference'),{target:{value:'Spent ₱300, returning ₱200'}});
- expect(within(dialog).getByRole('button',{name:'Submit receipts'})).toBeDisabled();
- fireEvent.change(within(dialog).getByLabelText('Official refund receipt number'),{target:{value:'OR-REF-2026-01'}});
+ expect(within(dialog).getByText(/Approved by Accounting \(Kurt Dichosa\) · Locked/)).toBeVisible();
+ expect(within(dialog).getByLabelText(/Vendor/)).toBeDisabled();
+ expect(within(dialog).queryByRole('button',{name:'Remove receipt'})).toBeNull();
+ fireEvent.change(within(dialog).getByLabelText(/Liquidation note \/ transaction reference/),{target:{value:'Spent ₱300, returning ₱200'}});
  expect(within(dialog).getByRole('button',{name:'Submit receipts'})).toBeEnabled();
+ fireEvent.change(within(dialog).getByLabelText(/Official refund receipt number/),{target:{value:'OR-REF-2026-01'}});
  fireEvent.click(within(dialog).getByRole('button',{name:'Submit receipts'}));
  await waitFor(()=>expect(mocks.command).toHaveBeenCalledWith('office',expect.objectContaining({
   action:'receipts',
   data:expect.objectContaining({
    request:'petty-500',
    refundReceiptNumber:'OR-REF-2026-01',
+   receipts:[expect.objectContaining({vendor:'National Book Store',number:'OR-300',amount:300,path:'petty-500/r1'})],
   }),
  })));
+ const sentReceipts=mocks.command.mock.calls[0][1].data.receipts;
+ expect(sentReceipts[0]).not.toHaveProperty('locked');
+ expect(sentReceipts[0]).not.toHaveProperty('approvedByName');
+ expect(sentReceipts[0]).not.toHaveProperty('originLabel');
 });
-it('enforces 2-step Cash Return Clearance (Accounting acknowledge -> Head approve) before enabling Settle',async()=>{
- const baseReq={
-  id:'petty-200',purpose:'Supplies',requester:'other',requesterName:'Chris',amount:500,spent:300,returned_amount:200,
-  refund_receipt_number:'OR-REF-2026-01',refund_date:'2026-11-19',receipt_version:1,status:'receipt_approved',
-  receipts:[{vendor:'NBS',number:'OR-1',date:'2026-11-18',amount:300,path:'petty-200/r1'}],
-  canSettle:true,
- };
- // Step 1: Accounting must acknowledge physical receipt first; Settle is gated.
+it('lets Accounting confirm physical cash return and settle in 1 atomic step with mandatory receiving OR reference',async()=>{
  mocks.profile.role='accounting_staff';
  mocks.load.mockResolvedValue({
-  ceiling:30000,receiptLimit:5000,cash:29500,reserved:0,available:29500,outstanding:500,replenishable:0,events:[],
-  requests:[{...baseReq,returnReceived:false,returnApproved:false,canAcknowledgeReturn:true,canApproveReturn:false}],
- });
- render(<OfficePettyCash/>);
- expect(await screen.findByText(/Spent ₱300\.00 · Returned ₱200\.00/)).toBeVisible();
- expect(screen.queryByRole('button',{name:'Settle petty cash'})).toBeNull();
- fireEvent.click(screen.getByRole('button',{name:'Acknowledge cash received'}));
- const ackDialog=screen.getByRole('dialog',{name:'Acknowledge cash received?'});
- expect(within(ackDialog).getByText(/Confirm you physically received ₱200\.00\. This does not approve the return\./)).toBeVisible();
- fireEvent.change(within(ackDialog).getByLabelText('Receiving reference'),{target:{value:'Received ₱200 cash at desk'}});
- fireEvent.click(within(ackDialog).getByRole('button',{name:'Acknowledge cash received'}));
- await waitFor(()=>expect(mocks.command).toHaveBeenCalledWith('office',expect.objectContaining({
-  action:'acknowledge_return',
-  data:expect.objectContaining({request:'petty-200',reference:'Received ₱200 cash at desk',receiptVersion:1}),
- })));
-
- // Step 2: Office Head approves the cash return.
- cleanup();
- mocks.command.mockClear();
- mocks.profile.role='head';
- mocks.load.mockResolvedValue({
-  ceiling:30000,receiptLimit:5000,cash:29500,reserved:0,available:29500,outstanding:500,replenishable:0,events:[],
+  ceiling:30000,receiptLimit:5000,cash:29400,reserved:0,available:29400,outstanding:600,replenishable:0,events:[],
   requests:[{
-   ...baseReq,returnReceived:true,returnApproved:false,canAcknowledgeReturn:false,canApproveReturn:true,
-   cash_return_receive_reference:'Received ₱200 cash at desk',
+   id:'petty-600',purpose:'shalama',requester:'other',requesterName:'Gabriel Cahiyang',amount:600,spent:0,returned_amount:600,
+   refund_date:'2026-11-25',receipt_version:1,status:'receipt_approved',receipts:[],
+   returnReceived:false,returnApproved:false,canAcknowledgeReturn:false,canApproveReturn:false,canSettle:true,
   }],
  });
  render(<OfficePettyCash/>);
- fireEvent.click(await screen.findByRole('button',{name:'Approve cash return'}));
- const approveDialog=screen.getByRole('dialog',{name:'Approve cash return?'});
- fireEvent.change(within(approveDialog).getByLabelText('Return approval note'),{target:{value:'Verified OR-REF-2026-01'}});
- fireEvent.click(within(approveDialog).getByRole('button',{name:'Approve cash return'}));
- await waitFor(()=>expect(mocks.command).toHaveBeenCalledWith('office',expect.objectContaining({
-  action:'approve_return',
-  data:expect.objectContaining({request:'petty-200',reference:'Verified OR-REF-2026-01',receiptVersion:1}),
- })));
-
- // Step 3: Once approved, Accounting can settle.
- cleanup();
- mocks.command.mockClear();
- mocks.profile.role='accounting_staff';
- mocks.load.mockResolvedValue({
-  ceiling:30000,receiptLimit:5000,cash:29500,reserved:0,available:29500,outstanding:500,replenishable:0,events:[],
-  requests:[{...baseReq,returnReceived:true,returnApproved:true,canAcknowledgeReturn:false,canApproveReturn:false}],
- });
- render(<OfficePettyCash/>);
- fireEvent.click(await screen.findByRole('button',{name:'Settle petty cash'}));
- const settleDialog=screen.getByRole('dialog',{name:'Settle petty cash'});
- expect(within(settleDialog).getByText(/Settling credits/)).toBeVisible();
- fireEvent.change(within(settleDialog).getByLabelText('Reason / transaction reference'),{target:{value:'Settled against OR-REF-2026-01'}});
- fireEvent.click(within(settleDialog).getByRole('button',{name:'Settle petty cash'}));
+ expect(await screen.findByText('Awaiting return confirmation')).toBeVisible();
+ expect(screen.queryByRole('button',{name:'Acknowledge cash received'})).toBeNull();
+ expect(screen.queryByRole('button',{name:'Approve cash return'})).toBeNull();
+ fireEvent.click(screen.getByRole('button',{name:'Confirm return & settle'}));
+ const dialog=screen.getByRole('dialog',{name:'Confirm cash return & settle'});
+ expect(within(dialog).getByText(/Confirming below means you physically received/)).toBeVisible();
+ // Receiving OR # is optional: Accounting's confirm click is the attestation.
+ expect(within(dialog).getByRole('button',{name:'Confirm return & settle'})).toBeEnabled();
+ fireEvent.click(within(dialog).getByRole('button',{name:'Confirm return & settle'}));
  await waitFor(()=>expect(mocks.command).toHaveBeenCalledWith('office',expect.objectContaining({
   action:'settle',
-  data:expect.objectContaining({request:'petty-200',reference:'Settled against OR-REF-2026-01'}),
+  data:expect.objectContaining({
+   request:'petty-600',
+   reference:expect.stringContaining('Accounting confirmed physical receipt of ₱600.00'),
+   returnReference:expect.stringContaining('Accounting confirmed physical receipt of ₱600.00'),
+  }),
+ })));
+ cleanup();
+ mocks.command.mockClear();
+ mocks.load.mockResolvedValue({
+  ceiling:30000,receiptLimit:5000,cash:29400,reserved:0,available:29400,outstanding:600,replenishable:0,events:[],
+  requests:[{
+   id:'petty-601',purpose:'shalama 2',requester:'other',requesterName:'Gabriel Cahiyang',amount:600,spent:0,returned_amount:600,
+   refund_receipt_number:'OR-REQ-3213',refund_date:'2026-11-25',receipt_version:1,status:'receipt_approved',receipts:[],canSettle:true,
+  }],
+ });
+ render(<OfficePettyCash/>);
+ fireEvent.click(await screen.findByRole('button',{name:'Confirm return & settle'}));
+ const dialog2=screen.getByRole('dialog',{name:'Confirm cash return & settle'});
+ fireEvent.click(within(dialog2).getByRole('button',{name:'Confirm return & settle'}));
+ await waitFor(()=>expect(mocks.command).toHaveBeenCalledWith('office',expect.objectContaining({
+  action:'settle',
+  data:expect.objectContaining({request:'petty-601',reference:'OR-REQ-3213',returnReference:'OR-REQ-3213'}),
  })));
 });
-it('allows audited Head fallback settlement when no independent Accounting Officer exists',async()=>{
+it('allows audited Head fallback 1-step return confirmation and settlement when no independent Accounting Officer exists',async()=>{
  mocks.profile.role='head';
  mocks.load.mockResolvedValue({
   ceiling:30000,receiptLimit:5000,cash:29500,reserved:0,available:29500,outstanding:500,replenishable:0,events:[],
   requests:[{
    id:'petty-fallback',purpose:'Sole accountant request',requester:'other',requesterName:'Sole Accountant',
    amount:500,spent:300,returned_amount:200,status:'receipt_approved',receipts:[],
-   returnReceived:true,returnApproved:true,canSettle:false,headCanSettle:true,settlementBlocked:true,headNotified:true,
+   returnReceived:false,returnApproved:false,canSettle:false,headCanSettle:true,settlementBlocked:true,headNotified:true,
   }],
  });
  render(<OfficePettyCash/>);
- fireEvent.click(await screen.findByRole('button',{name:'Settle petty cash (Head fallback)'}));
- const dialog=screen.getByRole('dialog',{name:'Settle petty cash (Head fallback)'});
+ fireEvent.click(await screen.findByRole('button',{name:'Confirm return & settle (Head fallback)'}));
+ const dialog=screen.getByRole('dialog',{name:'Confirm cash return & settle (Head fallback)'});
  expect(within(dialog).getByText(/Audited Head fallback settlement/)).toBeVisible();
- fireEvent.change(within(dialog).getByLabelText('Reason / transaction reference'),{target:{value:'No other accountant in office'}});
+ fireEvent.change(within(dialog).getByLabelText(/Your receiving OR #/),{target:{value:'OR-HEAD-2026-01'}});
  fireEvent.click(within(dialog).getByRole('button',{name:'Confirm Head fallback settlement'}));
  await waitFor(()=>expect(mocks.command).toHaveBeenCalledWith('office',expect.objectContaining({
   action:'settle',
-  data:expect.objectContaining({request:'petty-fallback',reference:'No other accountant in office'}),
+  data:expect.objectContaining({request:'petty-fallback',reference:'OR-HEAD-2026-01',returnReference:'OR-HEAD-2026-01'}),
+ })));
+});
+it('shows ONLY Return unused cash for unassigned petty cash (assignedAmount = 0) and submits without requiring Refund OR #',async()=>{
+ mocks.profile.role='member';
+ mocks.load.mockResolvedValue({
+  ceiling:30000,receiptLimit:5000,cash:29400,reserved:0,available:29400,outstanding:600,replenishable:0,events:[],
+  requests:[{
+   id:'petty-600',purpose:'shalama',requester:'member',requesterName:'Gabriel',amount:600,spent:0,assignedAmount:0,status:'released',
+   liquidation_due_at:'2026-12-07T08:00:00Z',
+   receipts:[],
+  }],
+ });
+ render(<OfficePettyCashInlineRequests officeId="office"/>);
+ const returnBtn=await screen.findByRole('button',{name:'Return unused cash'});
+ expect(screen.queryByRole('button',{name:'Submit receipts'})).toBeNull();
+ expect(screen.getByText(/Not assigned to any task\/subtask — return unused cash/)).toBeVisible();
+ fireEvent.click(returnBtn);
+ const dialog=screen.getByRole('dialog',{name:'Return unused petty cash'});
+ expect(within(dialog).getByText(/Return unused cash · ₱600\.00/)).toBeVisible();
+ expect(within(dialog).queryByRole('button',{name:/Have receipts to attach instead/})).toBeNull();
+ fireEvent.change(within(dialog).getByLabelText(/Return reason \/ transaction reference/),{target:{value:'Unused petty cash returned in full'}});
+ expect(within(dialog).getByRole('button',{name:'Return unused cash'})).toBeEnabled();
+ fireEvent.click(within(dialog).getByRole('button',{name:'Return unused cash'}));
+ await waitFor(()=>expect(mocks.command).toHaveBeenCalledWith('office',expect.objectContaining({
+  action:'receipts',
+  data:expect.objectContaining({
+   request:'petty-600',
+   receipts:[],
+   refundReceiptNumber:'',
+   reference:'Unused petty cash returned in full',
+  }),
  })));
 });

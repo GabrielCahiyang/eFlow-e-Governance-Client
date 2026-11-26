@@ -3,6 +3,7 @@ import { CheckCircle2, RotateCcw, Upload } from "lucide-react";
 import { Button } from "../../../../components/ui/button";
 import { BoundedTextarea } from "../../../../components/ui/BoundedInput";
 import { FieldValidationTooltip } from "../../../../components/ui/FieldValidationTooltip";
+import { ActionBlockerGroup } from "../../../../components/ui/action-blockers";
 import { WorkspaceTooltip } from "../../../../components/ui/workspace/WorkspaceTooltip";
 import { attachmentError, EVIDENCE_ACCEPT } from "../../../../shared/fileValidation";
 import { INPUT_LIMITS, textLengthError } from "../../../../shared/inputLimits";
@@ -67,16 +68,14 @@ export function SubmitForReviewModal({
   const noteError = noteEmpty ? "Enter a completion note summarizing what was finished." : "";
   const visibleNoteError = noteTouched ? noteError : "";
 
-  const submitDisabledReason = submitting
-    ? "Submitting task for review…"
-    : !subtasksReady
+  const submitBlockers = [
+    !subtasksReady
       ? `Complete the remaining ${remainingSubtasks} subtask${remainingSubtasks === 1 ? "" : "s"} before submitting.`
-      : noteEmpty
-        ? "Enter a completion note before submitting for review."
-        : fileError
-          ? fileError
-          : "";
-  const submitDisabled = Boolean(submitDisabledReason);
+      : "",
+    noteEmpty ? "Enter a completion note before submitting for review." : "",
+    fileError,
+  ].filter(Boolean);
+  const submitDisabled = submitting || submitBlockers.length > 0;
 
   return (
     <TaskBoardDialog
@@ -88,21 +87,24 @@ export function SubmitForReviewModal({
       footer={(
         <div className="flex justify-end gap-2">
           <Button type="button" onClick={onClose} variant="outline">Cancel</Button>
-          <WorkspaceTooltip content={submitDisabledReason} disabled={!submitDisabledReason}>
-            <span className="inline-flex">
-              <Button
-                type="button"
-                disabled={submitDisabled}
-                onClick={() => {
-                  setNoteTouched(true);
-                  if (submitDisabled) return;
-                  onSubmit();
-                }}
-              >
-                {submitting ? "Submitting..." : "Submit for Review"}
-              </Button>
-            </span>
-          </WorkspaceTooltip>
+          <ActionBlockerGroup
+            actionLabel="Submit for Review"
+            blockers={submitBlockers}
+            busy={submitting}
+            size="md"
+          >
+            <Button
+              type="button"
+              disabled={submitDisabled}
+              onClick={() => {
+                setNoteTouched(true);
+                if (submitDisabled) return;
+                onSubmit();
+              }}
+            >
+              {submitting ? "Submitting..." : "Submit for Review"}
+            </Button>
+          </ActionBlockerGroup>
         </div>
       )}
     >
@@ -285,11 +287,6 @@ export function UndoCompletedModal({
   const reasonError = textLengthError(reason, "Undo reason", { required: true, min: 5, max: INPUT_LIMITS.REASON });
   const visibleReasonError = reasonTouched || reason.trim().length > 0 ? reasonError : "";
   const isDisabled = saving || Boolean(reasonError);
-  const tooltipText = saving
-    ? "Reopening task…"
-    : reasonError
-      ? reasonError
-      : "Reopens this completed task back to In Progress and notifies the assigned team.";
 
   return (
     <TaskBoardDialog
@@ -301,8 +298,16 @@ export function UndoCompletedModal({
       footer={(
         <div className="flex justify-end gap-2">
           <Button type="button" onClick={onClose} variant="outline">Cancel</Button>
-          <WorkspaceTooltip content={tooltipText}>
-            <span className="inline-flex">
+          <ActionBlockerGroup
+            actionLabel="Undo completion"
+            blockers={isDisabled ? reasonError : []}
+            busy={saving}
+            size="md"
+          >
+            <WorkspaceTooltip
+              content="Reopens this completed task back to In Progress and notifies the assigned team."
+              disabled={isDisabled}
+            >
               <Button
                 type="button"
                 className="bg-[#b65b08] hover:bg-[#8f4706]"
@@ -316,8 +321,8 @@ export function UndoCompletedModal({
                 <RotateCcw />
                 {saving ? "Reopening..." : "Undo completion"}
               </Button>
-            </span>
-          </WorkspaceTooltip>
+            </WorkspaceTooltip>
+          </ActionBlockerGroup>
         </div>
       )}
     >

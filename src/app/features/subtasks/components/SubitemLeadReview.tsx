@@ -1,7 +1,7 @@
 import { readableUiError } from '../../../shared/userFacingError';
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { BoundedTextarea } from '../../../components/ui/BoundedInput';
-import { WorkspaceTooltip } from '../../../components/ui/workspace/WorkspaceTooltip';
+import { ActionBlockerGroup } from '../../../components/ui/action-blockers';
 import { INPUT_LIMITS, textLengthError } from '../../../shared/inputLimits';
 import { attachmentError, EVIDENCE_ACCEPT } from '../../../shared/fileValidation';
 import { useExplicitDraft } from '../../../shared/useExplicitDraft';
@@ -80,31 +80,36 @@ export function SubitemLeadReview({ root, node, actor, readOnly, pending, blocke
   return <section className="work-execution space-y-3" aria-label="Lead review">
     <h3 className="font-semibold">Lead review</h3>
     {error && <p role="alert">{error} <button type="button" onClick={() => void load()}>Retry review</button></p>}
-    {review?.items.map(item => <SubmissionReview key={item.id} root={root} node={normalizedNode} actor={actor} item={item} disabled={readOnly || pending || !!error} onChanged={changed}/>)}
+    {review?.items.map(item => <SubmissionReview key={item.id} root={root} node={normalizedNode} actor={actor} item={item} disabled={readOnly || pending || !!error} pending={pending} readOnly={readOnly} loadError={error ? 'Reload Lead review before deciding.' : ''} onChanged={changed}/>)}
     {(recovery.error || recoveryError) && <p role="alert">{recovery.error || recoveryError}</p>}
-    {recovery.value && !readOnly && (() => {
-      const checkDisabledReason = recovering ? 'Checking saved proposal…' : pending ? 'Waiting for work refresh…' : '';
-      return <WorkspaceTooltip content={checkDisabledReason} disabled={!checkDisabledReason}><span className="inline-flex"><button type="button" disabled={recovering || pending} onClick={() => void checkSavedProposal()}>
+    {recovery.value && !readOnly && (
+      <button type="button" disabled={recovering || pending} onClick={() => void checkSavedProposal()}>
         {recovering ? 'Checking proposal…' : 'Check saved proposal'}
-      </button></span></WorkspaceTooltip>;
-    })()}
+      </button>
+    )}
     {chooseKind && !readOnly && !awaitingReview && !selectedKind && recovery.ready && !recovery.value && (() => {
-      const progressReason = pending ? 'Waiting for work refresh…' : error ? 'Reload Lead review before proposing.' : blocked || '';
-      const completionReason = pending ? 'Waiting for work refresh…' : error ? 'Reload Lead review before proposing.' : blocked || completionBlocked || '';
+      const progressBlockers = [error ? 'Reload Lead review before proposing.' : '', blocked || ''].filter(Boolean);
+      const completionBlockers = [error ? 'Reload Lead review before proposing.' : '', blocked || '', completionBlocked || ''].filter(Boolean);
+      const progressDisabled = pending || progressBlockers.length > 0;
+      const completionDisabled = pending || completionBlockers.length > 0;
       return <div className="flex flex-wrap gap-2">
-        <WorkspaceTooltip content={progressReason} disabled={!progressReason}><span className="inline-flex"><button type="button" disabled={Boolean(progressReason)} onClick={() => setSelectedKind('progress')}>Propose a progress update</button></span></WorkspaceTooltip>
-        <WorkspaceTooltip content={completionReason} disabled={!completionReason}><span className="inline-flex"><button type="button" disabled={Boolean(completionReason)} onClick={() => setSelectedKind('completion')}>Propose completion</button></span></WorkspaceTooltip>
+        <ActionBlockerGroup actionLabel="Propose a progress update" blockers={progressBlockers} busy={pending} size="sm" onRefresh={error ? () => void load() : undefined}>
+          <button type="button" disabled={progressDisabled} onClick={() => setSelectedKind('progress')}>Propose a progress update</button>
+        </ActionBlockerGroup>
+        <ActionBlockerGroup actionLabel="Propose completion" blockers={completionBlockers} busy={pending} size="sm" onRefresh={error ? () => void load() : undefined}>
+          <button type="button" disabled={completionDisabled} onClick={() => setSelectedKind('completion')}>Propose completion</button>
+        </ActionBlockerGroup>
       </div>;
     })()}
     {chooseKind && selectedKind && !readOnly && !awaitingReview && !recovery.value &&
       <button type="button" onClick={() => void requestNavigation(() => setSelectedKind(undefined))}>Choose another proposal action</button>}
     {kind && !readOnly && !awaitingReview && recovery.ready && !recovery.value && (kind === 'progress' ? <ProgressReviewForm key={(normalizedNode ?? 'root') + (own?.id ?? '')}
       root={root} node={normalizedNode} actor={actor} status={status} initialBlocker={initialBlocker} currentProgress={currentProgress}
-      supersedes={own?.state === 'changes_requested' ? own.id : undefined} disabled={pending || !!error} blocked={formBlocked}
+      supersedes={own?.state === 'changes_requested' ? own.id : undefined} disabled={pending || !!error} loading={pending} disabledReason={error ? 'Reload Lead review before proposing.' : null} blocked={formBlocked}
       onSubmitted={item => {setSelectedKind(undefined);setReview(previous => previous && ({...previous,items:[item,...previous.items.filter(row=>row.id!==item.id)]}));void changed();}}/>
       : <ReviewForm key={kind + (own?.id ?? '')}
       root={root} node={normalizedNode} actor={actor} kind={kind} reviewerName={kind === 'completion' ? reviewerName : undefined}
-      supersedes={own?.state === 'changes_requested' ? own.id : undefined} disabled={pending || !!error || !!formBlocked} blocked={formBlocked}
+      supersedes={own?.state === 'changes_requested' ? own.id : undefined} disabled={pending || !!error || !!formBlocked} pending={pending} loadError={error ? 'Reload Lead review before proposing.' : ''} blocked={formBlocked}
       onSubmitted={item => {
         setSelectedKind(undefined);
         setReview(previous => previous && ({ ...previous, items: [item, ...previous.items.filter(row => row.id !== item.id)] }));
@@ -113,14 +118,14 @@ export function SubitemLeadReview({ root, node, actor, readOnly, pending, blocke
   </section>;
 }
 
-function ProgressReviewForm({root,node,actor,status,initialBlocker,currentProgress,supersedes,disabled,blocked,onSubmitted}:{
-  root:string;node:string|null;actor:string;status:string;initialBlocker:string;currentProgress?:number|null;supersedes?:string;disabled:boolean;blocked?:string;onSubmitted:(item:LeadSubmission)=>void;
+function ProgressReviewForm({root,node,actor,status,initialBlocker,currentProgress,supersedes,disabled,loading=false,disabledReason=null,blocked,onSubmitted}:{
+  root:string;node:string|null;actor:string;status:string;initialBlocker:string;currentProgress?:number|null;supersedes?:string;disabled:boolean;loading?:boolean;disabledReason?:string|null;blocked?:string;onSubmitted:(item:LeadSubmission)=>void;
 }) {
   const attempt=useRef<ReviewAttempt|undefined>(undefined);
   const [retry,setRetry]=useState(false);
   const input=useRef<WorkUpdate|undefined>(undefined);
   return <><p>Your update goes to your lead for review.</p><WorkExecutionForm status={status} initialBlocker={initialBlocker}
-    disabled={disabled} blockedBy={blocked} freezeFields={retry} onSave={async update=>{
+    disabled={disabled} loading={loading} disabledReason={disabledReason} blockedBy={blocked} freezeFields={retry} onSave={async update=>{
       attempt.current??={id:crypto.randomUUID(),uploaded:[]};input.current??=update;setRetry(true);
       try {
         const item=await proposeSubitemWork({root,node,actor,kind:'progress',note:input.current.note,files:input.current.files,
@@ -133,9 +138,9 @@ function ProgressReviewForm({root,node,actor,status,initialBlocker,currentProgre
     }}/></>;
 }
 
-function ReviewForm({ root, node, actor, kind, reviewerName, supersedes, disabled, blocked, onSubmitted }: {
+function ReviewForm({ root, node, actor, kind, reviewerName, supersedes, disabled, pending = false, loadError = '', blocked, onSubmitted }: {
   root: string; node: string | null; actor: string; kind: ReviewKind; reviewerName?: string; supersedes?: string;
-  disabled: boolean; blocked?: string; onSubmitted: (item: LeadSubmission) => void;
+  disabled: boolean; pending?: boolean; loadError?: string; blocked?: string; onSubmitted: (item: LeadSubmission) => void;
 }) {
   const noteId = useId();
   const filesId = useId();
@@ -154,17 +159,15 @@ function ReviewForm({ root, node, actor, kind, reviewerName, supersedes, disable
 
   const noteError = textLengthError(note, 'Work note', { required: true, max: INPUT_LIMITS.FUNDING_REASON });
   const visibleNoteError = noteTouched || submitted ? noteError : '';
-  const openDisabledReason = disabled ? (blocked || 'Submission is currently unavailable.') : '';
-  const submitDisabledReason = busy
-    ? 'Submitting…'
-    : disabled
-      ? (blocked || 'Submission is currently unavailable.')
-      : noteError
-        ? noteError
-        : fileError
-          ? fileError
-          : '';
-  const submitDisabled = Boolean(submitDisabledReason);
+  const openBlockers = disabled && !pending
+    ? [loadError, blocked || '', (!loadError && !blocked) ? 'Submission is currently unavailable.' : ''].filter(Boolean)
+    : [];
+  const submitBlockers = [
+    ...openBlockers,
+    noteError,
+    fileError,
+  ].filter(Boolean);
+  const submitDisabled = busy || disabled || Boolean(noteError) || Boolean(fileError);
 
   async function submit() {
     setSubmitted(true);
@@ -184,7 +187,7 @@ function ReviewForm({ root, node, actor, kind, reviewerName, supersedes, disable
   }
   const label = kind === 'completion' ? 'Submit for Lead review' : 'Send update for Lead review';
   if (!open) return <><p>{blocked || (kind === 'completion' ? `When this step is finished, send it to ${reviewerName || 'the assigned Lead'} for approval.` : 'Send your progress and evidence to your lead for review.')}</p>
-    <WorkspaceTooltip content={openDisabledReason} disabled={!openDisabledReason}><span className="inline-flex"><button className="rounded-md bg-primary px-3 py-2 text-sm text-primary-foreground disabled:opacity-50" type="button" disabled={disabled} onClick={() => setOpen(true)}>{label}</button></span></WorkspaceTooltip></>;
+    <ActionBlockerGroup actionLabel={label} blockers={openBlockers} busy={pending} size="md"><button className="rounded-md bg-primary px-3 py-2 text-sm text-primary-foreground disabled:opacity-50" type="button" disabled={disabled} onClick={() => setOpen(true)}>{label}</button></ActionBlockerGroup></>;
   return <form noValidate className="space-y-3" onSubmit={event => { event.preventDefault(); void submit(); }}>
     <div>
       <label htmlFor={noteId} className="block text-sm font-medium">
@@ -229,15 +232,13 @@ function ReviewForm({ root, node, actor, kind, reviewerName, supersedes, disable
       {fileError && <p role="alert" className="eflow-field-error mt-1 text-xs">{fileError}</p>}
     </div>
     {error && <p role="alert">{error}</p>}
-    <WorkspaceTooltip content={submitDisabledReason} disabled={!submitDisabledReason}>
-      <span className="inline-flex">
-        <button type="submit" className="rounded-md bg-primary px-3 py-2 text-sm text-primary-foreground disabled:opacity-50" disabled={submitDisabled}>{busy ? 'Submitting…' : label}</button>
-      </span>
-    </WorkspaceTooltip>
+    <ActionBlockerGroup actionLabel={label} blockers={submitDisabled ? submitBlockers : []} busy={busy || pending} size="md">
+      <button type="submit" className="rounded-md bg-primary px-3 py-2 text-sm text-primary-foreground disabled:opacity-50" disabled={submitDisabled}>{busy ? 'Submitting…' : label}</button>
+    </ActionBlockerGroup>
   </form>;
 }
 
-function SubmissionReview({ root, node, actor, item, disabled, onChanged }: { root: string; node: string | null; actor: string; item: LeadSubmission; disabled: boolean; onChanged: () => Promise<void> }) {
+function SubmissionReview({ root, node, actor, item, disabled, pending = false, readOnly = false, loadError = '', onChanged }: { root: string; node: string | null; actor: string; item: LeadSubmission; disabled: boolean; pending?: boolean; readOnly?: boolean; loadError?: string; onChanged: () => Promise<void> }) {
   const reviewNoteId = useId();
   const [note, setNote] = useState('');
   const [error, setError] = useState('');
@@ -267,14 +268,15 @@ function SubmissionReview({ root, node, actor, item, disabled, onChanged }: { ro
     finally { inFlight.current = false; setBusy(false); }
   }
   const state = result ?? item.state;
-  const approveDisabledReason = busy ? 'Saving review decision…' : disabled ? 'Review actions are currently unavailable.' : '';
-  const changesDisabledReason = busy
-    ? 'Saving review decision…'
-    : disabled
-      ? 'Review actions are currently unavailable.'
-      : !note.trim()
-        ? 'Enter a review note explaining the requested changes.'
-        : '';
+  const actionBusy = busy || pending;
+  const baseUnavailableReason = disabled && !pending
+    ? (loadError || (readOnly ? 'Review actions are read-only.' : 'Review actions are currently unavailable.'))
+    : '';
+  const approveBlockers = [baseUnavailableReason].filter(Boolean);
+  const changesBlockers = [
+    baseUnavailableReason,
+    !note.trim() ? 'Enter a review note explaining the requested changes.' : '',
+  ].filter(Boolean);
   return <article className="space-y-2 rounded-md border p-3">
     <strong>{item.kind === 'completion' ? 'Completion' : 'Work update'} · {state === 'pending' ? 'Awaiting Lead review' : state === 'approved' ? 'Approved' : 'Changes requested'}</strong>
     <p className="whitespace-pre-wrap">{item.terms.note}</p>
@@ -283,7 +285,7 @@ function SubmissionReview({ root, node, actor, item, disabled, onChanged }: { ro
     {item.terms.attachments?.map(file => <ReviewEvidence key={file.filePath} name={file.fileName} path={file.filePath}/>)}
     {item.decision_note && <p>{item.decision_note}</p>}
     {recovery.value && !disabled && !result &&
-      <WorkspaceTooltip content={busy ? 'Checking saved decision…' : ''} disabled={!busy}><span className="inline-flex"><button type="button" disabled={busy} onClick={() => void decide(recovery.value!.approve, true)}>Check saved decision</button></span></WorkspaceTooltip>}
+      <button type="button" disabled={busy} onClick={() => void decide(recovery.value!.approve, true)}>Check saved decision</button>}
     {item.canDecide && item.author_id !== actor && state === 'pending' && recovery.ready && !recovery.value && <div className="space-y-2">
       <div>
         <label htmlFor={reviewNoteId} className="block text-sm font-medium">Review note</label>
@@ -299,16 +301,12 @@ function SubmissionReview({ root, node, actor, item, disabled, onChanged }: { ro
         />
       </div>
       <div className="flex flex-wrap gap-2">
-        <WorkspaceTooltip content={approveDisabledReason} disabled={!approveDisabledReason}>
-          <span className="inline-flex">
-            <button type="button" className="rounded-md bg-primary px-3 py-2 text-primary-foreground disabled:opacity-50" disabled={disabled || busy} onClick={() => void decide(true)}>{acceptsWork ? 'Approve work' : 'Approve update'}</button>
-          </span>
-        </WorkspaceTooltip>
-        <WorkspaceTooltip content={changesDisabledReason} disabled={!changesDisabledReason}>
-          <span className="inline-flex">
-            <button type="button" className="rounded-md border px-3 py-2 disabled:opacity-50" disabled={disabled || busy || !note.trim()} onClick={() => void decide(false)}>Request changes</button>
-          </span>
-        </WorkspaceTooltip>
+        <ActionBlockerGroup actionLabel={acceptsWork ? 'Approve work' : 'Approve update'} blockers={disabled ? approveBlockers : []} busy={actionBusy} size="md">
+          <button type="button" className="rounded-md bg-primary px-3 py-2 text-primary-foreground disabled:opacity-50" disabled={disabled || busy} onClick={() => void decide(true)}>{acceptsWork ? 'Approve work' : 'Approve update'}</button>
+        </ActionBlockerGroup>
+        <ActionBlockerGroup actionLabel="Request changes" blockers={disabled || !note.trim() ? changesBlockers : []} busy={actionBusy} size="md">
+          <button type="button" className="rounded-md border px-3 py-2 disabled:opacity-50" disabled={disabled || busy || !note.trim()} onClick={() => void decide(false)}>Request changes</button>
+        </ActionBlockerGroup>
       </div>
     </div>}
     {(error || recovery.error) && <p role="alert">{error || recovery.error}</p>}

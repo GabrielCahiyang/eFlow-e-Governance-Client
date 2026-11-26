@@ -366,13 +366,22 @@ export interface SubtaskFundingCap {
 
 export type WorkCashSourceKind = "task_cash_release" | "office_petty_cash";
 
+export interface TaskCashReleaseFundingLine extends CashFundingLine {
+  allocatedAmount?: number;
+  unrequestedAmount?: number;
+  assignedToTask?: number;
+  assignedToSubtasks?: number;
+  unassignedAmount?: number;
+  recordedReceiptsTotal?: number;
+}
+
 export interface TaskCashReleasePool {
   requestId: string;
   requestNumber: number;
   purpose: string;
   status: string;
   sourceLabels: string[];
-  fundingLines: CashFundingLine[];
+  fundingLines: TaskCashReleaseFundingLine[];
   releasedAmount: number;
   assignedToTask: number;
   assignedToSubtasks: number;
@@ -419,12 +428,23 @@ export interface WorkCashAssignmentReceipt {
   uploadedByName: string;
   createdAt?: string;
   canDelete?: boolean;
+  receiptReviewStatus?: AssignmentReceiptReviewStatus;
+  locked?: boolean;
+  accountingDecidedAt?: string | null;
+  accountingDecidedByName?: string;
 }
+
+export type AssignmentReceiptReviewStatus =
+  | "open"
+  | "pending_accounting"
+  | "approved"
+  | "changes_requested";
 
 export interface WorkCashAssignment {
   id: string;
   sourceKind: WorkCashSourceKind;
   sourceRequestId: string;
+  allocationLineId?: string | null;
   sourceLabel: string;
   sourceOrgId?: string;
   fundingLines: CashFundingLine[];
@@ -435,12 +455,47 @@ export interface WorkCashAssignment {
   recordedSpent: number;
   unspentAmount: number;
   status: "active" | "recalled" | "settled";
+  receiptReviewStatus?: AssignmentReceiptReviewStatus;
+  returnedToPoolAmount?: number;
+  accountingDecisionReason?: string | null;
+  receiptSubmittedAt?: string | null;
   note: string;
   assignedBy: string;
   assignedByName: string;
   canLogReceipt: boolean;
   canRecall: boolean;
   receipts: WorkCashAssignmentReceipt[];
+}
+
+export interface PendingAssignmentReceiptReview {
+  assignmentId: string;
+  orgId: string;
+  taskId: string;
+  taskTitle: string;
+  subtaskId?: string | null;
+  subtaskTitle?: string | null;
+  sourceKind: WorkCashSourceKind;
+  sourceLabel: string;
+  amount: number;
+  returnedToPoolAmount: number;
+  submittedAt?: string | null;
+  submittedBy?: string | null;
+  submittedByName: string;
+  submissionNote: string;
+  workAccepted: boolean;
+  canDecide: boolean;
+  receipts: Array<{
+    id: string;
+    vendor: string;
+    receiptNumber: string;
+    receiptDate: string;
+    description: string;
+    amount: number;
+    fileName: string;
+    filePath: string;
+    mimeType: string;
+    uploadedByName: string;
+  }>;
 }
 
 export interface TaskCashPoolsSummary {
@@ -456,6 +511,7 @@ export interface TaskCashPoolsSummary {
 
 export interface TaskCashPools {
   canAssignCash: boolean;
+  completionSubmitted?: boolean;
   taskCashReleases: TaskCashReleasePool[];
   officePettyCashReleases: OfficePettyCashReleasePool[];
   assignments: WorkCashAssignment[];
@@ -555,6 +611,8 @@ export interface ReceiptDraft {
     fileSize: number;
   };
   originLabel?: string;
+  locked?: boolean;
+  approvedByName?: string;
   items?: ReceiptItem[];
 }
 

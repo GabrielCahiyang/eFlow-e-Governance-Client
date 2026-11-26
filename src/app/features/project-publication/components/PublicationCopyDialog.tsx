@@ -4,8 +4,8 @@ import { FileUp, AlertTriangle } from "lucide-react";
 import { BoundedTextarea } from "../../../components/ui/BoundedInput";
 import { FieldValidationTooltip } from "../../../components/ui/FieldValidationTooltip";
 import { Modal } from "../../../components/ui/Modal";
+import { ActionBlockerGroup } from "../../../components/ui/action-blockers";
 import { Button } from "../../../components/ui/button";
-import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import { INPUT_LIMITS, textLengthError } from "../../../shared/inputLimits";
 import { replacePublicationFile } from "../services/publicationService";
 import type { ArchiveFile } from "../types";
@@ -46,7 +46,6 @@ export function PublicationCopyDialog({
   const visibleReasonError =
     reasonTouched || reason.length > 0 ? reasonError : "";
   const saveDisabled = busy || !copy || Boolean(reasonError);
-  const saveTip = busy ? "" : !copy ? fileError : reasonError;
   const save = async () => {
     setFileTouched(true);
     setReasonTouched(true);
@@ -83,16 +82,18 @@ export function PublicationCopyDialog({
             <Button variant="outline" disabled={busy} onClick={onClose}>
               Cancel
             </Button>
-            <WorkspaceTooltip content={saveTip} disabled={!saveTip}>
-              <span className="inline-flex">
-                <Button
-                  disabled={saveDisabled}
-                  onClick={() => void save()}
-                >
-                  {busy ? "Saving copy…" : "Save publication copy"}
-                </Button>
-              </span>
-            </WorkspaceTooltip>
+            <ActionBlockerGroup
+              actionLabel="Save publication copy"
+              blockers={saveDisabled ? [fileError, reasonError] : []}
+              busy={busy}
+            >
+              <Button
+                disabled={saveDisabled}
+                onClick={() => void save()}
+              >
+                {busy ? "Saving copy…" : "Save publication copy"}
+              </Button>
+            </ActionBlockerGroup>
           </div>
         </div>
       }

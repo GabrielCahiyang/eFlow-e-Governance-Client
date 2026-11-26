@@ -16,7 +16,22 @@ export const isSealPending = (state?: SealState) =>
   ["preparing", "queued", "uploading", "broadcast", "confirming"].includes(
     state,
   );
+const SECTION_LABELS: Record<string, string> = {
+  financial_closeout: "Financial closeout summary",
+  funding_requests: "Funding & supplemental certifications",
+  work_cash_assignments: "Cash assignments & Office Petty Cash",
+  work_cash_assignment_receipts: "Cash assignment receipts",
+  office_petty_cash_events: "Office Petty Cash ledger events",
+  task_activities: "Task activities & budget logs",
+  project_field_history: "Project field & funding return history",
+  status_history: "Task status history",
+  budget_ledger: "Budget ledger entries",
+  journal_entries: "General journal entries",
+  journal_lines: "General journal lines",
+};
+
 export const sectionLabel = (key: string) =>
+  SECTION_LABELS[key] ??
   key.replace(/_/g, " ").replace(/^./, (c: string) => c.toUpperCase());
 export function publicRecordUrl(id: string) {
   const configuredBase = (

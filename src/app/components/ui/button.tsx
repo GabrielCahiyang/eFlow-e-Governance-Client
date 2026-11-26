@@ -2,6 +2,12 @@ import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 
+import {
+  ActionBlockerStopButton,
+  ActionBlockersModal,
+  normalizeBlockers,
+  type ActionBlockerInput,
+} from "./action-blockers";
 import { cn } from "./utils";
 
 const buttonVariants = cva(
@@ -38,6 +44,9 @@ type ButtonProps = React.ComponentProps<"button"> & VariantProps<typeof buttonVa
   asChild?: boolean;
   pending?: boolean;
   disabledReason?: string;
+  blockers?: ActionBlockerInput;
+  blockerActionLabel?: string;
+  blockerCompact?: boolean;
 };
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function Button({
@@ -47,6 +56,9 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function Button(
   asChild = false,
   pending = false,
   disabledReason,
+  blockers,
+  blockerActionLabel,
+  blockerCompact = false,
   disabled,
   onClick,
   ...props
@@ -54,9 +66,19 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function Button(
   const Comp = asChild ? Slot : "button";
   const unavailable = disabled || pending;
   const reasonId = React.useId();
+  const [blockersOpen, setBlockersOpen] = React.useState(false);
 
-  return (
-    <>
+  const normalizedBlockers = React.useMemo(
+    () => (unavailable && !pending ? normalizeBlockers(blockers ?? disabledReason) : []),
+    [unavailable, pending, blockers, disabledReason],
+  );
+  const hasStopBlocker = normalizedBlockers.length > 0;
+  const derivedLabel =
+    blockerActionLabel ||
+    (typeof props["aria-label"] === "string" && props["aria-label"]) ||
+    (typeof props.children === "string" ? props.children : "this action");
+
+  const buttonNode = (
     <Comp
       {...props}
       ref={ref}
@@ -66,12 +88,39 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function Button(
       aria-disabled={unavailable || undefined}
       aria-busy={pending || undefined}
       aria-describedby={unavailable && disabledReason ? [props["aria-describedby"], reasonId].filter(Boolean).join(" ") : props["aria-describedby"]}
-      title={unavailable ? disabledReason || props.title : props.title}
+      title={hasStopBlocker ? props.title : unavailable ? disabledReason || props.title : props.title}
       onClick={(event) => { if (unavailable) { event.preventDefault(); return; } onClick?.(event); }}
       className={cn(buttonVariants({ variant, size, className }))}
     />
-    {unavailable && disabledReason && <span id={reasonId} className="sr-only">{disabledReason}</span>}
-    </>
+  );
+
+  if (!hasStopBlocker) {
+    return (
+      <>
+        {buttonNode}
+        {unavailable && disabledReason && <span id={reasonId} className="sr-only">{disabledReason}</span>}
+      </>
+    );
+  }
+
+  return (
+    <span className="eflow-action-blocker-group" data-slot="action-blocker-group">
+      {buttonNode}
+      <ActionBlockerStopButton
+        actionLabel={derivedLabel}
+        count={normalizedBlockers.length}
+        compact={blockerCompact || size === "icon"}
+        size={size === "sm" || size === "icon" ? "sm" : "md"}
+        onClick={() => setBlockersOpen(true)}
+      />
+      <ActionBlockersModal
+        open={blockersOpen}
+        actionLabel={derivedLabel}
+        blockers={normalizedBlockers}
+        onClose={() => setBlockersOpen(false)}
+      />
+      {unavailable && disabledReason && <span id={reasonId} className="sr-only">{disabledReason}</span>}
+    </span>
   );
 });
 

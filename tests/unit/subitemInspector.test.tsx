@@ -7,9 +7,9 @@ import type {WorkNode,WorkTreeController,WorkTreeSnapshot} from '../../src/app/f
 import {rememberWorkCapabilityContext} from '../../src/app/features/nested-work/selectors/capabilities';
 import {installNavigationConfirmation} from '../../src/app/shared/navigationGuard';
 import {WorkFinancialClearancePanel} from '../../src/app/features/budget/components/WorkFinancialClearancePanel';
-const api=vi.hoisted(()=>({actor:'actor',read:vi.fn(),tree:vi.fn(),save:vi.fn(),legacyRead:vi.fn(),progress:vi.fn(),impact:vi.fn(),start:vi.fn(),clearance:vi.fn(),finalize:vi.fn(),review:vi.fn(),propose:vi.fn()}));
+const api=vi.hoisted(()=>({actor:'actor',read:vi.fn(),tree:vi.fn(),save:vi.fn(),legacyRead:vi.fn(),progress:vi.fn(),impact:vi.fn(),events:vi.fn(),start:vi.fn(),clearance:vi.fn(),finalize:vi.fn(),review:vi.fn(),propose:vi.fn()}));
 vi.mock('../../src/app/contexts/AuthContext',()=>({useAuth:()=>({user:{id:api.actor}})}));
-vi.mock('../../src/app/features/nested-work/services/workTreeService',()=>({fetchWorkTree:api.tree,saveWorkTree:api.save,fetchWorkImpact:api.impact,fetchWorkEvents:vi.fn(),WorkTreeUnavailable:class extends Error{}}));
+vi.mock('../../src/app/features/nested-work/services/workTreeService',()=>({fetchWorkTree:api.tree,saveWorkTree:api.save,fetchWorkImpact:api.impact,fetchWorkEvents:api.events,WorkTreeUnavailable:class extends Error{}}));
 vi.mock('../../src/app/features/subtasks/services/subtaskWorkflowService',()=>({fetchSubitemInspectorRecord:api.read,fetchSubtask:api.legacyRead,fetchSubtaskProgressUpdates:vi.fn().mockResolvedValue([]),fetchSubtaskSubmissions:vi.fn().mockResolvedValue([]),saveSubtaskProgress:api.progress,saveSubtaskWorkUpdate:api.progress,submitSubtaskForReview:vi.fn(),startScheduledSubtask:api.start}));
 vi.mock('../../src/app/features/subtasks/hooks/useSubtaskReviewerDirectory',()=>({useSubtaskReviewerDirectory:()=>({reviewersById:{},loading:false})}));
 vi.mock('../../src/app/features/subtasks/services/subitemLeadReview',async importOriginal=>({
@@ -49,7 +49,7 @@ function acceptedSubtaskController(){
  return controller(data);
 }
 let uninstall:(()=>void)|undefined;
-beforeEach(()=>{vi.clearAllMocks();api.actor='actor';api.read.mockImplementation(async(_root,id)=>record(id));api.tree.mockImplementation(async()=>tree());api.legacyRead.mockImplementation(async(id)=>record(id).subtask);api.clearance.mockImplementation(async(root,id)=>clearance(root,id));api.review.mockResolvedValue({canProposeProgress:false,canProposeCompletion:false,items:[]});sessionStorage.clear();});
+beforeEach(()=>{vi.clearAllMocks();api.actor='actor';api.read.mockImplementation(async(_root,id)=>record(id));api.tree.mockImplementation(async()=>tree());api.legacyRead.mockImplementation(async(id)=>record(id).subtask);api.events.mockResolvedValue({events:[],more:false});api.clearance.mockImplementation(async(root,id)=>clearance(root,id));api.review.mockResolvedValue({canProposeProgress:false,canProposeCompletion:false,items:[]});sessionStorage.clear();});
 afterEach(()=>{cleanup();uninstall?.();uninstall=undefined;});
 describe('NW8.1 canonical Subtask Inspector',()=>{
  it('does not show execution controls to an unassigned Task Lead even with legacy server execute permission',async()=>{
@@ -115,6 +115,9 @@ describe('NW8.1 canonical Subtask Inspector',()=>{
    render(<SubitemInspector onClose={()=>{}} rootTask={{...task,status:'in_progress'}} itemId="n1" controller={c}/>);
   });
   expect(api.clearance).toHaveBeenCalledWith('root','n1');
+  expect(screen.getByText('Waiting for receipts')).toBeTruthy();
+  expect(screen.getByText(/waiting for receipts to be fully marked as completed/i)).toBeTruthy();
+  expect(screen.queryByText('Only the assigned team can update this work.')).toBeNull();
   expect(screen.queryByRole('button',{name:'Mark as complete'})).toBeNull();
   expect(screen.queryByRole('button',{name:'Save update'})).toBeNull();
 
@@ -211,7 +214,7 @@ describe('NW8.1 canonical Subtask Inspector',()=>{
   await screen.findByRole('heading',{name:'Level 8'});
   expect(screen.getByText('Deep appointed Lead')).toBeTruthy();expect(screen.getByText('Deep contributor')).toBeTruthy();
   expect(screen.getByRole('navigation',{name:'Subtask path'}).textContent).toBe('Root work / Level 1 / Level 2 / Level 3 / Level 4 / Level 5 / Level 6 / Level 7');
-  expect(screen.queryByRole('slider')).toBeNull();expect(screen.getByText('Dec 15, 2026')).toBeTruthy();
+  expect(screen.queryByRole('slider')).toBeNull();expect(screen.getByText('12/15/2026')).toBeTruthy();
   expect(screen.queryByText('Root Lead')).toBeNull();expect(api.tree).not.toHaveBeenCalled();expect(api.read).toHaveBeenCalledWith('root','n8');
  });
  it('navigates from depth 8 to the actual parent by canonical ID',async()=>{
@@ -279,5 +282,51 @@ describe('NW8.1 canonical Subtask Inspector',()=>{
  });
  it('routes facade opens directly to the canonical centered SubitemInspector with no legacy drawer fallback',async()=>{
   render(<SubtaskWorkDrawer parentTask={task} subtask={record('n8').subtask} controller={controller()} onClose={()=>{}}/>);await screen.findByRole('heading',{name:'Level 8'});expect(api.legacyRead).not.toHaveBeenCalled();expect(api.read).toHaveBeenCalledOnce();
+ });
+ it('skips financial clearance checks on unstarted or leadless subtasks',async()=>{
+  const leadless=tree([{...node('n1',null,1),lead_id:null,status:'todo'}]);
+  render(<SubitemInspector onClose={()=>{}} rootTask={{...task,status:'in_progress'}} itemId="n1" controller={controller(leadless)}/>);
+  await screen.findByRole('heading',{name:'Level 1'});
+  expect(api.clearance).not.toHaveBeenCalled();
+  expect(screen.queryByRole('region',{name:'Financial clearance'})).toBeNull();
+ });
+ it('merges progress updates into the unified Activity history timeline with icons and date/sort filters',async()=>{
+  const started=tree([{...node('n1',null,1),status:'in_progress',started_at:'2026-11-24T01:00:00Z'}]);
+  api.read.mockResolvedValueOnce({
+   ...record('n1'),
+   progressUpdates:[
+    {id:'u2',subtaskId:'n1',authorId:'deep-lead',authorName:'Deep appointed Lead',percentComplete:50,note:'Completed concrete pour',blocker:'',blockerCategory:'None',nextStep:'Cure slab',createdAt:Date.parse('2026-11-24T05:54:00Z')},
+    {id:'u1',subtaskId:'n1',authorId:'deep-lead',authorName:'Deep appointed Lead',percentComplete:25,note:'Initial site prep',blocker:'Waiting on gravel delivery',blockerCategory:'Logistics',nextStep:'',createdAt:Date.parse('2026-11-20T01:00:00Z')},
+   ],
+  });
+  api.events.mockResolvedValueOnce({
+   events:[{id:'e1',root_id:'root',node_id:'n1',command:'create',actor_id:'root-lead',actor_name:'Root Lead',occurred_at:'2026-11-19T02:00:00Z',payload:{title:'Level 1'},before_data:undefined,after_data:started}],
+   more:false,
+  });
+  render(<SubitemInspector onClose={()=>{}} rootTask={{...task,status:'in_progress'}} itemId="n1" controller={controller(started)}/>);
+  await screen.findByRole('heading',{name:'Level 1'});
+  expect(screen.queryByText(/Updates · 2/)).toBeNull();
+  expect(screen.queryByText('Completed concrete pour')).toBeNull();
+  fireEvent.click(screen.getByRole('button',{name:'Activity'}));
+  await screen.findByText('Completed concrete pour');
+  await screen.findByText('Subtask created');
+  expect(screen.queryByText('Progress updates')).toBeNull();
+  expect(screen.getByText('11/24/2026, 01:54 PM')).toBeTruthy();
+  const timeline=document.querySelector('.nw-activity-timeline') as HTMLElement;
+  expect(timeline).toBeTruthy();
+  expect(timeline.querySelector('.nw-activity-marker[data-command="progress_update"]')).toBeTruthy();
+  expect(timeline.querySelector('.nw-activity-marker[data-command="blocker"]')).toBeTruthy();
+  expect(timeline.querySelector('.nw-activity-marker[data-command="create"]')).toBeTruthy();
+  const itemsNewest=within(timeline).getAllByRole('listitem');
+  expect(itemsNewest).toHaveLength(3);
+  expect(itemsNewest[0].textContent).toContain('Completed concrete pour');
+  expect(itemsNewest[2].textContent).toContain('Subtask created');
+  fireEvent.change(screen.getByLabelText('Sort activity by date'),{target:{value:'oldest'}});
+  const itemsOldest=within(timeline).getAllByRole('listitem');
+  expect(itemsOldest[0].textContent).toContain('Subtask created');
+  expect(itemsOldest[2].textContent).toContain('Completed concrete pour');
+  fireEvent.change(screen.getByLabelText('Filter activity by date'),{target:{value:'today'}});
+  expect(screen.queryByText('Initial site prep')).toBeNull();
+  expect(screen.queryByText('Subtask created')).toBeNull();
  });
 });

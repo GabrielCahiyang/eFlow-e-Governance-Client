@@ -7,6 +7,7 @@ import { FeatureDialog } from '../../../components/ui/FeatureDialog';
 import { FieldValidationTooltip } from '../../../components/ui/FieldValidationTooltip';
 import { Modal, ModalButton } from '../../../components/ui/Modal';
 import { MoneyInput } from '../../../components/ui/MoneyInput';
+import { ActionBlockerGroup } from '../../../components/ui/action-blockers';
 import { WorkspaceTooltip } from '../../../components/ui/workspace/WorkspaceTooltip';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useOrgs } from '../../../hooks/useSupabaseData';
@@ -292,17 +293,20 @@ function SubtaskBudgetModalContent({
     max: INPUT_LIMITS.FUNDING_REASON,
   });
   const visibleReasonError = touched.reason || reason.length > 0 ? reasonError : '';
-  const submitBlockedReason = !hasAvailableLines
-    ? 'All approved Task funds are committed. Free up funds on the parent Task first.'
-    : capHasActiveRequest
+  const submitBlockers = [
+    !hasAvailableLines
+      ? 'All approved Task funds are committed. Free up funds on the parent Task first.'
+      : '',
+    capHasActiveRequest
       ? 'Settle, reject, or cancel the active cash request before changing this subtask cap.'
-      : accountError || amountError || reasonError;
+      : '',
+    accountError,
+    amountError,
+    reasonError,
+  ].filter(Boolean);
+  const submitBlockedReason = submitBlockers[0] || '';
   const submitDisabled =
     saving || capHasActiveRequest || !hasAvailableLines || Boolean(submitBlockedReason);
-  const cancelAllocationTip =
-    saving || safety.pending
-      ? 'Wait for the current update to finish.'
-      : 'Returns this subtask’s unused budget cap back to the parent task pool.';
 
   async function refreshAll() {
     await Promise.all([budget?.refresh(), funding.refresh()]);
@@ -379,12 +383,13 @@ function SubtaskBudgetModalContent({
               {peso.format(context.cap.amount)} allocated · {peso.format(context.cap.available)} available for cash requests
             </p>
             {canEdit && !capHasActiveRequest && (
-              <WorkspaceTooltip content={cancelAllocationTip} disabled={!cancelAllocationTip}>
-                <span className="inline-flex">
-                  <button type="button" disabled={saving || safety.pending} onClick={() => void removeCap()}>
-                    <Trash2 size={14} aria-hidden="true" /> Cancel allocation
-                  </button>
-                </span>
+              <WorkspaceTooltip
+                content="Returns this subtask’s unused budget cap back to the parent task pool."
+                disabled={saving || safety.pending}
+              >
+                <button type="button" disabled={saving || safety.pending} onClick={() => void removeCap()}>
+                  <Trash2 size={14} aria-hidden="true" /> Cancel allocation
+                </button>
               </WorkspaceTooltip>
             )}
           </div>
@@ -519,16 +524,19 @@ function SubtaskBudgetModalContent({
                 }}
               />
             </div>
-            <div>
-              <WorkspaceTooltip content={saving ? '' : submitDisabled ? submitBlockedReason : ''} disabled={saving || !submitDisabled || !submitBlockedReason}>
-                <span className="inline-flex">
-                  <button type="button" className="bk-primary" disabled={submitDisabled} onClick={() => void saveCap()}>
-                    {saving ? 'Saving…' : context.cap ? 'Update subtask budget' : 'Allocate subtask budget'}
-                  </button>
-                </span>
-              </WorkspaceTooltip>
-            </div>
           </fieldset>
+          <div className="mt-3">
+            <ActionBlockerGroup
+              actionLabel={context.cap ? 'Update subtask budget' : 'Allocate subtask budget'}
+              blockers={submitDisabled ? submitBlockers : []}
+              busy={saving}
+              size="md"
+            >
+              <button type="button" className="bk-primary" disabled={submitDisabled} onClick={() => void saveCap()}>
+                {saving ? 'Saving…' : context.cap ? 'Update subtask budget' : 'Allocate subtask budget'}
+              </button>
+            </ActionBlockerGroup>
+          </div>
         </section>
       )}
       {!funding.loading && context && !context.funded && (

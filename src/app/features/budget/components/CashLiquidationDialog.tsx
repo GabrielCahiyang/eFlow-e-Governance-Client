@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { AttentionBox, Button } from "@vibe/core";
-import { AlertCircle, CheckCircle2, FileText, Plus, RefreshCw, Trash2, Upload, X } from "lucide-react";
+import { AlertCircle, CheckCircle2, ExternalLink, FileText, Lock, Plus, RefreshCw, Trash2, Upload, X } from "lucide-react";
 import { BoundedTextarea, BoundedTextInput } from "../../../components/ui/BoundedInput";
 import { DateInput } from "../../../components/ui/DateInput";
 import { Input } from "../../../components/ui/input";
 import { MoneyInput } from "../../../components/ui/MoneyInput";
+import { ActionBlockerGroup } from "../../../components/ui/action-blockers";
 import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import {
   Dialog,
@@ -18,7 +19,7 @@ import { formatManilaDate } from "../../../shared/calendarDisplay";
 import { diffCentavos, exceedsCentavos, sumCentavos } from "../../../shared/currency";
 import { INPUT_LIMITS } from "../../../shared/inputLimits";
 import type { PettyCashRequest, ReceiptDraft } from "../types";
-import { findSavedLiquidation, submitPettyCashLiquidation, type LiquidationAttempt } from "../services/budgetService";
+import { createReceiptSignedUrl, findSavedLiquidation, submitPettyCashLiquidation, type LiquidationAttempt } from "../services/budgetService";
 import { fetchRequestAssignmentReceipts } from "../services/workCashAssignmentService";
 import { useAuth } from "../../../contexts/AuthContext";
 import { usePendingAction } from "../../../shared/usePendingAction";
@@ -74,7 +75,7 @@ export function CashLiquidationDialog({
   const actionKey = pendingActionKey(actor, "cash-liquidation", orgId, request.id);
   const recovery = usePendingAction<LiquidationAttempt>(actionKey);
   const approved = request.releasedAmount || 0;
-  const sources = request.fundingLines || [];
+  const sources = useMemo(() => request.fundingLines || [], [request.fundingLines]);
   const itemized = sources.length > 0;
   const [enteredSpent, setSpent] = useState(approved);
   const [note, setNote] = useState("");
@@ -132,6 +133,14 @@ export function CashLiquidationDialog({
   const [rolledUpCount, setRolledUpCount] = useState(0);
 
   useEffect(() => {
+    void loadClearance();
+    return () => {
+      clearanceRun.current++;
+    };
+  }, [loadClearance]);
+
+  useEffect(() => {
+    if (!clearance?.canSubmit) return;
     let active = true;
     void fetchRequestAssignmentReceipts(request.id)
       .then((rows) => {
@@ -168,6 +177,8 @@ export function CashLiquidationDialog({
               fileSize: row.fileSize,
             },
             originLabel,
+            locked: row.locked === true || row.receiptReviewStatus === "approved",
+            approvedByName: row.accountingDecidedByName || undefined,
             ...(itemized ? { items: fallbackItems } : {}),
           };
         });
@@ -182,14 +193,7 @@ export function CashLiquidationDialog({
     return () => {
       active = false;
     };
-  }, [request.id, itemized, sources]);
-
-  useEffect(() => {
-    void loadClearance();
-    return () => {
-      clearanceRun.current++;
-    };
-  }, [loadClearance]);
+  }, [clearance?.canSubmit, request.id, itemized, sources]);
 
   const editable =
     !!actor &&
@@ -227,7 +231,9 @@ export function CashLiquidationDialog({
   const update = (id: string, patch: Partial<ReceiptDraft>) => {
     if (!editable) return;
     setError("");
-    setReceipts((current) => current.map((item) => (item.id === id ? { ...item, ...patch } : item)));
+    setReceipts((current) =>
+      current.map((item) => (item.id === id && !item.locked ? { ...item, ...patch } : item)),
+    );
   };
 
   const submit = async () => {
@@ -339,38 +345,56 @@ export function CashLiquidationDialog({
     !recovery.ready ||
     (!recovery.value && (!editable || validation.overLimitBlocked || hasInvalidDateText));
 
-  const submitTooltip = submitDisabled
-    ? busy
-      ? "Submitting liquidation…"
-      : saved
-        ? "Liquidation has already been submitted."
-        : !recovery.ready
-          ? "Checking saved liquidation state…"
-          : clearanceLoading
-            ? "Checking receipt submission clearance…"
-            : clearanceError
-              ? clearanceError
-              : !clearance?.workAccepted
-                ? "Work must be completed and accepted before submitting receipts."
-                : !editable
-                  ? "Receipt submission is currently locked."
-                  : hasInvalidDateText
-                    ? "Enter valid dates in MM/DD/YYYY format before submitting."
-                    : validation.overLimitBlocked
-                      ? validation.releasedError ||
-                        (validation.exceededSources[0]
-                          ? `${validation.exceededSources[0].label} exceeds its approved funding by ${peso.format(validation.exceededSources[0].overByAmount)}.`
-                          : "Spending exceeds the available cash limit.")
-                      : ""
-    : "";
+  const submitBusy = busy || clearanceLoading || !recovery.ready;
+  const submitBlockers: string[] = [];
+  if (submitDisabled && !submitBusy) {
+    if (saved) {
+      submitBlockers.push("Liquidation has already been submitted.");
+    } else if (!recovery.value) {
+      if (clearanceError) {
+        submitBlockers.push(clearanceError);
+      } else if (!clearance?.workAccepted) {
+        submitBlockers.push(
+          request.subtaskId
+            ? "Complete this subtask and have it approved by your Lead before submitting receipts."
+            : "Complete this task and have it approved by the Project Lead before submitting receipts.",
+        );
+      } else if (!editable) {
+        submitBlockers.push("Receipt submission is currently locked.");
+      }
+      if (hasInvalidDateText) {
+        submitBlockers.push("Enter valid dates in MM/DD/YYYY format before submitting.");
+      }
+      if (validation.overLimitBlocked) {
+        if (validation.releasedError) {
+          submitBlockers.push(validation.releasedError);
+        }
+        for (const source of validation.exceededSources) {
+          submitBlockers.push(
+            `${source.label} exceeds its approved funding by ${peso.format(source.overByAmount)}.`,
+          );
+        }
+        if (!validation.releasedError && validation.exceededSources.length === 0) {
+          submitBlockers.push("Spending exceeds the available cash limit.");
+        }
+      }
+    }
+  }
 
-  const addReceiptTooltip = !editable
-    ? clearanceLoading
-      ? "Checking receipt submission clearance…"
-      : !clearance?.workAccepted
-        ? "Complete and get work accepted before adding receipts."
-        : "Receipt editing is currently locked."
-    : "";
+  const addReceiptBlockers: string[] = [];
+  if (!editable && !submitBusy) {
+    if (saved) {
+      addReceiptBlockers.push("Liquidation has already been submitted.");
+    } else if (recovery.value) {
+      addReceiptBlockers.push("Check your saved liquidation before adding receipts.");
+    } else if (clearanceError) {
+      addReceiptBlockers.push(clearanceError);
+    } else if (!clearance?.workAccepted) {
+      addReceiptBlockers.push("Complete and get work accepted before adding receipts.");
+    } else {
+      addReceiptBlockers.push("Receipt editing is currently locked.");
+    }
+  }
 
   return (
     <Dialog open onOpenChange={(open) => { if (!open) onClose(); }}>
@@ -578,15 +602,28 @@ export function CashLiquidationDialog({
               role="status"
               className="rounded-xl border border-emerald-200 bg-emerald-50/70 px-3.5 py-2.5 text-[12px] text-emerald-950"
             >
-              <strong>
-                {rolledUpCount} pre-logged {rolledUpCount === 1 ? "receipt" : "receipts"} rolled up
-              </strong>{" "}
-              from assigned task/subtask cash. Their uploaded files are already attached — add any remaining receipts
-              below or submit directly.
+              {receipts.some((item) => item.locked) ? (
+                <>
+                  <strong>
+                    {receipts.filter((item) => item.locked).length} Accounting-approved{" "}
+                    {receipts.filter((item) => item.locked).length === 1 ? "receipt" : "receipts"} rolled up &amp; locked
+                  </strong>{" "}
+                  — already-verified receipts cannot be edited, replaced, or removed. Add any remaining receipts below or submit directly.
+                </>
+              ) : (
+                <>
+                  <strong>
+                    {rolledUpCount} pre-logged {rolledUpCount === 1 ? "receipt" : "receipts"} rolled up
+                  </strong>{" "}
+                  from assigned task/subtask cash. Their uploaded files are already attached — add any remaining receipts below or submit directly.
+                </>
+              )}
             </div>
           )}
           <div className="space-y-3">
             {receipts.map((receipt, index) => {
+              const isReceiptLocked = Boolean(receipt.locked);
+              const receiptEditable = editable && !isReceiptLocked;
               const rErr = validation.receipts[index];
               const vendorErr = showFieldError(`${receipt.id}:vendor`) ? rErr?.vendor || "" : "";
               const dateInvalid = Boolean(invalidDates[`${receipt.id}:date`]);
@@ -604,19 +641,31 @@ export function CashLiquidationDialog({
                     : "";
               const descErr = showFieldError(`${receipt.id}:desc`) ? rErr?.description || "" : "";
               const fileErr = showFieldError(`${receipt.id}:file`) ? rErr?.file || "" : "";
-              const removeReceiptDisabled = !editable || receipts.length === 1;
-              const removeReceiptTooltip = !editable
-                ? "Editing is locked."
-                : receipts.length === 1
-                  ? "At least one receipt is required."
-                  : `Remove receipt ${index + 1} from this liquidation draft.`;
+              const removeReceiptDisabled = !receiptEditable || receipts.length === 1;
+              const removeReceiptBlocker =
+                !removeReceiptDisabled || submitBusy
+                  ? ""
+                  : isReceiptLocked
+                    ? "Approved by Accounting — locked and cannot be removed."
+                    : !editable
+                      ? clearanceError ||
+                        (!clearance?.workAccepted
+                          ? "Complete and get work accepted before editing receipts."
+                          : "Receipt editing is currently locked.")
+                      : receipts.length === 1
+                        ? "At least one receipt is required."
+                        : "";
 
               return (
                 <article
                   key={receipt.id}
-                  className="rounded-xl border border-border bg-card p-4 shadow-[0_2px_4px_-3px_rgba(0,0,0,0.12)]"
+                  className={`rounded-xl border p-4 shadow-[0_2px_4px_-3px_rgba(0,0,0,0.12)] ${
+                    isReceiptLocked
+                      ? "border-emerald-200/90 bg-emerald-50/25"
+                      : "border-border bg-card"
+                  }`}
                 >
-                  <div className="flex items-center justify-between border-b border-border/70 pb-2.5">
+                  <div className="flex items-center justify-between gap-2 border-b border-border/70 pb-2.5">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="text-[13px] font-semibold text-foreground">Receipt {index + 1}</span>
                       <span className="rounded-md bg-muted px-2 py-0.5 text-[11.5px] font-semibold tabular-nums text-foreground">
@@ -627,34 +676,60 @@ export function CashLiquidationDialog({
                           {receipt.originLabel}
                         </span>
                       )}
+                      {isReceiptLocked && (
+                        <span className="inline-flex items-center gap-1 rounded-[5px] border border-emerald-300 bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-900">
+                          <Lock size={11} aria-hidden="true" />
+                          Approved by Accounting{receipt.approvedByName ? ` (${receipt.approvedByName})` : ""} · Locked
+                        </span>
+                      )}
                     </div>
-                    <WorkspaceTooltip content={removeReceiptTooltip} disabled={!removeReceiptTooltip}>
-                      <span className="inline-flex">
-                        <button
-                          type="button"
-                          aria-label={`Remove receipt ${index + 1}`}
-                          disabled={removeReceiptDisabled}
-                          onClick={() => {
-                            setInvalidDates((prev) => {
-                              const next = { ...prev };
-                              delete next[`${receipt.id}:date`];
-                              return next;
-                            });
-                            setReceipts((current) => current.filter((item) => item.id !== receipt.id));
-                          }}
-                          className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:opacity-30"
-                        >
-                          <Trash2 size={14} aria-hidden="true" />
-                        </button>
+                    {isReceiptLocked ? (
+                      <span
+                        title="Approved by Accounting — locked and cannot be edited or removed"
+                        className="inline-flex items-center gap-1 rounded-md border border-emerald-200 bg-emerald-50/80 px-2 py-1 text-[11px] font-medium text-emerald-800"
+                      >
+                        <Lock size={11} aria-hidden="true" />
+                        Locked
                       </span>
-                    </WorkspaceTooltip>
+                    ) : (
+                      <ActionBlockerGroup
+                        actionLabel={`Remove receipt ${index + 1}`}
+                        blockers={removeReceiptBlocker}
+                        busy={submitBusy}
+                        compact
+                        size="sm"
+                      >
+                        <WorkspaceTooltip
+                          content={`Remove receipt ${index + 1} from this liquidation draft.`}
+                          disabled={removeReceiptDisabled}
+                        >
+                          <button
+                            type="button"
+                            aria-label={`Remove receipt ${index + 1}`}
+                            disabled={removeReceiptDisabled}
+                            onClick={() => {
+                              if (isReceiptLocked || !editable) return;
+                              setInvalidDates((prev) => {
+                                const next = { ...prev };
+                                delete next[`${receipt.id}:date`];
+                                return next;
+                              });
+                              setReceipts((current) => current.filter((item) => item.id !== receipt.id));
+                            }}
+                            className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:opacity-30"
+                          >
+                            <Trash2 size={14} aria-hidden="true" />
+                          </button>
+                        </WorkspaceTooltip>
+                      </ActionBlockerGroup>
+                    )}
                   </div>
 
                   <div className="mt-3 grid gap-3 sm:grid-cols-2">
                     <Field
                       label="Vendor / payee"
                       required
-                      disabled={!editable}
+                      disabled={!receiptEditable}
                       maxLength={INPUT_LIMITS.TITLE}
                       value={receipt.vendor}
                       placeholder="e.g. Mercury Drug, National Book Store"
@@ -668,7 +743,7 @@ export function CashLiquidationDialog({
 
                     <Field
                       label="OR/AR number (optional)"
-                      disabled={!editable}
+                      disabled={!receiptEditable}
                       maxLength={INPUT_LIMITS.CODE}
                       value={receipt.receiptNumber}
                       placeholder="e.g. OR-00142"
@@ -679,7 +754,7 @@ export function CashLiquidationDialog({
                       label="Receipt date"
                       required
                       type="date"
-                      disabled={!editable}
+                      disabled={!receiptEditable}
                       max={getPhilippineCalendarDate()}
                       value={receipt.receiptDate}
                       error={dateErr}
@@ -707,7 +782,7 @@ export function CashLiquidationDialog({
                         label="Receipt amount (₱)"
                         required
                         type="number"
-                        disabled={!editable}
+                        disabled={!receiptEditable}
                         value={receipt.amount || ""}
                         availableMax={approved}
                         error={amountErr}
@@ -724,7 +799,7 @@ export function CashLiquidationDialog({
                       <Field
                         label={itemized ? "Expense description (optional)" : "Expense description"}
                         required={!itemized}
-                        disabled={!editable}
+                        disabled={!receiptEditable}
                         maxLength={INPUT_LIMITS.TITLE}
                         value={receipt.description}
                         placeholder={
@@ -742,7 +817,7 @@ export function CashLiquidationDialog({
                     </div>
 
                     <div className="sm:col-span-2">
-                      <label className="block">
+                      <div className="block">
                         <span className="text-[11.5px] font-medium text-foreground after:ml-0.5 after:text-destructive after:content-['*']">
                           Receipt image or PDF
                         </span>
@@ -750,13 +825,19 @@ export function CashLiquidationDialog({
                           className={`mt-1 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-dashed px-3 py-2.5 transition-colors ${
                             fileErr
                               ? "border-destructive bg-destructive/5"
-                              : receipt.file || receipt.existingFile?.filePath
-                                ? "border-primary/40 bg-primary/5"
-                                : "border-[var(--eflow-border,#cbd5e1)] bg-muted/20 hover:border-primary/50"
+                              : isReceiptLocked
+                                ? "border-emerald-300 bg-emerald-50/60"
+                                : receipt.file || receipt.existingFile?.filePath
+                                  ? "border-primary/40 bg-primary/5"
+                                  : "border-[var(--eflow-border,#cbd5e1)] bg-muted/20 hover:border-primary/50"
                           }`}
                         >
                           <div className="flex min-w-0 items-center gap-2 text-[12px]">
-                            <Upload size={14} className="shrink-0 text-primary" aria-hidden="true" />
+                            {isReceiptLocked ? (
+                              <Lock size={14} className="shrink-0 text-emerald-700" aria-hidden="true" />
+                            ) : (
+                              <Upload size={14} className="shrink-0 text-primary" aria-hidden="true" />
+                            )}
                             {receipt.file ? (
                               <span className="truncate font-medium text-foreground">
                                 {receipt.file.name}
@@ -770,46 +851,70 @@ export function CashLiquidationDialog({
                               <span className="truncate font-medium text-emerald-900">
                                 {receipt.existingFile.fileName}
                                 <span className="ml-1.5 font-normal text-emerald-700">
-                                  (Already uploaded · replace optional)
+                                  {isReceiptLocked
+                                    ? "(Verified & locked — cannot be replaced)"
+                                    : "(Already uploaded · replace optional)"}
                                 </span>
                               </span>
                             ) : (
                               <span className="text-muted-foreground">Choose a JPG, PNG, WEBP, or PDF receipt file</span>
                             )}
                           </div>
-                          <div className="flex items-center gap-2">
-                            <Input
-                              aria-label={`Receipt image or PDF`}
-                              aria-invalid={Boolean(fileErr)}
-                              disabled={!editable}
-                              type="file"
-                              accept="image/jpeg,image/png,image/webp,application/pdf"
-                              onChange={(event) => {
-                                markTouched(`${receipt.id}:file`);
-                                update(receipt.id, { file: event.target.files?.[0] });
-                              }}
-                              className="h-auto w-[195px] cursor-pointer border-0 bg-transparent p-0 text-[11.5px] shadow-none file:mr-2 file:cursor-pointer file:rounded-md file:border file:border-border file:bg-background file:px-2.5 file:py-1 file:text-[11.5px] file:font-medium file:text-foreground hover:file:bg-muted"
-                            />
-                            {receipt.file && editable && (
-                              <WorkspaceTooltip content={`Remove attached file for receipt ${index + 1}.`}>
-                                <span className="inline-flex">
-                                  <button
-                                    type="button"
-                                    aria-label={`Remove file for receipt ${index + 1}`}
-                                    onClick={() => {
-                                      markTouched(`${receipt.id}:file`);
-                                      update(receipt.id, { file: undefined });
-                                    }}
-                                    className="rounded-md p-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-                                  >
-                                    <X size={13} aria-hidden="true" />
-                                  </button>
-                                </span>
-                              </WorkspaceTooltip>
-                            )}
-                          </div>
+                          {isReceiptLocked ? (
+                            receipt.existingFile?.filePath ? (
+                              <button
+                                type="button"
+                                onClick={async () => {
+                                  try {
+                                    const url = await createReceiptSignedUrl(receipt.existingFile!.filePath);
+                                    window.open(url, "_blank", "noopener,noreferrer");
+                                  } catch (caught) {
+                                    setError(
+                                      readableUiError(caught, "Could not open this receipt file.", "read"),
+                                    );
+                                  }
+                                }}
+                                className="inline-flex items-center gap-1 rounded-md border border-emerald-300 bg-background px-2.5 py-1 text-[11.5px] font-medium text-emerald-900 hover:bg-emerald-50"
+                              >
+                                <ExternalLink size={12} aria-hidden="true" />
+                                View receipt
+                              </button>
+                            ) : null
+                          ) : (
+                            <div className="flex items-center gap-2">
+                              <Input
+                                aria-label={`Receipt image or PDF`}
+                                aria-invalid={Boolean(fileErr)}
+                                disabled={!receiptEditable}
+                                type="file"
+                                accept="image/jpeg,image/png,image/webp,application/pdf"
+                                onChange={(event) => {
+                                  markTouched(`${receipt.id}:file`);
+                                  update(receipt.id, { file: event.target.files?.[0] });
+                                }}
+                                className="h-auto w-[195px] cursor-pointer border-0 bg-transparent p-0 text-[11.5px] shadow-none file:mr-2 file:cursor-pointer file:rounded-md file:border file:border-border file:bg-background file:px-2.5 file:py-1 file:text-[11.5px] file:font-medium file:text-foreground hover:file:bg-muted"
+                              />
+                              {receipt.file && receiptEditable && (
+                                <WorkspaceTooltip content={`Remove attached file for receipt ${index + 1}.`}>
+                                  <span className="inline-flex">
+                                    <button
+                                      type="button"
+                                      aria-label={`Remove file for receipt ${index + 1}`}
+                                      onClick={() => {
+                                        markTouched(`${receipt.id}:file`);
+                                        update(receipt.id, { file: undefined });
+                                      }}
+                                      className="rounded-md p-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                                    >
+                                      <X size={13} aria-hidden="true" />
+                                    </button>
+                                  </span>
+                                </WorkspaceTooltip>
+                              )}
+                            </div>
+                          )}
                         </div>
-                      </label>
+                      </div>
                       {fileErr && <p role="alert" className="mt-1 text-[11px] text-destructive">{fileErr}</p>}
                     </div>
                   </div>
@@ -822,8 +927,11 @@ export function CashLiquidationDialog({
                       itemErrors={rErr?.items || []}
                       showAllErrors={attemptedSubmit}
                       exceedsReleased={validation.exceedsReleased}
-                      disabled={!editable}
+                      disabled={!receiptEditable}
+                      busy={submitBusy}
+                      locked={isReceiptLocked}
                       onChange={(items) => {
+                        if (isReceiptLocked || !editable) return;
                         setError("");
                         update(receipt.id, {
                           items,
@@ -841,23 +949,26 @@ export function CashLiquidationDialog({
             })}
           </div>
 
-          <WorkspaceTooltip content={addReceiptTooltip} disabled={!addReceiptTooltip}>
-            <span className="inline-flex">
-              <Button
-                kind="secondary"
-                size="small"
-                disabled={!editable}
-                onClick={() =>
-                  setReceipts((current) => [
-                    ...current,
-                    { ...blankReceipt(0), ...(itemized ? { items: [] } : {}) },
-                  ])
-                }
-              >
-                <Plus size={13} className="mr-1" aria-hidden="true" /> Add receipt
-              </Button>
-            </span>
-          </WorkspaceTooltip>
+          <ActionBlockerGroup
+            actionLabel="Add receipt"
+            blockers={addReceiptBlockers}
+            busy={submitBusy}
+            size="sm"
+          >
+            <Button
+              kind="secondary"
+              size="small"
+              disabled={!editable}
+              onClick={() =>
+                setReceipts((current) => [
+                  ...current,
+                  { ...blankReceipt(0), ...(itemized ? { items: [] } : {}) },
+                ])
+              }
+            >
+              <Plus size={13} className="mr-1" aria-hidden="true" /> Add receipt
+            </Button>
+          </ActionBlockerGroup>
 
           {/* Cash return section when unused cash remains */}
           {validation.requiresCashReturn && (
@@ -1000,20 +1111,29 @@ export function CashLiquidationDialog({
             <Button kind="secondary" size="small" onClick={onClose} disabled={busy}>
               Cancel
             </Button>
-            <WorkspaceTooltip content={submitTooltip} disabled={!submitTooltip}>
-              <span className="inline-flex">
-                <Button
-                  kind="primary"
-                  size="small"
-                  disabled={submitDisabled}
-                  loading={busy}
-                  onClick={() => void submit()}
-                >
-                  <FileText size={13} className="mr-1" aria-hidden="true" />{" "}
-                  {recovery.value ? "Check saved liquidation" : "Submit liquidation"}
-                </Button>
-              </span>
-            </WorkspaceTooltip>
+            <ActionBlockerGroup
+              actionLabel={recovery.value ? "Check saved liquidation" : "Submit liquidation"}
+              blockers={submitBlockers}
+              busy={submitBusy}
+              size="sm"
+              onRefresh={
+                clearanceError || !clearance?.workAccepted
+                  ? () => void loadClearance()
+                  : undefined
+              }
+              refreshing={clearanceLoading}
+            >
+              <Button
+                kind="primary"
+                size="small"
+                disabled={submitDisabled}
+                loading={busy}
+                onClick={() => void submit()}
+              >
+                <FileText size={13} className="mr-1" aria-hidden="true" />{" "}
+                {recovery.value ? "Check saved liquidation" : "Submit liquidation"}
+              </Button>
+            </ActionBlockerGroup>
           </div>
         </DialogFooter>
       </DialogContent>

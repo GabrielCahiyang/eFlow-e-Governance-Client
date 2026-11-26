@@ -4,7 +4,10 @@ import { Modal } from "../../../components/ui/Modal";
 import { BoundedTextarea } from "../../../components/ui/BoundedInput";
 import { FieldValidationTooltip } from "../../../components/ui/FieldValidationTooltip";
 import { INPUT_LIMITS } from "../../../shared/inputLimits";
-import { archiveProject, restoreProject } from "../services/projectService";
+import { formatPeso, toCentavos } from "../../../shared/currency";
+import { archiveProject, fetchProjectFinancialCloseoutSummary, restoreProject } from "../services/projectService";
+import type { ProjectFinancialCloseoutSummary } from "../../project-setup";
+import { ProjectFinancialCloseoutCard } from "./ProjectFinancialCloseoutCard";
 import { useGuardedProjectDialog } from '../hooks/useGuardedProjectDialog';
 
 export function ProjectArchiveDialog({
@@ -26,21 +29,53 @@ export function ProjectArchiveDialog({
   const [submitting, setSubmitting] = React.useState(false);
   const [actionTipOpen, setActionTipOpen] = React.useState(false);
   const [error, setError] = React.useState("");
+  const [closeoutSummary, setCloseoutSummary] = React.useState<ProjectFinancialCloseoutSummary | null>(null);
+  const [summaryLoading, setSummaryLoading] = React.useState(false);
+  const [summaryError, setSummaryError] = React.useState("");
   const inFlight = React.useRef(false);
   const actionAnchorRef = React.useRef<HTMLSpanElement | null>(null);
   const actionTooltipId = React.useId();
   const close = useGuardedProjectDialog({ open, dirty: Boolean(reason.trim()), pending: submitting, pendingCheck: () => inFlight.current, label: isArchived ? 'Restore project' : 'Archive project', onClose, onDiscard: () => setReason('') });
 
   React.useEffect(() => {
-    if (open) {
-      setReason("");
-      setActionTipOpen(false);
-      setError("");
+    if (!open) return;
+    setReason("");
+    setActionTipOpen(false);
+    setError("");
+    setSummaryError("");
+    if (isArchived) {
+      setCloseoutSummary(null);
+      setSummaryLoading(false);
+      return;
     }
-  }, [open, projectId]);
+    let active = true;
+    setSummaryLoading(true);
+    void fetchProjectFinancialCloseoutSummary(projectId)
+      .then((summary) => {
+        if (active) setCloseoutSummary(summary);
+      })
+      .catch((caught) => {
+        if (active) {
+          setCloseoutSummary(null);
+          setSummaryError(
+            caught instanceof Error ? caught.message : "Could not load project financial closeout summary.",
+          );
+        }
+      })
+      .finally(() => {
+        if (active) setSummaryLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [open, projectId, isArchived]);
+
+  const unreturnedCents = !isArchived && closeoutSummary ? toCentavos(closeoutSummary.unreturnedBalance) : 0;
+  const archiveBlockedByFunds = !isArchived && unreturnedCents > 0;
+  const submitDisabled = submitting || (!isArchived && summaryLoading) || archiveBlockedByFunds;
 
   const handleSubmit = async () => {
-    if (inFlight.current) return;
+    if (inFlight.current || submitDisabled) return;
     inFlight.current = true;
     setSubmitting(true);
     setActionTipOpen(false);
@@ -64,14 +99,16 @@ export function ProjectArchiveDialog({
 
   const actionTooltipMessage = isArchived
     ? `Restores "${projectTitle}" to active status so team members can resume work.`
-    : `Warning: Moves "${projectTitle}" to Archived projects as read-only.`;
+    : archiveBlockedByFunds && closeoutSummary
+      ? `Blocked: Return ${formatPeso(closeoutSummary.unreturnedBalance)} in unused project funding to the Office Budget before archiving.`
+      : `Warning: Moves "${projectTitle}" to Archived projects as read-only and seals its financial closeout record.`;
 
   return (
     <Modal
       isOpen={open}
       onClose={submitting ? () => {} : close}
       title={isArchived ? "Restore project" : "Archive project"}
-      width="max-w-lg"
+      width={isArchived ? "max-w-lg" : "max-w-xl"}
       footer={
         <div className="flex items-center justify-end gap-3 w-full">
           <button
@@ -94,7 +131,7 @@ export function ProjectArchiveDialog({
               onFocus={() => setActionTipOpen(true)}
               onBlur={() => setActionTipOpen(false)}
               onClick={() => void handleSubmit()}
-              disabled={submitting}
+              disabled={submitDisabled}
               className={`inline-flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-semibold text-white shadow-sm transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
                 isArchived
                   ? "bg-blue-600 hover:bg-blue-700 active:bg-blue-800"
@@ -109,7 +146,7 @@ export function ProjectArchiveDialog({
               anchorRef={actionAnchorRef}
               message={actionTooltipMessage}
               open={actionTipOpen && !submitting}
-              tone="warning"
+              tone={archiveBlockedByFunds ? "error" : "warning"}
             />
           </span>
         </div>
@@ -138,10 +175,28 @@ export function ProjectArchiveDialog({
             <p className={`mt-1 text-xs leading-relaxed ${isArchived ? "text-blue-700" : "text-amber-800"}`}>
               {isArchived
                 ? "Restoring will reactivate this project. Team members will be able to edit tasks, milestones, and project details again."
-                : "Only completed projects can be archived. This project will leave the active project list and become read-only. History, reports, audit logs, and restore remain available under Archived projects."}
+                : "Only completed projects with zero unreturned funding can be archived. This project will move to Archived projects as read-only with its financial closeout record and audit trail preserved."}
             </p>
           </div>
         </div>
+
+        {!isArchived && (
+          <ProjectFinancialCloseoutCard
+            summary={closeoutSummary}
+            loading={summaryLoading}
+            error={summaryError}
+            mode="archive"
+          />
+        )}
+
+        {archiveBlockedByFunds && closeoutSummary && (
+          <div role="alert" className="flex items-start gap-2 p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs font-medium">
+            <Icons.AlertCircle size={15} className="shrink-0 mt-0.5 text-rose-500" />
+            <span>
+              {formatPeso(closeoutSummary.unreturnedBalance)} in unused project funding has not been returned to the Office Budget yet. Return all unused funds in the project Budget tab before archiving.
+            </span>
+          </div>
+        )}
 
         {/* Reason field */}
         <div className="flex flex-col gap-2">

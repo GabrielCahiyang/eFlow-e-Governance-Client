@@ -6,7 +6,7 @@ import { setSubtaskDueDate, type Subtask } from "../../../services/subtaskServic
 import { useToast } from "../../../components/ui/Toast";
 import { DateInput } from "../../../components/ui/DateInput";
 import { BoundedTextarea } from "../../../components/ui/BoundedInput";
-import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
+import { ActionBlockerGroup } from "../../../components/ui/action-blockers";
 import { calendarMinDate, scheduledDateError } from "../../../shared/calendarDates";
 import { INPUT_LIMITS, textLengthError } from "../../../shared/inputLimits";
 import { formatDate } from "../../../components/workflow/primitives";
@@ -69,20 +69,15 @@ export function SubtaskDeadlineEditor({
     : "";
   const visibleReasonError = requiresReason && (reasonTouched || reason.trim().length > 0) ? reasonError : "";
 
-  const saveDisabledReason = saving
-    ? "Saving deadline…"
-    : dateInvalidText
-      ? "Enter a valid deadline in MM/DD/YYYY format."
-      : !dueDate
-        ? "Choose a deadline."
-        : !changed
-          ? "Choose a new deadline to save."
-          : dueDateError
-            ? dueDateError
-            : reasonError
-              ? reasonError
-              : "";
-  const saveDisabled = Boolean(saveDisabledReason);
+  const dateBlocker = dateInvalidText
+    ? "Enter a valid deadline in MM/DD/YYYY format."
+    : !dueDate
+      ? "Choose a deadline."
+      : !changed
+        ? "Choose a new deadline to save."
+        : dueDateError;
+  const saveBlockers = [dateBlocker, reasonError].filter(Boolean);
+  const saveDisabled = saving || saveBlockers.length > 0;
 
   const save = async () => {
     setReasonTouched(true);
@@ -124,18 +119,21 @@ export function SubtaskDeadlineEditor({
               onChange={(event) => setDueDate(event.target.value)}
               className="h-9 min-w-0 flex-1 rounded-lg border border-neutral-200 bg-white px-2.5 text-[11px] text-neutral-800 outline-none focus:border-neutral-400"
             />
-            <WorkspaceTooltip content={saveDisabledReason} disabled={!saveDisabledReason}>
-              <span className="inline-flex">
-                <button
-                  type="button"
-                  onClick={() => void save()}
-                  disabled={saveDisabled}
-                  className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-neutral-900 px-3 text-[10.5px] font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  <Save size={11} /> {saving ? "Saving…" : "Save"}
-                </button>
-              </span>
-            </WorkspaceTooltip>
+            <ActionBlockerGroup
+              actionLabel="Save deadline"
+              blockers={saveBlockers}
+              busy={saving}
+              size="sm"
+            >
+              <button
+                type="button"
+                onClick={() => void save()}
+                disabled={saveDisabled}
+                className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-neutral-900 px-3 text-[10.5px] font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                <Save size={11} /> {saving ? "Saving…" : "Save"}
+              </button>
+            </ActionBlockerGroup>
           </div>
           {visibleDateError && <p role="alert" className="eflow-field-error mt-1 text-[10.5px]">{visibleDateError}</p>}
           {parentDue && <p className="mt-1 text-[9px] opacity-70">Must be on or before the parent task deadline: {formatDate(parentDue)}.</p>}

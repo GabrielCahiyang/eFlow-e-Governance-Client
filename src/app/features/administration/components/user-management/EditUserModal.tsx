@@ -9,7 +9,7 @@ import {
 import { FeedbackState } from "../../../../components/ui/FeedbackState";
 import { Modal, ModalButton } from "../../../../components/ui/Modal";
 import { useToast } from "../../../../components/ui/Toast";
-import { WorkspaceTooltip } from "../../../../components/ui/workspace/WorkspaceTooltip";
+import { ActionBlockerGroup } from "../../../../components/ui/action-blockers";
 import { INPUT_LIMITS } from "../../../../shared/inputLimits";
 import type { Organization, UserProfile } from "../../../../types";
 import { getAssignableRoleOptions } from "./userManagementPrimitives";
@@ -165,11 +165,11 @@ export function EditUserModal({
       ? rawFullNameIssue
       : "";
   const lastAdminRoleBlocked = lastAdmin && !isAdminRole(resolvedRole.role);
-  const saveBlockedReason =
-    rawFullNameIssue ||
-    (lastAdminRoleBlocked ? "The last active Admin must keep Admin access." : "") ||
-    leadershipConflict ||
-    "";
+  const saveBlockers = [
+    rawFullNameIssue,
+    lastAdminRoleBlocked ? "The last active Admin must keep Admin access." : "",
+    leadershipConflict,
+  ].filter(Boolean);
   const roleFieldError =
     leadershipConflict ||
     (lastAdminRoleBlocked ? "The last active Admin must keep Admin access." : "");
@@ -204,14 +204,12 @@ export function EditUserModal({
     editUser?.is_active !== false &&
     (isAdminRole(userProfile?.role) ||
       (!isAdminRole(editUser?.role) && !isManagedLeadershipRole(editUser?.role || "")));
-  const resetDisabledReason =
-    saving || sendingReset
-      ? ""
-      : editUser && editUser.is_active === false
-        ? "Activate this account before sending a password reset link."
-        : !canSendPasswordReset
-          ? "Only Admin can send a password reset link for an Admin or leadership account."
-          : "";
+  const resetBlockers =
+    editUser && editUser.is_active === false
+      ? ["Activate this account before sending a password reset link."]
+      : !canSendPasswordReset
+        ? ["Only Admin can send a password reset link for an Admin or leadership account."]
+        : [];
 
   const handleSendPasswordReset = async () => {
     if (!editUser || sendingReset || !canSendPasswordReset) return;
@@ -312,21 +310,20 @@ export function EditUserModal({
           <ModalButton disabled={saving} onClick={close}>
             Cancel
           </ModalButton>
-          <WorkspaceTooltip
-            content={saving ? "" : saveBlockedReason}
-            disabled={saving || !saveBlockedReason}
+          <ActionBlockerGroup
+            actionLabel="Save Changes"
+            blockers={saveBlockers}
+            busy={saving}
           >
-            <span className="inline-flex">
-              <ModalButton
-                variant="primary"
-                onClick={handleSave}
-                pending={saving}
-                disabled={Boolean(saveBlockedReason)}
-              >
-                {saving ? "Saving..." : "Save Changes"}
-              </ModalButton>
-            </span>
-          </WorkspaceTooltip>
+            <ModalButton
+              variant="primary"
+              onClick={handleSave}
+              pending={saving}
+              disabled={saveBlockers.length > 0}
+            >
+              {saving ? "Saving..." : "Save Changes"}
+            </ModalButton>
+          </ActionBlockerGroup>
         </>
       }
     >
@@ -442,20 +439,19 @@ export function EditUserModal({
                     : "Activate this account before sending a password reset link."}
                 </p>
               </div>
-              <WorkspaceTooltip
-                content={resetDisabledReason}
-                disabled={!resetDisabledReason}
+              <ActionBlockerGroup
+                actionLabel="Send reset link"
+                blockers={resetBlockers}
+                busy={saving || sendingReset}
               >
-                <span className="inline-flex">
-                  <ModalButton
-                    disabled={saving || sendingReset || !canSendPasswordReset}
-                    onClick={() => void handleSendPasswordReset()}
-                  >
-                    <Mail size={13} aria-hidden="true" />
-                    {sendingReset ? "Sending…" : "Send reset link"}
-                  </ModalButton>
-                </span>
-              </WorkspaceTooltip>
+                <ModalButton
+                  disabled={saving || sendingReset || !canSendPasswordReset}
+                  onClick={() => void handleSendPasswordReset()}
+                >
+                  <Mail size={13} aria-hidden="true" />
+                  {sendingReset ? "Sending…" : "Send reset link"}
+                </ModalButton>
+              </ActionBlockerGroup>
             </div>
             {resetSentNotice ? (
               <FeedbackState tone="success" title="Reset link sent">

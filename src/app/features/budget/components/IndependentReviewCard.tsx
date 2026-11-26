@@ -4,6 +4,7 @@ import { BoundedTextarea } from '../../../components/ui/BoundedInput';
 import { DecisionModal } from '../../../components/ui/DecisionModal';
 import { FieldValidationTooltip } from '../../../components/ui/FieldValidationTooltip';
 import { useToast } from '../../../components/ui/Toast';
+import { ActionBlockerGroup } from '../../../components/ui/action-blockers';
 import { Button } from '../../../components/ui/button';
 import { WorkspaceTooltip } from '../../../components/ui/workspace/WorkspaceTooltip';
 import { useExplicitDraft } from '../../../shared/useExplicitDraft';
@@ -88,7 +89,7 @@ export function IndependentReviewCard({ id, version, returnedAmount, context, er
         if (decision === 'approve_escalation') {
           if (!fresh.headEscalationFingerprint) throw new Error('This escalation is no longer awaiting your approval.');
           if (fresh.headCanPostSettlement && (returnedAmount ?? 0) > 0 && !(await fetchCashReturnClearance(id)).approved) {
-            throw new Error('The cash return must be acknowledged and independently approved before settlement.');
+            throw new Error('Verify physical receipt of the unused cash return before posting settlement.');
           }
           submitted = true;
           await approveStaffingEscalation(id, version, fresh.headEscalationFingerprint, findings, command);
@@ -209,23 +210,33 @@ export function IndependentReviewCard({ id, version, returnedAmount, context, er
       {context.review.decision_reason && <div><dt className="text-muted-foreground">Review note</dt><dd className="break-words">{context.review.decision_reason}</dd></div>}
     </dl></details>}
     {canApproveEscalation && (
-      <WorkspaceTooltip
-        content={decideBlockedTip || (canPostAsHead ? 'Settles this cash advance and posts the journal as Office Head.' : '')}
-        disabled={!(decideBlockedTip || canPostAsHead)}
+      <ActionBlockerGroup
+        actionLabel={canPostAsHead ? 'Approve & post settlement' : 'Approve'}
+        blockers={uncertain ? decideBlockedTip : []}
+        busy={busy}
+        size="sm"
       >
-        <span className="inline-flex">
-          <Button disabled={busy || uncertain} onClick={() => { setMessage(''); setDecision('approve_escalation'); }}><UserRoundCheck size={15} /> {canPostAsHead ? 'Approve & post settlement' : 'Approve'}</Button>
-        </span>
-      </WorkspaceTooltip>
+        <WorkspaceTooltip
+          content={!uncertain && canPostAsHead ? 'Settles this cash advance and posts the journal as Office Head.' : ''}
+          disabled={uncertain || !canPostAsHead}
+        >
+          <span className="inline-flex">
+            <Button disabled={busy || uncertain} onClick={() => { setMessage(''); setDecision('approve_escalation'); }}><UserRoundCheck size={15} /> {canPostAsHead ? 'Approve & post settlement' : 'Approve'}</Button>
+          </span>
+        </WorkspaceTooltip>
+      </ActionBlockerGroup>
     )}
     {!settlementBlocked && !canApproveEscalation && !approved && context.escalationRequired && <p role="status" className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-amber-950">Escalation required: {context.candidates.length === 0 ? 'no independent appointed reviewer is available. ' : ''}{context.eligibleSettlers === 0 ? 'No separate eligible Accounting Officer is available to settle and post. ' : ''}Ask your administrator to resolve the appointment or Accounting assignment. No self-approval or delegated posting is allowed.</p>}
     {(canDecide || canRoute) && <>
       {canTakeReview && (
-        <WorkspaceTooltip content={takeReviewTip} disabled={!takeReviewTip}>
-          <span className="inline-flex">
-            <Button disabled={takeReviewDisabled} onClick={() => void run(undefined, true)}>Take review</Button>
-          </span>
-        </WorkspaceTooltip>
+        <ActionBlockerGroup
+          actionLabel="Take review"
+          blockers={takeReviewDisabled ? takeReviewTip : []}
+          busy={busy}
+          size="sm"
+        >
+          <Button disabled={takeReviewDisabled} onClick={() => void run(undefined, true)}>Take review</Button>
+        </ActionBlockerGroup>
       )}
       {canRoute && (
         <div className="block">
@@ -295,31 +306,43 @@ export function IndependentReviewCard({ id, version, returnedAmount, context, er
           />
         </div>
       )}
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         {canDecide ? (
           <>
-            <WorkspaceTooltip content={decideBlockedTip} disabled={!decideBlockedTip}>
-              <span className="inline-flex">
-                <Button disabled={busy || uncertain} onClick={() => { setMessage(''); setDecision('approved'); }}><UserRoundCheck size={15} /> Approve review</Button>
-              </span>
-            </WorkspaceTooltip>
-            <WorkspaceTooltip content={decideBlockedTip || 'Returns this liquidation package to the requester for corrections.'}>
-              <span className="inline-flex">
-                <Button variant="outline" className="border-amber-300 text-amber-800 bg-amber-50" disabled={busy || uncertain} onClick={() => { setMessage(''); setDecision('changes_requested'); }}>Request changes</Button>
-              </span>
-            </WorkspaceTooltip>
-            <WorkspaceTooltip content={decideBlockedTip || 'Formally rejects this liquidation package and notifies the requester.'}>
-              <span className="inline-flex">
-                <Button variant="outline" className="border-amber-300 text-amber-800 bg-amber-50" disabled={busy || uncertain} onClick={() => { setMessage(''); setDecision('rejected'); }}>Reject package</Button>
-              </span>
-            </WorkspaceTooltip>
+            <ActionBlockerGroup
+              actionLabel="Approve review"
+              blockers={uncertain ? decideBlockedTip : []}
+              busy={busy}
+              size="sm"
+            >
+              <Button disabled={busy || uncertain} onClick={() => { setMessage(''); setDecision('approved'); }}><UserRoundCheck size={15} /> Approve review</Button>
+            </ActionBlockerGroup>
+            <ActionBlockerGroup
+              actionLabel="Request changes"
+              blockers={uncertain ? decideBlockedTip : []}
+              busy={busy}
+              size="sm"
+            >
+              <Button variant="outline" className="border-amber-300 text-amber-800 bg-amber-50" disabled={busy || uncertain} onClick={() => { setMessage(''); setDecision('changes_requested'); }}>Request changes</Button>
+            </ActionBlockerGroup>
+            <ActionBlockerGroup
+              actionLabel="Reject package"
+              blockers={uncertain ? decideBlockedTip : []}
+              busy={busy}
+              size="sm"
+            >
+              <Button variant="outline" className="border-amber-300 text-amber-800 bg-amber-50" disabled={busy || uncertain} onClick={() => { setMessage(''); setDecision('rejected'); }}>Reject package</Button>
+            </ActionBlockerGroup>
           </>
         ) : (
-          <WorkspaceTooltip content={sendReviewTip} disabled={!sendReviewTip}>
-            <span className="inline-flex">
-              <Button disabled={sendReviewDisabled} onClick={() => void run()}>Send for independent review</Button>
-            </span>
-          </WorkspaceTooltip>
+          <ActionBlockerGroup
+            actionLabel="Send for independent review"
+            blockers={sendReviewDisabled ? sendReviewTip : []}
+            busy={busy}
+            size="sm"
+          >
+            <Button disabled={sendReviewDisabled} onClick={() => void run()}>Send for independent review</Button>
+          </ActionBlockerGroup>
         )}
       </div>
     </>}

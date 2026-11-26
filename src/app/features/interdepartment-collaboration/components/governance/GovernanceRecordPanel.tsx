@@ -1,7 +1,7 @@
 import { EmptyState } from '../../../../components/ui/EmptyState';
 import { BoundedTextarea, BoundedTextInput } from '../../../../components/ui/BoundedInput';
 import { DateInput } from '../../../../components/ui/DateInput';
-import { WorkspaceTooltip } from '../../../../components/ui/workspace/WorkspaceTooltip';
+import { ActionBlockerGroup } from '../../../../components/ui/action-blockers';
 import { getPhilippineCalendarDate, historicalDateError } from '../../../../shared/calendarDates';
 import { formatManilaDateTime } from '../../../../shared/calendarDisplay';
 import { attachmentError, EVIDENCE_ACCEPT } from '../../../../shared/fileValidation';
@@ -71,9 +71,7 @@ export function GovernanceRecordPanel({
     meetingDateTouched || meetingDateInvalidText || Boolean(meetingDate)
       ? rawMeetingDateError
       : '';
-  const saveBlockedReason = busy
-    ? ''
-    : rawResolutionError || rawMeetingDateError || rawEndorsementError || fileIssue || '';
+  const saveBlockers = [rawResolutionError, rawMeetingDateError, rawEndorsementError, fileIssue];
 
   const saveRecord = () => {
     setResolutionTouched(true);
@@ -340,18 +338,21 @@ export function GovernanceRecordPanel({
                 }}
               />
             </label>
-            <WorkspaceTooltip content={saveBlockedReason} disabled={!saveBlockedReason}>
-              <span className="inline-flex">
-                <button
-                  type="button"
-                  disabled={busy || Boolean(rawResolutionError || rawMeetingDateError || rawEndorsementError || fileIssue)}
-                  onClick={saveRecord}
-                  className="rounded-lg bg-primary px-3 py-2 text-[10px] text-primary-foreground transition hover:bg-primary/90 disabled:opacity-40"
-                >
-                  Save formal record
-                </button>
-              </span>
-            </WorkspaceTooltip>
+            <ActionBlockerGroup
+              actionLabel="Save formal record"
+              blockers={saveBlockers}
+              busy={busy}
+              size="sm"
+            >
+              <button
+                type="button"
+                disabled={busy || Boolean(rawResolutionError || rawMeetingDateError || rawEndorsementError || fileIssue)}
+                onClick={saveRecord}
+                className="rounded-lg bg-primary px-3 py-2 text-[10px] text-primary-foreground transition hover:bg-primary/90 disabled:opacity-40"
+              >
+                Save formal record
+              </button>
+            </ActionBlockerGroup>
           </div>
           {validationError && <p role="alert" className="mt-2 text-xs text-destructive">{validationError}</p>}
         </div>

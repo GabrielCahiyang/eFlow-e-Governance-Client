@@ -5,6 +5,7 @@ import * as m from "motion/react-m";
 import { AlertTriangle, CheckCircle2, Copy } from "lucide-react";
 import { BxsBox } from "../../../components/ui/boxicons";
 import { BoundedTextarea, BoundedTextInput } from "../../../components/ui/BoundedInput";
+import { ActionBlockerGroup } from "../../../components/ui/action-blockers";
 import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import { INPUT_LIMITS, textLengthError } from "../../../shared/inputLimits";
 import {
@@ -453,24 +454,28 @@ export function DisbursementVoucherDialog({
               !checked ||
               Boolean(chequeError) ||
               Boolean(overrideReasonError);
-            const confirmTooltip = busy
-              ? ""
-              : financialOutcome(key)
+            const confirmBlockers = [
+              financialOutcome(key)
                 ? "A previous release attempt already completed or requires verification."
-                : !canOverrideSchedule
-                  ? "Only Accounting Staff with cash-release permission can record this release."
-                  : !checked
-                    ? "Confirm physical handover before recording release."
-                    : chequeError
-                      ? chequeError
-                      : overrideReasonError
-                        ? overrideReasonError
-                        : overrideSchedule
-                          ? "Audited override: posts the disbursement journal entry before the scheduled release date."
-                          : "Posts this disbursement to the accounting journal as a physical handover.";
+                : "",
+              !canOverrideSchedule
+                ? "Only Accounting Staff with cash-release permission can record this release."
+                : "",
+              !checked ? "Confirm physical handover before recording release." : "",
+              chequeError,
+              overrideReasonError,
+            ];
+            const enabledConfirmTooltip = overrideSchedule
+              ? "Audited override: posts the disbursement journal entry before the scheduled release date."
+              : "Posts this disbursement to the accounting journal as a physical handover.";
             return (
-              <WorkspaceTooltip content={confirmTooltip} disabled={!confirmTooltip}>
-                <span className="inline-flex">
+              <ActionBlockerGroup
+                actionLabel="Confirm & Record Release"
+                blockers={confirmDisabled ? confirmBlockers : []}
+                busy={busy}
+                size="sm"
+              >
+                <WorkspaceTooltip content={enabledConfirmTooltip} disabled={confirmDisabled}>
                   <Button
                     kind="primary"
                     color="positive"
@@ -483,8 +488,8 @@ export function DisbursementVoucherDialog({
                   >
                     Confirm &amp; Record Release
                   </Button>
-                </span>
-              </WorkspaceTooltip>
+                </WorkspaceTooltip>
+              </ActionBlockerGroup>
             );
           })()}
         </DialogFooter>

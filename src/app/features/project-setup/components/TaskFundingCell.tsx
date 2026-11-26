@@ -1,6 +1,7 @@
 import {useCallback,useRef,useState} from 'react';
 import {Lock, WalletCards} from 'lucide-react';
 import {Modal,ModalButton} from '../../../components/ui/Modal';
+import {ActionBlockerGroup} from '../../../components/ui/action-blockers';
 import {WorkspaceTooltip} from '../../../components/ui/workspace/WorkspaceTooltip';
 import {sumCentavos} from '../../../shared/currency';
 import {useProjectFlow} from '../useProjectFlow';
@@ -32,11 +33,7 @@ export function TaskFundingCell({projectId,taskId,title,taskStatus}:{projectId:s
  const tooltip = `${peso(protectedAmount)} of this task’s budget is locked. ${protectionReason} ${returnGuidance}`;
  const lockedByOtherAction = locks.some(id => id !== 'allocate');
  const actionDisabled = lockedByOtherAction || Boolean(actionState?.disabled);
- const actionTooltip = !actionDisabled || actionState?.pending
-  ? ''
-  : lockedByOtherAction
-   ? 'Wait for the ongoing funding cancellation to finish before allocating more budget.'
-   : actionState?.disabledReason || '';
+ const actionBlockers = actionState?.blockers ?? (actionState?.disabledReason ? [actionState.disabledReason] : []);
  if(!flow.data)return <span>{flow.error?'Funding data unavailable':'Loading funding…'}</span>;
  if(flow.data.project.funding_not_required&&!lines.length)return <span>Funding not required</span>;
  return <>
@@ -59,10 +56,10 @@ export function TaskFundingCell({projectId,taskId,title,taskStatus}:{projectId:s
    preventClose={busy}
    footer={<>
     <ModalButton disabled={busy} onClick={() => setOpen(false)}>Close</ModalButton>
-    {!taskClosed && actionState && <WorkspaceTooltip content={actionTooltip} disabled={!actionTooltip}><span className="inline-flex"><ModalButton
+    {!taskClosed && actionState && <ActionBlockerGroup actionLabel={actionState.label} blockers={actionBlockers} busy={busy || actionState.pending}><ModalButton
      variant="primary" pending={actionState.pending} disabled={actionDisabled}
      onClick={() => submitRef.current?.()}
-    >{actionState.label}</ModalButton></span></WorkspaceTooltip>}
+    >{actionState.label}</ModalButton></ActionBlockerGroup>}
    </>}
    width="max-w-3xl"
   >

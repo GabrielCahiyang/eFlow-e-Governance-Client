@@ -1,6 +1,7 @@
 import { readableUiError } from '../../../shared/userFacingError';
+import { ActionBlockerGroup } from "../../../components/ui/action-blockers";
 import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
-import { useEffect, useId, useRef, useState, type MutableRefObject } from 'react';
+import { useEffect, useId, useMemo, useRef, useState, type MutableRefObject } from 'react';
 import { Wallet, Plus, X } from 'lucide-react';
 import { BoundedTextarea } from '../../../components/ui/BoundedInput';
 import { FieldValidationTooltip } from '../../../components/ui/FieldValidationTooltip';
@@ -21,6 +22,7 @@ export interface TaskFundingActionState {
   pending: boolean;
   disabled?: boolean;
   disabledReason?: string;
+  blockers?: string[];
 }
 
 type TaskAccountOption = ReturnType<typeof availableTaskAccounts>[number];
@@ -140,14 +142,17 @@ export function TaskProjectFunding({
     :undefined;
   return {sourceErr,amountErr};
  });
- const firstBlockedReason=(!uncertain&&data)?(
-  lines.some(l=>!l.sourceId)?'Select a project budget account.':
-  hasCrossFiscalYear?'Choose accounts from the same fiscal year.':
-  rowIssues.find(r=>r.amountErr)?.amountErr||
-  (lines.some(l=>!Number.isFinite(l.amount)||toCentavos(l.amount)<=0)?'Enter an amount greater than ₱0.00.':
-  reasonError||'')
- ):'';
- const submitDisabled=busy||(!uncertain&&Boolean(firstBlockedReason));
+ const rawBlockedReasons=(!uncertain&&data)?[
+  lines.some(l=>!l.sourceId)?'Select a project budget account.':'',
+  hasCrossFiscalYear?'Choose accounts from the same fiscal year.':'',
+  ...rowIssues.map(r=>r.amountErr||'').filter(Boolean),
+  lines.some(l=>!Number.isFinite(l.amount)||toCentavos(l.amount)<=0)?'Enter an amount greater than ₱0.00.':'',
+  reasonError,
+ ].filter(Boolean):[];
+ const blockedReasonsKey=rawBlockedReasons.join('\n');
+ const blockedReasons=useMemo(()=>(blockedReasonsKey?blockedReasonsKey.split('\n'):[]),[blockedReasonsKey]);
+ const firstBlockedReason=blockedReasons[0]||'';
+ const submitDisabled=busy||(!uncertain&&blockedReasons.length>0);
 
  useEffect(()=>{onBusyChange?.(busy||uncertain);return()=>onBusyChange?.(false);},[busy,uncertain,onBusyChange]);
  useEffect(()=>{
@@ -155,9 +160,9 @@ export function TaskProjectFunding({
  });
  useEffect(()=>{
   if(!onActionState)return;
-  onActionState(formVisible?{label:submitLabel,pending:busy,disabled:submitDisabled,disabledReason:firstBlockedReason}:null);
+  onActionState(formVisible?{label:submitLabel,pending:busy,disabled:submitDisabled,disabledReason:firstBlockedReason,blockers:blockedReasons}:null);
   return()=>onActionState(null);
- },[onActionState,formVisible,submitLabel,busy,submitDisabled,firstBlockedReason]);
+ },[onActionState,formVisible,submitLabel,busy,submitDisabled,firstBlockedReason,blockedReasons]);
 
  if(!data)return flow.error ? (
   <div role="alert" className="mb-3 flex items-center justify-between gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
@@ -184,20 +189,18 @@ export function TaskProjectFunding({
   }catch(e){setError(readableUiError(e, "Task allocation could not be saved.", 'write'));}finally{pending.current=false;setBusy(false);}
  }
 
+ const fieldsetDisabled=busy||uncertain||!data.ready||!sources.length;
  const addAccountDisabled=lines.length>=sources.length;
- const addAccountTip=addAccountDisabled?'All available project budget accounts are already added.':'';
- const standaloneSubmitTip=submitDisabled&&!busy&&firstBlockedReason?firstBlockedReason:'';
 
  return <section className={variant==='modal'?'pf-task-accounts pf-task-accounts--modal':'pf-panel pf-task-accounts'} aria-label="Allocate task budget">
   <header><div><h3><Wallet size={20}/>{funded?'Add accounts to this task':'Task budget accounts'}</h3><p>Use one account, or split the task budget across several accounts.</p></div><div className="pf-task-accounts__balance"><small>Project funds left</small><strong>₱{data.unallocated.toLocaleString('en-PH')}</strong></div></header>
   {!sources.length&&<p>No other project-funded accounts are available for this task.</p>}
-  <fieldset disabled={busy||uncertain||!data.ready||!sources.length} className="space-y-3">
+  <fieldset disabled={fieldsetDisabled} className="space-y-3">
    {lines.map((line,index)=>{
     const selected=sources.find(source=>source.id===line.sourceId);
     const issue=rowIssues[index];
     const otherSelectedIds=new Set(lines.filter((_,i)=>i!==index).map(row=>row.sourceId).filter(Boolean));
     const removeDisabled=lines.length===1;
-    const removeTip=removeDisabled?'At least one funding account is required.':`Remove task funding source ${index+1}`;
     return <div key={index} className="pf-funding-row pf-task-funding-row">
      <TaskAccountSelect
       index={index}
@@ -213,14 +216,16 @@ export function TaskProjectFunding({
       }}
      />
      <label>Amount <span className="text-[var(--eflow-negative-text)]" aria-hidden="true">*</span><MoneyInput aria-label={`Task account ${index+1} amount`} min="0" max={INPUT_LIMITS.MONEY_MAX_BUDGET} availableMax={selected?.available} showCeilingHint={Boolean(selected)||Boolean(touchedRows[index])} externalError={issue?.amountErr} step="0.01" value={line.amount||''} onBlur={()=>setTouchedRows(prev=>({...prev,[index]:true}))} onValueChange={value=>{setTouchedRows(prev=>({...prev,[index]:true}));setLines(rows=>rows.map((row,i)=>i===index?{...row,amount:Number(value)}:row));}}/></label>
-     <WorkspaceTooltip content={removeTip} disabled={!removeTip}><span className="inline-flex"><button type="button" disabled={removeDisabled} aria-label={`Remove task funding source ${index+1}`} onClick={()=>{setLines(rows=>rows.filter((_,i)=>i!==index));setTouchedRows(prev=>{const next:Record<number,boolean>={};Object.entries(prev).forEach(([k,v])=>{const idx=Number(k);if(idx<index)next[idx]=v;else if(idx>index)next[idx-1]=v;});return next;});}}><X size={16}/></button></span></WorkspaceTooltip>
+     <ActionBlockerGroup actionLabel={`Remove task funding source ${index+1}`} blockers={removeDisabled?'At least one funding account is required.':''} busy={fieldsetDisabled} compact size="sm">
+      <WorkspaceTooltip content={`Remove task funding source ${index+1}`} disabled={removeDisabled||fieldsetDisabled}>
+       <button type="button" disabled={removeDisabled} aria-label={`Remove task funding source ${index+1}`} onClick={()=>{setLines(rows=>rows.filter((_,i)=>i!==index));setTouchedRows(prev=>{const next:Record<number,boolean>={};Object.entries(prev).forEach(([k,v])=>{const idx=Number(k);if(idx<index)next[idx]=v;else if(idx>index)next[idx-1]=v;});return next;});}}><X size={16}/></button>
+      </WorkspaceTooltip>
+     </ActionBlockerGroup>
     </div>;
    })}
-   <WorkspaceTooltip content={addAccountTip} disabled={!addAccountTip}>
-    <span className="inline-flex">
-     <button type="button" className="pf-task-accounts__add" disabled={addAccountDisabled} onClick={()=>setLines(rows=>rows.length>=sources.length?rows:[...rows,{sourceId:'',amount:0}])}><Plus size={16}/>Add another account</button>
-    </span>
-   </WorkspaceTooltip>
+   <ActionBlockerGroup actionLabel="Add another account" blockers={addAccountDisabled?'All available project budget accounts are already added.':''} busy={fieldsetDisabled} compact size="sm">
+    <button type="button" className="pf-task-accounts__add" disabled={addAccountDisabled} onClick={()=>setLines(rows=>rows.length>=sources.length?rows:[...rows,{sourceId:'',amount:0}])}><Plus size={16}/>Add another account</button>
+   </ActionBlockerGroup>
    <div className="pf-task-accounts__totals">{funded&&<div><span>Already allocated</span><strong>₱{existing.toLocaleString('en-PH')}</strong></div>}<div><span>{funded?'Adding now':'Task budget'}</span><strong>₱{added.toLocaleString('en-PH')}</strong></div>{funded&&<div><span>New task total</span><strong>₱{newTaskTotal.toLocaleString('en-PH')}</strong></div>}</div>
    <div className="pf-field">
     <label htmlFor={reasonId}>Allocation reason <span className="text-[var(--eflow-negative-text)]" aria-hidden="true">*</span></label>
@@ -236,7 +241,7 @@ export function TaskProjectFunding({
      onBlur={()=>setReasonTouched(true)}
     />
    </div>
-   {!onActionState&&<WorkspaceTooltip content={standaloneSubmitTip} disabled={!standaloneSubmitTip}><span className="inline-flex"><button type="button" className="pf-primary" disabled={submitDisabled} onClick={()=>void save()}>{busy?'Saving…':funded?'Add to task budget':'Allocate task budget'}</button></span></WorkspaceTooltip>}
+   {!onActionState&&<ActionBlockerGroup actionLabel={funded?'Add to task budget':'Allocate task budget'} blockers={blockedReasons} busy={fieldsetDisabled}><button type="button" className="pf-primary" disabled={submitDisabled} onClick={()=>void save()}>{busy?'Saving…':funded?'Add to task budget':'Allocate task budget'}</button></ActionBlockerGroup>}
   </fieldset>
   {!onActionState&&uncertain&&<button type="button" className="pf-primary" disabled={busy} onClick={()=>void save()}>Verify saved task allocation</button>}
   <FlowError error={error}/>

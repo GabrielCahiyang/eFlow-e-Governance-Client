@@ -191,12 +191,12 @@ describe('Financial clearance Overview visibility, Lead Mark as complete, and Re
       />,
     );
 
-    expect(await screen.findByText(/Click Mark as complete to finalize this work/i)).toBeVisible();
+    expect(await screen.findByText(/All approvals complete/i)).toBeVisible();
     expect(screen.queryByText('Read-only oversight')).toBeNull();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Mark as complete' }));
-    const confirmDialog = await screen.findByRole('alertdialog', { name: 'Mark this work complete?' });
-    fireEvent.click(within(confirmDialog).getByRole('button', { name: 'Mark as complete' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Finalize completion' }));
+    const confirmDialog = await screen.findByRole('alertdialog', { name: 'Finalize completed work?' });
+    fireEvent.click(within(confirmDialog).getByRole('button', { name: 'Finalize completion' }));
 
     await waitFor(() => expect(onChanged).toHaveBeenCalled());
     expect(mocks.notifyTasks).toHaveBeenCalled();
@@ -223,7 +223,7 @@ describe('Financial clearance Overview visibility, Lead Mark as complete, and Re
     );
 
     expect(
-      await screen.findByText(/Waiting for Gabriel Cahiyang \(the authorized lead\) to mark this work complete/i),
+      await screen.findByText(/All approvals complete\. Gabriel Cahiyang can finalize if not yet auto-completed/i),
     ).toBeVisible();
   });
 
@@ -251,7 +251,7 @@ describe('Financial clearance Overview visibility, Lead Mark as complete, and Re
     fireEvent.click(readyTab);
 
     expect(await screen.findByRole('heading', { name: 'TASK WITH BUDGET NO SUBTASK' })).toBeVisible();
-    expect(await screen.findByRole('button', { name: 'Mark as complete' })).toBeVisible();
+    expect(await screen.findByRole('button', { name: 'Finalize completion' })).toBeVisible();
     expect(screen.queryByText('Completion standards')).toBeNull();
   });
 

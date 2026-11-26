@@ -13,7 +13,7 @@ import { INPUT_LIMITS } from '../../../shared/inputLimits';
 import { useExplicitDraft } from '../../../shared/useExplicitDraft';
 import { requestNavigation } from '../../../shared/navigationGuard';
 import { useConfirmation } from '../../../components/ui/useConfirmation';
-import { WorkspaceTooltip } from '../../../components/ui/workspace/WorkspaceTooltip';
+import { ActionBlockerGroup } from '../../../components/ui/action-blockers';
 import type { UserProfile } from '../../../types';
 import type { Task } from '../../tasks';
 import { selectProjectOfficeMembersChecked } from '../services/projectOfficeService';
@@ -455,28 +455,30 @@ export function OfficeMembersEditor({
               </button>
             ) : (() => {
               const saveTeamDisabled = busy || !changed || !!disabledReason || (!reviewed && blockers.length > 0);
-              const saveTeamTip = busy
-                ? ''
-                : disabledReason
-                  ? disabledReason
-                  : !reviewed && blockers.length > 0
-                    ? `Reassign ${blockers.length} active ${blockers.length === 1 ? 'task' : 'tasks'} before removing members.`
-                    : !changed
-                      ? 'Select or update at least one team member or editing permission before saving.'
-                      : '';
+              const saveTeamBlockers = [
+                disabledReason,
+                !reviewed && blockers.length > 0
+                  ? `Reassign ${blockers.length} active ${blockers.length === 1 ? 'task' : 'tasks'} before removing members.`
+                  : '',
+                !changed
+                  ? 'Select or update at least one team member or editing permission before saving.'
+                  : '',
+              ].filter(Boolean);
               return (
-                <WorkspaceTooltip content={saveTeamTip} disabled={!saveTeamTip}>
-                  <span className="inline-flex">
-                    <button
-                      type="button"
-                      className="po-primary"
-                      disabled={saveTeamDisabled}
-                      onClick={() => void save()}
-                    >
-                      {busy ? 'Saving…' : 'Save project team'}
-                    </button>
-                  </span>
-                </WorkspaceTooltip>
+                <ActionBlockerGroup
+                  actionLabel="Save project team"
+                  blockers={saveTeamBlockers}
+                  busy={busy}
+                >
+                  <button
+                    type="button"
+                    className="po-primary"
+                    disabled={saveTeamDisabled}
+                    onClick={() => void save()}
+                  >
+                    {busy ? 'Saving…' : 'Save project team'}
+                  </button>
+                </ActionBlockerGroup>
               );
             })()}
           </div>

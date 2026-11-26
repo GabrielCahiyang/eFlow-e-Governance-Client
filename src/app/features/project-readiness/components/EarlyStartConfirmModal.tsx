@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { AlertTriangle, CalendarClock, Flame, Rocket } from 'lucide-react';
 import { Modal } from '../../../components/ui/Modal';
+import { ActionBlockerGroup } from '../../../components/ui/action-blockers';
 import { Button } from '../../../components/ui/button';
 import { BoundedTextarea } from '../../../components/ui/BoundedInput';
 import { FieldValidationTooltip } from '../../../components/ui/FieldValidationTooltip';
@@ -149,13 +150,14 @@ export function EarlyStartConfirmModal({
   const visibleAckError = attempted ? validation.acknowledgeError : '';
   const showCheckTip = Boolean(visibleAckError) && (checkFocused || checkHovered);
   const visibleReasonError = attempted || reasonTouched || reason.length > 0 ? validation.reasonError : '';
-  const confirmTip = busy
-    ? ''
-    : validation.acknowledgeError
-      ? validation.acknowledgeError
-      : validation.reasonError
-        ? validation.reasonError
-        : `Immediately activates “${projectTitle}” ${config.daysEarly} ${config.daysEarly === 1 ? 'day' : 'days'} ahead of schedule and notifies assigned team members.`;
+  const confirmBlockers = [
+    validation.acknowledgeError,
+    validation.reasonError,
+  ].filter(Boolean);
+  const confirmEnabledTip =
+    !busy && confirmBlockers.length === 0
+      ? `Immediately activates “${projectTitle}” ${config.daysEarly} ${config.daysEarly === 1 ? 'day' : 'days'} ahead of schedule and notifies assigned team members.`
+      : '';
   const bannerClasses =
     config.tier === 'far'
       ? 'border-red-300 bg-red-50/90 text-red-900 dark:border-red-900/70 dark:bg-red-950/50 dark:text-red-100'
@@ -198,19 +200,25 @@ export function EarlyStartConfirmModal({
                 <span className="ml-1.5">Schedule for {startDateLabel} instead</span>
               </Button>
             )}
-            <WorkspaceTooltip content={confirmTip} disabled={!confirmTip}>
-              <span className="inline-flex">
-                <Button
-                  type="button"
-                  variant={config.tier === 'far' ? 'destructive' : 'default'}
-                  disabled={busy}
-                  onClick={handleConfirm}
-                >
-                  <Rocket size={14} aria-hidden="true" />
-                  <span className="ml-1.5">{busy ? 'Starting…' : config.confirmLabel}</span>
-                </Button>
-              </span>
-            </WorkspaceTooltip>
+            <ActionBlockerGroup
+              actionLabel={config.confirmLabel}
+              blockers={confirmBlockers}
+              busy={busy}
+            >
+              <WorkspaceTooltip content={confirmEnabledTip} disabled={!confirmEnabledTip}>
+                <span className="inline-flex">
+                  <Button
+                    type="button"
+                    variant={config.tier === 'far' ? 'destructive' : 'default'}
+                    disabled={busy}
+                    onClick={handleConfirm}
+                  >
+                    <Rocket size={14} aria-hidden="true" />
+                    <span className="ml-1.5">{busy ? 'Starting…' : config.confirmLabel}</span>
+                  </Button>
+                </span>
+              </WorkspaceTooltip>
+            </ActionBlockerGroup>
           </div>
         </div>
       }

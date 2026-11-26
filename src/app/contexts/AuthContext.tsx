@@ -27,8 +27,23 @@ import {
   PERMISSIONS_CHANGED_STORAGE_KEY,
 } from '../features/permissions/constants';
 import { requestPasswordReset, signInWithAccountProtection } from '../features/authentication';
+import {
+  clearLogoutNotice,
+  hasPendingLogoutNotice,
+  writeLogoutNotice,
+} from '../features/session-security/services/logoutNotice';
+import { clearBrowserSessionActivity } from '../features/session-security/services/sessionActivityStorage';
 import type { UserProfile, UserRole } from '../types';
-import { AuthContext, type AuthContextValue } from './authContextValue';
+import { AuthContext, type AuthContextValue, type LogoutOptions } from './authContextValue';
+
+const SPECIAL_AUTH_PATHS = new Set([
+  '/activate-account',
+  '/accept-invite',
+  '/accept-project-invite',
+  '/project-share',
+  '/manage-project-share',
+  '/reset-password',
+]);
 
 // ─── Error message mapper ────────────────────────────────────────
 
@@ -63,6 +78,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [passwordRecovery, setPasswordRecovery] = useState(false);
   const [accessRevision, setAccessRevision] = useState(0);
   const activeUserIdRef = useRef<string | null>(null);
+  const lastKnownRoleRef = useRef<string | null>(null);
+  const intentionalLogoutRef = useRef(false);
   const loginPortalRef = useRef<LoginPortal | null>(null);
   const profileScope = useRef<string | null>(null);
   const permissionScope = useRef<{ key: string; signature: string } | null>(null);
@@ -72,6 +89,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
   const publishProfile = useCallback((profile: UserProfile | null) => {
     const scope = profile ? JSON.stringify([profile.id, profile.org_id, profile.role, profile.custom_role_key ?? null, profile.is_active]) : null;
+    if (profile?.role) lastKnownRoleRef.current = profile.role;
     if (profileScope.current !== null && profileScope.current !== scope) clearAccess();
     profileScope.current = scope;
     setUserProfile(profile);
@@ -189,6 +207,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       (event, session) => {
         const nextUser = session?.user ?? null;
         const nextUserId = nextUser?.id ?? null;
+        const previousUserId = activeUserIdRef.current;
 
         if (event === 'PASSWORD_RECOVERY') {
           setPasswordRecovery(true);
@@ -196,9 +215,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setPasswordRecovery(false);
         }
 
-        if (activeUserIdRef.current !== nextUserId) {
+        if (
+          event === 'SIGNED_OUT' &&
+          previousUserId &&
+          !intentionalLogoutRef.current &&
+          !loginPortalRef.current &&
+          !SPECIAL_AUTH_PATHS.has(window.location.pathname)
+        ) {
+          if (!hasPendingLogoutNotice()) {
+            writeLogoutNotice({ reason: 'session_expired' });
+          }
+          const redirectPath =
+            isAdminRole(lastKnownRoleRef.current) || isAdminLoginPath() ? '/admin' : '/login';
+          replaceNavigationHistory(redirectPath);
+          lastKnownRoleRef.current = null;
+        }
+
+        if (previousUserId !== nextUserId) {
           resetAuthCaches();
           activeUserIdRef.current = nextUserId;
+          if (!nextUserId) lastKnownRoleRef.current = null;
           profileScope.current = null;
           permissionScope.current = null;
           setUserProfile(null);
@@ -243,7 +279,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         } else if (data?.is_active === false) {
           publishProfile(null);
           setError('This account has been deactivated. Contact an Admin.');
-          await supabase.auth.signOut({ scope: 'local' });
+          if (!loginPortalRef.current) {
+            writeLogoutNotice({ reason: 'deactivated' });
+            const redirectPath =
+              isAdminRole((data.role as string | undefined) ?? lastKnownRoleRef.current) || isAdminLoginPath()
+                ? '/admin'
+                : '/login';
+            if (!SPECIAL_AUTH_PATHS.has(window.location.pathname)) {
+              replaceNavigationHistory(redirectPath);
+            }
+            intentionalLogoutRef.current = true;
+            try {
+              await supabase.auth.signOut({ scope: 'local' });
+            } finally {
+              intentionalLogoutRef.current = false;
+            }
+          } else {
+            await supabase.auth.signOut({ scope: 'local' });
+          }
         } else publishProfile(data ? addCompatAliases(data) : null);
       } catch (profileError) {
         if (!active || request !== profileRequest || activeUserIdRef.current !== user.id) return;
@@ -289,7 +342,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             if (payload.new.is_active === false) {
               publishProfile(null);
               setError('This account has been deactivated. Contact an Admin.');
-              void supabase.auth.signOut({ scope: 'local' });
+              if (!loginPortalRef.current) {
+                writeLogoutNotice({ reason: 'deactivated' });
+                const redirectPath =
+                  isAdminRole((payload.new.role as string | undefined) ?? lastKnownRoleRef.current) || isAdminLoginPath()
+                    ? '/admin'
+                    : '/login';
+                if (!SPECIAL_AUTH_PATHS.has(window.location.pathname)) {
+                  replaceNavigationHistory(redirectPath);
+                }
+              }
+              intentionalLogoutRef.current = true;
+              void supabase.auth.signOut({ scope: 'local' }).finally(() => {
+                intentionalLogoutRef.current = false;
+              });
               return;
             }
             try { publishProfile(addCompatAliases(payload.new as Record<string, unknown>)); }
@@ -372,9 +438,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   // ─── logout ────────────────────────────────────────────────────
-  const logout = useCallback(async () => {
+  const logout = useCallback(async (options?: LogoutOptions) => {
     const navigationUserId = userProfile?.id || activeUserIdRef.current;
-    const logoutRedirectPath = isAdminRole(userProfile?.role) || isAdminLoginPath() ? '/admin' : '/';
+    const logoutRedirectPath =
+      isAdminRole(userProfile?.role ?? lastKnownRoleRef.current) || isAdminLoginPath()
+        ? '/admin'
+        : '/login';
+    intentionalLogoutRef.current = true;
+    if (options?.silent) {
+      clearLogoutNotice();
+    } else if (options?.reason && options.reason !== 'manual' && options.reason !== 'manual_warning') {
+      writeLogoutNotice({ reason: options.reason });
+    } else if (!options?.preserveNotice) {
+      clearLogoutNotice();
+    }
     try {
       if (userProfile?.id === 'SuperAdmin') {
         setUser(null);
@@ -386,14 +463,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setError('Failed to sign out. Please try again.');
     } finally {
       resetAuthCaches();
+      clearBrowserSessionActivity(navigationUserId);
       if (navigationUserId) clearNavigationPreferences(navigationUserId);
-      if (!['/activate-account','/accept-invite','/accept-project-invite','/project-share','/manage-project-share','/reset-password'].includes(window.location.pathname)) replaceNavigationHistory(logoutRedirectPath);
+      if (!SPECIAL_AUTH_PATHS.has(window.location.pathname)) {
+        replaceNavigationHistory(logoutRedirectPath);
+      }
       activeUserIdRef.current = null;
+      lastKnownRoleRef.current = null;
       profileScope.current = null;
       permissionScope.current = null;
       setUser(null);
       setUserProfile(null);
       setPermissions(new Set());
+      intentionalLogoutRef.current = false;
     }
   }, [userProfile]);
 

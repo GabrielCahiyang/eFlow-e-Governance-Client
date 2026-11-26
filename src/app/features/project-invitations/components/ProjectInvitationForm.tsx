@@ -1,7 +1,7 @@
 import { useId, useRef, useState, type MutableRefObject } from 'react';
 import { Mail, Plus, ShieldCheck, UserRoundPlus } from 'lucide-react';
 import { BoundedTextInput } from '../../../components/ui/BoundedInput';
-import { WorkspaceTooltip } from '../../../components/ui/workspace/WorkspaceTooltip';
+import { ActionBlockerGroup } from '../../../components/ui/action-blockers';
 import { getPhilippineCalendarDate, scheduledDateError } from '../../../shared/calendarDates';
 import { INPUT_LIMITS } from '../../../shared/inputLimits';
 import { useExplicitDraft } from '../../../shared/useExplicitDraft';
@@ -53,21 +53,23 @@ export function ProjectInvitationForm({ project, office, root, node, timezone, c
   };
 
   const unsentFilledRows = rows.filter((row) => row.email.trim() && !receipts[row.id]);
-  const invalidEmailRow = unsentFilledRows.find((row) => !EMAIL_PATTERN.test(row.email.trim()));
-  const invalidDateRow = unsentFilledRows.find((row) => Boolean(rowDateError(row)));
-  const firstBlockingReason = !unsentFilledRows.length
-    ? 'Enter at least one recipient email address.'
-    : invalidEmailRow
-      ? `Enter a valid email address for “${invalidEmailRow.email.trim()}”.`
-      : invalidDateRow
-        ? rowDateError(invalidDateRow)
-        : '';
-  const submitDisabled = busy || Boolean(firstBlockingReason);
-  const submitTip = busy ? '' : firstBlockingReason;
+  const blockingReasons: string[] = [];
+  if (!unsentFilledRows.length) {
+    blockingReasons.push('Enter at least one recipient email address.');
+  } else {
+    for (const row of unsentFilledRows) {
+      if (!EMAIL_PATTERN.test(row.email.trim())) {
+        blockingReasons.push(`Enter a valid email address for “${row.email.trim()}”.`);
+      }
+      const dateErr = rowDateError(row);
+      if (dateErr) blockingReasons.push(dateErr);
+    }
+  }
+  const submitDisabled = busy || blockingReasons.length > 0;
 
   async function send() {
     setSubmitAttempted(true);
-    if (guard.pendingRef.current || firstBlockingReason) return;
+    if (guard.pendingRef.current || blockingReasons.length > 0) return;
     guard.pendingRef.current = true; setBusy(true); setError(''); const failures: string[] = [], next = { ...receipts };
     try {
       for (const row of rows.filter(row => row.email.trim())) {
@@ -153,11 +155,13 @@ export function ProjectInvitationForm({ project, office, root, node, timezone, c
       {error && <p role="alert">{error} Successful invitations are excluded from retry. Saved request details are retained to prevent duplicates.</p>}
       <footer>
         <button type="button" disabled={busy} onClick={() => void close()}>{canSend ? 'Close invitation form' : 'Close request form'}</button>
-        <WorkspaceTooltip content={submitTip} disabled={!submitTip}>
-          <span className="inline-flex">
-            <button type="submit" className="r8-send-primary" disabled={submitDisabled}><Mail size={16} aria-hidden="true" />{busy ? canSend ? 'Sending…' : 'Submitting…' : canSend ? 'Send invitations' : 'Submit requests for Head approval'}</button>
-          </span>
-        </WorkspaceTooltip>
+        <ActionBlockerGroup
+          actionLabel={canSend ? 'Send invitations' : 'Submit requests for Head approval'}
+          blockers={blockingReasons}
+          busy={busy}
+        >
+          <button type="submit" className="r8-send-primary" disabled={submitDisabled}><Mail size={16} aria-hidden="true" />{busy ? canSend ? 'Sending…' : 'Submitting…' : canSend ? 'Send invitations' : 'Submit requests for Head approval'}</button>
+        </ActionBlockerGroup>
       </footer>
     </form>{confirmation.dialog}
   </div>;

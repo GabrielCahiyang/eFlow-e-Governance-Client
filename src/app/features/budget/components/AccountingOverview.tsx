@@ -1,7 +1,9 @@
+import { useEffect, useState } from 'react';
 import { Banknote, BookOpenCheck, Landmark, ReceiptText } from 'lucide-react';
 import { Button } from '../../../components/ui/button';
 import type { useDepartmentBudget } from '../hooks/useDepartmentBudget';
 import { getScheduledReleaseSummary } from '../selectors/cashWorkflowRules';
+import { fetchPendingAssignmentReceiptReviews } from '../services/workCashAssignmentService';
 import { peso } from './budgetUi';
 import {AccountingAnalytics} from './AccountingAnalytics';
 import { ProjectFundingCertificationQueue } from './ProjectFundingCertificationQueue';
@@ -15,13 +17,47 @@ export function AccountingOverview({ budget, orgId, journalCount, onSettlements,
   onReleases?:()=>void;
   onBudgets?:()=>void;
 }) {
+  const [subtaskReceiptCount, setSubtaskReceiptCount] = useState(0);
+  useEffect(() => {
+    if (!orgId) {
+      setSubtaskReceiptCount(0);
+      return;
+    }
+    let active = true;
+    const load = () => {
+      void fetchPendingAssignmentReceiptReviews(orgId)
+        .then((rows) => {
+          if (active) setSubtaskReceiptCount(rows.length);
+        })
+        .catch(() => {});
+    };
+    load();
+    if (typeof window === 'undefined') {
+      return () => {
+        active = false;
+      };
+    }
+    window.addEventListener('focus', load);
+    window.addEventListener('eflow:finance-updated', load);
+    window.addEventListener('eflow:expenses-updated', load);
+    window.addEventListener('eflow:subtask-budget-changed', load);
+    return () => {
+      active = false;
+      window.removeEventListener('focus', load);
+      window.removeEventListener('eflow:finance-updated', load);
+      window.removeEventListener('eflow:expenses-updated', load);
+      window.removeEventListener('eflow:subtask-budget-changed', load);
+    };
+  }, [orgId, budget.liquidations]);
+
   const releases = getScheduledReleaseSummary(budget.releases);
-  const settlements = budget.liquidations.filter(item => item.status === 'pending_department_settlement').length;
+  const taskSettlements = budget.liquidations.filter(item => item.status === 'pending_department_settlement').length;
+  const settlements = taskSettlements + subtaskReceiptCount;
   const unavailable = Boolean(budget.error);
   const cards = [
     { label: 'Cash to release', value: peso.format(releases.scheduledAmount), note: `${releases.dueCount} due now · ${releases.futureCount} scheduled later`, icon: Banknote },
     { label: 'Release room today', value: budget.summary ? peso.format(budget.summary.dailyReleaseRemaining) : 'Not configured', note: `${peso.format(releases.dueAmount)} due today`, icon: Banknote },
-    { label: 'Pending settlement', value: String(settlements), note: 'Leader-endorsed liquidations', icon: ReceiptText },
+    { label: 'Pending settlement', value: String(settlements), note: 'Subtask receipts & task liquidations', icon: ReceiptText },
     { label: 'Journal entries', value: journalCount === undefined ? 'Unavailable' : String(journalCount), note: `${budget.summary?.fiscalYear || 'Selected'} fiscal year`, icon: BookOpenCheck },
     { label: 'Actual spending', value: budget.summary ? peso.format(budget.summary.spentAmount) : 'Not configured', note: budget.summary ? `of ${peso.format(budget.summary.approvedAmount)} authorized` : 'Annual budget required', icon: Landmark },
   ];

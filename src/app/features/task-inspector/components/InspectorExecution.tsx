@@ -1,6 +1,7 @@
 import {useEffect,useState} from 'react';
 import {Button} from '@vibe/core';
 import {Clock3} from 'lucide-react';
+import {ActionBlockerGroup} from '../../../components/ui/action-blockers';
 import {useAuth} from '../../../contexts/AuthContext';
 import {submitProgressUpdate,subscribeToProgressUpdates} from '../../../services/taskDiscussionService';
 import {getTaskSubmissionReadiness,isTaskLead,submitTaskForReview,type Task} from '../../tasks';
@@ -43,7 +44,16 @@ export function InspectorExecution({task,subtasks,canStart,canResume,canSubmit,c
   {progressError?<div role="alert"><p>Could not refresh work updates. {progress.confirmed?'The last confirmed blocker is still shown.':'Blocker status could not be verified.'} {progressError}</p><button type="button" onClick={()=>setRetry(value=>value+1)}>Retry work updates</button></div>:progressPending&&!(waitingToStart&&!(canStart||canResume))&&<p role="status">Checking work updates…</p>}
   {task.rejectionNote&&task.status==='changes_requested'&&<div className="work-state-message"><strong>Requested changes</strong><p>{task.rejectionNote}</p></div>}
   {steps.length>0&&<div className="work-state-message"><strong>{completedSteps} of {steps.length} steps complete</strong><span>{task.status==='completed'?'Task approved':task.status==='for_review'?'Final review in progress':readiness.ready?'Ready for final review':'Finish the remaining steps before final submission.'}</span></div>}
-  {!isProjectOnHold&&waitingToStart&&(canStart||canResume)&&<Button disabled={busy||progressPending||!!progressError} onClick={onStart}>{busy?'Starting.':canResume?'Resume work':'Start work'}</Button>}
+  {!isProjectOnHold&&waitingToStart&&(canStart||canResume)&&(
+   <ActionBlockerGroup
+    actionLabel={canResume?'Resume work':'Start work'}
+    blockers={progressError?`Work updates could not be refreshed: ${progressError}`:[]}
+    busy={busy||progressPending}
+    onRefresh={()=>setRetry(value=>value+1)}
+   >
+    <Button disabled={busy||progressPending||!!progressError} onClick={onStart}>{busy?'Starting.':canResume?'Resume work':'Start work'}</Button>
+   </ActionBlockerGroup>
+  )}
   {!isProjectOnHold&&waitingToStart&&!(canStart||canResume)&&!pendingDependencies&&!startBlockedReason&&(
    <div role="status" className="work-state-message">
     <Clock3 size={18} className="mt-0.5 shrink-0 text-[var(--eflow-text-muted)]" />
@@ -57,7 +67,7 @@ export function InspectorExecution({task,subtasks,canStart,canResume,canSubmit,c
     </div>
    </div>
   )}
-  {directExecution && !isProjectOnHold && !waitingToStart && <WorkExecutionForm initialAction={initialAction} key={task.id} initialBlocker={blocker} status={task.status} statusTarget={{taskId:task.id,customId:task.customStatusId,onChanged}} readOnly={!editable} disabled={busy||progressPending||!!progressError} canSubmit={readiness.ready&&!pendingDependencies&&(canSubmit||canStart||canResume)} onCommitted={submitted=>{if(submitted)onSubmitted();else onChanged?.();}} onSave={async input=>{
+  {directExecution && !isProjectOnHold && !waitingToStart && <WorkExecutionForm initialAction={initialAction} key={task.id} initialBlocker={blocker} status={task.status} statusTarget={{taskId:task.id,customId:task.customStatusId,onChanged}} readOnly={!editable} disabled={busy||progressPending||!!progressError} loading={busy||progressPending} disabledReason={progressError?`Work updates could not be refreshed: ${progressError}`:null} canSubmit={readiness.ready&&!pendingDependencies&&(canSubmit||canStart||canResume)} onCommitted={submitted=>{if(submitted)onSubmitted();else onChanged?.();}} onSave={async input=>{
    if(!user?.id)throw new Error('Sign in to update work.');
    if(!editable)throw new Error(startBlockedReason||'This task cannot be updated yet.');
    await submitProgressUpdate({taskId:task.id,author:{id:user.id,name:userProfile?.full_name||'You'},blockerCategory:input.state==='stuck'?'Other':'None',blocker:input.blocker,note:input.note,nextStep:input.nextStep,attachment:input.files[0]});

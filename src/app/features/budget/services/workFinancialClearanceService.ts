@@ -6,9 +6,13 @@ export type WorkFinancialClearance = {
   rootId: string;
   nodeId: string | null;
   workAccepted: boolean;
+  completionSubmitted?: boolean;
   cashOutstanding: boolean;
   completed: boolean;
   canFinalize: boolean;
+  workReviewState?: "not_submitted" | "pending_review" | "approved" | "changes_requested";
+  financeState?: "cleared" | "awaiting_receipts" | "pending_accounting" | "changes_requested";
+  financeMessage?: string;
 };
 
 export type ReceiptSubmissionClearance = {

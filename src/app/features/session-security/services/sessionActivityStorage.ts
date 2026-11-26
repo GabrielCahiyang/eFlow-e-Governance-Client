@@ -20,3 +20,30 @@ export function clearAllSessionActivity(storage: Storage): void {
 
   matchingKeys.forEach((key) => storage.removeItem(key));
 }
+
+export function clearBrowserSessionActivity(userId?: string | null): void {
+  const storages: Storage[] = [];
+  try {
+    if (typeof window !== "undefined" && window.sessionStorage) {
+      storages.push(window.sessionStorage);
+    }
+  } catch {
+    // Ignore restricted storage environments
+  }
+  try {
+    if (typeof window !== "undefined" && window.localStorage) {
+      storages.push(window.localStorage);
+    }
+  } catch {
+    // Ignore restricted storage environments
+  }
+
+  for (const storage of storages) {
+    try {
+      if (userId) clearSessionActivity(storage, userId);
+      else clearAllSessionActivity(storage);
+    } catch {
+      // Ignore storage removal failures
+    }
+  }
+}

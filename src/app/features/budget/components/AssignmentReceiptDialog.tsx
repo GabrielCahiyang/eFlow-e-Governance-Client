@@ -1,5 +1,6 @@
 import { useMemo, useState, type FormEvent } from "react";
 import { AlertCircle, Upload, X } from "lucide-react";
+import { BoundedTextInput } from "../../../components/ui/BoundedInput";
 import { Modal, ModalButton } from "../../../components/ui/Modal";
 import { MoneyInput } from "../../../components/ui/MoneyInput";
 import { useAuth } from "../../../contexts/AuthContext";
@@ -7,7 +8,10 @@ import { getPhilippineCalendarDate, historicalDateError } from "../../../shared/
 import { attachmentError } from "../../../shared/fileValidation";
 import { readableUiError } from "../../../shared/userFacingError";
 import { toCents } from "../selectors/subtaskDistribution";
-import { recordAssignmentReceipt } from "../services/workCashAssignmentService";
+import {
+  recordAssignmentReceipt,
+  submitSubtaskCashClearance,
+} from "../services/workCashAssignmentService";
 import type { ReceiptItem, WorkCashAssignment } from "../types";
 import { peso } from "./budgetUi";
 
@@ -45,6 +49,12 @@ export function AssignmentReceiptDialog({
   const [quantity, setQuantity] = useState("1");
   const [unit, setUnit] = useState("lot");
   const [file, setFile] = useState<File | undefined>();
+  const canSubmitDirectlyToAccounting = Boolean(
+    assignment.subtaskId || assignment.sourceKind === "office_petty_cash",
+  );
+  const [submitToAccountingNow, setSubmitToAccountingNow] = useState(
+    canSubmitDirectlyToAccounting,
+  );
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
@@ -135,6 +145,13 @@ export function AssignmentReceiptDialog({
         items,
         file,
       });
+      if (canSubmitDirectlyToAccounting && submitToAccountingNow) {
+        await submitSubtaskCashClearance({
+          taskId: assignment.taskId,
+          subtaskId: assignment.subtaskId ?? null,
+          note: description.trim(),
+        });
+      }
       await onSaved();
       onClose();
     } catch (caught) {
@@ -144,10 +161,16 @@ export function AssignmentReceiptDialog({
     }
   };
 
+  const enteredNum = /^\d+(?:\.\d{1,2})?$/.test(amount.trim()) ? Number(amount.trim()) : 0;
+  const leftoverAfterThisReceipt = Math.max(
+    0,
+    Math.round((assignment.unspentAmount - (Number.isFinite(enteredNum) ? enteredNum : 0)) * 100) / 100,
+  );
+
   return (
     <Modal
       isOpen
-      title="Record receipt"
+      title="Submit receipt"
       description={`${workTitle} · ${assignment.sourceLabel}`}
       width="max-w-xl"
       preventClose={busy}
@@ -162,7 +185,11 @@ export function AssignmentReceiptDialog({
             onClick={() => void handleSubmit()}
             disabled={busy || Boolean(validationError)}
           >
-            {busy ? "Uploading…" : "Save receipt"}
+            {busy
+              ? "Submitting…"
+              : canSubmitDirectlyToAccounting && submitToAccountingNow
+                ? "Submit to Accounting"
+                : "Save receipt"}
           </ModalButton>
         </div>
       }
@@ -202,7 +229,7 @@ export function AssignmentReceiptDialog({
         <div className="grid gap-3 sm:grid-cols-2">
           <label className="grid gap-1 text-[12px] font-medium text-foreground">
             <span>Vendor / payee *</span>
-            <input
+            <BoundedTextInput
               type="text"
               required
               maxLength={200}
@@ -210,13 +237,13 @@ export function AssignmentReceiptDialog({
               value={vendor}
               onChange={(e) => setVendor(e.target.value)}
               placeholder="e.g. National Book Store"
-              className="h-9 rounded-lg border border-border bg-background px-3 text-[12.5px]"
+              className="h-9 w-full rounded-lg border border-border bg-background px-3 text-[12.5px]"
             />
           </label>
 
           <label className="grid gap-1 text-[12px] font-medium text-foreground">
             <span>OR / Receipt number {isOfficeCash ? "*" : "(optional)"}</span>
-            <input
+            <BoundedTextInput
               type="text"
               required={isOfficeCash}
               maxLength={100}
@@ -224,7 +251,7 @@ export function AssignmentReceiptDialog({
               value={receiptNumber}
               onChange={(e) => setReceiptNumber(e.target.value)}
               placeholder="e.g. OR-00142"
-              className="h-9 rounded-lg border border-border bg-background px-3 text-[12.5px]"
+              className="h-9 w-full rounded-lg border border-border bg-background px-3 text-[12.5px]"
             />
           </label>
 
@@ -260,7 +287,7 @@ export function AssignmentReceiptDialog({
 
         <label className="grid gap-1 text-[12px] font-medium text-foreground">
           <span>What was purchased *</span>
-          <input
+          <BoundedTextInput
             type="text"
             required
             maxLength={300}
@@ -268,7 +295,7 @@ export function AssignmentReceiptDialog({
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="e.g. Bond paper, ink cartridge, transport fare"
-            className="h-9 rounded-lg border border-border bg-background px-3 text-[12.5px]"
+            className="h-9 w-full rounded-lg border border-border bg-background px-3 text-[12.5px]"
           />
         </label>
 
@@ -276,18 +303,26 @@ export function AssignmentReceiptDialog({
           <div className="grid gap-3 sm:grid-cols-3">
             <label className="grid gap-1 text-[12px] font-medium text-foreground sm:col-span-1">
               <span>Expense account *</span>
-              <select
-                value={allocationLineId}
-                disabled={busy}
-                onChange={(e) => setAllocationLineId(e.target.value)}
-                className="h-9 rounded-lg border border-border bg-background px-2.5 text-[12px]"
-              >
-                {assignment.fundingLines.map((line) => (
-                  <option key={line.allocationLineId} value={line.allocationLineId}>
-                    {line.sourceName || "Approved account"} ({peso.format(line.amount)})
-                  </option>
-                ))}
-              </select>
+              {assignment.allocationLineId && assignment.fundingLines.length === 1 ? (
+                <div className="flex h-9 items-center truncate rounded-lg border border-border bg-muted/40 px-2.5 text-[12px] font-medium text-foreground">
+                  <span className="truncate">
+                    {assignment.fundingLines[0].sourceName || "Approved account"}
+                  </span>
+                </div>
+              ) : (
+                <select
+                  value={allocationLineId}
+                  disabled={busy}
+                  onChange={(e) => setAllocationLineId(e.target.value)}
+                  className="h-9 rounded-lg border border-border bg-background px-2.5 text-[12px]"
+                >
+                  {assignment.fundingLines.map((line) => (
+                    <option key={line.allocationLineId} value={line.allocationLineId}>
+                      {line.sourceName || "Approved account"} ({peso.format(line.amount)})
+                    </option>
+                  ))}
+                </select>
+              )}
             </label>
             <label className="grid gap-1 text-[12px] font-medium text-foreground">
               <span>Quantity</span>
@@ -352,6 +387,26 @@ export function AssignmentReceiptDialog({
             </div>
           </div>
         </div>
+
+        {canSubmitDirectlyToAccounting && (
+          <label className="flex cursor-pointer items-start gap-2.5 rounded-lg border border-border bg-muted/30 px-3 py-2.5 text-[12px]">
+            <input
+              type="checkbox"
+              checked={submitToAccountingNow}
+              disabled={busy}
+              onChange={(e) => setSubmitToAccountingNow(e.target.checked)}
+              className="mt-0.5 size-4 rounded border-border accent-[var(--eflow-primary)]"
+            />
+            <span className="leading-relaxed text-foreground">
+              <strong>Final receipt — submit to Accounting for approval now</strong>
+              <span className="mt-0.5 block text-[11.5px] text-muted-foreground">
+                {leftoverAfterThisReceipt > 0
+                  ? `Sends receipts to Accounting and automatically returns the remaining ${peso.format(leftoverAfterThisReceipt)} back to the task cash pool (with audit trail). Uncheck if you have more receipts to add first.`
+                  : "Sends your receipts directly to the Accounting Officer for verification. Uncheck only if you need to attach additional receipts."}
+              </span>
+            </span>
+          </label>
+        )}
       </form>
     </Modal>
   );

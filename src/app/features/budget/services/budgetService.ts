@@ -604,8 +604,31 @@ export async function submitPettyCashLiquidation(input: LiquidationAttempt) {
   }
 }
 
-export async function decidePettyCashLiquidation(id: string, approve: boolean, reason: string) {
-  const { error } = await supabase.rpc("settle_accounting_liquidation", { p_liquidation_id: id, p_approve: approve, p_reason: reason }); throwIf(error);
+export async function decidePettyCashLiquidation(
+  id: string,
+  approve: boolean,
+  reason: string,
+  returnReference?: string,
+) {
+  const trimmedRef = returnReference?.trim();
+  const { error } = trimmedRef
+    ? await supabase.rpc("settle_accounting_liquidation_with_return", {
+        p_liquidation_id: id,
+        p_approve: approve,
+        p_reason: reason,
+        p_return_reference: trimmedRef,
+      })
+    : await supabase.rpc("settle_accounting_liquidation", {
+        p_liquidation_id: id,
+        p_approve: approve,
+        p_reason: reason,
+      });
+  throwIf(error);
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event("eflow:work-updated"));
+    window.dispatchEvent(new Event("eflow:finance-updated"));
+    window.dispatchEvent(new Event("eflow:expenses-updated"));
+  }
 }
 
 export async function authorizeLateLiquidation(id: string, approve: boolean, reason: string) {

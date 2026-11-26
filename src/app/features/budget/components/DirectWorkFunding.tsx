@@ -3,6 +3,7 @@ import { BoundedTextarea } from "../../../components/ui/BoundedInput";
 import { FieldValidationTooltip } from "../../../components/ui/FieldValidationTooltip";
 import { MoneyInput } from "../../../components/ui/MoneyInput";
 import { useConfirmation } from "../../../components/ui/useConfirmation";
+import { ActionBlockerGroup } from "../../../components/ui/action-blockers";
 import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import { diffCentavos, exceedsCentavos, formatPeso, sumCentavos, toCentavos } from "../../../shared/currency";
 import { INPUT_LIMITS, textLengthError } from "../../../shared/inputLimits";
@@ -117,17 +118,18 @@ export function DirectWorkFunding({
   });
   const visibleReasonError = reasonTouched || reason.length > 0 ? reasonError : "";
 
-  const firstLineError =
+  const lineBlockers =
     lines.length === 0
-      ? "Add at least one funding account line."
-      : lineValidation.map((entry) => entry.accountError || entry.amountError).find(Boolean) || "";
-  const blockingReason = workError || firstLineError || reasonError;
-  const valid = !blockingReason;
-  const submitTooltip = busy
-    ? ""
-    : blockingReason
-      ? blockingReason
-      : "Charges the selected annual office budget accounts once upon confirmation.";
+      ? ["Add at least one funding account line."]
+      : lineValidation.flatMap((entry, idx) => {
+          const prefix = lines.length > 1 ? `Line ${idx + 1}: ` : "";
+          return [
+            entry.accountError ? `${prefix}${entry.accountError}` : "",
+            entry.amountError ? `${prefix}${entry.amountError}` : "",
+          ].filter(Boolean);
+        });
+  const submitBlockers = [workError, ...lineBlockers, reasonError].filter(Boolean);
+  const valid = submitBlockers.length === 0;
 
   const submit = async () => {
     setWorkTouched(true);
@@ -305,8 +307,16 @@ export function DirectWorkFunding({
 
       <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
         <strong className="text-[14px] tabular-nums">Funding total: {peso.format(total)}</strong>
-        <WorkspaceTooltip content={submitTooltip} disabled={!submitTooltip}>
-          <span className="inline-flex">
+        <ActionBlockerGroup
+          actionLabel="Authorize work funding"
+          blockers={!valid ? submitBlockers : []}
+          busy={busy}
+          size="md"
+        >
+          <WorkspaceTooltip
+            content="Charges the selected annual office budget accounts once upon confirmation."
+            disabled={busy || !valid}
+          >
             <button
               type="button"
               disabled={busy || !valid}
@@ -315,8 +325,8 @@ export function DirectWorkFunding({
             >
               Authorize work funding
             </button>
-          </span>
-        </WorkspaceTooltip>
+          </WorkspaceTooltip>
+        </ActionBlockerGroup>
       </div>
       {message && <p role="status" className="mt-3 text-[12px]">{message}</p>}
     </section>
@@ -360,11 +370,6 @@ function DirectFundingLineRow({
   const accountTipId = `${idPrefix}-account-tip`;
   const amountId = `${idPrefix}-amount`;
   const removeDisabled = busy || !canRemove;
-  const removeTip = busy
-    ? "Wait for funding authorization to finish."
-    : !canRemove
-      ? "At least one funding account line is required."
-      : `Remove funding account line ${index + 1}.`;
 
   return (
     <div className="mt-3 grid grid-cols-[minmax(0,1fr)_auto] gap-2 border-t pt-3">
@@ -447,18 +452,22 @@ function DirectFundingLineRow({
       </div>
 
       <div className="self-start pt-[22px]">
-        <WorkspaceTooltip content={removeTip} disabled={!removeTip}>
-          <span className="inline-flex">
-            <button
-              type="button"
-              disabled={removeDisabled}
-              onClick={onRemove}
-              className="rounded-lg border p-2 text-[12px] disabled:opacity-40"
-            >
-              Remove
-            </button>
-          </span>
-        </WorkspaceTooltip>
+        <ActionBlockerGroup
+          actionLabel={`Remove funding account line ${index + 1}`}
+          blockers={!canRemove ? "At least one funding account line is required." : []}
+          busy={busy}
+          compact
+          size="sm"
+        >
+          <button
+            type="button"
+            disabled={removeDisabled}
+            onClick={onRemove}
+            className="rounded-lg border p-2 text-[12px] disabled:opacity-40"
+          >
+            Remove
+          </button>
+        </ActionBlockerGroup>
       </div>
     </div>
   );

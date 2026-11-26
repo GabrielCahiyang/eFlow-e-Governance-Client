@@ -3,7 +3,7 @@ import { FeatureDialog } from '../../../components/ui/FeatureDialog';
 import { SelectInput } from '../../../components/ui/FormField';
 import { BoundedTextInput } from '../../../components/ui/BoundedInput';
 import { FieldValidationTooltip } from '../../../components/ui/FieldValidationTooltip';
-import { WorkspaceTooltip } from '../../../components/ui/workspace/WorkspaceTooltip';
+import { ActionBlockerGroup } from '../../../components/ui/action-blockers';
 import { Button } from '../../../components/ui/button';
 import { requestNavigation, useNavigationBlocker } from '../../../shared/navigationGuard';
 import { INPUT_LIMITS, textLengthError } from '../../../shared/inputLimits';
@@ -58,16 +58,8 @@ export function CreateWorkDialog({ kind, projectId, groups, onClose, onCreated }
   const livePrereqError = kind === 'task' ? projectPrerequisiteError(tasks, projectId, '', prerequisites) : '';
   const visiblePrereqError = livePrereqError || prereqSubmitError;
 
-  const submitDisabledReason = busy
-    ? `Adding ${kind}…`
-    : titleError
-      ? titleError
-      : groupError
-        ? groupError
-        : livePrereqError
-          ? livePrereqError
-          : '';
-  const submitDisabled = Boolean(submitDisabledReason);
+  const submitBlockers = [titleError, groupError, livePrereqError].filter(Boolean);
+  const submitDisabled = busy || submitBlockers.length > 0;
 
   return <FeatureDialog title={`New ${kind}`} onClose={close} preventClose={busy} contentClassName="pt-small-dialog pt-create-work-dialog">
     <form noValidate className="pt-planning-form" aria-busy={busy} onSubmit={event => {
@@ -165,11 +157,9 @@ export function CreateWorkDialog({ kind, projectId, groups, onClose, onCreated }
       <div className="pt-planning-actions">
         <Button type="button" variant="outline" disabled={busy} onClick={close}>{created ? 'Close' : 'Cancel'}</Button>
         {!created && (
-          <WorkspaceTooltip content={submitDisabledReason} disabled={!submitDisabledReason}>
-            <span className="inline-flex">
-              <Button type="submit" disabled={submitDisabled}>{busy ? 'Adding…' : `Add ${kind}`}</Button>
-            </span>
-          </WorkspaceTooltip>
+          <ActionBlockerGroup actionLabel={`Add ${kind}`} blockers={submitBlockers} busy={busy}>
+            <Button type="submit" disabled={submitDisabled}>{busy ? 'Adding…' : `Add ${kind}`}</Button>
+          </ActionBlockerGroup>
         )}
       </div>
     </form>

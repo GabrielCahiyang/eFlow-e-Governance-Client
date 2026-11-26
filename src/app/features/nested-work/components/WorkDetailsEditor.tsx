@@ -27,6 +27,8 @@ export interface WorkDetailsEditorProps {
   prerequisiteField?: ReactNode;
   dueChangeReason?: ReactNode;
   showWorkOrder?: boolean;
+  showPriority?: boolean;
+  leadRequired?: boolean;
 }
 
 export function WorkDetailsEditor({
@@ -49,6 +51,8 @@ export function WorkDetailsEditor({
   prerequisiteField,
   dueChangeReason,
   showWorkOrder = false,
+  showPriority = false,
+  leadRequired = false,
 }: WorkDetailsEditorProps) {
   const titleId = useId();
   const startId = useId();
@@ -174,6 +178,7 @@ export function WorkDetailsEditor({
       <section className="nw-create-details" aria-label="Subtask details">
         <div className="nw-create-section-title"><ListPlus size={18} aria-hidden="true" /><h3>Subtask details</h3></div>
         {title}
+        {showPriority && priority}
         <div className="nw-create-schedule">{start}{due}</div>
         {mode}
         {prerequisiteField}
@@ -193,7 +198,10 @@ export function WorkDetailsEditor({
       <section className="nw-create-team" aria-label="Subtask Lead and contributors">
         <div className="nw-create-team__header">
           <UsersRound size={18} aria-hidden="true" />
-          <span><strong>Subtask Lead and contributors</strong><small>Optional</small></span>
+          <span>
+            <strong>Subtask Lead and contributors</strong>
+            <small>{leadRequired ? 'Lead required · Contributors optional' : 'Optional'}</small>
+          </span>
         </div>
         <WorkPeoplePicker {...peoplePicker} />
       </section>

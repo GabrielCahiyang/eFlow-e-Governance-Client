@@ -4,7 +4,7 @@ import { BoundedTextarea } from "../../../components/ui/BoundedInput";
 import { DateInput } from "../../../components/ui/DateInput";
 import { FieldValidationTooltip } from "../../../components/ui/FieldValidationTooltip";
 import { MoneyInput } from "../../../components/ui/MoneyInput";
-import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
+import { ActionBlockerGroup } from "../../../components/ui/action-blockers";
 import { assertActionActor } from "../../../shared/actionActor";
 import { exceedsCentavos, toCentavos } from "../../../shared/currency";
 import { attachmentError } from "../../../shared/fileValidation";
@@ -108,21 +108,24 @@ export function CashRequestForm({
     !dateIssue;
 
   const submitDisabled = busy || saved || !recovery.ready || (!recovery.value && (readOnly || !canSubmit));
-  const submitBlockedReason =
-    !submitDisabled || busy || saved
-      ? ""
-      : !recovery.ready
-        ? "Checking saved cash request state…"
-        : readOnly
-          ? "Cash requests are currently read-only."
-          : sourceError ||
-            amountError ||
-            (context.supportsItemizedCash && !plan.covered
-              ? "Selected task funding lines cannot cover this amount."
-              : "") ||
-            dateIssue ||
-            purposeError ||
-            "Complete all required fields before requesting cash.";
+  const submitBusy = busy || !recovery.ready;
+  const submitBlockers: string[] = [];
+  if (submitDisabled && !submitBusy && !saved && !recovery.value) {
+    if (readOnly) {
+      submitBlockers.push("Cash requests are currently read-only.");
+    } else {
+      if (sourceError) submitBlockers.push(sourceError);
+      if (amountError) submitBlockers.push(amountError);
+      if (context.supportsItemizedCash && !plan.covered) {
+        submitBlockers.push("Selected task funding lines cannot cover this amount.");
+      }
+      if (dateIssue) submitBlockers.push(dateIssue);
+      if (purposeError) submitBlockers.push(purposeError);
+      if (submitBlockers.length === 0) {
+        submitBlockers.push("Complete all required fields before requesting cash.");
+      }
+    }
+  }
 
   const submit = async () => {
     if (!currentUserId || saved || !recovery.ready || inFlight.current || (!recovery.value && (readOnly || !canSubmit))) return;
@@ -340,18 +343,27 @@ export function CashRequestForm({
       {error && <div role="alert" className="rounded-lg border border-rose-200 bg-rose-50 p-2.5 text-[13px] text-rose-700">{error}</div>}
       <div className="flex justify-end gap-2">
         <button type="button" disabled={busy} onClick={onCancel} className="h-10 rounded-lg border border-neutral-200 px-3 text-[13px]">Cancel</button>
-        <WorkspaceTooltip content={submitBlockedReason} disabled={!submitBlockedReason}>
-          <span className="inline-flex">
-            <button
-              type="button"
-              disabled={submitDisabled}
-              onClick={() => void submit()}
-              className="inline-flex h-10 items-center gap-1 rounded-lg bg-emerald-700 px-3 text-[13px] text-white disabled:opacity-40"
-            >
-              <Send size={14} /> {saved ? "Cash request saved" : busy ? "Submitting…" : recovery.value ? "Check saved cash request" : correction ? "Resubmit" : "Request cash"}
-            </button>
-          </span>
-        </WorkspaceTooltip>
+        <ActionBlockerGroup
+          actionLabel={
+            recovery.value
+              ? "Check saved cash request"
+              : correction
+                ? "Resubmit cash request"
+                : "Request cash"
+          }
+          blockers={submitBlockers}
+          busy={submitBusy}
+          size="md"
+        >
+          <button
+            type="button"
+            disabled={submitDisabled}
+            onClick={() => void submit()}
+            className="inline-flex h-10 items-center gap-1 rounded-lg bg-emerald-700 px-3 text-[13px] text-white disabled:opacity-40"
+          >
+            <Send size={14} /> {saved ? "Cash request saved" : busy ? "Submitting…" : recovery.value ? "Check saved cash request" : correction ? "Resubmit" : "Request cash"}
+          </button>
+        </ActionBlockerGroup>
       </div>
     </div>
   );

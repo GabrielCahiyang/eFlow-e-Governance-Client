@@ -2,6 +2,7 @@ import { useId, useRef, useState } from "react";
 import { formatManilaDate } from "../../../shared/calendarDisplay";
 import { AlertTriangle, Loader2 } from "lucide-react";
 import { BoundedTextarea } from "../../../components/ui/BoundedInput";
+import { ActionBlockerGroup } from "../../../components/ui/action-blockers";
 import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import { INPUT_LIMITS, textLengthError } from "../../../shared/inputLimits";
 import {
@@ -235,16 +236,23 @@ export function CashReleaseOverrideDialog({
           </button>
           {(() => {
             const confirmDisabled = busy || Boolean(financialOutcome(key)) || Boolean(reasonError);
-            const confirmTooltip = busy
-              ? ""
-              : financialOutcome(key)
+            const confirmBlockers = [
+              financialOutcome(key)
                 ? "A previous release attempt already completed or requires verification."
-                : reasonError
-                  ? reasonError
-                  : "Audited action: your identity, override reason, and release timestamp are permanently logged.";
+                : "",
+              reasonError,
+            ];
             return (
-              <WorkspaceTooltip content={confirmTooltip} disabled={!confirmTooltip}>
-                <span className="inline-flex">
+              <ActionBlockerGroup
+                actionLabel="Confirm override & release"
+                blockers={confirmDisabled ? confirmBlockers : []}
+                busy={busy}
+                size="md"
+              >
+                <WorkspaceTooltip
+                  content="Audited action: your identity, override reason, and release timestamp are permanently logged."
+                  disabled={confirmDisabled}
+                >
                   <button
                     type="button"
                     disabled={confirmDisabled}
@@ -257,8 +265,8 @@ export function CashReleaseOverrideDialog({
                     {busy && <Loader2 size={14} className="animate-spin" />} Confirm
                     override & release
                   </button>
-                </span>
-              </WorkspaceTooltip>
+                </WorkspaceTooltip>
+              </ActionBlockerGroup>
             );
           })()}
         </DialogFooter>

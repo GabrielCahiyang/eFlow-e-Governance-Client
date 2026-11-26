@@ -1,4 +1,4 @@
-import type { SubtaskBudgetRow, TaskFundingContext } from "../types";
+import type { SubtaskBudgetRow, TaskFundingContext, WorkCashAssignment } from "../types";
 
 export type SubtaskBudgetActionMode = "save" | "return";
 
@@ -70,12 +70,112 @@ export function parsePesoCents(raw: string): number | null {
   return value > 0 ? value : null;
 }
 
-/** Compute allocation percentage (0-100) of the parent task budget distributed to subtasks. */
-export function subtaskAllocationProgressPercent(context: TaskFundingContext): number {
+export interface EffectiveSubtaskFunding {
+  taskCashCents: number;
+  pettyCashCents: number;
+  recordedSpentCents: number;
+  effectiveTaskCents: number;
+  sourceLabels: string[];
+  allApproved: boolean;
+  hasPendingAccounting: boolean;
+}
+
+/** Combine pre-release subtask budget caps with active cash-on-hand assignments (centavo-safe, no double counting). */
+export function resolveEffectiveSubtaskFunding(
+  context: TaskFundingContext,
+  assignmentsOverride?: WorkCashAssignment[],
+): {
+  bySubtaskId: Map<string, EffectiveSubtaskFunding>;
+  totalAllocatedCents: number;
+  progressPercent: number;
+} {
+  const assignments = (assignmentsOverride ?? context.cashPools?.assignments ?? []).filter(
+    (a) => a.status === "active" && Boolean(a.subtaskId),
+  );
+  const bySubtaskId = new Map<string, EffectiveSubtaskFunding>();
+
+  for (const a of assignments) {
+    const id = a.subtaskId!;
+    const prev = bySubtaskId.get(id) ?? {
+      taskCashCents: 0,
+      pettyCashCents: 0,
+      recordedSpentCents: 0,
+      effectiveTaskCents: 0,
+      sourceLabels: [],
+      allApproved: true,
+      hasPendingAccounting: false,
+    };
+    const amtCents = Math.max(0, toCents(a.amount));
+    const spentCents = Math.max(0, toCents(a.recordedSpent));
+    if (a.sourceKind === "office_petty_cash") {
+      prev.pettyCashCents += amtCents;
+    } else {
+      prev.taskCashCents += amtCents;
+    }
+    prev.recordedSpentCents += spentCents;
+    if (a.sourceLabel && !prev.sourceLabels.includes(a.sourceLabel)) {
+      prev.sourceLabels.push(a.sourceLabel);
+    }
+    if (a.receiptReviewStatus !== "approved") {
+      prev.allApproved = false;
+    }
+    if (a.receiptReviewStatus === "pending_accounting") {
+      prev.hasPendingAccounting = true;
+    }
+    bySubtaskId.set(id, prev);
+  }
+
+  const rows = context.subtaskBudgets ?? [];
+  let rowSumCents = 0;
+  const accountedIds = new Set<string>();
+  for (const row of rows) {
+    accountedIds.add(row.id);
+    const entry = bySubtaskId.get(row.id);
+    const capCents = Math.max(0, toCents(row.amount));
+    const taskCashCents = entry?.taskCashCents ?? 0;
+    const effectiveTaskCents = Math.max(capCents, taskCashCents);
+    if (entry) {
+      entry.effectiveTaskCents = effectiveTaskCents;
+    } else {
+      bySubtaskId.set(row.id, {
+        taskCashCents: 0,
+        pettyCashCents: 0,
+        recordedSpentCents: 0,
+        effectiveTaskCents,
+        sourceLabels: [],
+        allApproved: false,
+        hasPendingAccounting: false,
+      });
+    }
+    rowSumCents += effectiveTaskCents;
+  }
+
+  for (const [id, entry] of bySubtaskId.entries()) {
+    if (!accountedIds.has(id)) {
+      entry.effectiveTaskCents = entry.taskCashCents;
+      rowSumCents += entry.taskCashCents;
+    }
+  }
+
+  const totalAllocatedCents = Math.max(
+    Math.max(0, toCents(context.distribution?.allocated ?? 0)),
+    rowSumCents,
+  );
   const taskBudgetCents = toCents(context.taskBudget);
-  const allocatedCents = toCents(context.distribution?.allocated ?? 0);
-  if (taskBudgetCents <= 0 || allocatedCents <= 0) return 0;
-  return Math.min(100, Math.round((allocatedCents / taskBudgetCents) * 100));
+  const progressPercent =
+    taskBudgetCents <= 0 || totalAllocatedCents <= 0
+      ? 0
+      : Math.min(100, Math.round((totalAllocatedCents / taskBudgetCents) * 100));
+
+  return { bySubtaskId, totalAllocatedCents, progressPercent };
+}
+
+/** Compute allocation percentage (0-100) of the parent task budget distributed to subtasks. */
+export function subtaskAllocationProgressPercent(
+  context: TaskFundingContext,
+  assignmentsOverride?: WorkCashAssignment[],
+): number {
+  return resolveEffectiveSubtaskFunding(context, assignmentsOverride).progressPercent;
 }
 
 /** Compute minimum/maximum cent bounds and account-lock state for a subtask budget row. */

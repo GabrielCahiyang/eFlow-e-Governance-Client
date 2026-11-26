@@ -1,6 +1,6 @@
 import { EmptyState } from '../../../components/ui/EmptyState';
 import { AlertTriangle, ArrowRight, MessageSquareText, UserRound } from "lucide-react";
-import { formatDate } from "../../../components/workflow/primitives";
+import { formatManilaDateTime } from "../../../shared/calendarDisplay";
 import type { SubtaskProgressUpdate } from "../types";
 import { SubtaskEvidenceLink } from "./SubtaskEvidenceLink";
 
@@ -27,7 +27,7 @@ export function SubtaskProgressHistory({
                   </span>
                   <div className="min-w-0">
                     <div className="truncate font-medium text-neutral-800">{update.authorName}</div>
-                    <div className="text-[9.5px] text-neutral-400">{formatDate(update.createdAt)}</div>
+                    <div className="text-[10.5px] tabular-nums text-neutral-400">{formatManilaDateTime(update.createdAt)}</div>
                   </div>
                 </div>
                 <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[10.5px] font-semibold text-blue-700">

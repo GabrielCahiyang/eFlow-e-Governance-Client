@@ -3,13 +3,16 @@ import {formatManilaDate,formatManilaDateTime} from '../../../../shared/calendar
 import { EmptyState } from '../../../../components/ui/EmptyState';
 import { PeopleAvatarStack } from '../../../../components/ui/workspace';
 import type { UserProfile } from '../../../../types';
+import type { ProjectFinancialCloseoutSummary } from '../../../project-setup';
 import { ProjectUnifiedStatus } from '../../presentation/projectPresentation';
 import { projectOverviewWork } from '../../selectors/projectOverview';
+import { ProjectFinancialCloseoutCard } from '../ProjectFinancialCloseoutCard';
 import type { ProjectCommandData } from './types';
 import './projectOverview.css';
 
-export function ProjectOverviewTab({data,profiles,onOpenTask}: {data:ProjectCommandData;profiles:UserProfile[];onOpenTask:(id:string)=>void}) {
+export function ProjectOverviewTab({data,profiles,onOpenTask,closeoutSummary}: {data:ProjectCommandData;profiles:UserProfile[];onOpenTask:(id:string)=>void;closeoutSummary?:ProjectFinancialCloseoutSummary|null}) {
  const work=projectOverviewWork(data.tasks);
+ const isClosed = data.project.status === 'completed' || data.project.status === 'archived';
  const ids=[...new Set([data.project.ownerId,...data.metrics.activeLeadIds].filter((id):id is string=>Boolean(id)))];
  const owner=profiles.find(profile=>profile.id===data.project.ownerId);
  const people=ids.map(id=>({id,name:profiles.find(profile=>profile.id===id)?.full_name||'Name unavailable'}));
@@ -21,6 +24,9 @@ export function ProjectOverviewTab({data,profiles,onOpenTask}: {data:ProjectComm
   {tasks.length>5&&<p>{tasks.length-5} more in Main table.</p>}
  </section>;
  return <div className="r4-project-overview">
+  {isClosed && closeoutSummary && (
+    <ProjectFinancialCloseoutCard summary={closeoutSummary} mode="overview" />
+  )}
   <section className="r4-overview-section r4-overview-purpose" aria-label="Project purpose"><header><h2>Purpose</h2><ProjectUnifiedStatus project={data.project} health={data.metrics.scheduleHealth} layout="inline"/></header>
    <p>{data.project.description?.trim()||'No project purpose has been recorded yet.'}</p>
    {data.project.proposalTitle&&<p>Work plan: {data.project.proposalTitle}</p>}

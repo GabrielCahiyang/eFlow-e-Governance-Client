@@ -1,3 +1,4 @@
+import { ActionBlockerGroup } from "../../../components/ui/action-blockers";
 import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import {useId,useState} from 'react';
 import {Plus,Search,Users,X} from 'lucide-react';
@@ -34,11 +35,13 @@ export function WorkContributorsField({leadId,contributorIds,people,priority,con
  const groups=groupWorkAssignmentPeople(available,priority,query).filter(group=>group.people.length>0);
  const disabled=busy||contributorCapability?.allowed!==true||contributorCapability.reason_code!==null;
  const reason=!leadId&&contributorCapability?.reason_code==='lifecycle_blocked'?'Choose a lead first.':contributorCapability?.disabledReason||'Refresh this task to edit its team.';
- const disabledTooltip=disabled?(busy?busyReason||'Saving…':reason):'';
- return <fieldset className="nw-staffing-card" aria-label={`Contributors (${contributors.length})`} disabled={disabled}>
+ const blockerReason=disabled&&!busy?reason:'';
+ return <fieldset className="nw-staffing-card" aria-label={`Contributors (${contributors.length})`} aria-disabled={disabled||undefined} style={disabled?{background:'var(--eflow-subtle, #f0f4fb)'}:undefined}>
   <div className="nw-staffing-card__head">
    <legend><Users size={15} aria-hidden="true"/>Contributors <span className="nw-staffing-count">{contributors.length}</span></legend>
-   <span className="nw-staffing-sub">Optional · Lead can work independently</span>
+   <ActionBlockerGroup actionLabel="Edit contributors" blockers={blockerReason} busy={busy} size="sm">
+    <span className="nw-staffing-sub">Optional · Lead can work independently</span>
+   </ActionBlockerGroup>
   </div>
   {contributors.length
    ? <ul className="nw-staffing-chips" aria-label="Selected contributors">{contributors.map(personId=>{
@@ -52,13 +55,13 @@ export function WorkContributorsField({leadId,contributorIds,people,priority,con
         tier={memberLoad.tier}
         loadPoints={memberLoad.loadPoints}
         compact
-        onClick={onInspectWorkload?()=>onInspectWorkload(personId):undefined}
+        onClick={!disabled&&onInspectWorkload?()=>onInspectWorkload(personId):undefined}
         title="View contributor workload breakdown"
        />
       )}
-      <WorkspaceTooltip content={disabled?disabledTooltip:`Remove contributor ${personName}`}><span className="inline-flex"><button type="button" disabled={disabled} aria-label={`Remove contributor ${personName}`} onClick={()=>{
+      <WorkspaceTooltip content={`Remove contributor ${personName}`} disabled={disabled}><button type="button" disabled={disabled} aria-label={`Remove contributor ${personName}`} onClick={()=>{
        if(!disabled)onChange(deduplicateWorkPersonIds(contributorIds).filter(selected=>selected!==personId));
-      }}><X size={13} aria-hidden="true"/></button></span></WorkspaceTooltip>
+      }}><X size={13} aria-hidden="true"/></button></WorkspaceTooltip>
      </span></li>;
     })}</ul>
    : <p className="nw-staffing-empty-chips">No contributors selected yet.</p>}
@@ -75,7 +78,7 @@ export function WorkContributorsField({leadId,contributorIds,people,priority,con
     <div className="nw-staffing-people-grid">{group.people.map(person=>{
     const personName=resolveWorkPersonName(people,person.id);
     const memberLoad=workloadByUser?.get(person.id);
-    return <WorkspaceTooltip key={person.id} content={disabledTooltip} disabled={!disabledTooltip}><span className="inline-flex w-full"><button type="button" className="nw-staffing-person-btn w-full" disabled={disabled} aria-label={`Add contributor ${personName}`} onClick={()=>{
+    return <button key={person.id} type="button" className="nw-staffing-person-btn w-full" disabled={disabled} aria-label={`Add contributor ${personName}`} onClick={()=>{
      if(!disabled&&scopedEligible.some(current=>current.id===person.id))onChange(deduplicateWorkPersonIds([...contributorIds,person.id]));
     }}>
      <span className="nw-staffing-person-info">
@@ -86,10 +89,11 @@ export function WorkContributorsField({leadId,contributorIds,people,priority,con
       )}
      </span>
      <span className="nw-staffing-add-pill"><Plus size={13} aria-hidden="true"/>Add</span>
-    </button></span></WorkspaceTooltip>;
+    </button>;
    })}</div></div>)}
   </div>
   {!groups.length&&<p className="nw-staffing-hint">{available.length?'No matching eligible members.':priority?'All available task members are already on this subtask.':'All available eligible office members are already on this task.'}</p>}
-  {disabled&&<p id={`${id}-reason`} className="nw-staffing-hint nw-staffing-hint--lock">{busy?busyReason||'Saving…':reason}</p>}
+  {disabled&&busy&&<p id={`${id}-reason`} className="nw-staffing-hint nw-staffing-hint--lock">{busyReason||'Saving…'}</p>}
+  {disabled&&!busy&&<p id={`${id}-reason`} className="sr-only">{reason}</p>}
  </fieldset>;
 }

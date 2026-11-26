@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Check, ExternalLink, RefreshCw, ShieldCheck, X } from "lucide-react";
 import { supabase } from "../../../../lib/supabase";
+import {
+  ActionBlockerGroup,
+  type ActionBlockerItem,
+} from "../../../components/ui/action-blockers";
 import { Button } from "../../../components/ui/button";
 import { DecisionModal } from "../../../components/ui/DecisionModal";
 import { readableUiError } from "../../../shared/userFacingError";
@@ -321,11 +325,58 @@ export function ProjectFundingCertificationQueue({
                       </Button>
                     </>
                   ) : (
-                    <span className="text-xs text-amber-800">
-                      {isHeadStage
-                        ? "Awaiting Office Head endorsement before forwarding to Accounting Staff."
-                        : "Requires an independent Accounting Staff member (cannot self-certify)."}
-                    </span>
+                    (() => {
+                      const blockedLabel = isHeadStage
+                        ? "Certify & reserve funds"
+                        : "Certify & reserve funds";
+                      const fundingBlockers: ActionBlockerItem[] = isHeadStage
+                        ? [
+                            {
+                              id: `${item.id}-head`,
+                              category: "head_approval",
+                              title: "Waiting for Office Head endorsement",
+                              detail:
+                                "Step 1 of 2: The Office Head must endorse this project funding request before Financial Officer (Accounting) certification can proceed.",
+                              waitingOn: "Office Head",
+                              statusLabel: "Step 1/2 · Pending Head",
+                              amount: item.totalAmount,
+                            },
+                            {
+                              id: `${item.id}-accounting`,
+                              category: "accounting_approval",
+                              title: "Waiting for Financial Officer (Accounting) certification",
+                              detail:
+                                "Step 2 of 2: Independent Financial Officer (Accounting) certification unlocks immediately after Office Head endorsement.",
+                              waitingOn: "Financial Officer (Accounting)",
+                              statusLabel: "Step 2/2 · Queued",
+                              amount: item.totalAmount,
+                            },
+                          ]
+                        : [
+                            {
+                              id: `${item.id}-sod`,
+                              category: "separation_of_duties",
+                              title: "Independent Financial Officer (Accounting) required",
+                              detail:
+                                "Maker-checker safeguard: you cannot certify a funding request you submitted or endorsed. Another eligible Financial Officer (Accounting) must certify and reserve funds.",
+                              waitingOn: "Another Financial Officer (Accounting)",
+                              statusLabel: "Separation of duties",
+                              amount: item.totalAmount,
+                            },
+                          ];
+                      return (
+                        <ActionBlockerGroup
+                          actionLabel={blockedLabel}
+                          blockers={fundingBlockers}
+                          size="sm"
+                        >
+                          <Button type="button" size="sm" disabled>
+                            <Check size={14} aria-hidden="true" />
+                            <span className="ml-1">{blockedLabel}</span>
+                          </Button>
+                        </ActionBlockerGroup>
+                      );
+                    })()
                   )}
                 </div>
               </article>

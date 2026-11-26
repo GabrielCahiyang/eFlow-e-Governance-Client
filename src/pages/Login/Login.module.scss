@@ -46,6 +46,34 @@
   display: none;
 }
 
+.backToHomeLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  background: transparent;
+  border: 0;
+  padding: 4px 6px;
+  margin: -4px 0 4px -6px;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: #505c77;
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+
+  &:hover {
+    color: #00006b;
+    background: #f0f4fb;
+  }
+
+  &:focus-visible {
+    outline: 2px solid #00006b;
+    outline-offset: 2px;
+  }
+}
+
 .headerGroup {
   display: flex;
   flex-direction: column;
@@ -85,19 +113,19 @@
 
   input {
     background: #ffffff !important;
-    color: #0f172a !important;
-    border: 1.5px solid #cbd5e1 !important;
+    color: #161b35 !important;
+    border: 1.5px solid #d6deed !important;
     border-radius: 8px !important;
     font-size: 14px !important;
 
     &:focus {
-      border-color: #0073ea !important;
-      box-shadow: 0 0 0 3px rgba(0, 115, 234, 0.18) !important;
+      border-color: #00006b !important;
+      box-shadow: 0 0 0 3px rgba(0, 0, 107, 0.14) !important;
     }
   }
 
   label {
-    color: #0f172a !important;
+    color: #161b35 !important;
     font-weight: 600 !important;
     font-size: 13.5px !important;
   }
@@ -156,16 +184,23 @@
   font-weight: 600;
 }
 
+.utilityStack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 2px;
+  margin-bottom: 2px;
+  width: 100%;
+}
+
 .utilityRow {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 2px;
-  margin-bottom: 2px;
   width: 100%;
 
   a, button {
-    color: #0073ea !important;
+    color: #00006b !important;
     font-weight: 600 !important;
     font-size: 13.5px !important;
     text-decoration: none;
@@ -176,8 +211,14 @@
   }
 }
 
+.preferenceRow {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
 .checkboxLabel {
-  color: #0f172a !important;
+  color: #161b35 !important;
   font-weight: 600 !important;
   font-size: 13.5px !important;
 }
@@ -187,23 +228,23 @@
   margin-top: 6px;
 }
 
-/* Primary CTA — Electric blue, ZERO teal */
+/* Primary CTA — Signature eFlow Royal Navy matching foundation-tokens.css */
 .submitButton {
   width: 100% !important;
   justify-content: center !important;
-  background: #0073ea !important;
+  background: #00006b !important;
   color: #ffffff !important;
   border: none !important;
   border-radius: 8px !important;
   font-weight: 700 !important;
   font-size: 15px !important;
   height: 44px !important;
-  box-shadow: 0 4px 14px rgba(0, 115, 234, 0.3) !important;
+  box-shadow: 0 6px 18px rgba(0, 0, 107, 0.24) !important;
   transition: all 0.15s ease !important;
 
   &:hover:not(:disabled) {
-    background: #0060b9 !important;
-    box-shadow: 0 6px 18px rgba(0, 115, 234, 0.42) !important;
+    background: #00004f !important;
+    box-shadow: 0 8px 22px rgba(0, 0, 107, 0.34) !important;
   }
 
   &:disabled {
@@ -218,7 +259,7 @@
   margin-top: 4px;
 
   button {
-    color: #0073ea !important;
+    color: #00006b !important;
     font-weight: 600 !important;
   }
 }
@@ -263,7 +304,7 @@
   margin-top: 4px;
 
   a, button {
-    color: #0073ea !important;
+    color: #00006b !important;
     font-weight: 600 !important;
     font-size: 13.5px !important;
   }
@@ -273,7 +314,7 @@
   background: transparent;
   border: 0;
   padding: 4px 2px;
-  color: #0073ea;
+  color: #00006b;
   font-weight: 600;
   font-size: 13.5px;
   cursor: pointer;
@@ -284,7 +325,7 @@
   }
 
   &:focus-visible {
-    outline: 2px solid #0073ea;
+    outline: 2px solid #00006b;
     outline-offset: 2px;
     border-radius: 4px;
   }
@@ -296,10 +337,10 @@
   gap: 6px;
   width: fit-content;
   padding: 5px 10px;
-  border-radius: 999px;
-  background: #eff6ff;
-  border: 1px solid #bfdbfe;
-  color: #1d4ed8;
+  border-radius: 6px;
+  background: #e8edff;
+  border: 1px solid #c9d5ff;
+  color: #00006b;
   font-size: 11.5px;
   font-weight: 700;
   letter-spacing: 0.02em;
@@ -362,26 +403,57 @@
 }
 
 /* ─────────────────────────────────────────────────────────────
-   RIGHT PANEL — Elevated eFlow | LGU Ormoc City & Bigger Living Board
+   RIGHT PANEL — Midnight-Navy Studio matching the Landing Page
    ───────────────────────────────────────────────────────────── */
 .heroColumn {
-  --login-preview-board-height: clamp(300px, calc(100dvh - 350px), 490px);
+  --login-preview-board-height: clamp(320px, calc(100dvh - 280px), 500px);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   position: relative;
   background:
-    radial-gradient(circle at 50% 18%, rgba(255, 255, 255, 0.18) 0%, transparent 45%),
-    linear-gradient(145deg, #0073ea 0%, #004ea0 100%);
-  border-top-left-radius: 28px;
-  border-bottom-left-radius: 28px;
+    radial-gradient(64% 58% at 50% 48%, rgba(36, 52, 96, 0.64) 0%, rgba(16, 25, 62, 0.5) 44%, #0a1028 100%),
+    #0a1028;
+  border-top-left-radius: 26px;
+  border-bottom-left-radius: 26px;
   margin: 14px 14px 14px 0;
-  padding: 28px 24px;
-  color: #ffffff;
+  padding: 28px 32px;
+  color: #eef3ff;
   overflow: hidden;
-  box-shadow: 0 16px 40px rgba(0, 30, 80, 0.22);
+  box-shadow: 0 18px 46px rgba(7, 12, 31, 0.32);
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(rgba(148, 186, 255, 0.14) 1px, transparent 1px);
+    background-size: 28px 28px;
+    pointer-events: none;
+    z-index: 0;
+  }
 }
+
+.heroReticles {
+  position: absolute;
+  inset: 22px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.heroReticle {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-color: rgba(148, 186, 255, 0.24);
+  border-style: solid;
+  border-width: 0;
+}
+
+.heroReticleTL { top: 0; left: 0; border-top-width: 1.5px; border-left-width: 1.5px; }
+.heroReticleTR { top: 0; right: 0; border-top-width: 1.5px; border-right-width: 1.5px; }
+.heroReticleBL { bottom: 0; left: 0; border-bottom-width: 1.5px; border-left-width: 1.5px; }
+.heroReticleBR { bottom: 0; right: 0; border-bottom-width: 1.5px; border-right-width: 1.5px; }
 
 .heroContent {
   width: 100%;
@@ -395,23 +467,30 @@
 
 /* Brand lockup shifted even higher up */
 .heroBrandWrapper {
-  margin-bottom: 18px;
+  margin-bottom: 22px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 14px;
   cursor: pointer;
+  border-radius: 8px;
+  padding: 4px 8px;
+
+  &:focus-visible {
+    outline: 2px solid #94baff;
+    outline-offset: 4px;
+  }
 }
 
 .heroBrandDivider {
   width: 1.5px;
   height: 28px;
-  background: rgba(255, 255, 255, 0.45);
+  background: rgba(148, 186, 255, 0.34);
 }
 
 .heroBrandOrgText {
-  font-size: 17px;
-  color: rgba(255, 255, 255, 0.94);
+  font-size: 16px;
+  color: #dce7ff;
   font-weight: 600;
   letter-spacing: 0.01em;
 }
@@ -532,7 +611,7 @@
   .mobileBrand {
     align-items: center;
     align-self: flex-start;
-    background: #0073ea;
+    background: #0a1028;
     border-radius: 10px;
     color: #ffffff;
     display: flex;
@@ -542,7 +621,7 @@
     padding: 9px 12px;
 
     span {
-      border-left: 1px solid rgba(255, 255, 255, 0.5);
+      border-left: 1px solid rgba(148, 186, 255, 0.4);
       font-size: 12px;
       font-weight: 600;
       padding-left: 12px;

@@ -3,6 +3,7 @@ import { formatManilaDate } from '../../../shared/calendarDisplay';
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { ArrowRight, CalendarClock, CalendarX2, Check, RefreshCw, Rocket } from 'lucide-react';
+import { ActionBlockerGroup, type ActionBlockerItem } from '../../../components/ui/action-blockers';
 import { Button } from '../../../components/ui/button';
 import { FeedbackState } from '../../../components/ui/FeedbackState';
 import { useConfirmation } from '../../../components/ui/useConfirmation';
@@ -199,92 +200,158 @@ export function ProjectReadinessPanel({
   const daysUntilStart = Math.max(0, data?.daysUntilStart ?? 0);
   const canSchedule = Boolean(data?.canScheduleActivation && scheduledStartLabel);
   const canStartEarly = Boolean(data?.canEarlyActivate && daysUntilStart > 0 && scheduledStartLabel);
-  const remainingChecks = data ? data.checks.filter((check) => !check.ok).length : 0;
-  const firstUnmetCheck = data?.checks.find((check) => !check.ok);
-  const baseBlockedTip = busy
+  const unmetChecks = data ? data.checks.filter((check) => !check.ok) : [];
+  const baseBlockedReason = busy
     ? ''
     : checking
-      ? 'Checking project readiness…'
+      ? ''
       : current.error
         ? 'Readiness checks are unavailable. Reload checks first.'
         : '';
   const cancelScheduleDisabled = busy || checking || Boolean(current.error);
-  const cancelScheduleTip = cancelScheduleDisabled
-    ? baseBlockedTip
-    : `Cancels automatic start-date activation on ${scheduledStartLabel}. The project will remain in Waiting for activation.`;
+  const cancelScheduleTip = !cancelScheduleDisabled
+    ? `Cancels automatic start-date activation on ${scheduledStartLabel}. The project will remain in Waiting for activation.`
+    : '';
   const scheduleDisabled = busy || checking || Boolean(current.error);
-  const scheduleTip = scheduleDisabled ? baseBlockedTip : '';
   const startEarlyDisabled = busy || checking || Boolean(current.error);
-  const startEarlyTip = startEarlyDisabled ? baseBlockedTip : '';
   const activateDisabled = busy || checking || Boolean(current.error) || !data?.canActivate;
-  const activateTip = !activateDisabled
-    ? ''
-    : baseBlockedTip ||
-      (remainingChecks > 0
-        ? firstUnmetCheck
-          ? `${remainingChecks} readiness check${remainingChecks === 1 ? '' : 's'} remaining (next: ${firstUnmetCheck.label}).`
-          : `Complete ${remainingChecks} remaining readiness check${remainingChecks === 1 ? '' : 's'} before activating.`
-        : 'Confirm all required readiness checks and approvals before activating.');
+
+  const activateBlockers: ActionBlockerItem[] = (() => {
+    if (!activateDisabled || busy || checking) return [];
+    if (current.error) {
+      return [
+        {
+          id: 'readiness-error',
+          category: 'readiness',
+          title: 'Readiness checks unavailable',
+          detail: 'Reload the project readiness checks before activating.',
+          statusLabel: 'Recheck needed',
+        },
+      ];
+    }
+    if (unmetChecks.length > 0) {
+      return unmetChecks.map((check) => {
+        const resolution = readinessResolution(check.key, Boolean(data?.governed));
+        const text = `${check.label} ${check.detail || ''}`;
+        const isHead = /office head|head endorsement|head approval/i.test(text);
+        const isAccounting = /accounting|financial officer|certif|funding/i.test(text);
+        const category =
+          isHead && !isAccounting
+            ? 'head_approval'
+            : isAccounting
+              ? 'accounting_approval'
+              : check.key === 'dates'
+                ? 'dependency'
+                : 'readiness';
+        return {
+          id: `readiness-${check.key}`,
+          category,
+          title: check.label,
+          detail: check.detail || 'Complete this required check before activating the project.',
+          waitingOn:
+            isHead && isAccounting
+              ? 'Office Head & Financial Officer (Accounting)'
+              : isHead
+                ? 'Office Head'
+                : isAccounting
+                  ? 'Financial Officer (Accounting)'
+                  : undefined,
+          statusLabel: 'Required',
+          actionLabel: resolution && onResolve ? resolution.label : undefined,
+          onAction: resolution && onResolve ? () => onResolve(resolution.view) : undefined,
+        };
+      });
+    }
+    return [
+      {
+        id: 'readiness-generic',
+        category: 'readiness',
+        title: 'Activation requirements remaining',
+        detail: 'Confirm all required readiness checks and approvals before activating.',
+        statusLabel: 'Blocked',
+      },
+    ];
+  })();
 
   const actionButtons = mayActivate ? (
     <>
       {data?.autoActivationScheduled && scheduledStartLabel && (
-        <WorkspaceTooltip content={cancelScheduleTip} disabled={!cancelScheduleTip}>
-          <span className="inline-flex">
-            <Button
-              type="button"
-              variant="outline"
-              disabled={cancelScheduleDisabled}
-              onClick={cancelSchedule}
-            >
-              <CalendarX2 size={15} aria-hidden="true" />
-              <span className="ml-1.5">Cancel schedule</span>
-            </Button>
-          </span>
-        </WorkspaceTooltip>
+        <ActionBlockerGroup
+          actionLabel="Cancel schedule"
+          blockers={baseBlockedReason}
+          busy={busy || checking}
+          onRefresh={() => void refresh()}
+          refreshing={checking}
+        >
+          <WorkspaceTooltip content={cancelScheduleTip} disabled={!cancelScheduleTip}>
+            <span className="inline-flex">
+              <Button
+                type="button"
+                variant="outline"
+                disabled={cancelScheduleDisabled}
+                onClick={cancelSchedule}
+              >
+                <CalendarX2 size={15} aria-hidden="true" />
+                <span className="ml-1.5">Cancel schedule</span>
+              </Button>
+            </span>
+          </WorkspaceTooltip>
+        </ActionBlockerGroup>
       )}
       {canSchedule && (
-        <WorkspaceTooltip content={scheduleTip} disabled={!scheduleTip}>
-          <span className="inline-flex">
-            <Button
-              type="button"
-              disabled={scheduleDisabled}
-              onClick={scheduleActivation}
-            >
-              <CalendarClock size={15} aria-hidden="true" />
-              <span className="ml-1.5">Schedule for {scheduledStartLabel}</span>
-            </Button>
-          </span>
-        </WorkspaceTooltip>
+        <ActionBlockerGroup
+          actionLabel={`Schedule for ${scheduledStartLabel}`}
+          blockers={baseBlockedReason}
+          busy={busy || checking}
+          onRefresh={() => void refresh()}
+          refreshing={checking}
+        >
+          <Button
+            type="button"
+            disabled={scheduleDisabled}
+            onClick={scheduleActivation}
+          >
+            <CalendarClock size={15} aria-hidden="true" />
+            <span className="ml-1.5">Schedule for {scheduledStartLabel}</span>
+          </Button>
+        </ActionBlockerGroup>
       )}
       {canStartEarly && (
-        <WorkspaceTooltip content={startEarlyTip} disabled={!startEarlyTip}>
-          <span className="inline-flex">
-            <Button
-              type="button"
-              variant={canSchedule ? 'outline' : 'default'}
-              disabled={startEarlyDisabled}
-              onClick={() => setEarlyStartOpen(true)}
-            >
-              <Rocket size={15} aria-hidden="true" />
-              <span className="ml-1.5">Start early</span>
-            </Button>
-          </span>
-        </WorkspaceTooltip>
+        <ActionBlockerGroup
+          actionLabel="Start early"
+          blockers={baseBlockedReason}
+          busy={busy || checking}
+          onRefresh={() => void refresh()}
+          refreshing={checking}
+        >
+          <Button
+            type="button"
+            variant={canSchedule ? 'outline' : 'default'}
+            disabled={startEarlyDisabled}
+            onClick={() => setEarlyStartOpen(true)}
+          >
+            <Rocket size={15} aria-hidden="true" />
+            <span className="ml-1.5">Start early</span>
+          </Button>
+        </ActionBlockerGroup>
       )}
       {!canStartEarly && (
-        <WorkspaceTooltip content={activateTip} disabled={!activateTip}>
-          <span className="inline-flex">
-            <Button
-              type="button"
-              disabled={activateDisabled}
-              onClick={activate}
-            >
-              <Rocket size={15} aria-hidden="true" />
-              <span className="ml-1.5">{busy ? 'Updating…' : 'Activate project'}</span>
-            </Button>
-          </span>
-        </WorkspaceTooltip>
+        <ActionBlockerGroup
+          actionLabel="Activate project"
+          blockers={activateBlockers}
+          busy={busy || checking}
+          onRefresh={() => void refresh()}
+          refreshing={checking}
+        >
+          <Button
+            type="button"
+            disabled={activateDisabled}
+            onClick={activate}
+          >
+            <Rocket size={15} aria-hidden="true" />
+            <span className="ml-1.5">{busy ? 'Updating…' : 'Activate project'}</span>
+          </Button>
+        </ActionBlockerGroup>
       )}
     </>
   ) : null;

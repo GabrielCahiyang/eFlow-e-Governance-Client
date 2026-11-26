@@ -15,9 +15,10 @@ const baseReceipt = {
 };
 
 describe('officeCashValidation', () => {
-  it('requires refund OR # and return date when ₱300 is spent out of ₱500 released', () => {
-    const missingRefund = validateOfficeReceiptsSubmission({
+  it('requires cash return date (with optional refund OR #) when ₱300 is spent out of ₱500 released', () => {
+    const missingRefundDate = validateOfficeReceiptsSubmission({
       releasedAmount: 500,
+      assignedAmount: 500,
       transactionDate: '2026-11-19',
       reference: 'Bought office supplies',
       receipts: [baseReceipt],
@@ -26,15 +27,31 @@ describe('officeCashValidation', () => {
       todayManila: '2026-11-19',
     });
 
-    expect(missingRefund.isValid).toBe(false);
-    expect(missingRefund.requiresCashReturn).toBe(true);
-    expect(missingRefund.receiptTotal).toBe(300);
-    expect(missingRefund.unusedCash).toBe(200);
-    expect(missingRefund.refundReceiptNumberError).toContain('₱200.00');
-    expect(missingRefund.refundDateError).toContain('cash return date');
+    expect(missingRefundDate.isValid).toBe(false);
+    expect(missingRefundDate.requiresCashReturn).toBe(true);
+    expect(missingRefundDate.receiptTotal).toBe(300);
+    expect(missingRefundDate.unusedCash).toBe(200);
+    expect(missingRefundDate.refundReceiptNumberError).toBe('');
+    expect(missingRefundDate.refundDateError).toContain('cash return date');
 
-    const withRefund = validateOfficeReceiptsSubmission({
+    const withoutRefundOr = validateOfficeReceiptsSubmission({
       releasedAmount: 500,
+      assignedAmount: 500,
+      transactionDate: '2026-11-19',
+      reference: 'Bought office supplies and returning ₱200',
+      receipts: [baseReceipt],
+      refundReceiptNumber: '',
+      refundDate: '2026-11-19',
+      todayManila: '2026-11-19',
+    });
+
+    expect(withoutRefundOr.isValid).toBe(true);
+    expect(withoutRefundOr.unusedCash).toBe(200);
+    expect(withoutRefundOr.blockingErrors).toEqual([]);
+
+    const withRefundOr = validateOfficeReceiptsSubmission({
+      releasedAmount: 500,
+      assignedAmount: 500,
       transactionDate: '2026-11-19',
       reference: 'Bought office supplies and returned ₱200',
       receipts: [baseReceipt],
@@ -43,18 +60,60 @@ describe('officeCashValidation', () => {
       todayManila: '2026-11-19',
     });
 
-    expect(withRefund.isValid).toBe(true);
-    expect(withRefund.unusedCash).toBe(200);
-    expect(withRefund.blockingErrors).toEqual([]);
+    expect(withRefundOr.isValid).toBe(true);
+    expect(withRefundOr.unusedCash).toBe(200);
+    expect(withRefundOr.blockingErrors).toEqual([]);
   });
 
-  it('allows zero-receipt full advance return when refund details are supplied', () => {
+  it('strictly blocks receipts when assignedAmount is ₱0 and caps receipts at assignedAmount', () => {
+    const unassignedReceipt = validateOfficeReceiptsSubmission({
+      releasedAmount: 600,
+      assignedAmount: 0,
+      transactionDate: '2026-11-19',
+      reference: 'Tried attaching unassigned receipt',
+      receipts: [baseReceipt],
+      refundReceiptNumber: '',
+      refundDate: '2026-11-19',
+      todayManila: '2026-11-19',
+    });
+    expect(unassignedReceipt.isValid).toBe(false);
+    expect(unassignedReceipt.countError).toContain('not assigned to any task or subtask');
+
+    const unassignedReturn = validateOfficeReceiptsSubmission({
+      releasedAmount: 600,
+      assignedAmount: 0,
+      transactionDate: '2026-11-19',
+      reference: 'Returning full unused advance',
+      receipts: [],
+      refundReceiptNumber: '',
+      refundDate: '2026-11-19',
+      todayManila: '2026-11-19',
+    });
+    expect(unassignedReturn.isValid).toBe(true);
+    expect(unassignedReturn.unusedCash).toBe(600);
+
+    const overAssigned = validateOfficeReceiptsSubmission({
+      releasedAmount: 600,
+      assignedAmount: 250,
+      transactionDate: '2026-11-19',
+      reference: 'Receipt over assigned balance',
+      receipts: [baseReceipt],
+      refundReceiptNumber: '',
+      refundDate: '2026-11-19',
+      todayManila: '2026-11-19',
+    });
+    expect(overAssigned.isValid).toBe(false);
+    expect(overAssigned.totalError).toContain('₱250.00');
+  });
+
+  it('allows zero-receipt full advance return without requiring refund OR #', () => {
     const result = validateOfficeReceiptsSubmission({
       releasedAmount: 500,
+      assignedAmount: 0,
       transactionDate: '2026-11-19',
       reference: 'Purchase cancelled, returning full ₱500',
       receipts: [],
-      refundReceiptNumber: 'OR-REF-FULL-01',
+      refundReceiptNumber: '',
       refundDate: '2026-11-19',
       todayManila: '2026-11-19',
     });

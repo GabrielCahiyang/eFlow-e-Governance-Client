@@ -1,9 +1,0 @@
-Error: No sidebar destination matched: Plans & Projects / Proposals & Projects / Projects. Visible page state: eF Loading eFlow...
-    at openSidebarDestination (file:///C:/Users/gabri/OneDrive/Desktop/EflowWeb/scripts/e2e_live_spectate.mjs:150:9)
-    at async openPlans (file:///C:/Users/gabri/OneDrive/Desktop/EflowWeb/scripts/e2e_live_spectate.mjs:154:3)
-    at async createAndRequestReview (file:///C:/Users/gabri/OneDrive/Desktop/EflowWeb/scripts/e2e_live_spectate.mjs:234:3)
-    at async main (file:///C:/Users/gabri/OneDrive/Desktop/EflowWeb/scripts/e2e_live_spectate.mjs:413:5)
-    at async file:///C:/Users/gabri/OneDrive/Desktop/EflowWeb/scripts/e2e_live_spectate.mjs:443:1
-
-PAGE
-eF Loading eFlow...

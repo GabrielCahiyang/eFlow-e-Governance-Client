@@ -2,6 +2,7 @@ import { getPhilippineCalendarDate, scheduledDateError } from '../../../shared/c
 import { ImportImpact } from './ImportImpact';
 import { useId, useState } from 'react';
 import { BoundedTextarea, BoundedTextInput } from '../../../components/ui/BoundedInput';
+import { ActionBlockerGroup } from '../../../components/ui/action-blockers';
 import { ReviewSectionNav, WorkspaceTooltip } from '../../../components/ui/workspace';
 import { DateInput } from '../../../components/ui/DateInput';
 import { useConfirmation } from '../../../components/ui/useConfirmation';
@@ -77,15 +78,11 @@ export function ProjectImportDialog({ open, onClose, projectId, projectTitle, gr
   const tasks = draft?.groups.flatMap(g => g.tasks) || [], included = tasks.filter(t => t.included);
   const changeTask = (key: string, patch: Partial<ImportTask>) => setDraft(current => current ? { ...current, groups: current.groups.map(g => ({ ...g, tasks: g.tasks.map(t => t.key === key ? { ...t, ...patch } : t) })) } : current);
   const generateDisabled = !!busy || sourceWords < 20;
-  const generateTip = busy ? '' : sourceError;
   const addDisabled = !!busy || !included.length;
-  const addTip = busy
-    ? ''
-    : !included.length
-      ? 'Select at least one task to add to this project.'
-      : retryPending
-        ? 'Retries the same locked import batch safely without creating duplicates.'
-        : '';
+  const addBlocker = !included.length ? 'Select at least one task to add to this project.' : '';
+  const retryEnabledTip = !addDisabled && retryPending
+    ? 'Retries the same locked import batch safely without creating duplicates.'
+    : '';
 
   return <Dialog open={open} onOpenChange={value => { if (!value) close(); }}><DialogContent className="pi-dialog" showCloseButton={busy !== 'saving'}>
     <header className="pi-header"><div><span className="pi-eyebrow"><Sparkles size={15}/>Project import</span><DialogTitle>{result ? 'Work added to your project' : draft ? 'Review your project plan' : 'Turn a document into project work'}</DialogTitle><DialogDescription>{projectTitle} · Review every suggestion before adding it to the project.</DialogDescription></div></header>
@@ -212,16 +209,18 @@ export function ProjectImportDialog({ open, onClose, projectId, projectTitle, gr
         {!result && (draft ? <>
           <button disabled={locked} onClick={() => void requestNavigation(() => setDraft(null))}>Edit source</button>
           <button disabled={locked} onClick={() => void requestNavigation(() => { void state.generate(); })}>Regenerate</button>
-          <WorkspaceTooltip content={addTip} disabled={!addTip}>
-            <span className="inline-flex">
+          <ActionBlockerGroup
+            actionLabel={retryPending ? 'Retry same import' : 'Add to Project'}
+            blockers={addBlocker}
+            busy={Boolean(busy)}
+          >
+            <WorkspaceTooltip content={retryEnabledTip} disabled={!retryEnabledTip}>
               <button className="pi-primary" disabled={addDisabled} onClick={() => { void confirmImport(); }}>{retryPending ? 'Retry same import' : 'Add to Project'}</button>
-            </span>
-          </WorkspaceTooltip>
-        </> : <WorkspaceTooltip content={generateTip} disabled={!generateTip}>
-          <span className="inline-flex">
-            <button className="pi-primary" disabled={generateDisabled} onClick={() => { setSourceTouched(true); void state.generate(); }}>Generate draft</button>
-          </span>
-        </WorkspaceTooltip>)}
+            </WorkspaceTooltip>
+          </ActionBlockerGroup>
+        </> : <ActionBlockerGroup actionLabel="Generate draft" blockers={sourceError} busy={Boolean(busy)}>
+          <button className="pi-primary" disabled={generateDisabled} onClick={() => { setSourceTouched(true); void state.generate(); }}>Generate draft</button>
+        </ActionBlockerGroup>)}
       </div>
     </footer>
   </DialogContent></Dialog>;

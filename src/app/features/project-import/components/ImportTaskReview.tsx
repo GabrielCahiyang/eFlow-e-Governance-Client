@@ -1,4 +1,5 @@
 import { BoundedTextarea, BoundedTextInput } from '../../../components/ui/BoundedInput';
+import { ActionBlockerGroup } from '../../../components/ui/action-blockers';
 import { WorkspaceTooltip } from '../../../components/ui/workspace/WorkspaceTooltip';
 import { DateInput } from '../../../components/ui/DateInput';
 import { getPhilippineCalendarDate, scheduledDateError } from '../../../shared/calendarDates';
@@ -30,7 +31,7 @@ export function ImportTaskReview({ tasks, allTasks, offices, disabled, onChange 
           ? 'Due date cannot be before start date.'
           : scheduledDateError(task.dueDate, { earliest: earliestDue, label: 'Due date' });
       const addSubtaskDisabled = disabled || task.subitems.length >= 30;
-      const addSubtaskTip = !disabled && task.subitems.length >= 30 ? 'Maximum of 30 subtasks per task reached.' : '';
+      const addSubtaskBlocker = task.subitems.length >= 30 ? 'Maximum of 30 subtasks per task reached.' : '';
 
       return <Fragment key={task.key}>
         <tr className={!task.included ? 'pi-omitted' : ''}>
@@ -124,11 +125,9 @@ export function ImportTaskReview({ tasks, allTasks, offices, disabled, onChange 
               </WorkspaceTooltip>
             </div>;
           })}
-          <WorkspaceTooltip content={addSubtaskTip} disabled={!addSubtaskTip}>
-            <span className="inline-flex">
-              <button type="button" disabled={addSubtaskDisabled} onClick={() => onChange(task.key, { subitems: [...task.subitems, { title: '', dueDate: '' }] })}><Plus size={14}/>Add subtask</button>
-            </span>
-          </WorkspaceTooltip></div>
+          <ActionBlockerGroup actionLabel="Add subtask" blockers={addSubtaskBlocker} busy={disabled} compact size="sm">
+            <button type="button" disabled={addSubtaskDisabled} onClick={() => onChange(task.key, { subitems: [...task.subitems, { title: '', dueDate: '' }] })}><Plus size={14}/>Add subtask</button>
+          </ActionBlockerGroup></div>
           <div><label>Depends on<select multiple aria-label={`Dependencies ${task.key}`} value={task.dependencies} disabled={disabled} onChange={e => onChange(task.key, { dependencies: Array.from(e.target.selectedOptions, o => o.value) })}>{allTasks.filter(t => t.key !== task.key).map(t => <option key={t.key} value={t.key}>{t.title}{!t.included ? ' (omitted)' : ''}</option>)}</select></label><small>Use Ctrl / Cmd to select or clear dependencies.</small></div>
           <div className="pi-source-quote"><strong>Source evidence</strong><blockquote>{task.sourceQuote || 'AI suggestion; no verified quote. Check it against your source.'}</blockquote>{task.advisory && <details><summary>Routing and review suggestions</summary><p>{String(task.advisory.recommendationReasoning || 'Review required.')}</p></details>}</div>
         </div></td></tr>}

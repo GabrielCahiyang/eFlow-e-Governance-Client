@@ -2,6 +2,11 @@ import { useState, type ReactNode } from 'react';
 import { Check, RotateCcw, ShieldCheck, X } from 'lucide-react';
 import type { Organization, UserProfile } from '../../../../types';
 import { useAuth } from '../../../../contexts/AuthContext';
+import {
+  ActionBlockerStopButton,
+  ActionBlockersModal,
+  type ActionBlockerItem,
+} from '../../../../components/ui/action-blockers';
 import { Button } from '../../../../components/ui/button';
 import { DecisionModal } from '../../../../components/ui/DecisionModal';
 import { InlineEditableText } from '../../../../components/ui/workspace';
@@ -52,6 +57,7 @@ export function ProjectHeader({
   const [approvalNotice, setApprovalNotice] = useState('');
   const [returnModalOpen, setReturnModalOpen] = useState(false);
   const [returnReason, setReturnReason] = useState('');
+  const [headerBlockersOpen, setHeaderBlockersOpen] = useState(false);
 
   const organization = organizations.find((item) => item.id === project.orgId);
   const closed = ['completed', 'archived'].includes(project.status);
@@ -66,6 +72,60 @@ export function ProjectHeader({
       userProfile?.org_id === project.orgId &&
       (organization?.head_user_id === userProfile.id || userProfile.role === 'head'),
   );
+
+  const headerApprovalBlockers: ActionBlockerItem[] = (() => {
+    const list: ActionBlockerItem[] = [];
+    if (project.status === 'planning' && project.projectApprovalStatus === 'pending_head') {
+      list.push({
+        id: 'header-project-head',
+        category: 'head_approval',
+        title: 'Waiting for Office Head approval',
+        detail: isOfficeHead
+          ? 'Review and approve this non-Head project proposal so it can move to Waiting for activation.'
+          : 'Submitted for Office Head approval. Once approved, status moves to Waiting for activation.',
+        waitingOn: 'Office Head',
+        statusLabel: 'Pending Head',
+      });
+    }
+    if (project.status === 'planning' && project.fundingApprovalStatus === 'pending_head') {
+      list.push({
+        id: 'header-funding-head',
+        category: 'head_approval',
+        title: 'Waiting for Office Head funding endorsement',
+        detail: 'Step 1 of 2: Project funding requires Office Head endorsement before moving to Financial Officer (Accounting) certification.',
+        waitingOn: 'Office Head',
+        statusLabel: 'Step 1/2 · Pending Head',
+      });
+      list.push({
+        id: 'header-funding-acct',
+        category: 'accounting_approval',
+        title: 'Waiting for Financial Officer (Accounting) certification',
+        detail: 'Step 2 of 2: Independent Financial Officer (Accounting) certification is required before funds are reserved and the project moves to Waiting for activation.',
+        waitingOn: 'Financial Officer (Accounting)',
+        statusLabel: 'Step 2/2 · Queued',
+      });
+    } else if (project.status === 'planning' && project.fundingApprovalStatus === 'pending_accounting') {
+      list.push({
+        id: 'header-funding-acct-only',
+        category: 'accounting_approval',
+        title: 'Waiting for Financial Officer (Accounting) certification',
+        detail: 'Endorsed by Office Head; pending independent Financial Officer (Accounting) certification before this project moves to Waiting for activation.',
+        waitingOn: 'Financial Officer (Accounting)',
+        statusLabel: 'Step 2/2 · Pending Financial Officer',
+      });
+    }
+    if (project.status === 'active' && project.completionReviewStatus === 'requested') {
+      list.push({
+        id: 'header-completion-head',
+        category: 'head_approval',
+        title: 'Waiting for Office Head final completion approval',
+        detail: 'Submitted by the Project Lead for Office Head final completion review before marking complete and archiving.',
+        waitingOn: 'Office Head',
+        statusLabel: 'Pending Head completion',
+      });
+    }
+    return list;
+  })();
   const canResubmitApproval = Boolean(
     userProfile?.id &&
       (project.createdBy === userProfile.id ||
@@ -164,6 +224,22 @@ export function ProjectHeader({
               health={metrics?.scheduleHealth}
               layout="inline"
             />
+            {headerApprovalBlockers.length > 0 && (
+              <>
+                <ActionBlockerStopButton
+                  actionLabel={project.title}
+                  count={headerApprovalBlockers.length}
+                  size="sm"
+                  onClick={() => setHeaderBlockersOpen(true)}
+                />
+                <ActionBlockersModal
+                  open={headerBlockersOpen}
+                  actionLabel={project.title}
+                  blockers={headerApprovalBlockers}
+                  onClose={() => setHeaderBlockersOpen(false)}
+                />
+              </>
+            )}
             {!closed && targetDateLabel && (
               <span className="eflow-unified-status__meta">
                 <span>· Target {targetDateLabel}</span>
@@ -196,18 +272,8 @@ export function ProjectHeader({
           {project.status === 'archived' ? 'Archived' : 'Completed'} project details are read-only. History and reports remain available.
         </p>
       )}
-      {project.status === 'planning' && project.fundingApprovalStatus === 'pending_head' && (
-        <p role="status">
-          Pending Office Head endorsement and independent Accounting Staff certification before this project moves to Waiting for activation.
-        </p>
-      )}
-      {project.status === 'planning' && project.fundingApprovalStatus === 'pending_accounting' && (
-        <p role="status">
-          Endorsed by Office Head; pending independent Accounting Staff certification before this project moves to Waiting for activation.
-        </p>
-      )}
 
-      {project.status === 'planning' && project.projectApprovalStatus === 'pending_head' && (
+      {project.status === 'planning' && project.projectApprovalStatus === 'pending_head' && isOfficeHead && (
         <div className="eflow-project-identity__context" role="status">
           <div className="flex items-start gap-2">
             <ShieldCheck size={16} className="mt-0.5 shrink-0 text-amber-700" aria-hidden="true" />

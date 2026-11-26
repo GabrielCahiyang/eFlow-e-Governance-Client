@@ -2,7 +2,7 @@ import { useExplicitDraft } from '../../../shared/useExplicitDraft';
 import { useState } from "react";
 import { CheckCircle2, RotateCcw } from "lucide-react";
 import { DecisionModal } from '../../../components/ui/DecisionModal';
-import { WorkspaceTooltip } from '../../../components/ui/workspace/WorkspaceTooltip';
+import { ActionBlockerGroup } from '../../../components/ui/action-blockers';
 import { INPUT_LIMITS } from '../../../shared/inputLimits';
 import { verifyTask } from "../../../services/taskService";
 import { useAuth } from "../../../contexts/AuthContext";
@@ -62,23 +62,23 @@ function TaskReviewDecisionForm({
         ? "Checking cash clearance before approval can proceed…"
         : "";
 
-  const approveTriggerTooltip = !approveTriggerDisabled
-    ? ""
-    : busy
-      ? "Submitting review decision…"
-      : attempted !== undefined
-        ? "Verify the previous review attempt using Check current decision first."
-        : cash.loading
-          ? "Checking cash clearance before approval can proceed…"
-          : "Finish or cancel the open review confirmation dialog first.";
+  const approveTriggerBlockers = [
+    attempted !== undefined
+      ? "Verify the previous review attempt using Check current decision first."
+      : "",
+    mode !== 'idle'
+      ? "Finish or cancel the open review confirmation dialog first."
+      : "",
+  ];
 
-  const rejectTriggerTooltip = !rejectTriggerDisabled
-    ? ""
-    : busy
-      ? "Submitting review decision…"
-      : attempted !== undefined
-        ? "Verify the previous review attempt using Check current decision first."
-        : "Finish or cancel the open review confirmation dialog first.";
+  const rejectTriggerBlockers = [
+    attempted !== undefined
+      ? "Verify the previous review attempt using Check current decision first."
+      : "",
+    mode !== 'idle'
+      ? "Finish or cancel the open review confirmation dialog first."
+      : "",
+  ];
 
   async function confirmed(approve: boolean) {
     const clearance = approve ? await fetchWorkFinancialClearance(taskId).catch(() => undefined) : undefined;
@@ -165,30 +165,36 @@ function TaskReviewDecisionForm({
         onOpenFinancialReview={onOpenFinancialReview}
       />
       <div className="flex items-center gap-2">
-        <WorkspaceTooltip content={approveTriggerTooltip} disabled={!approveTriggerDisabled || !approveTriggerTooltip}>
-          <span className="inline-flex flex-1">
-            <button
-              type="button"
-              onClick={() => setMode("approve")}
-              disabled={approveTriggerDisabled}
-              className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-emerald-600 py-2 text-[12.5px] font-medium text-white hover:bg-emerald-700 disabled:opacity-40 disabled:pointer-events-none"
-            >
-              <CheckCircle2 size={14} /> Approve work
-            </button>
-          </span>
-        </WorkspaceTooltip>
-        <WorkspaceTooltip content={rejectTriggerTooltip} disabled={!rejectTriggerDisabled || !rejectTriggerTooltip}>
-          <span className="inline-flex flex-1">
-            <button
-              type="button"
-              onClick={() => setMode("reject")}
-              disabled={rejectTriggerDisabled}
-              className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg border border-amber-300 bg-amber-50 py-2 text-[12.5px] font-medium text-amber-900 hover:bg-amber-100 disabled:opacity-40 disabled:pointer-events-none"
-            >
-              <RotateCcw size={14} /> Request changes
-            </button>
-          </span>
-        </WorkspaceTooltip>
+        <ActionBlockerGroup
+          actionLabel="Approve work"
+          blockers={approveTriggerDisabled ? approveTriggerBlockers : []}
+          busy={busy || cash.loading}
+          className="flex-1"
+        >
+          <button
+            type="button"
+            onClick={() => setMode("approve")}
+            disabled={approveTriggerDisabled}
+            className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-emerald-600 py-2 text-[12.5px] font-medium text-white hover:bg-emerald-700 disabled:opacity-40 disabled:pointer-events-none"
+          >
+            <CheckCircle2 size={14} /> Approve work
+          </button>
+        </ActionBlockerGroup>
+        <ActionBlockerGroup
+          actionLabel="Request changes"
+          blockers={rejectTriggerDisabled ? rejectTriggerBlockers : []}
+          busy={busy}
+          className="flex-1"
+        >
+          <button
+            type="button"
+            onClick={() => setMode("reject")}
+            disabled={rejectTriggerDisabled}
+            className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg border border-amber-300 bg-amber-50 py-2 text-[12.5px] font-medium text-amber-900 hover:bg-amber-100 disabled:opacity-40 disabled:pointer-events-none"
+          >
+            <RotateCcw size={14} /> Request changes
+          </button>
+        </ActionBlockerGroup>
       </div>
       {attempted!==undefined&&decisionError&&<div role="alert"><p>{decisionError}</p><button type="button" disabled={busy} onClick={()=>void checkDecision()}>Check current decision</button></div>}
       {mode!=='idle'&&attempted===undefined&&(

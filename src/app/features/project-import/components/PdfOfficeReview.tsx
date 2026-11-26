@@ -1,4 +1,5 @@
 import { BoundedTextInput } from "../../../components/ui/BoundedInput";
+import { ActionBlockerGroup } from "../../../components/ui/action-blockers";
 import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import { useState } from 'react';
 import { Building2, AlertTriangle, X } from 'lucide-react';
@@ -20,13 +21,10 @@ export function PdfOfficeReview({ offices, clarification, onConfirm }: { offices
   const hasBlankRow = rows.some(row => !row.name.trim());
   const hasDuplicateName = Array.from(nameCounts.values()).some(count => count > 1);
   const invalid = hasBlankRow || hasDuplicateName;
-  const confirmTip = busy
-    ? ''
-    : hasBlankRow
-      ? 'Enter a name for every office or exclude blank rows before continuing.'
-      : hasDuplicateName
-        ? 'Use a unique name for each office before continuing.'
-        : '';
+  const confirmBlockers = [
+    hasBlankRow ? 'Enter a name for every office or exclude blank rows before continuing.' : '',
+    hasDuplicateName ? 'Use a unique name for each office before continuing.' : '',
+  ].filter(Boolean);
 
   return <div className="pdf-office-review"><h3><Building2 size={20} /> Check the offices</h3><p>Only these names will be added. Contacts stay blank until you send invitations.</p>
     {rows.map(row => {
@@ -81,10 +79,8 @@ export function PdfOfficeReview({ offices, clarification, onConfirm }: { offices
       })}
     </>}
     {invalid && <p role="alert">Use a different, non-empty name for each office.</p>}
-    <WorkspaceTooltip content={confirmTip} disabled={!confirmTip}>
-      <span className="inline-flex">
-        <ModalButton variant="primary" pending={busy} disabled={invalid} onClick={() => { setBusy(true); const manual = Object.entries(clarified).filter(([, name]) => name.trim()).map(([index, name]) => ({ key: `clarified-${index}`, name: name.trim(), evidence: `Head clarified the source reference: ${clarification[Number(index)]}`, officeId: '', confirmed: true })); void onConfirm([...rows, ...manual]).finally(() => setBusy(false)); }}>Confirm offices & continue</ModalButton>
-      </span>
-    </WorkspaceTooltip>
+    <ActionBlockerGroup actionLabel="Confirm offices & continue" blockers={confirmBlockers} busy={busy}>
+      <ModalButton variant="primary" pending={busy} disabled={invalid} onClick={() => { setBusy(true); const manual = Object.entries(clarified).filter(([, name]) => name.trim()).map(([index, name]) => ({ key: `clarified-${index}`, name: name.trim(), evidence: `Head clarified the source reference: ${clarification[Number(index)]}`, officeId: '', confirmed: true })); void onConfirm([...rows, ...manual]).finally(() => setBusy(false)); }}>Confirm offices & continue</ModalButton>
+    </ActionBlockerGroup>
   </div>;
 }

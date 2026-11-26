@@ -3,7 +3,7 @@ import { useRef, useState } from 'react';
 import { BoundedTextInput } from '../../../components/ui/BoundedInput';
 import { FeatureDialog } from '../../../components/ui/FeatureDialog';
 import { FormField } from '../../../components/ui/FormField';
-import { WorkspaceTooltip } from '../../../components/ui/workspace/WorkspaceTooltip';
+import { ActionBlockerGroup } from '../../../components/ui/action-blockers';
 import { INPUT_LIMITS, textLengthError } from '../../../shared/inputLimits';
 import { requestNavigation, useNavigationBlocker } from '../../../shared/navigationGuard';
 
@@ -49,11 +49,9 @@ export function WorkspaceCreateDialog({ kind, context, owner, onClose, onCreate 
       {error&&!visibleNameError&&<p role="alert">{error}</p>}
       <footer>
         <button type="button" onClick={close} disabled={busy}>Cancel</button>
-        <WorkspaceTooltip content={busy?'':rawNameError} disabled={busy||!rawNameError}>
-          <span className="inline-flex">
-            <button type="submit" className="pt-primary" disabled={busy||Boolean(rawNameError)}>{busy?'Creating…':`Create ${kind}`}</button>
-          </span>
-        </WorkspaceTooltip>
+        <ActionBlockerGroup actionLabel={`Create ${kind}`} blockers={rawNameError} busy={busy}>
+          <button type="submit" className="pt-primary" disabled={busy||Boolean(rawNameError)}>{busy?'Creating…':`Create ${kind}`}</button>
+        </ActionBlockerGroup>
       </footer>
     </form>
   </FeatureDialog>;

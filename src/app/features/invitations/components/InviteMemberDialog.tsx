@@ -1,3 +1,4 @@
+import { ActionBlockerGroup } from "../../../components/ui/action-blockers";
 import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import { useRef, useState } from 'react';
 import { Plus, Trash2 } from 'lucide-react';
@@ -81,19 +82,21 @@ export function InviteMemberDialog({
     }
     return '';
   };
-  const firstInvalidIndex = rows.findIndex((row) => Boolean(getRowValidationError(row)));
-  const sendDisabledReason = busy
-    ? ''
-    : nonEmptyRows.length === 0
-      ? 'Enter at least one valid email address before sending invitations.'
-      : firstInvalidIndex !== -1
-        ? `Fix Email address ${firstInvalidIndex + 1}: ${getRowValidationError(rows[firstInvalidIndex])}`
-        : '';
+  const rowBlockers = rows
+    .map((row, index) => {
+      const issue = getRowValidationError(row);
+      return issue ? `Fix Email address ${index + 1}: ${issue}` : '';
+    })
+    .filter(Boolean);
+  const sendBlockers =
+    nonEmptyRows.length === 0
+      ? ['Enter at least one valid email address before sending invitations.']
+      : rowBlockers;
 
   async function send(event: React.FormEvent) {
     event.preventDefault();
     if (guard.pendingRef.current) return;
-    if (sendDisabledReason) {
+    if (sendBlockers.length > 0) {
       setTouchedRows((current) => {
         const next = { ...current };
         for (const row of rows) next[row.id] = true;
@@ -202,21 +205,20 @@ export function InviteMemberDialog({
             <ModalButton disabled={busy} onClick={close}>
               Remind me later
             </ModalButton>
-            <WorkspaceTooltip
-              content={sendDisabledReason}
-              disabled={!sendDisabledReason}
+            <ActionBlockerGroup
+              actionLabel="Send invitations"
+              blockers={sendBlockers}
+              busy={busy}
             >
-              <span className="inline-flex">
-                <ModalButton
-                  variant="primary"
-                  pending={busy}
-                  disabled={Boolean(sendDisabledReason)}
-                  onClick={() => formRef.current?.requestSubmit()}
-                >
-                  Send invitations
-                </ModalButton>
-              </span>
-            </WorkspaceTooltip>
+              <ModalButton
+                variant="primary"
+                pending={busy}
+                disabled={sendBlockers.length > 0}
+                onClick={() => formRef.current?.requestSubmit()}
+              >
+                Send invitations
+              </ModalButton>
+            </ActionBlockerGroup>
           </>
         }
       >

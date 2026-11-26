@@ -16,11 +16,23 @@ export type UnifiedFundingOptionKind =
   | "budget_cap";
 
 export interface UnifiedFundingOption {
-  /** Composite key `${kind}:${id}` safe for `<select>` values. */
+  /** Composite key `${kind}:${id}` or `${kind}:${requestId}:${allocationLineId}` safe for `<select>` values. */
   key: string;
   kind: UnifiedFundingOptionKind;
   /** `petty_cash_request_id`, `office_cash_request_id`, or `allocation_line_id`. */
   sourceId: string;
+  /** Specific task funding source line (`work_budget_allocation_lines.id`) when assigning from a task cash release. */
+  allocationLineId?: string;
+  /** Short category / fund name (e.g. `Maintainance`, `MOAE`, `shalama`). */
+  sourceName?: string;
+  /** Cash request code (e.g. `FR-00001`). */
+  requestCode?: string;
+  /** Total cash released for this specific funding line or petty cash release. */
+  releasedAmount?: number;
+  /** Total task budget allocated to this funding line (if available). */
+  allocatedAmount?: number;
+  /** Remaining unrequested task budget on this funding line (if available). */
+  unrequestedAmount?: number;
   label: string;
   subtitle: string;
   /** Unassigned / free amount currently available in this pool (in PHP). */
@@ -39,11 +51,27 @@ export interface UnifiedFundingOption {
   existingCapId?: string;
 }
 
+function compactLabelText(value: string | null | undefined, maxLength = 28): string {
+  const cleaned = (value ?? "").trim().replace(/\s+/g, " ");
+  if (!cleaned) return "";
+  return cleaned.length > maxLength ? `${cleaned.slice(0, maxLength - 1).trimEnd()}…` : cleaned;
+}
+
 const OPEN_RELEASED_STATES = new Set([
   "released",
   "changes_requested",
   "overdue_liquidation",
 ]);
+
+/**
+ * Build the exact `<select>` option key for an existing assignment so Edit / Adjust selects the right line.
+ */
+export function fundingOptionKeyForAssignment(assignment: WorkCashAssignment): string {
+  if (assignment.sourceKind === "task_cash_release" && assignment.allocationLineId) {
+    return `task_cash_release:${assignment.sourceRequestId}:${assignment.allocationLineId}`;
+  }
+  return `${assignment.sourceKind}:${assignment.sourceRequestId}`;
+}
 
 /**
  * Derive fallback cash-on-hand totals when the server has not yet returned `cashPools`
@@ -77,15 +105,20 @@ export function resolveCashPools(
       (rel) => rel.status === "released" && !rel.acknowledgedAt,
     );
     const releasedAmount = Number(r.releasedAmount ?? 0);
+    const lines = (r.fundingLines ?? []).map((line) => ({
+      ...line,
+      unassignedAmount: Number(line.amount ?? 0),
+      assignedToTask: 0,
+      assignedToSubtasks: 0,
+      recordedReceiptsTotal: 0,
+    }));
     return {
       requestId: r.id,
       requestNumber: r.requestNumber,
       purpose: r.purpose,
       status: r.status,
-      sourceLabels: (r.fundingLines ?? []).map(
-        (line) => line.sourceName || "Approved source",
-      ),
-      fundingLines: r.fundingLines ?? [],
+      sourceLabels: lines.map((line) => line.sourceName || "Approved source"),
+      fundingLines: lines,
       releasedAmount,
       assignedToTask: 0,
       assignedToSubtasks: 0,
@@ -128,8 +161,8 @@ export function resolveCashPools(
 }
 
 /**
- * Build the 3-bucket funding options (Released Task Cash, Released Office Petty Cash,
- * and Unrequested Task Budget) for either `This task` (`subtaskId = null`) or a specific subtask.
+ * Build funding options split cleanly per released funding source line (e.g. Maintainance ₱500, MOAE ₱300)
+ * plus released Office Petty Cash (and optional unrequested budget caps).
  */
 export function buildUnifiedFundingOptions(
   context: TaskFundingContext | null | undefined,
@@ -145,48 +178,119 @@ export function buildUnifiedFundingOptions(
 } {
   const pools = resolveCashPools(context);
   const assignments = pools.assignments ?? [];
+  const contextLinesById = new Map(
+    (context?.lines ?? []).map((line) => [line.id, line]),
+  );
   const includeBudgetCap =
     options?.includeUnrequestedBudgetCap ?? targetSubtaskId !== null;
 
   const findExistingAssignment = (
     sourceKind: WorkCashSourceKind,
     sourceRequestId: string,
+    allocationLineId?: string | null,
   ): WorkCashAssignment | undefined =>
     assignments.find(
       (a) =>
         a.status === "active" &&
         a.sourceKind === sourceKind &&
         a.sourceRequestId === sourceRequestId &&
+        (allocationLineId === undefined
+          ? true
+          : (a.allocationLineId ?? null) === (allocationLineId ?? null)) &&
         (a.subtaskId ?? null) === targetSubtaskId,
     );
 
   const taskCashOptions: UnifiedFundingOption[] = pools.taskCashReleases
     .filter((pool) => pool.isCurrentHolder && pool.acknowledged)
-    .map((pool) => {
-      const existing = findExistingAssignment("task_cash_release", pool.requestId);
+    .flatMap((pool): UnifiedFundingOption[] => {
+      const frCode = `FR-${String(pool.requestNumber).padStart(5, "0")}`;
+
+      if (pool.fundingLines.length > 0) {
+        return pool.fundingLines.map((line) => {
+          const existing = findExistingAssignment(
+            "task_cash_release",
+            pool.requestId,
+            line.allocationLineId,
+          );
+          const existingCents = toCents(existing?.amount ?? 0);
+          const lineReleasedCents = toCents(line.amount);
+          const lineAssignedElsewhereCents =
+            line.unassignedAmount !== undefined
+              ? Math.max(0, lineReleasedCents - toCents(line.unassignedAmount))
+              : assignments
+                  .filter(
+                    (a) =>
+                      a.status === "active" &&
+                      a.sourceKind === "task_cash_release" &&
+                      a.sourceRequestId === pool.requestId &&
+                      (a.allocationLineId ?? null) === line.allocationLineId,
+                  )
+                  .reduce((sum, a) => sum + toCents(a.amount), 0);
+          const unassignedCents =
+            line.unassignedAmount !== undefined
+              ? toCents(line.unassignedAmount)
+              : Math.max(0, lineReleasedCents - lineAssignedElsewhereCents);
+          const maxCents = unassignedCents + existingCents;
+          const minCents = toCents(existing?.recordedSpent ?? 0);
+          const ctxLine = contextLinesById.get(line.allocationLineId);
+          const rawName = line.sourceName || ctxLine?.category || "Approved source";
+          const sourceName = compactLabelText(rawName, 24) || "Approved source";
+          const allocatedAmount = line.allocatedAmount ?? ctxLine?.amount;
+          const unrequestedAmount = line.unrequestedAmount ?? ctxLine?.available;
+
+          return {
+            key: `task_cash_release:${pool.requestId}:${line.allocationLineId}`,
+            kind: "task_cash_release",
+            sourceId: pool.requestId,
+            allocationLineId: line.allocationLineId,
+            sourceName,
+            requestCode: frCode,
+            releasedAmount: fromCents(lineReleasedCents),
+            allocatedAmount,
+            unrequestedAmount,
+            label: `${sourceName} · ${frCode}`,
+            subtitle: existing
+              ? `${formatCents(existingCents)} assigned · ${formatCents(unassignedCents)} free`
+              : `${formatCents(unassignedCents)} of ${formatCents(lineReleasedCents)} released`,
+            available: fromCents(unassignedCents),
+            maxForTarget: fromCents(maxCents),
+            minForTarget: fromCents(minCents),
+            supportsTaskSelf: true,
+            existingTargetAmount: fromCents(existingCents),
+            existingAssignmentId: existing?.id,
+          };
+        });
+      }
+
+      // Legacy fallback when a cash request has no line-level rows
+      const existing = findExistingAssignment("task_cash_release", pool.requestId, null);
       const existingCents = toCents(existing?.amount ?? 0);
       const unassignedCents = toCents(pool.unassignedAmount);
       const maxCents = unassignedCents + existingCents;
       const minCents = toCents(existing?.recordedSpent ?? 0);
-      const frCode = `FR-${String(pool.requestNumber).padStart(5, "0")}`;
-      const sourcesText = pool.sourceLabels.length
-        ? pool.sourceLabels.join(", ")
-        : pool.purpose;
-      return {
-        key: `task_cash_release:${pool.requestId}`,
-        kind: "task_cash_release",
-        sourceId: pool.requestId,
-        label: `${frCode} · ${sourcesText}`,
-        subtitle: existing
-          ? `${formatCents(existingCents)} already assigned here · ${formatCents(unassignedCents)} unassigned`
-          : `${formatCents(unassignedCents)} unassigned of ${formatCents(toCents(pool.releasedAmount))} released`,
-        available: fromCents(unassignedCents),
-        maxForTarget: fromCents(maxCents),
-        minForTarget: fromCents(minCents),
-        supportsTaskSelf: true,
-        existingTargetAmount: fromCents(existingCents),
-        existingAssignmentId: existing?.id,
-      };
+      const shortPurpose = compactLabelText(pool.purpose, 24);
+      const label = shortPurpose ? `${frCode} · ${shortPurpose}` : frCode;
+
+      return [
+        {
+          key: `task_cash_release:${pool.requestId}`,
+          kind: "task_cash_release",
+          sourceId: pool.requestId,
+          sourceName: shortPurpose || frCode,
+          requestCode: frCode,
+          releasedAmount: pool.releasedAmount,
+          label,
+          subtitle: existing
+            ? `${formatCents(existingCents)} assigned · ${formatCents(unassignedCents)} free`
+            : `${formatCents(unassignedCents)} of ${formatCents(toCents(pool.releasedAmount))} released`,
+          available: fromCents(unassignedCents),
+          maxForTarget: fromCents(maxCents),
+          minForTarget: fromCents(minCents),
+          supportsTaskSelf: true,
+          existingTargetAmount: fromCents(existingCents),
+          existingAssignmentId: existing?.id,
+        },
+      ];
     });
 
   const officePettyCashOptions: UnifiedFundingOption[] = pools.officePettyCashReleases
@@ -200,14 +304,20 @@ export function buildUnifiedFundingOptions(
       const unassignedCents = toCents(pool.unassignedAmount);
       const maxCents = unassignedCents + existingCents;
       const minCents = toCents(existing?.recordedSpent ?? 0);
+      const shortPurpose = compactLabelText(pool.purpose, 24);
+      const label = shortPurpose
+        ? `Office Petty Cash · ${shortPurpose}`
+        : "Office Petty Cash";
       return {
         key: `office_petty_cash:${pool.officeCashRequestId}`,
         kind: "office_petty_cash",
         sourceId: pool.officeCashRequestId,
-        label: `Office Petty Cash · ${pool.purpose}`,
+        sourceName: shortPurpose || "Office Petty Cash",
+        releasedAmount: pool.releasedAmount,
+        label,
         subtitle: existing
-          ? `${formatCents(existingCents)} already assigned here · ${formatCents(unassignedCents)} unassigned (separate ₱30k fund)`
-          : `${formatCents(unassignedCents)} unassigned of ${formatCents(toCents(pool.releasedAmount))} released (separate ₱30k fund)`,
+          ? `${formatCents(existingCents)} assigned · ${formatCents(unassignedCents)} free`
+          : `${formatCents(unassignedCents)} of ${formatCents(toCents(pool.releasedAmount))} released`,
         available: fromCents(unassignedCents),
         maxForTarget: fromCents(maxCents),
         minForTarget: fromCents(minCents),
@@ -238,6 +348,7 @@ export function buildUnifiedFundingOptions(
             key: `budget_cap:${src.id}`,
             kind: "budget_cap",
             sourceId: src.id,
+            sourceName: src.name,
             label: src.name,
             subtitle: `${formatCents(availCents)} unrequested task budget · requires cash request & Accounting release`,
             available: fromCents(availCents),

@@ -3,7 +3,7 @@ import { Button, Label } from "@vibe/core";
 import { AlertTriangle, Check, Plus } from "lucide-react";
 import type { Organization, UserProfile } from "../../../types";
 import { BoundedTextarea, BoundedTextInput } from "../../../components/ui/BoundedInput";
-import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
+import { ActionBlockerGroup } from "../../../components/ui/action-blockers";
 import { INPUT_LIMITS, textLengthError } from "../../../shared/inputLimits";
 import { formatManilaDate } from "../../../shared/calendarDisplay";
 import type {
@@ -57,7 +57,7 @@ export function ChangeRequestsPanel({
   });
   const visibleTargetKeyError = targetKeyTouched ? rawTargetKeyError : "";
   const visibleReasonError = reasonTouched || reason.length > 0 ? rawReasonError : "";
-  const submitBlockedReason = busy ? "" : rawTargetKeyError || rawReasonError || "";
+  const submitBlockers = [rawTargetKeyError, rawReasonError];
 
   const submit = async () => {
     setTargetKeyTouched(true);
@@ -173,20 +173,20 @@ export function ChangeRequestsPanel({
               >
                 Cancel
               </Button>
-              <WorkspaceTooltip
-                content={submitBlockedReason}
-                disabled={!submitBlockedReason}
+              <ActionBlockerGroup
+                actionLabel="Submit requirement"
+                blockers={submitBlockers}
+                busy={busy}
+                size="sm"
               >
-                <span className="inline-flex">
-                  <Button
-                    size="small"
-                    disabled={Boolean(rawTargetKeyError || rawReasonError) || busy}
-                    onClick={() => void submit()}
-                  >
-                    {busy ? "Submitting…" : "Submit requirement"}
-                  </Button>
-                </span>
-              </WorkspaceTooltip>
+                <Button
+                  size="small"
+                  disabled={Boolean(rawTargetKeyError || rawReasonError) || busy}
+                  onClick={() => void submit()}
+                >
+                  {busy ? "Submitting…" : "Submit requirement"}
+                </Button>
+              </ActionBlockerGroup>
             </div>
           </div>
         )}

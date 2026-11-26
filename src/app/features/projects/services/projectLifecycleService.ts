@@ -1,7 +1,7 @@
 import { supabase } from "../../../../lib/supabase";
 import { notifyProjectListeners } from "./projectQueryService";
 import type { ProjectCompletionReviewStatus, ProjectStatus } from "./types";
-import type { UnusedProjectFunding } from "../../project-setup";
+import type { ProjectFinancialCloseoutSummary, UnusedProjectFunding } from "../../project-setup";
 
 export interface ProjectCompletionBlocker {
   kind: "work" | "task" | "subtask" | "cash" | "governance" | "funding" | "lead_review";
@@ -20,6 +20,8 @@ export interface ProjectCompletionReadiness {
   canComplete: boolean;
   blockers: ProjectCompletionBlocker[];
   workBlockersCount?: number;
+  unreturnedProjectFunding?: number;
+  financialCloseoutSummary?: ProjectFinancialCloseoutSummary;
   projectLeadId?: string | null;
   projectLeadName?: string;
   requiresHeadCompletionReview?: boolean;
@@ -103,6 +105,19 @@ export function fetchProjectCompletionReadiness(projectId: string): Promise<Proj
   });
   inFlightCompletionReadiness.set(projectId, request);
   return request;
+}
+
+export async function fetchProjectFinancialCloseoutSummary(
+  projectId: string,
+): Promise<ProjectFinancialCloseoutSummary> {
+  const { data, error } = await supabase.rpc("get_project_financial_closeout_summary", {
+    p_project_id: projectId,
+  });
+  if (error) throw lifecycleError(error);
+  if (!data || typeof data !== "object") {
+    throw new Error("Could not load the project financial closeout summary. Try again.");
+  }
+  return data as ProjectFinancialCloseoutSummary;
 }
 
 export async function fetchProjectDeletionBlockers(projectId: string): Promise<string[] | null> {

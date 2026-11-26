@@ -2,6 +2,7 @@ import { readableUiError } from '../../../shared/userFacingError';
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '@vibe/core';
 import { BookmarkPlus, ClipboardList, RotateCcw, X } from 'lucide-react';
+import { ActionBlockerGroup } from '../../../components/ui/action-blockers';
 import { BoundedTextInput } from '../../../components/ui/BoundedInput';
 import { DecisionModal } from '../../../components/ui/DecisionModal';
 import { WorkspaceTooltip } from '../../../components/ui/workspace/WorkspaceTooltip';
@@ -631,19 +632,22 @@ export function ProjectTaskDraftStep({
                     if (!saveTemplateNameTouched) setSaveTemplateNameTouched(true);
                   }}
                 />
-                <WorkspaceTooltip content={saveStarterTip} disabled={!saveStarterTip}>
-                  <span className="inline-flex">
-                    <Button
-                      type="button"
-                      kind="primary"
-                      size="small"
-                      disabled={saveStarterDisabled}
-                      onClick={saveAsTemplate}
-                    >
-                      {busy === 'saving-template' ? 'Saving template…' : 'Save starter template'}
-                    </Button>
-                  </span>
-                </WorkspaceTooltip>
+                <ActionBlockerGroup
+                  actionLabel="Save starter template"
+                  blockers={saveStarterDisabled ? saveStarterTip : []}
+                  busy={Boolean(busy)}
+                  size="sm"
+                >
+                  <Button
+                    type="button"
+                    kind="primary"
+                    size="small"
+                    disabled={saveStarterDisabled}
+                    onClick={saveAsTemplate}
+                  >
+                    {busy === 'saving-template' ? 'Saving template…' : 'Save starter template'}
+                  </Button>
+                </ActionBlockerGroup>
                 <Button
                   type="button"
                   kind="tertiary"
@@ -682,35 +686,41 @@ export function ProjectTaskDraftStep({
                     : '';
                 return (
                   <>
-                    <WorkspaceTooltip content={saveAsTemplateTip} disabled={!saveAsTemplateTip}>
-                      <span className="inline-flex">
-                        <Button
-                          type="button"
-                          kind="secondary"
-                          size="small"
-                          disabled={saveAsTemplateDisabled}
-                          onClick={() => {
-                            setSavedTemplateNotice('');
-                            setSaveTemplateNameTouched(false);
-                            setSaveTemplateName((current) =>
-                              current || `${project.title.trim() || 'Project'} starter`.slice(0, INPUT_LIMITS.GROUP_TITLE),
-                            );
-                            setSaveTemplateOpen(true);
-                          }}
-                        >
-                          <BookmarkPlus size={15} style={{ marginRight: 5 }} />
-                          Save as template
-                        </Button>
-                      </span>
-                    </WorkspaceTooltip>
+                    <ActionBlockerGroup
+                      actionLabel="Save as template"
+                      blockers={saveAsTemplateDisabled ? saveAsTemplateTip : []}
+                      busy={Boolean(busy)}
+                      size="sm"
+                    >
+                      <Button
+                        type="button"
+                        kind="secondary"
+                        size="small"
+                        disabled={saveAsTemplateDisabled}
+                        onClick={() => {
+                          setSavedTemplateNotice('');
+                          setSaveTemplateNameTouched(false);
+                          setSaveTemplateName((current) =>
+                            current || `${project.title.trim() || 'Project'} starter`.slice(0, INPUT_LIMITS.GROUP_TITLE),
+                          );
+                          setSaveTemplateOpen(true);
+                        }}
+                      >
+                        <BookmarkPlus size={15} style={{ marginRight: 5 }} />
+                        Save as template
+                      </Button>
+                    </ActionBlockerGroup>
                     {!formId && (
-                      <WorkspaceTooltip content={addTasksTip} disabled={!addTasksTip}>
-                        <span className="inline-flex">
-                          <button type="button" className="pf-primary" disabled={addTasksDisabled} onClick={save}>
-                            {busy === 'saving' ? 'Saving…' : retry ? 'Retry saving tasks' : 'Add tasks and open project'}
-                          </button>
-                        </span>
-                      </WorkspaceTooltip>
+                      <ActionBlockerGroup
+                        actionLabel="Add tasks and open project"
+                        blockers={addTasksDisabled ? addTasksTip : []}
+                        busy={Boolean(busy)}
+                        size="sm"
+                      >
+                        <button type="button" className="pf-primary" disabled={addTasksDisabled} onClick={save}>
+                          {busy === 'saving' ? 'Saving…' : retry ? 'Retry saving tasks' : 'Add tasks and open project'}
+                        </button>
+                      </ActionBlockerGroup>
                     )}
                   </>
                 );

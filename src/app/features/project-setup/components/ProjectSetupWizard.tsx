@@ -2,6 +2,7 @@ import { readableUiError } from '../../../shared/userFacingError';
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { Button } from '@vibe/core';
 import { AlertCircle, ArrowLeft, ArrowRight, CalendarDays, Check, ClipboardList, Layers, RefreshCw, Wallet, ShieldCheck, Save, FileUp, UsersRound } from 'lucide-react';
+import { ActionBlockerGroup } from '../../../components/ui/action-blockers';
 import { DecisionModal } from '../../../components/ui/DecisionModal';
 import { FeedbackState } from '../../../components/ui/FeedbackState';
 import { Modal } from '../../../components/ui/Modal';
@@ -967,9 +968,12 @@ export function ProjectSetupWizard({
 
   if (recovery) {
     const startNewDisabled = !!recovery.creationAttempt;
-    const startNewTip = startNewDisabled
+    const startNewBlocker = startNewDisabled
       ? 'A previous project creation request may still be pending. Continue the draft first to verify before starting a new project.'
-      : 'Permanently discards your saved local draft and starts a fresh project.';
+      : '';
+    const startNewTip = !startNewDisabled
+      ? 'Permanently discards your saved local draft and starts a fresh project.'
+      : '';
     return (
       <Modal
         isOpen
@@ -978,21 +982,23 @@ export function ProjectSetupWizard({
         onClose={close}
         footer={
           <div className="pf-actions">
-            <WorkspaceTooltip content={startNewTip} disabled={!startNewTip}>
-              <span className="inline-flex">
-                <button
-                  type="button"
-                  disabled={startNewDisabled}
-                  onClick={() => {
-                    storeProjectDraft(recoveryKey);
-                    if (fundingRecoveryKey) storeFundingDraft(fundingRecoveryKey);
-                    setRecovery(undefined);
-                  }}
-                >
-                  Start new project
-                </button>
-              </span>
-            </WorkspaceTooltip>
+            <ActionBlockerGroup actionLabel="Start new project" blockers={startNewBlocker}>
+              <WorkspaceTooltip content={startNewTip} disabled={!startNewTip}>
+                <span className="inline-flex">
+                  <button
+                    type="button"
+                    disabled={startNewDisabled}
+                    onClick={() => {
+                      storeProjectDraft(recoveryKey);
+                      if (fundingRecoveryKey) storeFundingDraft(fundingRecoveryKey);
+                      setRecovery(undefined);
+                    }}
+                  >
+                    Start new project
+                  </button>
+                </span>
+              </WorkspaceTooltip>
+            </ActionBlockerGroup>
             <button type="button" className="pf-primary" onClick={() => continueDraft(recovery)}>
               Continue draft
             </button>
@@ -1068,84 +1074,100 @@ export function ProjectSetupWizard({
             <div className="pf-wizard-footer-actions">
               {!pdfMode && step === peopleStep ? (
                 readyProjectId ? (
-                  <WorkspaceTooltip content={peopleSubmitTip} disabled={!peopleSubmitTip}>
-                    <span className="inline-flex">
-                      <button
-                        type="submit"
-                        form={peopleFormId}
-                        className="pf-primary"
-                        disabled={peopleSubmitDisabled}
-                      >
-                        {teamAction.label}
-                        <ArrowRight size={16} />
-                      </button>
-                    </span>
-                  </WorkspaceTooltip>
-                ) : (
-                  <WorkspaceTooltip content={nextDraftTasksTip} disabled={!nextDraftTasksTip}>
-                    <span className="inline-flex">
-                      <button
-                        type="button"
-                        className="pf-primary"
-                        disabled={nextDraftTasksDisabled}
-                        onClick={() => jump(activeTasksStep)}
-                      >
-                        Next: Draft tasks
-                        <ArrowRight size={16} />
-                      </button>
-                    </span>
-                  </WorkspaceTooltip>
-                )
-              ) : step === activeTasksStep ? (
-                <WorkspaceTooltip content={taskSubmitTip} disabled={!taskSubmitTip}>
-                  <span className="inline-flex">
+                  <ActionBlockerGroup
+                    actionLabel={teamAction.label}
+                    blockers={peopleSubmitTip}
+                    busy={locked}
+                  >
                     <button
-                      type={pdfMode ? 'button' : 'submit'}
-                      form={pdfMode ? undefined : tasksFormId}
+                      type="submit"
+                      form={peopleFormId}
                       className="pf-primary"
-                      disabled={taskSubmitDisabled}
-                      onClick={pdfMode ? close : undefined}
+                      disabled={peopleSubmitDisabled}
                     >
-                      {pdfMode ? 'Open project' : taskAction.label}
+                      {teamAction.label}
                       <ArrowRight size={16} />
                     </button>
-                  </span>
-                </WorkspaceTooltip>
+                  </ActionBlockerGroup>
+                ) : (
+                  <ActionBlockerGroup
+                    actionLabel="Next: Draft tasks"
+                    blockers={nextDraftTasksTip}
+                    busy={locked || loading}
+                  >
+                    <button
+                      type="button"
+                      className="pf-primary"
+                      disabled={nextDraftTasksDisabled}
+                      onClick={() => jump(activeTasksStep)}
+                    >
+                      Next: Draft tasks
+                      <ArrowRight size={16} />
+                    </button>
+                  </ActionBlockerGroup>
+                )
+              ) : step === activeTasksStep ? (
+                <ActionBlockerGroup
+                  actionLabel={pdfMode ? 'Open project' : taskAction.label}
+                  blockers={taskSubmitTip}
+                  busy={locked}
+                >
+                  <button
+                    type={pdfMode ? 'button' : 'submit'}
+                    form={pdfMode ? undefined : tasksFormId}
+                    className="pf-primary"
+                    disabled={taskSubmitDisabled}
+                    onClick={pdfMode ? close : undefined}
+                  >
+                    {pdfMode ? 'Open project' : taskAction.label}
+                    <ArrowRight size={16} />
+                  </button>
+                </ActionBlockerGroup>
               ) : (
                 <>
                   {editable && (
-                    <WorkspaceTooltip content={saveDraftTip} disabled={!saveDraftTip}>
-                      <span className="inline-flex">
-                        <button
-                          type="button"
-                          disabled={saveDraftDisabled}
-                          onClick={saveDraft}
-                        >
-                          <Save size={16} />
-                          Save draft and close
-                        </button>
-                      </span>
-                    </WorkspaceTooltip>
-                  )}
-                  <WorkspaceTooltip content={nextTip} disabled={!nextTip}>
-                    <span className="inline-flex">
+                    <ActionBlockerGroup
+                      actionLabel="Save draft and close"
+                      blockers={saveDraftTip}
+                      busy={locked}
+                    >
                       <button
                         type="button"
-                        className="pf-primary"
-                        disabled={nextDisabled}
-                        onClick={next}
+                        disabled={saveDraftDisabled}
+                        onClick={saveDraft}
                       >
-                        {locked
-                          ? 'Saving…'
-                          : step === reviewStep
-                            ? pdfMode
-                              ? 'Next: Import AI PDF'
-                              : 'Next: Add people'
-                            : 'Next'}
-                        <ArrowRight size={16} />
+                        <Save size={16} />
+                        Save draft and close
                       </button>
-                    </span>
-                  </WorkspaceTooltip>
+                    </ActionBlockerGroup>
+                  )}
+                  <ActionBlockerGroup
+                    actionLabel={
+                      step === reviewStep
+                        ? pdfMode
+                          ? 'Next: Import AI PDF'
+                          : 'Next: Add people'
+                        : 'Next'
+                    }
+                    blockers={nextTip}
+                    busy={locked || loading}
+                  >
+                    <button
+                      type="button"
+                      className="pf-primary"
+                      disabled={nextDisabled}
+                      onClick={next}
+                    >
+                      {locked
+                        ? 'Saving…'
+                        : step === reviewStep
+                          ? pdfMode
+                            ? 'Next: Import AI PDF'
+                            : 'Next: Add people'
+                          : 'Next'}
+                      <ArrowRight size={16} />
+                    </button>
+                  </ActionBlockerGroup>
                 </>
               )}
             </div>
@@ -1301,19 +1323,22 @@ export function ProjectSetupWizard({
                                 ? 'Clear your unsaved funding entries below before choosing No funding required.'
                                 : 'Wait for the current save action to finish.';
                     return (
-                      <WorkspaceTooltip content={noFundingTip} disabled={!noFundingTip}>
-                        <span className="inline-flex">
-                          <label className="pf-checkbox">
-                            <input
-                              type="checkbox"
-                              checked={draft.noFunding}
-                              disabled={noFundingDisabled}
-                              onChange={(e) => update('noFunding', e.target.checked)}
-                            />
-                            No funding required for this project
-                          </label>
-                        </span>
-                      </WorkspaceTooltip>
+                      <ActionBlockerGroup
+                        actionLabel="No funding required"
+                        blockers={noFundingTip}
+                        busy={locked}
+                        size="sm"
+                      >
+                        <label className="pf-checkbox">
+                          <input
+                            type="checkbox"
+                            checked={draft.noFunding}
+                            disabled={noFundingDisabled}
+                            onChange={(e) => update('noFunding', e.target.checked)}
+                          />
+                          No funding required for this project
+                        </label>
+                      </ActionBlockerGroup>
                     );
                   })()}
                   {!draft.noFunding && fundingPanelData && (

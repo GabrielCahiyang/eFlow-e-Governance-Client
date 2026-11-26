@@ -10,7 +10,7 @@ export type {RootWorkAction,NodeWorkAction,WorkCapabilityReasonCode,WorkCapabili
 export {fetchPersonalWorkRoots} from './services/workTreeService';
 
 export {fetchOfficeWorkRoots,fetchWorkEvents,type WorkEvent} from './services/workTreeService';
-export {WorkActivity} from './components/WorkActivity';
+export {WorkActivity,type WorkActivityExtraEntry} from './components/WorkActivity';
 export {WorkStaffingDialog,type WorkStaffingDialogProps,type WorkStaffingController} from './components/WorkStaffingDialog';
 export {WorkPeopleSummary,type WorkPeopleSummaryProps} from './components/WorkPeopleSummary';
 export {OwnerAvatarStack} from './components/OwnerAvatarStack';

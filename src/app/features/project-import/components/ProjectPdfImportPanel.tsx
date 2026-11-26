@@ -2,6 +2,7 @@ import { useEffect, useId, useState } from 'react';
 import { FileUp,LoaderCircle,CheckCircle2,Building2,Sparkles,ArrowRight,AlertTriangle,Play,Trash2,ListTodo,Wallet } from 'lucide-react';
 import { Modal,ModalButton } from '../../../components/ui/Modal';
 import { DateInput } from '../../../components/ui/DateInput';
+import { ActionBlockerGroup } from '../../../components/ui/action-blockers';
 import { WorkspaceTooltip } from '../../../components/ui/workspace/WorkspaceTooltip';
 import { getPhilippineCalendarDate,scheduledDateError } from '../../../shared/calendarDates';
 import { useNavigationBlocker } from '../../../shared/navigationGuard';
@@ -35,7 +36,6 @@ export function ProjectPdfImportPanel({projectId,projectTitle,startDate,projectC
    :scheduledDateError(anchor,{earliest:today,label:'Schedule start'});
  const visibleAnchorError=anchorInvalid||anchorTouched||Boolean(anchor)?anchorError:'';
  const choosePdfDisabled=flow.busy||Boolean(anchorError);
- const choosePdfTip=flow.busy?'':anchorError;
  useEffect(()=>{onBusyChange?.(flow.busy);},[flow.busy,onBusyChange]);
  useNavigationBlocker({label:'PDF import is processing',dirty:false,pending:flow.busy,pendingCheck:()=>flow.busy,onDiscard:()=>{}});
  const close=()=>{if(!flow.busy)onClose?.();};
@@ -71,6 +71,7 @@ export function ProjectPdfImportPanel({projectId,projectTitle,startDate,projectC
      options={{addTasks:true,addBudget:effectiveAddBudget,addSubtasks,assignPeople:autoAssign}}
      onOptionsChange={changeOptions}
      onStart={upload}
+     busy={flow.busy}
      disabled={flow.busy||Boolean(anchorError)}
      disabledReason={!flow.busy&&anchorError?anchorError:''}
      budgetDisabledReason={budgetDisabledReason}
@@ -79,11 +80,9 @@ export function ProjectPdfImportPanel({projectId,projectTitle,startDate,projectC
    </div>:<>
     <div className="pdf-import-intro"><span><FileUp size={24}/></span><div><h3>From PDF to work plan</h3><p>Import the source groups and tasks. Choose the extra details to include.</p></div></div>
     <div className="project-pdf-import__controls">{schedule}
-     <WorkspaceTooltip content={choosePdfTip} disabled={!choosePdfTip}>
-      <span className="inline-flex">
-       <label className="project-pdf-import__upload"><FileUp size={24}/><span><strong>Choose PDF</strong><small>Up to 20 MB</small></span><input aria-label="Import project PDF" type="file" accept=".pdf,application/pdf" disabled={choosePdfDisabled} onChange={event=>{const file=event.target.files?.[0];event.target.value='';if(file)upload(file);}}/></label>
-      </span>
-     </WorkspaceTooltip>
+     <ActionBlockerGroup actionLabel="Choose PDF" blockers={anchorError} busy={flow.busy}>
+      <label className="project-pdf-import__upload"><FileUp size={24}/><span><strong>Choose PDF</strong><small>Up to 20 MB</small></span><input aria-label="Import project PDF" type="file" accept=".pdf,application/pdf" disabled={choosePdfDisabled} onChange={event=>{const file=event.target.files?.[0];event.target.value='';if(file)upload(file);}}/></label>
+     </ActionBlockerGroup>
     </div>
     <div className="pdf-import-options"><label><input type="checkbox" checked={autoAssign} onChange={event=>setAutoAssign(event.target.checked)}/><Sparkles size={19}/><span><strong>Choose people during import</strong><small>eFlow uses skills and workload to assign eligible office members to imported tasks where it can.</small></span></label>
      <label><input type="checkbox" checked={addSubtasks} onChange={event=>setAddSubtasks(event.target.checked)}/><ListTodo size={19}/><span><strong>Add subtasks</strong><small>Include source steps and practical preparation.</small></span></label>

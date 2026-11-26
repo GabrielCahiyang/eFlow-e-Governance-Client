@@ -32,6 +32,14 @@ function normalizeGeneralForm(
       DEFAULT_GENERAL_SETTINGS.maintenance_banner_enabled,
     maintenance_banner_message: values?.maintenance_banner_message ?? "",
     due_soon_days: values?.due_soon_days || DEFAULT_GENERAL_SETTINGS.due_soon_days,
+    session_idle_timeout_minutes:
+      values?.session_idle_timeout_minutes !== undefined
+        ? values.session_idle_timeout_minutes
+        : DEFAULT_GENERAL_SETTINGS.session_idle_timeout_minutes,
+    session_warning_lead_minutes:
+      values?.session_warning_lead_minutes !== undefined
+        ? values.session_warning_lead_minutes
+        : DEFAULT_GENERAL_SETTINGS.session_warning_lead_minutes,
   };
 }
 
@@ -151,6 +159,12 @@ export function useApplicationSettingsForm(canManage: boolean) {
         maintenance_banner_enabled: form.maintenance_banner_enabled,
         maintenance_banner_message: form.maintenance_banner_message.trim(),
         due_soon_days: form.due_soon_days,
+        session_idle_timeout_minutes: /^\d+$/.test(form.session_idle_timeout_minutes.trim())
+          ? String(Number(form.session_idle_timeout_minutes.trim()))
+          : form.session_idle_timeout_minutes.trim(),
+        session_warning_lead_minutes: /^\d+$/.test(form.session_warning_lead_minutes.trim())
+          ? String(Number(form.session_warning_lead_minutes.trim()))
+          : form.session_warning_lead_minutes.trim(),
       },
     };
     const nextBranding: LoginBrandingSettings = {

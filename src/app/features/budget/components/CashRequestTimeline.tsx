@@ -25,8 +25,7 @@ import {
   getCashWorkflowProgress,
   isLiquidationCurrentlyOverdue,
 } from "../selectors/cashWorkflowRules";
-import {LiquidationStageNotice} from './LiquidationStageNotice';
-import { CashReturnPanel } from "./CashReturnPanel";
+import { LiquidationStageNotice } from "./LiquidationStageNotice";
 import { usePendingAction } from '../../../shared/usePendingAction';
 import { pendingActionKey } from '../../../shared/pendingActionStore';
 import type { LiquidationAttempt } from '../services/budgetService';
@@ -40,6 +39,8 @@ export function CashRequestTimeline({
   onChanged,
   canCorrect: allowCorrection = true,
   workCompleted = false,
+  completionSubmitted = false,
+  bentoCard = false,
 }: {
   data: DepartmentBudgetBundle;
   requests: PettyCashRequest[];
@@ -49,6 +50,8 @@ export function CashRequestTimeline({
   onChanged: () => Promise<void>;
   canCorrect?: boolean;
   workCompleted?: boolean;
+  completionSubmitted?: boolean;
+  bentoCard?: boolean;
 }) {
   const { toast } = useToast();
   const [busy, setBusy] = useState("");
@@ -121,30 +124,45 @@ export function CashRequestTimeline({
 
   if (!requests.length && !(safety.message && safety.tone !== "success") && !safety.pending) return null;
   return (
-    <div className="space-y-2.5">
-      <div className="flex items-center justify-between gap-2">
+    <div
+      className={
+        bentoCard
+          ? "flex h-full flex-col overflow-hidden rounded-[12px] border border-[var(--eflow-border)] bg-[var(--eflow-surface)] shadow-[0_1px_2px_rgb(12_36_33/4%)]"
+          : "space-y-2.5"
+      }
+    >
+      <div
+        className={
+          bentoCard
+            ? "flex items-center justify-between gap-2 border-b border-border bg-muted/30 px-4 py-2.5"
+            : "flex items-center justify-between gap-2"
+        }
+      >
         <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
           <Clock3 size={13} className="text-muted-foreground" aria-hidden="true" />
           <span>Cash requests</span>
         </div>
         {requests.length > 0 && (
-          <span className="rounded-[5px] border border-border bg-muted/60 px-2 py-0.5 text-[11px] font-medium tabular-nums text-muted-foreground">
+          <span className="rounded-[5px] border border-border bg-background px-2 py-0.5 text-[11px] font-medium tabular-nums text-muted-foreground">
             {requests.length}
           </span>
         )}
       </div>
       {safety.dialog}
       {safety.message && safety.tone !== "success" && (
-        <FeedbackState tone={safety.tone} title="Funding result">
-          <p>{safety.message}</p>
-          <button
-            type="button"
-            onClick={() => void onChanged().catch(() => {})}
-          >
-            Refresh funding
-          </button>
-        </FeedbackState>
+        <div className={bentoCard ? "border-b border-border p-3.5" : undefined}>
+          <FeedbackState tone={safety.tone} title="Funding result">
+            <p>{safety.message}</p>
+            <button
+              type="button"
+              onClick={() => void onChanged().catch(() => {})}
+            >
+              Refresh funding
+            </button>
+          </FeedbackState>
+        </div>
       )}
+      <div className={bentoCard ? "flex-1 divide-y divide-border" : "space-y-2.5"}>
       {requests.map((request) => {
         const line = request.allocationLineId
           ? lineById.get(request.allocationLineId)
@@ -193,13 +211,15 @@ export function CashRequestTimeline({
             "cancelled",
             "expired",
           ].includes(request.status);
-        const canLiquidate =
+        const eligibleToLiquidateWhenSubmitted =
           !workCompleted &&
           cashAcknowledged &&
           request.cashRecipientId === currentUserId &&
           ["released", "changes_requested", "overdue_liquidation"].includes(
             request.status,
           );
+        const canLiquidate =
+          eligibleToLiquidateWhenSubmitted && completionSubmitted;
         const liquidationOverdue =
           isLiquidationCurrentlyOverdue(request) &&
           request.status !== "settled";
@@ -209,7 +229,7 @@ export function CashRequestTimeline({
         return (
           <article
             key={request.id}
-            className="rounded-xl border border-border bg-card p-3.5"
+            className={bentoCard ? "p-4" : "rounded-xl border border-border bg-card p-3.5"}
           >
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
@@ -374,17 +394,13 @@ export function CashRequestTimeline({
                   </div>
                 )}
                 {latest.returnedAmount > 0 && ["pending_leader_review", "pending_department_settlement"].includes(latest.status) && (
-                  <CashReturnPanel
-                    liquidationId={latest.id}
-                    rootId={request.taskId}
-                    version={latest.version}
-                    amount={latest.returnedAmount}
-                    onSaved={onChanged}
-                  />
+                  <p className="mt-2 rounded-md border border-blue-200 bg-blue-50/70 px-2.5 py-1.5 text-[11.5px] text-blue-950">
+                    Includes <strong>{peso.format(latest.returnedAmount)}</strong> unused cash return — Accounting verifies the receipts and returned cash together during settlement.
+                  </p>
                 )}
               </div>
             )}
-            {(canCorrect || canCancel || unacknowledged || canLiquidate || request.cashRecipientId === currentUserId) && (
+            {(canCorrect || canCancel || unacknowledged || canLiquidate || eligibleToLiquidateWhenSubmitted || request.cashRecipientId === currentUserId) && (
               <div className="mt-2 flex flex-wrap justify-end gap-1.5">
                 {canCancel && (
                   <button
@@ -427,26 +443,26 @@ export function CashRequestTimeline({
                 {!canLiquidate && request.cashRecipientId === currentUserId && (
                   <SavedLiquidationLink actor={currentUserId} orgId={orgId} requestId={request.id} open={() => setLiquidating(request)} />
                 )}
-                {canLiquidate && !workCompleted && (
+                {eligibleToLiquidateWhenSubmitted && !completionSubmitted && (
                   <p
                     role="status"
-                    className="mr-auto text-[11.5px] font-medium text-amber-800"
+                    className="mr-auto text-[11.5px] font-medium text-muted-foreground"
                   >
                     {request.subtaskId
-                      ? "Complete this subtask and get Lead approval before starting liquidation."
-                      : "Complete this task and get Project Lead approval before starting liquidation."}
+                      ? "Send Mark as complete on this subtask first to unlock receipt submission and unused cash return."
+                      : "Submit this task as complete first to unlock receipt submission and unused cash return."}
                   </p>
                 )}
                 {canLiquidate && (
                   <button
                     type="button"
                     onClick={() => setLiquidating(request)}
-                    className="inline-flex h-7 items-center gap-1 rounded-md bg-primary px-2 text-[12px] text-primary-foreground transition hover:bg-primary/90"
+                    className="inline-flex h-7 items-center gap-1 rounded-md bg-primary px-2.5 text-[12px] font-medium text-primary-foreground transition hover:bg-primary/90"
                   >
-                    <ReceiptText size={9} />{" "}
+                    <ReceiptText size={10} />{" "}
                     {request.status === "changes_requested"
                       ? "Correct receipts"
-                      : "Record expenses"}
+                      : "Submit receipts & return cash"}
                   </button>
                 )}
               </div>
@@ -454,6 +470,7 @@ export function CashRequestTimeline({
           </article>
         );
       })}
+      </div>
       {liquidating && (
         <CashLiquidationDialog
           key={`${currentUserId}:${liquidating.id}`}

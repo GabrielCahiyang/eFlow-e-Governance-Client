@@ -61,6 +61,7 @@ function bundle(authorized = false) {
 describe("Accounting settlement authority", () => {
   afterEach(cleanup);
   beforeEach(() => {
+    sessionStorage.clear();
     auth.role = "accounting_staff";
     auth.id = "accounting-1";
     auth.allowed = true;
@@ -79,36 +80,52 @@ describe("Accounting settlement authority", () => {
       canApprove: false,
     }));
   });
-  it("blocks settlement when unused cash return has not been acknowledged and approved by the Office Head", async () => {
-    returnClearance.mockResolvedValue({
-      version: 1,
-      liquidationId: "liquidation-2",
-      packageVersion: 2,
-      amount: 1500,
-      received: true,
-      approved: false,
-      receivedBy: "accounting-1",
-      approvedBy: null,
-      reference: "OR-100",
-      canAcknowledge: false,
-      canApprove: false,
-    });
+  it("asks Accounting to confirm receipt of returned cash in one step before settling", async () => {
+    const data = bundle(true);
+    data.liquidations[0].id = "liquidation-one-step-return";
     const changed = vi.fn().mockResolvedValue(undefined);
     render(
-      <AccountingSettlementQueue data={bundle(true)} onChanged={changed} />,
+      <AccountingSettlementQueue data={data} onChanged={changed} />,
     );
-    await waitFor(() => expect(screen.getByRole("button", { name: /Settle & post/ }).getAttribute("aria-disabled")).not.toBe("true"));
-    fireEvent.click(screen.getByRole("button", { name: /Settle & post/ }));
-    await screen.findByText(/Accounting must acknowledge the cash received and the Office Head must approve the return before settlement/);
+    await waitFor(() =>
+      expect(
+        screen
+          .getByRole("button", { name: /Confirm return & settle/ })
+          .getAttribute("aria-disabled"),
+      ).not.toBe("true"),
+    );
+    fireEvent.click(
+      screen.getByRole("button", { name: /Confirm return & settle/ }),
+    );
     expect(settle).not.toHaveBeenCalled();
+    fireEvent.click(
+      await screen.findByRole("button", {
+        name: "Yes, I received the cash — settle",
+        exact: true,
+      }),
+    );
+    await waitFor(() => expect(changed).toHaveBeenCalledOnce());
+    expect(settle).toHaveBeenCalledWith(
+      "liquidation-one-step-return",
+      true,
+      expect.any(String),
+      expect.any(String),
+    );
   });
-  it("waits for Head authorization before settling a late package", () => {
+  it("waits for Head authorization before settling a late package and explains it in the red Stop blockers modal", () => {
     render(<AccountingSettlementQueue data={bundle()} onChanged={vi.fn()} />);
     expect(
       screen
-        .getByRole("button", { name: /Awaiting Head/ })
+        .getByRole("button", { name: /Confirm return & settle/ })
         .getAttribute("aria-disabled"),
     ).toBe("true");
+    const stopBtn = screen.getByRole("button", {
+      name: /View \d+ blockers?/i,
+    });
+    fireEvent.click(stopBtn);
+    expect(screen.getByRole("dialog").textContent).toContain(
+      "Waiting for Office Head approval",
+    );
     expect(settle).not.toHaveBeenCalled();
   });
   it("enables Accounting settlement after Head authorizes the late package", async () => {
@@ -116,12 +133,20 @@ describe("Accounting settlement authority", () => {
     render(
       <AccountingSettlementQueue data={bundle(true)} onChanged={changed} />,
     );
-    await waitFor(() => expect(screen.getByRole('button', { name: /Settle & post/ }).getAttribute('aria-disabled')).not.toBe('true'));
-    fireEvent.click(screen.getByRole("button", { name: /Settle & post/ }));
+    await waitFor(() =>
+      expect(
+        screen
+          .getByRole("button", { name: /Confirm return & settle/ })
+          .getAttribute("aria-disabled"),
+      ).not.toBe("true"),
+    );
+    fireEvent.click(
+      screen.getByRole("button", { name: /Confirm return & settle/ }),
+    );
     expect(settle).not.toHaveBeenCalled();
     fireEvent.click(
       await screen.findByRole("button", {
-        name: "Confirm settlement",
+        name: "Yes, I received the cash — settle",
         exact: true,
       }),
     );
@@ -129,6 +154,7 @@ describe("Accounting settlement authority", () => {
     expect(settle).toHaveBeenCalledWith(
       "liquidation-2",
       true,
+      expect.any(String),
       expect.any(String),
     );
   });
@@ -141,9 +167,14 @@ describe("Accounting settlement authority", () => {
       );
       expect(
         screen
-          .getByRole("button", { name: /Settle & post/ })
+          .getByRole("button", { name: /Confirm return & settle/ })
           .getAttribute("aria-disabled"),
       ).toBe("true");
+      expect(
+        screen.getByRole("button", {
+          name: /View \d+ blockers?/i,
+        }),
+      ).toBeTruthy();
     },
   );
   it("preserves independent settlement and explicit permission denial", () => {
@@ -153,9 +184,19 @@ describe("Accounting settlement authority", () => {
     );
     expect(
       screen
-        .getByRole("button", { name: /Settle & post/ })
+        .getByRole("button", { name: /Confirm return & settle/ })
         .getAttribute("aria-disabled"),
     ).toBe("true");
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: /View \d+ blockers?/i,
+      }),
+    );
+    expect(screen.getByRole("dialog").textContent).toContain(
+      "Independent Financial Officer required",
+    );
+    fireEvent.keyDown(window, { key: "Escape" });
+
     auth.id = "accounting-1";
     auth.allowed = false;
     view.rerender(
@@ -163,7 +204,7 @@ describe("Accounting settlement authority", () => {
     );
     expect(
       screen
-        .getByRole("button", { name: /Settle & post/ })
+        .getByRole("button", { name: /Confirm return & settle/ })
         .getAttribute("aria-disabled"),
     ).toBe("true");
   });
@@ -174,14 +215,20 @@ describe("Accounting settlement authority", () => {
     const message = 'Map every purchased-item source to an active journal expense account before settlement';
     settle.mockRejectedValueOnce(new Error(message));
     render(<AccountingSettlementQueue data={data} onChanged={changed} />);
-    await waitFor(() => expect(screen.getByRole('button', { name: /Settle & post/ }).getAttribute('aria-disabled')).not.toBe('true'));
-    fireEvent.click(screen.getByRole('button', { name: /Settle & post/ }));
-    fireEvent.click(await screen.findByRole('button', { name: 'Confirm settlement', exact: true }));
+    await waitFor(() =>
+      expect(
+        screen
+          .getByRole('button', { name: /Confirm return & settle/ })
+          .getAttribute('aria-disabled'),
+      ).not.toBe('true'),
+    );
+    fireEvent.click(screen.getByRole('button', { name: /Confirm return & settle/ }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Yes, I received the cash — settle', exact: true }));
     await screen.findByText('The settlement was not saved. ' + message + '.');
     expect(screen.queryByRole('button', { name: 'Verify settlement outcome' })).toBeNull();
     expect(changed).not.toHaveBeenCalled();
-    fireEvent.click(await screen.findByRole('button', { name: /Settle & post/ }));
-    fireEvent.click(await screen.findByRole('button', { name: 'Confirm settlement', exact: true }));
+    fireEvent.click(await screen.findByRole('button', { name: /Confirm return & settle/ }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Yes, I received the cash — settle', exact: true }));
     await waitFor(() => expect(changed).toHaveBeenCalledOnce());
     expect(settle).toHaveBeenCalledTimes(2);
   });

@@ -1,7 +1,7 @@
 import { useId, useRef, useState } from 'react';
 import { FieldValidationTooltip } from '../../../components/ui/FieldValidationTooltip';
 import { FormField, SelectInput } from '../../../components/ui/FormField';
-import { WorkspaceTooltip } from '../../../components/ui/workspace/WorkspaceTooltip';
+import { ActionBlockerGroup } from '../../../components/ui/action-blockers';
 import { useNavigationBlocker } from '../../../shared/navigationGuard';
 import type { PersonalCommand, PersonalMember, PersonalTask } from '../types';
 
@@ -14,7 +14,7 @@ export function PersonalTaskStaffing({task,members,busy,run,onClose}:{task:Perso
  const reviewerRequired=Boolean(task.reviewer_id);
  const leadError=!lead?'Select an active task lead.':'';
  const reviewerError=reviewerRequired&&!reviewer?'Select an independent reviewer (different from the task lead).':'';
- const saveBlockedReason=busy?'':leadError||reviewerError||'';
+ const saveBlockers=[leadError,reviewerError].filter(Boolean);
  useNavigationBlocker({label:`Staffing ${task.title}`,identity:task.id,dirty:lead!==task.lead_id||reviewer!==(task.reviewer_id||''),pending:busy,onDiscard:onClose});
  return <form className="r3-members-form" onSubmit={async e=>{e.preventDefault();if(leadError||reviewerError)return;if(await run('staff_task',{task_id:task.id,revision:task.revision,lead_id:lead,reviewer_id:reviewer||null}))onClose();}}>
   <FormField label={`Lead for ${task.title}`} controlId={leadId} required error={leadError||undefined}>
@@ -30,11 +30,9 @@ export function PersonalTaskStaffing({task,members,busy,run,onClose}:{task:Perso
    </div>
   </FormField>
   <p>Staffing reopens submitted work for a new submission. Required review remains mandatory.</p>
-  <WorkspaceTooltip content={saveBlockedReason} disabled={!saveBlockedReason}>
-   <span className="inline-flex">
-    <button type="submit" disabled={busy||Boolean(leadError||reviewerError)}>Save staffing</button>
-   </span>
-  </WorkspaceTooltip>
+  <ActionBlockerGroup actionLabel="Save staffing" blockers={saveBlockers} busy={busy}>
+   <button type="submit" disabled={busy||saveBlockers.length>0}>Save staffing</button>
+  </ActionBlockerGroup>
   <button type="button" disabled={busy} onClick={onClose}>Cancel staffing</button>
  </form>;
 }

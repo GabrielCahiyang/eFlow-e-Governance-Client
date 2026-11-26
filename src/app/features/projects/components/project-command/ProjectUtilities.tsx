@@ -3,6 +3,7 @@ import type { ProjectCommandTab } from './types';
 import { Button as VibeButton } from '@vibe/core';
 import { useEffect, useId, useRef, useState } from 'react';
 import { MoreHorizontal, Star } from 'lucide-react';
+import { ActionBlockerGroup, type ActionBlockerItem } from '../../../../components/ui/action-blockers';
 import { ActionMenu, WorkspaceTooltip, type WorkspaceAction } from '../../../../components/ui/workspace';
 import { BoundedTextInput } from '../../../../components/ui/BoundedInput';
 import { Button } from '../../../../components/ui/button';
@@ -144,7 +145,54 @@ export function ProjectUtilities({ setupReady=true, project, canManage, lifecycl
             : 'Completion requirements'}
       </Button>
     )}
-    {(canManage||isNonHeadProjectLead)&&['planning','on_hold'].includes(project.status)&&<Button variant="outline" onClick={()=>void requestNavigation(()=>setSetupOpen(value=>!value))} aria-expanded={setupOpen}>Setup & activation</Button>}
+    {(canManage||isNonHeadProjectLead)&&['planning','on_hold'].includes(project.status)&&(() => {
+      const activationBlockers: ActionBlockerItem[] = [];
+      if (project.status === 'planning' && project.projectApprovalStatus === 'pending_head') {
+        activationBlockers.push({
+          id: 'proj-head-approval',
+          category: 'head_approval',
+          title: 'Waiting for Office Head approval',
+          detail: 'This non-Head project proposal must be approved by the Office Head before it can move to Waiting for activation.',
+          waitingOn: 'Office Head',
+          statusLabel: 'Pending Head',
+        });
+      }
+      if (project.status === 'planning' && project.fundingApprovalStatus === 'pending_head') {
+        activationBlockers.push({
+          id: 'proj-fund-head',
+          category: 'head_approval',
+          title: 'Waiting for Office Head funding endorsement',
+          detail: 'Step 1 of 2: Submitted project funding requires Office Head endorsement before moving to Financial Officer (Accounting) certification.',
+          waitingOn: 'Office Head',
+          statusLabel: 'Step 1/2 · Pending Head',
+        });
+        activationBlockers.push({
+          id: 'proj-fund-acct',
+          category: 'accounting_approval',
+          title: 'Waiting for Financial Officer (Accounting) certification',
+          detail: 'Step 2 of 2: Independent Financial Officer (Accounting) must certify fund availability before funds are reserved and the project can be activated.',
+          waitingOn: 'Financial Officer (Accounting)',
+          statusLabel: 'Step 2/2 · Queued',
+        });
+      } else if (project.status === 'planning' && project.fundingApprovalStatus === 'pending_accounting') {
+        activationBlockers.push({
+          id: 'proj-fund-acct-only',
+          category: 'accounting_approval',
+          title: 'Waiting for Financial Officer (Accounting) certification',
+          detail: 'Office Head endorsement is complete. Independent Financial Officer (Accounting) must certify fund availability before activation.',
+          waitingOn: 'Financial Officer (Accounting)',
+          statusLabel: 'Step 2/2 · Pending Financial Officer',
+        });
+      }
+      return (
+        <ActionBlockerGroup
+          actionLabel="Project activation"
+          blockers={activationBlockers}
+        >
+          <Button variant="outline" onClick={()=>void requestNavigation(()=>setSetupOpen(value=>!value))} aria-expanded={setupOpen}>Setup & activation</Button>
+        </ActionBlockerGroup>
+      );
+    })()}
     <ActionMenu tooltip="Project actions" trigger={<Button ref={menuTrigger} variant="outline" size="icon" aria-label="Project actions"><MoreHorizontal size={20} /></Button>} actions={actions} />
     {setupOpen&&['planning','on_hold'].includes(project.status)&&<ProjectSetupDialog project={project} canManage={canManage||isNonHeadProjectLead} onClose={()=>setSetupOpen(false)} onOpenSettings={onOpenSettings} onOpenOffices={onOpenOffices} onResolve={onResolveView}/>}
     {saveTemplateOpen && (
@@ -231,18 +279,21 @@ export function ProjectUtilities({ setupReady=true, project, canManage, lifecycl
             >
               Cancel
             </VibeButton>
-            <WorkspaceTooltip content={saveTemplateTip} disabled={!saveTemplateTip}>
-              <span className="inline-flex">
-                <VibeButton
-                  type="submit"
-                  kind="primary"
-                  size="small"
-                  disabled={saveTemplateDisabled}
-                >
-                  {templateBusy ? 'Saving…' : 'Save starter template'}
-                </VibeButton>
-              </span>
-            </WorkspaceTooltip>
+            <ActionBlockerGroup
+              actionLabel="Save starter template"
+              blockers={saveTemplateDisabled ? saveTemplateTip : []}
+              busy={templateBusy}
+              size="sm"
+            >
+              <VibeButton
+                type="submit"
+                kind="primary"
+                size="small"
+                disabled={saveTemplateDisabled}
+              >
+                {templateBusy ? 'Saving…' : 'Save starter template'}
+              </VibeButton>
+            </ActionBlockerGroup>
           </div>
         </form>
       </Modal>

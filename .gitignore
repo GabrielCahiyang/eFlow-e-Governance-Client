@@ -7,9 +7,6 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# Keep the reviewed QA evidence linked by the workflow audit.
-!docs/live-financial-workflow-2026-10-21/*.log
-
 # Node/Dependencies
 node_modules/
 dist/
@@ -61,7 +58,3 @@ graph.json
 .phase18/
 .refinement/
 
-# Reviewed financial remediation validation receipts
-!docs/financial-qa-remediation-2026-10-21/**/*.log
-!docs/help-assistant-2026-10-22/**/*.log
-!docs/system-issues-2026-10-24/**/*.log

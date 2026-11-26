@@ -2,7 +2,7 @@ import { useId, useRef, useState } from 'react';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '../../../components/ui/dialog';
 import { BoundedTextarea } from '../../../components/ui/BoundedInput';
 import { FieldValidationTooltip } from '../../../components/ui/FieldValidationTooltip';
-import { WorkspaceTooltip } from '../../../components/ui/workspace/WorkspaceTooltip';
+import { ActionBlockerGroup } from '../../../components/ui/action-blockers';
 import { INPUT_LIMITS } from '../../../shared/inputLimits';
 import type { ProjectGroup } from '../types';
 import { createWorkspaceTask } from '../services/workspaceService';
@@ -43,8 +43,8 @@ export function ImportTasksDialog({ open, onClose, projectId, groups, initialTex
     ? titlesError
     : '';
 
-  const submitDisabledReason = busy ? 'Adding tasks…' : groupError || titlesError;
-  const submitDisabled = Boolean(submitDisabledReason);
+  const submitBlockers = [groupError, titlesError].filter(Boolean);
+  const submitDisabled = busy || submitBlockers.length > 0;
 
   return (
     <Dialog open={open} onOpenChange={v => { if (!v && !busy) onClose(); }}>
@@ -127,13 +127,11 @@ export function ImportTasksDialog({ open, onClose, projectId, groups, initialTex
 
           <p>{titles.length} tasks ready to add</p>
           {message && <p role="status">{message}</p>}
-          <WorkspaceTooltip content={submitDisabledReason} disabled={!submitDisabledReason}>
-            <span className="inline-flex">
-              <button type="submit" className="pt-primary" disabled={submitDisabled}>
-                {busy ? 'Adding tasks…' : 'Add to project'}
-              </button>
-            </span>
-          </WorkspaceTooltip>
+          <ActionBlockerGroup actionLabel="Add to project" blockers={submitBlockers} busy={busy}>
+            <button type="submit" className="pt-primary" disabled={submitDisabled}>
+              {busy ? 'Adding tasks…' : 'Add to project'}
+            </button>
+          </ActionBlockerGroup>
         </form>
       </DialogContent>
     </Dialog>

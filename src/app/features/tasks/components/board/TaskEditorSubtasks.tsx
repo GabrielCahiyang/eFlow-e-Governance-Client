@@ -1,7 +1,7 @@
 import {createContext,useContext,type ReactNode} from 'react';
 import {useAuth} from '../../../../contexts/AuthContext';
 import {Button} from '../../../../components/ui/button';
-import {WorkspaceTooltip} from '../../../../components/ui/workspace/WorkspaceTooltip';
+import {ActionBlockerGroup} from '../../../../components/ui/action-blockers';
 import type {Employee} from '../../../../services/employeeService';
 import {getCachedProjects} from '../../../../services/projectService';
 import type {Task} from '../../../../services/taskService';
@@ -16,15 +16,12 @@ export function TaskEditorSaveButton({task,saving,disabled=false,disabledReason=
  const controller=useContext(EditorWorkContext),{user}=useAuth();
  const legacy=controller?.unavailable&&!controller.loading&&!controller.pending&&!controller.error&&controller.rootId===task.id&&user?.id&&controller.actorId===user.id?{rootId:task.id,actorId:user.id,code:'PGRST202' as const}:undefined;
  const isDisabled=saving||disabled;
- const tooltip=saving?'Saving changes…':disabled?disabledReason:'';
  return (
-  <WorkspaceTooltip content={tooltip} disabled={!tooltip}>
-   <span className="inline-flex">
-    <Button type="button" disabled={isDisabled} onClick={()=>legacy?onSave(legacy):onSave()}>
-     {saving?'Saving...':'Save changes'}
-    </Button>
-   </span>
-  </WorkspaceTooltip>
+  <ActionBlockerGroup actionLabel="Save changes" blockers={disabled?disabledReason:[]} busy={saving}>
+   <Button type="button" disabled={isDisabled} onClick={()=>legacy?onSave(legacy):onSave()}>
+    {saving?'Saving...':'Save changes'}
+   </Button>
+  </ActionBlockerGroup>
  );
 }
 export function TaskEditorWorkOwner({task,children}:{task:Task;children:ReactNode}){

@@ -27,7 +27,12 @@ vi.mock('../../src/app/contexts/AuthContext', () => ({
 }));
 
 vi.mock('../../src/app/features/office-petty-cash', () => ({
-  OfficePettyCashLauncher: () => <button type="button">Office petty cash · separate fund</button>,
+  OfficePettyCashLauncher: ({ allowRequest = true }: { allowRequest?: boolean }) => (
+    <button type="button" data-allow-request={String(allowRequest)}>
+      Office petty cash · separate fund
+    </button>
+  ),
+  OfficePettyCashInlineRequests: () => null,
 }));
 
 vi.mock('../../src/app/features/budget/services/budgetService', () => ({
@@ -245,13 +250,186 @@ describe('Task funding and cash workflow copy overhaul', () => {
     expect(summaryStrip).toHaveTextContent('Cash released');
     expect(summaryStrip).toHaveTextContent('Actual spent');
 
-    // Separate office petty cash fund sits in dedicated footer strip below Task funding
-    const separateFundFooter = screen.getByLabelText('Separate office petty cash fund');
-    expect(separateFundFooter).toHaveTextContent('Office petty cash · separate fund');
+    // Separate office petty cash fund sits in its own dedicated Bento card below Task funding
+    const separateFundCard = screen.getByLabelText('Separate office petty cash fund');
+    expect(separateFundCard).toHaveTextContent('Office petty cash · separate fund');
+    expect(separateFundCard.querySelector('button[data-allow-request]')).toHaveAttribute('data-allow-request', 'true');
 
     // Can switch tabs between Requests and Sources
     fireEvent.click(screen.getByRole('tab', { name: /Sources/ }));
     expect(screen.getByLabelText('Approved funding sources')).toBeVisible();
     expect(screen.queryByText('Cash requests')).toBeNull();
+  });
+
+  it('shows all funding sources in the Overview collapsible even when one source has ₱0.00 available', async () => {
+    const funding: TaskFundingContext = {
+      funded: true,
+      fiscalYear: 2026,
+      fundingOrgId: 'org-1',
+      taskId: 'task-2',
+      taskAllocationId: 'alloc-2',
+      taskBudget: 1000,
+      available: 200,
+      taskLeaderId: 'user-1',
+      canManageDistribution: true,
+      lines: [
+        {
+          id: 'line-maint',
+          expenseClass: 'MOOE',
+          category: 'Maintainance',
+          particular: 'test Test',
+          fundSource: 'Project budget',
+          amount: 500,
+          available: 0,
+        },
+        {
+          id: 'line-moae',
+          expenseClass: 'MOOE',
+          category: 'MOAE',
+          particular: 'test Test',
+          fundSource: 'Project budget',
+          amount: 500,
+          available: 200,
+        },
+      ],
+    };
+
+    budgetMocks.fundingContext.mockResolvedValue(funding);
+    budgetMocks.bundle.mockResolvedValue({ ...emptyBundle, summary: null });
+
+    const task: Task = {
+      id: 'task-2',
+      title: 'test Test',
+      status: 'in_progress',
+      orgId: 'org-1',
+      assigneeId: 'user-1',
+      linkedProjectId: 'proj-1',
+      createdAt: Date.UTC(2026, 10, 1),
+      updatedAt: Date.UTC(2026, 10, 18),
+    };
+
+    render(<WorkBudgetCard task={task} canManage />);
+
+    const summary = await screen.findByText('Funding sources (2)');
+    expect(summary).toBeVisible();
+    const details = summary.closest('details');
+    expect(details).not.toBeNull();
+    expect(details).toHaveTextContent('Maintainance · test Test · Project budget');
+    expect(details).toHaveTextContent('MOAE · test Test · Project budget');
+  });
+
+  it('keeps Separate office petty cash visible in for_review (readOnly) and reflects assigned subtask cash in Subtask allocation progress', async () => {
+    const funding: TaskFundingContext = {
+      funded: true,
+      fiscalYear: 2026,
+      fundingOrgId: 'org-1',
+      taskId: 'task-3',
+      taskAllocationId: 'alloc-3',
+      taskBudget: 1000,
+      available: 200,
+      taskLeaderId: 'user-1',
+      canManageDistribution: false,
+      lines: [
+        {
+          id: 'line-maint',
+          expenseClass: 'MOOE',
+          category: 'Maintainance',
+          particular: 'test Test',
+          fundSource: 'Project budget',
+          amount: 500,
+          available: 0,
+        },
+      ],
+      distribution: {
+        allocated: 0,
+        unallocated: 1000,
+        available: 200,
+        released: 800,
+        spent: 0,
+      },
+      subtaskBudgets: [
+        { id: 'sub-1', title: 'POTCHI', amount: 0, returnable: 0, finished: true, hasHistory: false, blocked: false },
+        { id: 'sub-2', title: 'SHHHH', amount: 0, returnable: 0, finished: true, hasHistory: false, blocked: false },
+      ],
+      cashPools: {
+        canAssignCash: false,
+        completionSubmitted: true,
+        taskCashReleases: [],
+        officePettyCashReleases: [
+          {
+            officeCashRequestId: 'opc-1',
+            purpose: 'shalama',
+            releasedAmount: 600,
+            assignedHere: 0,
+            assignedElsewhere: 0,
+            unassignedAmount: 600,
+            recordedReceiptsTotal: 0,
+            holderId: 'user-1',
+            holderName: 'Gabriel Cahiyang',
+            isCurrentHolder: true,
+          },
+        ],
+        assignments: [
+          {
+            id: 'assign-1',
+            sourceKind: 'task_cash_release',
+            sourceRequestId: 'req-1',
+            allocationLineId: 'line-maint',
+            sourceLabel: 'Maintainance · FR-00001',
+            fundingLines: [],
+            taskId: 'task-3',
+            subtaskId: 'sub-1',
+            subtaskTitle: 'POTCHI',
+            amount: 500,
+            recordedSpent: 500,
+            unspentAmount: 0,
+            status: 'active',
+            receiptReviewStatus: 'approved',
+            note: 'Initial subtask funding',
+            assignedBy: 'user-1',
+            assignedByName: 'Gabriel Cahiyang',
+            canLogReceipt: false,
+            canRecall: false,
+            receipts: [],
+          },
+        ],
+        totals: {
+          cashOnHandTask: 800,
+          cashOnHandAssigned: 500,
+          cashOnHandUnassigned: 300,
+          officePettyCashOnHand: 600,
+          officePettyCashAssigned: 0,
+          subtaskTaskCashAssigned: 500,
+          subtaskOfficePettyCashAssigned: 0,
+          unrequestedBudget: 200,
+        },
+      },
+    };
+
+    budgetMocks.fundingContext.mockResolvedValue(funding);
+    budgetMocks.bundle.mockResolvedValue({ ...emptyBundle, summary: null });
+
+    const task: Task = {
+      id: 'task-3',
+      title: 'test Test',
+      status: 'for_review',
+      orgId: 'org-1',
+      assigneeId: 'user-1',
+      linkedProjectId: 'proj-1',
+      createdAt: Date.UTC(2026, 10, 1),
+      updatedAt: Date.UTC(2026, 10, 25),
+    };
+
+    render(<WorkBudgetCard task={task} readOnly />);
+
+    // Separate office petty cash Bento card remains accessible in for_review, with Request petty cash hidden!
+    const separateCard = await screen.findByLabelText('Separate office petty cash fund');
+    expect(separateCard).toBeVisible();
+    expect(separateCard.querySelector('button[data-allow-request]')).toHaveAttribute('data-allow-request', 'false');
+    expect(screen.getByText(/\+ ₱600\.00 office petty cash on hand/)).toBeVisible();
+
+    // Subtask allocation progress counts POTCHI's ₱500.00 assigned cash (50% of ₱1,000.00)!
+    expect(screen.getByText('50% · ₱500.00 of ₱1,000.00')).toBeVisible();
+    expect(screen.getByRole('progressbar', { name: 'Subtask allocation progress' })).toHaveAttribute('aria-valuenow', '50');
   });
 });

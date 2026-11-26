@@ -1,6 +1,7 @@
 import { useExplicitDraft } from "../../../../shared/useExplicitDraft";
 import { BoundedTextarea, BoundedTextInput } from "../../../../components/ui/BoundedInput";
 import { DateInput } from "../../../../components/ui/DateInput";
+import { ActionBlockerGroup } from "../../../../components/ui/action-blockers";
 import { WorkspaceTooltip } from "../../../../components/ui/workspace/WorkspaceTooltip";
 import { getPhilippineCalendarDate, historicalDateError } from "../../../../shared/calendarDates";
 import { INPUT_LIMITS } from "../../../../shared/inputLimits";
@@ -109,18 +110,11 @@ export function GovernanceCloseoutPanel({
   const correctionReasonMissing = !reason.trim()
     ? "Enter an endorsement or required correction reason first."
     : "";
-  const requestCorrectionTip = busy
-    ? ""
-    : meetingDateError ||
-      correctionReasonMissing ||
-      "Returns closeout to the proposal owner with required corrections.";
-  const declineTip = busy
-    ? ""
-    : meetingDateError ||
-      (!reason.trim()
-        ? "Enter a reason before declining closeout."
-        : "Formally declines governance closeout and notifies the proposal owner.");
-  const approveTip = busy ? "" : meetingDateError;
+  const declineReasonMissing = !reason.trim()
+    ? "Enter a reason before declining closeout."
+    : "";
+  const requestCorrectionDisabled = busy || !reason.trim() || Boolean(meetingDateError);
+  const declineDisabled = busy || !reason.trim() || Boolean(meetingDateError);
   return (
     <section className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
       <div className="bg-gradient-to-r from-slate-950 to-slate-800 p-5 text-white">
@@ -272,25 +266,36 @@ export function GovernanceCloseoutPanel({
               />
             </div>
             <div className="mt-2 flex flex-wrap gap-2">
-              <WorkspaceTooltip content={approveTip} disabled={!approveTip}>
-                <span className="inline-flex">
+              <ActionBlockerGroup
+                actionLabel="Approve closeout"
+                blockers={meetingDateError || []}
+                busy={busy}
+                size="sm"
+              >
+                <button
+                  type="button"
+                  disabled={busy || Boolean(meetingDateError)}
+                  onClick={() =>
+                    void onDecide("approved", reason.trim(), resolution.trim(), meetingDate)
+                  }
+                  className="rounded-lg bg-emerald-700 px-3 py-2 text-[10px] text-white disabled:opacity-40"
+                >
+                  Approve closeout
+                </button>
+              </ActionBlockerGroup>
+              <ActionBlockerGroup
+                actionLabel="Request correction"
+                blockers={requestCorrectionDisabled ? [meetingDateError, correctionReasonMissing] : []}
+                busy={busy}
+                size="sm"
+              >
+                <WorkspaceTooltip
+                  content="Returns closeout to the proposal owner with required corrections."
+                  disabled={requestCorrectionDisabled}
+                >
                   <button
                     type="button"
-                    disabled={busy || Boolean(meetingDateError)}
-                    onClick={() =>
-                      void onDecide("approved", reason.trim(), resolution.trim(), meetingDate)
-                    }
-                    className="rounded-lg bg-emerald-700 px-3 py-2 text-[10px] text-white disabled:opacity-40"
-                  >
-                    Approve closeout
-                  </button>
-                </span>
-              </WorkspaceTooltip>
-              <WorkspaceTooltip content={requestCorrectionTip} disabled={!requestCorrectionTip}>
-                <span className="inline-flex">
-                  <button
-                    type="button"
-                    disabled={busy || !reason.trim() || Boolean(meetingDateError)}
+                    disabled={requestCorrectionDisabled}
                     onClick={() => {
                       setReasonTouched(true);
                       if (!reason.trim() || meetingDateError) return;
@@ -305,13 +310,21 @@ export function GovernanceCloseoutPanel({
                   >
                     Request correction
                   </button>
-                </span>
-              </WorkspaceTooltip>
-              <WorkspaceTooltip content={declineTip} disabled={!declineTip}>
-                <span className="inline-flex">
+                </WorkspaceTooltip>
+              </ActionBlockerGroup>
+              <ActionBlockerGroup
+                actionLabel="Decline"
+                blockers={declineDisabled ? [meetingDateError, declineReasonMissing] : []}
+                busy={busy}
+                size="sm"
+              >
+                <WorkspaceTooltip
+                  content="Formally declines governance closeout and notifies the proposal owner."
+                  disabled={declineDisabled}
+                >
                   <button
                     type="button"
-                    disabled={busy || !reason.trim() || Boolean(meetingDateError)}
+                    disabled={declineDisabled}
                     onClick={() => {
                       setReasonTouched(true);
                       if (!reason.trim() || meetingDateError) return;
@@ -321,8 +334,8 @@ export function GovernanceCloseoutPanel({
                   >
                     Decline
                   </button>
-                </span>
-              </WorkspaceTooltip>
+                </WorkspaceTooltip>
+              </ActionBlockerGroup>
             </div>
           </div>
         )}
@@ -399,12 +412,7 @@ function ActionBox({
       ? "Archive reason is required before archiving proposal delivery."
       : "";
   const visibleError = touched ? rawError : "";
-  const buttonTooltip = busy
-    ? ""
-    : rawError ||
-      (required
-        ? "Archives this proposal and removes all linked tasks from active Task Boards while preserving audit records."
-        : "");
+  const actionDisabled = busy || Boolean(rawError);
   return (
     <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-3">
       <div className="flex items-center gap-2 text-[10px] font-medium text-emerald-900">
@@ -434,23 +442,33 @@ function ActionBox({
           className="w-full resize-none rounded-lg border border-emerald-200 bg-white px-3 py-2 text-[10px] outline-none"
         />
       </div>
-      <WorkspaceTooltip content={buttonTooltip} disabled={!buttonTooltip}>
-        <span className="mt-2 inline-flex">
-          <button
-            type="button"
-            disabled={busy || Boolean(rawError)}
-            onClick={() => {
-              setTouched(true);
-              if (rawError) return;
-              void onSubmit();
-            }}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-neutral-900 px-3 py-2 text-[10px] text-white disabled:opacity-40"
+      <div className="mt-2">
+        <ActionBlockerGroup
+          actionLabel={button}
+          blockers={rawError || []}
+          busy={busy}
+          size="sm"
+        >
+          <WorkspaceTooltip
+            content="Archives this proposal and removes all linked tasks from active Task Boards while preserving audit records."
+            disabled={actionDisabled || !required}
           >
-            {busy && <Loader2 size={12} className="animate-spin" />}
-            {button}
-          </button>
-        </span>
-      </WorkspaceTooltip>
+            <button
+              type="button"
+              disabled={actionDisabled}
+              onClick={() => {
+                setTouched(true);
+                if (rawError) return;
+                void onSubmit();
+              }}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-neutral-900 px-3 py-2 text-[10px] text-white disabled:opacity-40"
+            >
+              {busy && <Loader2 size={12} className="animate-spin" />}
+              {button}
+            </button>
+          </WorkspaceTooltip>
+        </ActionBlockerGroup>
+      </div>
     </div>
   );
 }
