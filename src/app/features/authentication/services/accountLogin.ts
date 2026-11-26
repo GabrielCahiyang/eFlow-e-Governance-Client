@@ -1,32 +1,40 @@
 import { supabase } from '../../../../lib/supabase';
-import { normalizeControlPanelBase, resolveControlPanelBase } from '../../../shared/controlPanelClient';
 import type { LoginPortal } from './loginPortal';
 
 export class AccountSignInError extends Error {
   constructor(public status: number, message: string) { super(message); this.name = 'AccountSignInError'; }
 }
 
-/** Only the gateway verifies passwords and records failures; never report a browser counter. */
-export async function signInWithAccountProtection(email: string, password: string, portal?: LoginPortal) {
-  let base: string;
-  try { base = await resolveControlPanelBase(); }
-  catch {
-    // Signed-out users cannot read admin-only settings. This read-only RPC
-    // exposes exactly the public routing address, never private configuration.
-    const {data,error} = await supabase.rpc('eflow_login_gateway_endpoint');
-    if (error || typeof data !== 'string' || !data.trim()) throw new Error('The secure sign-in service is unavailable. Please try again shortly.');
-    base = normalizeControlPanelBase(data);
+function resolveWebSignInEndpoint(): { url: string; anonKey: string } {
+  const supabaseUrl = String(import.meta.env.VITE_SUPABASE_URL || '').trim().replace(/\/+$/, '');
+  const anonKey = String(import.meta.env.VITE_SUPABASE_ANON_KEY || '').trim();
+  if (!supabaseUrl || !anonKey) {
+    throw new Error('The secure sign-in service is unavailable. Please try again shortly.');
   }
+  return { url: `${supabaseUrl}/functions/v1/web-sign-in`, anonKey };
+}
+
+/** Only the hosted Supabase Edge Function verifies passwords and records failures; never report a browser counter. */
+export async function signInWithAccountProtection(email: string, password: string, portal?: LoginPortal) {
+  const { url, anonKey } = resolveWebSignInEndpoint();
   const payload = portal
     ? { email: email.trim(), password, portal }
     : { email: email.trim(), password };
-  const response = await fetch(`${base}/auth/login`, {
-    method: 'POST', headers: {'Content-Type':'application/json'},
-    body: JSON.stringify(payload), cache:'no-store',
-    // Allow slow hosted login_begin + auth/token + login_finish round-trips (30s server timeout) to settle without premature client abort.
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      apikey: anonKey,
+    },
+    body: JSON.stringify(payload),
+    cache: 'no-store',
+    // Allow hosted login_begin + auth/token + login_finish round-trips to settle without premature client abort.
     signal: AbortSignal.timeout(60_000),
   });
-  const body = await response.json();
+  const body = (await response.json().catch(() => ({}))) as {
+    access_token?: string;
+    refresh_token?: string;
+  };
   if (!response.ok) throw new AccountSignInError(response.status,
     response.status === 423 ? 'Your account is locked. Contact an Admin to unlock it.' :
     response.status === 401 ? 'Email or password is incorrect.' :

@@ -26,6 +26,11 @@ async function signInFixture(page: Page, role: string, fresh = false) {
     await route.fulfill({ json: data, headers: { "content-range": "0-0/1" } });
   });
   let record = { user_id: id, tour_key: role + '-v1', tour_version: 1, status: fresh ? 'not_started' : 'dismissed', state: { completed_steps: ['account'] }, current_step: 'welcome' };
+  await page.route('**/functions/v1/web-sign-in', route => {
+    expect(route.request().method()).toBe('POST');
+    expect(route.request().postDataJSON()).toEqual({email:user.email,password:'synthetic-password',portal:'client'});
+    return route.fulfill({json:{access_token:token,refresh_token:'synthetic-refresh'}});
+  });
   await page.route(/\/controlpanelEflow\//, async route => {
     const url = route.request().url();
     let body: unknown = { success: true };

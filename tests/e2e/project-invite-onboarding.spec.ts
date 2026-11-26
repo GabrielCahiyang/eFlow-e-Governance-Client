@@ -9,7 +9,7 @@ test('recipient chooses a password, signs in using invited email and fills their
  await page.route('**/controlpanelEflow/api/project-invitations/create-account',route=>{
   const body=route.request().postDataJSON();expect(body.full_name).toBe('Invited Person');expect(body.password).toBe('recipient-own-strong-password');expect(body.email).toBeUndefined();created++;return route.fulfill({json:{accepted:true,project_id:records.project}});
  });
- await page.route('**/controlpanelEflow/api/auth/login',async route=>{const body=route.request().postDataJSON();expect(body.email).toBe(records.profile.email);expect(body.password).toBe('recipient-own-strong-password');login++;await route.fallback();});
+ await page.route('**/functions/v1/web-sign-in',async route=>{const body=route.request().postDataJSON();expect(body.email).toBe(records.profile.email);expect(body.password).toBe('recipient-own-strong-password');login++;await route.fallback();});
  await page.route('**/controlpanelEflow/api/professional-profile/**',async route=>{
   if(route.request().method()==='PATCH'){saves++;profile={...route.request().postDataJSON(),user_id:records.id,confirmed_by_user:false};}
   return route.fulfill({json:{profile}});

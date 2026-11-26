@@ -27,10 +27,15 @@ async function signInFixture(page: Page, role: string) {
     if (table === "organization_approver_ids") data = role === "head" ? [id] : [];
     await route.fulfill({ json: data, headers: { "content-range": "0-0/1" } });
   });
+  await page.route('**/functions/v1/web-sign-in', route => {
+    expect(route.request().method()).toBe('POST');
+    expect(route.request().postDataJSON()).toEqual({email:user.email,password:'synthetic-password',portal:'client'});
+    return route.fulfill({json:{access_token:token,refresh_token:'synthetic-refresh'}});
+  });
   await page.route(/\/controlpanelEflow\//, route => {
     if (new URL(route.request().url()).pathname.endsWith('/auth/login')) {
       expect(route.request().method()).toBe('POST');
-      expect(route.request().postDataJSON()).toEqual({email:user.email,password:'synthetic-password'});
+      expect(route.request().postDataJSON()).toEqual({email:user.email,password:'synthetic-password',portal:'client'});
       return route.fulfill({json:{access_token:token,refresh_token:'synthetic-refresh'}});
     }
     return route.fulfill({json:{success:true}});
@@ -48,7 +53,8 @@ async function signInFixture(page: Page, role: string) {
 test("local synthetic transport preserves offline sign-in denial and online recovery", async ({ page }) => {
   let loginRequests = 0;
   page.on("request", request => {
-    if (new URL(request.url()).pathname.endsWith("/api/auth/login")) loginRequests++;
+    const pathname = new URL(request.url()).pathname;
+    if (pathname.endsWith("/functions/v1/web-sign-in") || pathname.endsWith("/api/auth/login")) loginRequests++;
   });
   await projectWorkspaceFixture(page, "member", false, { landingOnly: true });
   expect(await page.evaluate(() => navigator.onLine)).toBe(true);

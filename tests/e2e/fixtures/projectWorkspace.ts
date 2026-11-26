@@ -480,6 +480,7 @@ export async function projectWorkspaceFixture(
             : { success: true };
     return route.fulfill({ json: body });
   });
+  await page.route('**/functions/v1/web-sign-in', route => route.fulfill({json:{access_token:token,refresh_token:'synthetic'}}));
   await page.route('**/controlpanelEflow/api/auth/login', route => route.fulfill({json:{access_token:token,refresh_token:'synthetic'}}));
   await establishLocalNetwork(page);
   await page.goto(role === "admin" ? "/admin" : "/");
